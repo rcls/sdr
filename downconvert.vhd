@@ -3,12 +3,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use IEEE.STD_LOGIC_ARITH.ALL;
 --use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
-library work;
-use work.sincos.all;
-
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
+
+library work;
+use work.sincos.all;
+use work.defs.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -16,18 +17,18 @@ library UNISIM;
 use UNISIM.VComponents.all;
 
 entity downconvert is
-    Port (data : in  signed (13 downto 0);
-          qq   : out unsigned18;
-          ii   : out unsigned18;
-          clk  : in  STD_LOGIC;
-          freq : in  unsigned (23 downto 0));
+    Port (data : in  signed14;
+          qq   : out signed36;
+          ii   : out signed36;
+          clk  : in  std_logic;
+          freq : in  unsigned24);
 end downconvert;
 
 architecture Behavioral of downconvert is
 
   -- For the cosine/sine lookup, we take a 14 bit quantity.  The first two bits
   -- determine the quadrant, the middle ten the table index, and the bottom
-  -- two determine the adjustment.  For cosine, the quadrant processing is:
+  -- two determine the fine adjustment.  For cosine, the quadrant processing is:
 
   -- quadrant 00 : invert bottom 12 bits (rom index & fine adjust index).
   -- quadrant 01 : cosine is negative.
@@ -40,13 +41,16 @@ architecture Behavioral of downconvert is
   -- quadrant 10 : sin is negative.
   -- quadrant 11 : invert bottom 12 bits, sin is negative.
 
-  -- The sines are scaled to range from 0 to 2^14/pi (and sign bit).
+  -- The (co)sines are scaled to range from 0 to 2^14/pi (and sign bit).
   -- The average abs(sin) is 2/pi, after scaling 2^15/pi^2
   -- Data sample is 13 bits plus sign, so worst case average multiplier
   -- output is signed 2^28/pi^2, [just under] 25 bits plus sign.
-  -- e.g., accumulating over 1024 samples 35 bits plus sign.
 
-  signal index_acc : unsigned(23 downto 0);
+  -- e.g., accumulating over 1024 samples needs 35 bits plus sign.
+  -- second order accumulation needs 45 bits plus sign.  (we truncate
+  -- to 35+sign by throwing away the bottom 10 bits).
+
+  signal index_acc : unsigned24;
 
   signal cos_index : unsigned(9 downto 0);
   signal sin_index : unsigned(9 downto 0);
@@ -69,28 +73,33 @@ architecture Behavioral of downconvert is
   signal packed_cos : unsigned18;
   signal packed_sin : unsigned18;
 
-  subtype signed18 is signed(17 downto 0);
-
   signal cos_main : unsigned18;
   signal sin_main : unsigned18;
   signal cos_offset : unsigned18;
   signal sin_offset : unsigned18;
-  signal cos_main_1 : unsigned18;
-  signal sin_main_1 : unsigned18;
-  signal cos_offset_1 : unsigned18;
-  signal sin_offset_1 : unsigned18;
+  signal cos_main_1 : signed18;
+  signal sin_main_1 : signed18;
+  signal cos_offset_1 : signed18;
+  signal sin_offset_1 : signed18;
   signal sin : signed18;
   signal cos : signed18;
 
-  signal data_1 : signed(13 downto 0);
-  signal data_2 : signed(13 downto 0);
+  signal data_1 : signed14;
+  signal data_2 : signed14;
   signal qq_prod : signed(31 downto 0);
   signal ii_prod : signed(31 downto 0);
 
   signal qq_buf : signed(47 downto 0);
   signal ii_buf : signed(47 downto 0);
 
+  signal qq_acc : signed(47 downto 0);
+  signal ii_acc : signed(47 downto 0);
+
   signal sintable : sinrom_t := sinrom;
+
+  attribute use_dsp48 : string;
+  attribute use_dsp48 of qq_acc : signal is "no";
+  attribute use_dsp48 of ii_acc : signal is "no";
 
 begin
   process (Clk)
@@ -130,16 +139,16 @@ begin
       data_1 <= data;
 
       -- Buffer.
-      cos_main_1 <= cos_main;
-      sin_main_1 <= sin_main;
-      cos_offset_1 <= cos_offset;
-      sin_offset_1 <= sin_offset;
+      cos_main_1 <= signed(cos_main);
+      sin_main_1 <= signed(sin_main);
+      cos_offset_1 <= signed(cos_offset);
+      sin_offset_1 <= signed(sin_offset);
       cos_minus_4 <= cos_minus_3;
       sin_minus_4 <= sin_minus_3;
 
       -- Pre-add.
-      cos <= signed(cos_main_1 + cos_offset_1);
-      sin <= signed(sin_main_1 + sin_offset_1);
+      cos <= cos_main_1 + cos_offset_1;
+      sin <= sin_main_1 + sin_offset_1;
       data_2 <= data_1;
       cos_minus_5 <= cos_minus_4;
       sin_minus_5 <= sin_minus_4;
@@ -162,9 +171,13 @@ begin
         ii_buf <= ii_buf + ii_prod;
       end if;
 
+      -- Second order accumulate.
+      qq_acc <= qq_acc + qq_buf;
+      ii_acc <= ii_acc + ii_buf;
+
       -- Output
-      qq <= unsigned(qq_buf(35 downto 18));
-      ii <= unsigned(ii_buf(35 downto 18));
+      qq <= qq_acc(45 downto 10);
+      ii <= ii_acc(45 downto 10);
 
     end if;
   end process;

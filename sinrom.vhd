@@ -1,12 +1,11 @@
 library IEEE;
 use IEEE.NUMERIC_STD.ALL;
 
+library work;
+use work.defs.all;
+
 package sincos is
-subtype unsigned18 is unsigned(17 downto 0);
-subtype unsigned2 is unsigned(1 downto 0);
-subtype unsigned3 is unsigned(2 downto 0);
 function sinoffset(sinent : unsigned18; lowbits : unsigned2) return unsigned3;
-type sinrom_t is array (0 to 1023) of unsigned18;
 constant sinrom : sinrom_t := (
     "11"&x"c001", "11"&x"c009", "11"&x"c011", "11"&x"c019",
     "11"&x"c021", "11"&x"c029", "11"&x"c031", "11"&x"c039",
