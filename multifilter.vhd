@@ -18,7 +18,7 @@ entity multifilter is
 end;
 
 architecture Behavioral of multifilter is
-  type ram_t is array(0 to 512) of signed36;
+  type ram_t is array(0 to 511) of signed36;
   signal ram : ram_t;
   signal buf : signed36;
   signal ramout : signed36;

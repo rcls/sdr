@@ -10,8 +10,7 @@ entity go is
        freq : in unsigned24;
        set_f0 : in std_logic;
        set_f1 : in std_logic;
-       qq : out signed18;
-       ii : out signed18;
+       phase : out signed18;
        clk : in std_logic);
 end go;
 
@@ -54,8 +53,11 @@ begin
              qq => ii_buf,
              clk => clk);
 
-  qq <= qq_buf(35 downto 18);
-  ii <= ii_buf(35 downto 18);
+  ph: entity work.phasedetect
+    port map(qq=>qq_buf,
+             ii=>ii_buf,
+             phase=>phase,
+             clk=> clk);
 
   process (clk)
   begin
