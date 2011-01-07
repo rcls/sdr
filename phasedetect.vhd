@@ -123,7 +123,7 @@ begin
         else
           ii3 <= '0' & not unsigned(ii);
         end if;
-        positive3 <= (qq < 0) xor (ii < 0);
+        positive3 <= (qq >= 0) xor (ii < 0);
         -- Our convention is that angle zero covers the first sliver of the
         -- first quadrant= etc., so bias the start angle just into the
         -- appropriate quadrant.
