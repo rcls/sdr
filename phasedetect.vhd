@@ -58,10 +58,11 @@ architecture Behavioral of phasedetect is
   constant iteration3 : stage_t :=
     (6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 0, 1, 2, 3, 4, 5);
 
-  -- Angle updates.
+  -- Angle updates.  Exhaustive testing indicates that the odd first value is
+  -- best.
   type angles_t is array(0 to 19) of unsigned16;
   constant angle_update : angles_t :=
-    (x"ffff", x"4b90", x"27ed", x"1444",
+    (x"fffe", x"4b90", x"27ed", x"1444",
      x"0a2c", x"0517", x"028c", x"0146",
      x"00a3", x"0051", x"0029", x"0014",
      x"000a", x"0005", x"0003", x"0001",
@@ -126,8 +127,9 @@ begin
         positive3 <= (qq >= 0) xor (ii < 0);
         -- Our convention is that angle zero covers the first sliver of the
         -- first quadrant= etc., so bias the start angle just into the
-        -- appropriate quadrant.
-        angle3 <= (17 => ii(35), others => qq(35) xor ii(35));
+        -- appropriate quadrant.  Yes the 0=>1 looks like a step too far,
+        -- but after exhaustive testing, it gives better results.
+        angle3 <= (17 => ii(35), 0 => '1', others => qq(35) xor ii(35));
         phase <= angle2; -- ship out previous result.
 
         angle3_update <= angle_update(iteration2(count));
