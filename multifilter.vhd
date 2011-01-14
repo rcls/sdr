@@ -13,13 +13,13 @@ use work.defs.all;
 -- cycles.
 --
 -- Phase 0: Save input x(t), start load x(t-64*8) [same loc.], output prev,
---    acc := -x(t-37*8).
--- Phase 1: acc -= x(t-27*8), start load x(t).
--- Phase 2: acc += x(t-64*8), start load x(t+1-37*8).
--- Phase 3: acc += x(t),      start load x(t+1-27*8).
+--    acc := -x(t-27*8).
+-- Phase 1: acc += x(t-64*8), start load x(t).
+-- Phase 2: acc += x(t),      start load x(t-37*8).
+-- Phase 3: acc -= x(t-37*8), start load x(t+1-27*8).
 -- Phase 0, index += 0.
--- Phase 1, index += 1-37*8
--- Phase 2, index += 10*8
+-- Phase 1, index -= 37*8
+-- Phase 2, index += 1+10*8
 -- Phase 3, index += 27*8
 entity multifilter is
   port (in0 : in signed36;
@@ -31,7 +31,6 @@ end;
 architecture Behavioral of multifilter is
   type ram_t is array(0 to 511) of signed36;
   signal ram : ram_t;
-  signal rambuf : signed36;
   signal ramout : signed36;
   signal index : unsigned(8 downto 0);
   signal phase : unsigned(1 downto 0);
@@ -47,17 +46,18 @@ begin
   index2 <= index;
 
   process (Clk)
-    variable dd : signed36;
+    variable addend1 : signed36;
   begin
     if Clk'event and Clk = '1' then
       phase <= phase + 1;
-      rambuf <= ram(to_integer(index));
-      ramout <= rambuf;
+      ramout <= ram(to_integer(index));
+
+      addend1 := acc;
 
       case phase is
         when "00" =>
           qq <= acc;
-          acc <= -ramout;
+          addend1 := x"000000000";
           if switch = '0' then
             ram(to_integer(index)) <= in0;
           end if;
@@ -65,15 +65,17 @@ begin
             ram(to_integer(index2)) <= in1;
           end if;
         when "01" =>
-          acc <= acc - ramout;
-          index <= index + (512 + 1 - 37 * 8);
+          index <= index + (512 - 37 * 8);
         when "10" =>
-          acc <= acc + ramout;
-          index <= index + 10 * 8;
+          index <= index + (1 + 10 * 8);
         when others => -- "11"
-          acc <= acc + ramout;
           index <= index + 27 * 8;
       end case;
+      if phase = "01" or phase = "10" then
+        acc <= addend1 + ramout;
+      else
+        acc <= addend1 - ramout;
+      end if;
     end if;
   end process;
 

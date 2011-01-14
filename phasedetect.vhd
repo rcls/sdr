@@ -89,7 +89,7 @@ begin
       qq3 <= qq2;
       -- Include left shift.  If this loses a bit, then the trial will succeed
       -- anyway, and get us back.
-      ii3 <= ii2(35 downto 0) & '0';
+      ii3 <= ii2 sll 1;
       angle3 <= angle2;
       positive3 <= positive2;
 
@@ -113,13 +113,13 @@ begin
       if load2 then
         ii3_trial(36) <= '1'; -- Make sure we don't adjust on next cycle.
         -- 'not' is cheaper than proper true negation.  And given our
-        -- round-towards-negative behaviour, probably more accurate.
-        if qq >= 0 then
+        -- round-towards-negative behaviour, more accurate.
+        if qq(35) = '0' then
           qq3 <= unsigned(qq);
         else
           qq3 <= not unsigned(qq);
         end if;
-        if ii >= 0 then
+        if ii(35) = '0' then
           ii3 <= '0' & unsigned(ii);
         else
           ii3 <= '0' & not unsigned(ii);
@@ -128,7 +128,8 @@ begin
         -- Our convention is that angle zero covers the first sliver of the
         -- first quadrant= etc., so bias the start angle just into the
         -- appropriate quadrant.  Yes the 0=>1 looks like a step too far,
-        -- but after exhaustive testing, it gives better results.
+        -- but after exhaustive testing, it gives better results, presumably
+        -- because of the granularity of the result.
         angle3 <= (17 => ii(35), 0 => '1', others => qq(35) xor ii(35));
         phase <= angle2; -- ship out previous result.
 
