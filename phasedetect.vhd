@@ -25,7 +25,8 @@ end phasedetect;
 
 architecture Behavioral of phasedetect is
   signal qq1 : unsigned36; -- Real component.
-  signal ii1 : unsigned37; -- Imaginary component.
+
+ signal ii1 : unsigned37; -- Imaginary component.
   signal angle1 : signed18; -- Accumulated angle.
   signal positive1 : boolean; -- Positive adjustments to angle.
 

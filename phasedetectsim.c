@@ -340,6 +340,37 @@ static int circle(bool print)
 }
 
 
+// Check for grossly inaccurate result.
+static void check(word_t x, word_t y, const int * angle_updates)
+{
+    double err = terror(x, y, angle_updates);
+    assert(err >= -10);
+    assert(err <= 10);
+}
+
+
+// Go around the outside of the square with max coords, and check for
+// grossly inaccurate results (presumably due to overflows).
+static int square(void)
+{
+    int angle_updates[ITERATIONS];
+    build_angle_updates(angle_updates);
+
+#define SQSIZE (1<<24)
+    for (word_t i = -SQSIZE; i != SQSIZE; ++i) {
+        word_t small = CMASK((i << (IN_BITS - 1)) / SQSIZE);
+        word_t bigpos = (1ll << (IN_BITS - 1)) - 1;
+        word_t bigneg = CMASK(~bigpos);
+        check(small, bigpos, angle_updates);
+        check(bigpos, small, angle_updates);
+        check(small, bigneg, angle_updates);
+        check(bigneg, small, angle_updates);
+    }
+
+    return 0;
+}
+
+
 int main(int argc, char * argv[])
 {
     if (argc > 1 && strcmp(argv[1], "ex") == 0)
@@ -350,6 +381,9 @@ int main(int argc, char * argv[])
 
     if (argc > 1 && strcmp(argv[1], "ta") == 0)
         return circle(true);
+
+    if (argc > 1 && strcmp(argv[1], "sq") == 0)
+        return square();
 
     return circle(false);
 }

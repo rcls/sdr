@@ -52,12 +52,11 @@ int main(void)
     printf ("library IEEE;\n"
             "use IEEE.NUMERIC_STD.ALL;\n"
             "\n"
+            "library work;\n"
+            "use work.defs.all;\n"
+            "\n"
             "package sincos is\n"
-            "subtype unsigned18 is unsigned(17 downto 0);\n"
-            "subtype unsigned2 is unsigned(1 downto 0);\n"
-            "subtype unsigned3 is unsigned(2 downto 0);\n"
             "function sinoffset(sinent : unsigned18; lowbits : unsigned2) return unsigned3;\n"
-            "type sinrom_t is array (0 to 1023) of unsigned18;\n"
             "constant sinrom : sinrom_t := (\n");
 
     for (int i = 0; i != 1024; ++i) {
@@ -86,7 +85,7 @@ int main(void)
         assert (v2 - c2 <= 0.5);
         assert (v3 - c3 <= 0.5);
         assert (v0 >= 0);
-        assert (v0 < 16384);
+        assert (v3 < 16384);
 
         int delta1 = v1 - v0;
         int delta2 = v2 - v1;
