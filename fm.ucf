@@ -1,4 +1,4 @@
 
 #Created by Constraints Editor (xc6slx9-tqg144-3) - 2011/01/05
-NET "clk" TNM_NET = clk;
-TIMESPEC TS_Clk250 = PERIOD "clk" 4 ns HIGH 50%;
+NET "clkin125" TNM_NET = clkin125;
+TIMESPEC TS_Clk125 = PERIOD "clkin125" 8 ns HIGH 50%;
