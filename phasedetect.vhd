@@ -110,6 +110,7 @@ begin
       -- Note that ii is at most twice the 36 bit qq, so if the arithmetic does
       -- not overflow, then the result of the subtract will fit in 36 bits.
       ii3_trial <= ii2 - ('0' & qq2);
+      angle3_update <= angle_update(iteration2(count));
 
       if load2 then
         ii3_trial(36) <= '1'; -- Make sure we don't adjust on next cycle.
@@ -133,8 +134,6 @@ begin
         -- because of the granularity of the result.
         angle3 <= (17 => ii(35), 0 => '1', others => qq(35) xor ii(35));
         phase <= angle2; -- ship out previous result.
-
-        angle3_update <= angle_update(iteration2(count));
       end if;
 
       -- Third pipeline stage is commitment.
