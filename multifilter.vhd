@@ -31,6 +31,7 @@ end;
 architecture Behavioral of multifilter is
   type ram_t is array(0 to 511) of signed36;
   signal ram : ram_t;
+  signal rambuf : signed36;
   signal ramout : signed36;
   signal index : unsigned(8 downto 0);
   signal phase : unsigned(1 downto 0);
@@ -50,7 +51,8 @@ begin
   begin
     if Clk'event and Clk = '1' then
       phase <= phase + 1;
-      ramout <= ram(to_integer(index));
+      rambuf <= ram(to_integer(index));
+      ramout <= rambuf;
 
       addend1 := acc;
 
@@ -65,9 +67,9 @@ begin
             ram(to_integer(index2)) <= in1;
           end if;
         when "01" =>
-          index <= index + (512 - 37 * 8);
+          index <= index + (1 + 512 - 37 * 8);
         when "10" =>
-          index <= index + (1 + 10 * 8);
+          index <= index + (10 * 8);
         when others => -- "11"
           index <= index + 27 * 8;
       end case;
