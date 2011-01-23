@@ -66,10 +66,10 @@ begin
              clk => clk250m);
 
   ph: entity work.phasedetect
-    port map(qq=>qq_buf,
-             ii=>ii_buf,
-             phase=>phase,
-             clk=> clk250m);
+    port map(qq_in => qq_buf,
+             ii_in => ii_buf,
+             phase => phase,
+             clk   => clk62m5);
 
   process (clk250m)
   begin
