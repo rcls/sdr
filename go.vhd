@@ -88,7 +88,7 @@ begin
   clk125_buf : IBUFG port map (O => clkbuf125, I => clkin125);
 
   -- Clocking primitive
-  pll_base_inst : PLL_BASE
+  pll : PLL_BASE
     generic map(
       BANDWIDTH            => "HIGH",
       CLK_FEEDBACK         => "CLKFBOUT",

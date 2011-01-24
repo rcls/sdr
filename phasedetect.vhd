@@ -6,7 +6,7 @@ library work;
 use work.defs.all;
 
 entity phasedetect is
-  port(qq_in : in signed36; -- overkill, should have reduced to 18 bits by now.
+  port(qq_in : in signed36; -- overkill, could have reduced to 18 bits by now.
        ii_in : in signed36;
        phase : out signed18;
        clk : in std_logic);
@@ -64,7 +64,7 @@ begin
       end if;
 
       -- Right shift.  Note that for the start iteration, the high bit of ii is
-      -- still zero.
+      -- still zero, so the high bit of ii_shifted will always be zero.
       ii_shifted := ii srl (2 * (count mod 16));
 
       -- Trial operation.
@@ -88,7 +88,7 @@ begin
         end if;
         positiv <= (qq_in >= 0) xor (ii_in < 0);
         -- Our convention is that angle zero covers the first sliver of the
-        -- first quadrant= etc., so bias the start angle just into the
+        -- first quadrant etc., so bias the start angle just into the
         -- appropriate quadrant.  Yes the 0=>1 looks like a step too far,
         -- but after exhaustive testing, it gives better results, presumably
         -- because of the granularity of the result.

@@ -8,8 +8,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 library work;
-use work.sincos.all;
 use work.defs.all;
+use work.sincos.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
