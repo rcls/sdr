@@ -20,7 +20,9 @@ static inline int sext18(int x)
 
 typedef struct state_t {
     word_t offset;
+    word_t offst2;
     word_t ampltd;
+    word_t amplt2;
     word_t freq;
     word_t phase;
 } state_t;
@@ -35,16 +37,20 @@ static void update(state_t * __restrict__ s, int sample)
     int product = cosine * sample;
     int produss = sine * sample;
 
-    word_t new_offset = sext36(((s->offset << 10) + product - s->offset) >> 10);
-    word_t new_ampltd = sext36(((s->ampltd << 10) + produss - s->ampltd) >> 10);
+    word_t new_offset = sext36(((s->offset << 5) + product - (s->offset >> 5)) >> 5);
+    word_t new_ampltd = sext36(((s->ampltd << 5) + produss - (s->ampltd >> 5)) >> 5);
+    word_t new_amplt2 = s->amplt2 + ((new_ampltd - s->amplt2) >> 10);
+    word_t new_offst2 = s->offst2 + ((new_offset - s->offst2) >> 10);
 
     // FIXME - clamp and possibly scale new_freq.
-    word_t new_freq = sext36(s->freq + (new_offset >> 14));
+    word_t new_freq = sext36(s->freq + ((new_offset + 524288) >> 20));
 
-    word_t new_phase = sext36(s->phase + new_freq + (new_offset >> 1));
+    word_t new_phase = sext36(s->phase + new_freq + (new_offset >> 7));
 
     s->offset = new_offset;
+    s->offst2 = new_offst2;
     s->ampltd = new_ampltd;
+    s->amplt2 = new_amplt2;
     s->freq = new_freq;
     s->phase = new_phase;
 }
@@ -56,7 +62,8 @@ static void update(state_t * __restrict__ s, int sample)
 
 int main(void)
 {
-    state_t s = { .offset = 0, .ampltd = 0, .phase = 0,
+    state_t s = { .offset = 0, .offst2 = 0,
+                  .ampltd = 0, .amplt2 = 0, .phase = 0,
                   .freq = (1l << 36) * 190 / 3125 };
 
     for (int i = 1; i <= 312500; ++i) {
@@ -66,12 +73,12 @@ int main(void)
         if (i % 100 == 0) {
             double pll_phase = s.phase * (1.0 / (1l << 36));
             double diff = pll_phase - (DELTA_19 / (2 * M_PI) * i + 0.5);
-            printf("%6i %f % f %f %f\n",
+            printf("%6i %f %9f %10f %f\n",
                    i,
                    s.freq * (312500.0 / (1l << 36)),
                    diff - round(diff),
-                   s.offset / 1048576.0,
-                   s.ampltd / 1048576.0);
+                   s.offst2 / 1048576.0,
+                   s.amplt2 / 1048576.0);
         }
         update(&s, sample);
     }
