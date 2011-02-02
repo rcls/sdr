@@ -1,6 +1,7 @@
 // Simulation of the phasedetect algorithm, for validating the accuracy etc.
 #include <assert.h>
-#include <rfftw.h>
+#include <complex.h>
+#include <fftw3.h>
 #include <math.h>
 #include <pthread.h>
 #include <stdbool.h>
@@ -29,7 +30,8 @@
 typedef unsigned long word_t;
 static const int offset[ITERATIONS] = { -1 };
 
-word_t phasedetect(word_t qq, word_t ii, const int * angle_updates)
+
+static word_t phasedetect(word_t qq, word_t ii, const int * angle_updates)
 {
     bool positive = !CTOP(qq) ^ CTOP(ii);
 
@@ -281,15 +283,27 @@ static int angle_table(void)
 }
 
 
+static inline _Complex double cnorm(_Complex double z)
+{
+    double re = creal(z);
+    double im = cimag(z);
+    return re * re + im * im;
+}
+
+
 static int circle(bool print)
 {
     int angle_updates[ITERATIONS];
     build_angle_updates(angle_updates);
 
 #define NUM (2048)
+#define SNUM (NUM / 2 + 1)
     double var = 0;
     double mean = 0;
-    static fftw_real errors[NUM];
+
+    static double errors[NUM];
+    static complex spectrum[SNUM];
+    fftw_plan plan = fftw_plan_dft_r2c_1d(NUM, errors, spectrum, 0);
 
     for (int i = 0; i != NUM; ++i) {
         double angle = (i + drand48()) * (2 * M_PI / NUM);
@@ -309,32 +323,24 @@ static int circle(bool print)
     fprintf(stderr, "Mean = %f, var = %f, std. dev. = %f\n",
             mean, var, sqrt(var));
 
-    rfftw_plan plan = rfftw_create_plan(NUM, FFTW_REAL_TO_COMPLEX,
-                                        FFTW_ESTIMATE);
-    static fftw_real spectrum[NUM];
-    rfftw_one(plan, errors, spectrum);
+    //fftw_execute_dft_r2c(plan, errors, spectrum);
+    fftw_execute(plan);
 
-    static enum_double power[NUM / 2 + 1];
-    power[0] = (enum_double) { 0, spectrum[0] * spectrum[0] };
-    for (int i = 1; i < (NUM + 1) / 2; ++i)
-        power[i] = (enum_double) { i, spectrum[i] * spectrum[i]
-                                   + spectrum[NUM - i] * spectrum[NUM - i] };
-    if (NUM % 2 == 0)
-        power[NUM / 2] = (enum_double) { NUM / 2,
-                                         spectrum[NUM/2] * spectrum[NUM/2] };
+    static enum_double power[SNUM];
+    for (int i = 0; i != SNUM; ++i)
+        power[i] = (enum_double) { i, cnorm(spectrum[i]) };
 
-    qsort(power, NUM / 2 + 1, sizeof(enum_double), compare_enum_double);
+    qsort(power, SNUM, sizeof(enum_double), compare_enum_double);
     fprintf(stderr, "Harmonic Amplitude   Real      Imaginary\n");
     for (int i = 0; i != 10; ++i) {
         int index = power[i].index;
-        double imag = 0;
-        if (index > 0 && index < (NUM + 1) / 2)
-            imag = spectrum[NUM - index];
         fprintf(stderr, " %7i %8.4f%%  % f % f\n",
                 index, sqrt(power[i].value) * (100.0 / NUM),
-                spectrum[index] / NUM, imag / NUM);
+                creal(spectrum[index]),
+                cimag(spectrum[index]));
     }
-    rfftw_destroy_plan(plan);
+    fftw_destroy_plan(plan);
+    fftw_cleanup();
 
     return 0;
 }

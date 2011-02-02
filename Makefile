@@ -7,4 +7,4 @@ all: sinrom.vhd phasedetectsim pllsim
 sinrom.vhd: sinrom
 	./sinrom > sinrom.vhd
 
-phasedetectsim: LDFLAGS=-lrfftw -lfftw -lpthread -lm
+phasedetectsim: LDFLAGS=-lfftw3 -lpthread -lm
