@@ -11,75 +11,75 @@ P 100 1500 300 1500 1 0 0
 T 100 1500 5 10 0 0 0 0 1
 pintype=unknown
 T 355 1495 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=SEN
 T 205 1545 5 10 1 1 0 6 1
 pinnumber=27
 T 100 1500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=27
 }
 P 100 1200 300 1200 1 0 0
 {
 T 100 1200 5 10 0 0 0 0 1
 pintype=unknown
 T 355 1195 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=SDATA
 T 205 1245 5 10 1 1 0 6 1
 pinnumber=28
 T 100 1200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=28
 }
 P 100 900 300 900 1 0 0
 {
 T 100 900 5 10 0 0 0 0 1
 pintype=unknown
 T 355 895 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=SCLK
 T 205 945 5 10 1 1 0 6 1
 pinnumber=29
 T 100 900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=29
 }
 P 100 600 300 600 1 0 0
 {
 T 100 600 5 10 0 0 0 0 1
 pintype=unknown
 T 355 595 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=RESET
 T 205 645 5 10 1 1 0 6 1
 pinnumber=30
 T 100 600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=30
 }
 P 4000 600 3800 600 1 0 0
 {
 T 4000 600 5 10 0 0 0 0 1
 pintype=unknown
 T 3745 595 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=OVR_SDOUT
 T 3895 645 5 10 1 1 0 0 1
 pinnumber=3
 T 4000 600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=3
 }
 P 4000 1300 3800 1300 1 0 0
 {
 T 4000 1300 5 10 0 0 0 0 1
 pintype=unknown
 T 3745 1295 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=CLKP
 T 3895 1345 5 10 1 1 0 0 1
 pinnumber=10
 T 4000 1300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=10
 }
 P 4000 1600 3800 1600 1 0 0
 {
 T 4000 1600 5 10 0 0 0 0 1
 pintype=unknown
 T 3745 1595 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=CLKM
 T 3895 1645 5 10 1 1 0 0 1
 pinnumber=11
 T 4000 1600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=11
 }

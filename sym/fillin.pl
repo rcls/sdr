@@ -17,18 +17,18 @@ while (<$PINS>) {
     if (/^P(\d+)\s+(?:[0-3]|NA)\s+\w\w\s+(\S+)\s*$/) {
         $pin = $1;
         $name = $2;
+        $name =~ s/^IO_//;
+        $name =~ s/_[0-3]$//;
     }
     elsif (m{^\|?(\d+)\s+([A-Z0-9_/]+)\s+\w+\s*$}) {
         $pin = $1;
         $name = $2;
         $name = 'AVDD_BUF'  if  $pin == 21  and  $name eq 'NC';
+        $name =~ s|^D\d+/(D\d+_D\d+[MP])$|$1|;
     }
     else {
         next;
     }
-
-    $name =~ s/^IO_//;
-    $name =~ s/_[0-3]$//;
 
     $pins{$pin} = $name;
 }
@@ -52,7 +52,12 @@ while (<>) {
 
     my $pin = $1;
     my $name = $pins{$pin};
-    die "$pin"  unless  $name;
+    unless ($name) {
+        print STDERR "Pin $pin is unknown.\n";
+        print $acc;
+        $acc = '';
+        next;
+    }
 
     $acc =~ s/^pinseq=0$/pinseq=$pin/m;
     $acc =~ s/^pinlabel=unknown$/pinlabel=$name/m;

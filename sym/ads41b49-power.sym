@@ -5,11 +5,11 @@ P 100 2400 300 2400 1 0 0
 T 100 2400 5 10 0 0 0 0 1
 pintype=unknown
 T 355 2395 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=DRVDD
 T 205 2445 5 10 1 1 0 6 1
 pinnumber=35
 T 100 2400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=35
 }
 T 400 900 8 10 1 1 0 0 1
 device=ADS41B49 Power
@@ -22,176 +22,176 @@ P 100 2100 300 2100 1 0 0
 T 100 2100 5 10 0 0 0 0 1
 pintype=unknown
 T 355 2095 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=DRVDD
 T 205 2145 5 10 1 1 0 6 1
 pinnumber=2
 T 100 2100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=2
 }
 P 100 1700 300 1700 1 0 0
 {
 T 100 1700 5 10 0 0 0 0 1
 pintype=unknown
 T 355 1695 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=AVDD_BUF
 T 205 1745 5 10 1 1 0 6 1
 pinnumber=21
 T 100 1700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=21
 }
 P 4000 2600 3800 2600 1 0 0
 {
 T 4000 2600 5 10 0 0 0 0 1
 pintype=unknown
 T 3745 2595 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=AVDD
 T 3895 2645 5 10 1 1 0 0 1
 pinnumber=26
 T 4000 2600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=26
 }
 P 4000 2300 3800 2300 1 0 0
 {
 T 4000 2300 5 10 0 0 0 0 1
 pintype=unknown
 T 3745 2295 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=AVDD
 T 3895 2345 5 10 1 1 0 0 1
 pinnumber=24
 T 4000 2300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=24
 }
 P 4000 2000 3800 2000 1 0 0
 {
 T 4000 2000 5 10 0 0 0 0 1
 pintype=unknown
 T 3745 1995 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=AVDD
 T 3895 2045 5 10 1 1 0 0 1
 pinnumber=22
 T 4000 2000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=22
 }
 P 4000 1700 3800 1700 1 0 0
 {
 T 4000 1700 5 10 0 0 0 0 1
 pintype=unknown
 T 3745 1695 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=AVDD
 T 3895 1745 5 10 1 1 0 0 1
 pinnumber=20
 T 4000 1700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=20
 }
 P 4000 1400 3800 1400 1 0 0
 {
 T 4000 1400 5 10 0 0 0 0 1
 pintype=unknown
 T 3745 1395 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=AVDD
 T 3895 1445 5 10 1 1 0 0 1
 pinnumber=18
 T 4000 1400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=18
 }
 P 4000 1100 3800 1100 1 0 0
 {
 T 4000 1100 5 10 0 0 0 0 1
 pintype=unknown
 T 3745 1095 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=AVDD
 T 3895 1145 5 10 1 1 0 0 1
 pinnumber=8
 T 4000 1100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=8
 }
 P 600 100 600 300 1 0 0
 {
 T 600 100 5 10 0 0 0 0 1
 pintype=unknown
 T 600 355 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=DRGND
 T 550 205 5 10 1 1 90 6 1
 pinnumber=36
 T 600 100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=36
 }
 P 900 100 900 300 1 0 0
 {
 T 900 100 5 10 0 0 0 0 1
 pintype=unknown
 T 900 355 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=DRGND
 T 850 205 5 10 1 1 90 6 1
 pinnumber=1
 T 900 100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=1
 }
 P 3500 100 3500 300 1 0 0
 {
 T 3500 100 5 10 0 0 0 0 1
 pintype=unknown
 T 3500 355 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=AGND
 T 3450 205 5 10 1 1 90 6 1
 pinnumber=25
 T 3500 100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=25
 }
 P 3200 100 3200 300 1 0 0
 {
 T 3200 100 5 10 0 0 0 0 1
 pintype=unknown
 T 3200 355 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=AGND
 T 3150 205 5 10 1 1 90 6 1
 pinnumber=19
 T 3200 100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=19
 }
 P 2900 100 2900 300 1 0 0
 {
 T 2900 100 5 10 0 0 0 0 1
 pintype=unknown
 T 2900 355 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=AGND
 T 2850 205 5 10 1 1 90 6 1
 pinnumber=17
 T 2900 100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=17
 }
 P 2600 100 2600 300 1 0 0
 {
 T 2600 100 5 10 0 0 0 0 1
 pintype=unknown
 T 2600 355 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=AGND
 T 2550 205 5 10 1 1 90 6 1
 pinnumber=14
 T 2600 100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=14
 }
 P 2300 100 2300 300 1 0 0
 {
 T 2300 100 5 10 0 0 0 0 1
 pintype=unknown
 T 2300 355 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=AGND
 T 2250 205 5 10 1 1 90 6 1
 pinnumber=12
 T 2300 100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=12
 }
 P 2000 100 2000 300 1 0 0
 {
 T 2000 100 5 10 0 0 0 0 1
 pintype=unknown
 T 2000 355 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=AGND
 T 1950 205 5 10 1 1 90 6 1
 pinnumber=9
 T 2000 100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=9
 }
 P 1400 100 1400 300 1 0 0
 {
@@ -202,5 +202,5 @@ pinlabel=Pad
 T 1350 205 5 10 1 1 90 6 1
 pinnumber=49
 T 1400 100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=49
 }

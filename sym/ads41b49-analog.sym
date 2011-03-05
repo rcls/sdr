@@ -5,77 +5,77 @@ P 100 2100 300 2100 1 0 0
 T 100 2100 5 10 0 0 0 0 1
 pintype=unknown
 T 355 2095 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=VCM
 T 205 2145 5 10 1 1 0 6 1
 pinnumber=13
 T 100 2100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=13
 }
 P 100 1600 300 1600 1 0 0
 {
 T 100 1600 5 10 0 0 0 0 1
 pintype=unknown
 T 355 1595 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=INP
 T 205 1645 5 10 1 1 0 6 1
 pinnumber=15
 T 100 1600 5 10 0 0 0 0 1
-pinseq=0
+pinseq=15
 }
 P 100 1300 300 1300 1 0 0
 {
 T 100 1300 5 10 0 0 0 0 1
 pintype=unknown
 T 355 1295 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=INM
 T 205 1345 5 10 1 1 0 6 1
 pinnumber=16
 T 100 1300 5 10 0 0 0 0 1
-pinseq=0
+pinseq=16
 }
 P 4000 2100 3800 2100 1 0 0
 {
 T 4000 2100 5 10 0 0 0 6 1
 pintype=unknown
 T 3745 2095 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=NC
 T 3895 2145 5 10 1 1 0 0 1
 pinnumber=31
 T 4000 2100 5 10 0 0 0 6 1
-pinseq=0
+pinseq=31
 }
 P 4000 1800 3800 1800 1 0 0
 {
 T 4000 1800 5 10 0 0 0 6 1
 pintype=unknown
 T 3745 1795 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=NC
 T 3895 1845 5 10 1 1 0 0 1
 pinnumber=32
 T 4000 1800 5 10 0 0 0 6 1
-pinseq=0
+pinseq=32
 }
 P 4000 1200 3800 1200 1 0 0
 {
 T 4000 1200 5 10 0 0 0 6 1
 pintype=unknown
 T 3745 1195 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=DFS
 T 3895 1245 5 10 1 1 0 0 1
 pinnumber=6
 T 4000 1200 5 10 0 0 0 6 1
-pinseq=0
+pinseq=6
 }
 P 4000 900 3800 900 1 0 0
 {
 T 4000 900 5 10 0 0 0 6 1
 pintype=unknown
 T 3745 895 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=OE
 T 3895 945 5 10 1 1 0 0 1
 pinnumber=7
 T 4000 900 5 10 0 0 0 6 1
-pinseq=0
+pinseq=7
 }
 T 700 400 8 10 1 1 0 0 1
 device=ADS41B49 Analog
@@ -88,9 +88,9 @@ P 100 800 300 800 1 0 0
 T 100 800 5 10 0 0 0 0 1
 pintype=unknown
 T 355 795 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=MODE
 T 205 845 5 10 1 1 0 6 1
 pinnumber=23
 T 100 800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=23
 }
