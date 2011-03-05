@@ -5,372 +5,378 @@ P 200 4700 400 4700 1 0 0
 T 200 4700 5 10 0 0 0 0 1
 pintype=unknown
 T 455 4695 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=VCCINT
 T 305 4745 5 10 1 1 0 6 1
 pinnumber=19
 T 200 4700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=19
 }
 P 200 4400 400 4400 1 0 0
 {
 T 200 4400 5 10 0 0 0 0 1
 pintype=unknown
 T 455 4395 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=VCCINT
 T 305 4445 5 10 1 1 0 6 1
 pinnumber=28
 T 200 4400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=28
 }
 P 200 4100 400 4100 1 0 0
 {
 T 200 4100 5 10 0 0 0 0 1
 pintype=unknown
 T 455 4095 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=VCCINT
 T 305 4145 5 10 1 1 0 6 1
 pinnumber=52
 T 200 4100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=52
 }
 P 200 3800 400 3800 1 0 0
 {
 T 200 3800 5 10 0 0 0 0 1
 pintype=unknown
 T 455 3795 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=VCCINT
 T 305 3845 5 10 1 1 0 6 1
 pinnumber=89
 T 200 3800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=89
 }
 P 200 3500 400 3500 1 0 0
 {
 T 200 3500 5 10 0 0 0 0 1
 pintype=unknown
 T 455 3495 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=VCCINT
 T 305 3545 5 10 1 1 0 6 1
 pinnumber=128
 T 200 3500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=128
 }
 P 200 3100 400 3100 1 0 0
 {
 T 200 3100 5 10 0 0 0 0 1
 pintype=unknown
 T 455 3095 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=VCCAUX
 T 305 3145 5 10 1 1 0 6 1
 pinnumber=20
 T 200 3100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=20
 }
 P 200 2500 400 2500 1 0 0
 {
 T 200 2500 5 10 0 0 0 0 1
 pintype=unknown
 T 455 2495 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=VCCAUX
 T 305 2545 5 10 1 1 0 6 1
 pinnumber=53
 T 200 2500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=53
 }
 P 200 2200 400 2200 1 0 0
 {
 T 200 2200 5 10 0 0 0 0 1
 pintype=unknown
 T 455 2195 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=VCCAUX
 T 305 2245 5 10 1 1 0 6 1
 pinnumber=90
 T 200 2200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=90
 }
 P 200 1900 400 1900 1 0 0
 {
 T 200 1900 5 10 0 0 0 0 1
 pintype=unknown
 T 455 1895 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=VCCAUX
 T 305 1945 5 10 1 1 0 6 1
 pinnumber=129
 T 200 1900 5 10 0 0 0 0 1
-pinseq=0
+pinseq=129
 }
 P 3600 4700 3400 4700 1 0 0
 {
 T 3600 4700 5 10 0 0 0 0 1
 pintype=unknown
 T 3345 4695 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=VCCO
 T 3495 4745 5 10 1 1 0 0 1
 pinnumber=135
 T 3600 4700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=135
 }
 P 3600 4400 3400 4400 1 0 0
 {
 T 3600 4400 5 10 0 0 0 0 1
 pintype=unknown
 T 3345 4395 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=VCCO
 T 3495 4445 5 10 1 1 0 0 1
 pinnumber=125
 T 3600 4400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=125
 }
 P 3600 4100 3400 4100 1 0 0
 {
 T 3600 4100 5 10 0 0 0 0 1
 pintype=unknown
 T 3345 4095 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=VCCO
 T 3495 4145 5 10 1 1 0 0 1
 pinnumber=122
 T 3600 4100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=122
 }
 P 3600 3700 3400 3700 1 0 0
 {
 T 3600 3700 5 10 0 0 0 0 1
 pintype=unknown
 T 3345 3695 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=VCCO
 T 3495 3745 5 10 1 1 0 0 1
 pinnumber=103
 T 3600 3700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=103
 }
 P 3600 3400 3400 3400 1 0 0
 {
 T 3600 3400 5 10 0 0 0 0 1
 pintype=unknown
 T 3345 3395 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=VCCO
 T 3495 3445 5 10 1 1 0 0 1
 pinnumber=86
 T 3600 3400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=86
 }
 P 3600 3100 3400 3100 1 0 0
 {
 T 3600 3100 5 10 0 0 0 0 1
 pintype=unknown
 T 3345 3095 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=VCCO
 T 3495 3145 5 10 1 1 0 0 1
 pinnumber=76
 T 3600 3100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=76
 }
 P 3600 2700 3400 2700 1 0 0
 {
 T 3600 2700 5 10 0 0 0 0 1
 pintype=unknown
 T 3345 2695 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=VCCO
 T 3495 2745 5 10 1 1 0 0 1
 pinnumber=63
 T 3600 2700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=63
 }
 P 3600 2400 3400 2400 1 0 0
 {
 T 3600 2400 5 10 0 0 0 0 1
 pintype=unknown
 T 3345 2395 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=VCCO
 T 3495 2445 5 10 1 1 0 0 1
 pinnumber=42
 T 3600 2400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=42
 }
 P 3600 2000 3400 2000 1 0 0
 {
 T 3600 2000 5 10 0 0 0 0 1
 pintype=unknown
 T 3345 1995 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=VCCO
 T 3495 2045 5 10 1 1 0 0 1
 pinnumber=31
 T 3600 2000 5 10 0 0 0 0 1
-pinseq=0
+pinseq=31
 }
 P 3600 1700 3400 1700 1 0 0
 {
 T 3600 1700 5 10 0 0 0 0 1
 pintype=unknown
 T 3345 1695 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=VCCO
 T 3495 1745 5 10 1 1 0 0 1
 pinnumber=18
 T 3600 1700 5 10 0 0 0 0 1
-pinseq=0
+pinseq=18
 }
 P 3600 1400 3400 1400 1 0 0
 {
 T 3600 1400 5 10 0 0 0 0 1
 pintype=unknown
 T 3345 1395 5 10 1 1 0 6 1
-pinlabel=unknown
+pinlabel=VCCO
 T 3495 1445 5 10 1 1 0 0 1
 pinnumber=4
 T 3600 1400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=4
 }
 P 600 200 600 400 1 0 0
 {
 T 600 200 5 10 0 0 0 0 1
 pintype=unknown
 T 600 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 550 305 5 10 1 1 90 6 1
 pinnumber=3
 T 600 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=3
 }
 P 800 200 800 400 1 0 0
 {
 T 800 200 5 10 0 0 0 0 1
 pintype=unknown
 T 800 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 750 305 5 10 1 1 90 6 1
 pinnumber=13
 T 800 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=13
 }
 P 1000 200 1000 400 1 0 0
 {
 T 1000 200 5 10 0 0 0 0 1
 pintype=unknown
 T 1000 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 950 305 5 10 1 1 90 6 1
 pinnumber=25
 T 1000 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=25
 }
 P 1300 200 1300 400 1 0 0
 {
 T 1300 200 5 10 0 0 0 0 1
 pintype=unknown
 T 1300 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 1250 305 5 10 1 1 90 6 1
 pinnumber=49
 T 1300 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=49
 }
 P 1500 200 1500 400 1 0 0
 {
 T 1500 200 5 10 0 0 0 0 1
 pintype=unknown
 T 1500 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 1450 305 5 10 1 1 90 6 1
 pinnumber=54
 T 1500 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=54
 }
 P 1700 200 1700 400 1 0 0
 {
 T 1700 200 5 10 0 0 0 0 1
 pintype=unknown
 T 1700 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 1650 305 5 10 1 1 90 6 1
 pinnumber=68
 T 1700 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=68
 }
 P 2000 200 2000 400 1 0 0
 {
 T 2000 200 5 10 0 0 0 0 1
 pintype=unknown
 T 2000 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 1950 305 5 10 1 1 90 6 1
 pinnumber=77
 T 2000 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=77
 }
 P 2200 200 2200 400 1 0 0
 {
 T 2200 200 5 10 0 0 0 0 1
 pintype=unknown
 T 2200 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 2150 305 5 10 1 1 90 6 1
 pinnumber=91
 T 2200 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=91
 }
 P 2400 200 2400 400 1 0 0
 {
 T 2400 200 5 10 0 0 0 0 1
 pintype=unknown
 T 2400 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 2350 305 5 10 1 1 90 6 1
 pinnumber=96
 T 2400 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=96
 }
 P 2700 200 2700 400 1 0 0
 {
 T 2700 200 5 10 0 0 0 0 1
 pintype=unknown
 T 2700 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 2650 305 5 10 1 1 90 6 1
 pinnumber=108
 T 2700 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=108
 }
 P 2900 200 2900 400 1 0 0
 {
 T 2900 200 5 10 0 0 0 0 1
 pintype=unknown
 T 2900 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 2850 305 5 10 1 1 90 6 1
 pinnumber=113
 T 2900 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=113
 }
 P 3100 200 3100 400 1 0 0
 {
 T 3100 200 5 10 0 0 0 0 1
 pintype=unknown
 T 3100 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 3050 305 5 10 1 1 90 6 1
 pinnumber=130
 T 3100 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=130
 }
 P 3300 200 3300 400 1 0 0
 {
 T 3300 200 5 10 0 0 0 0 1
 pintype=unknown
 T 3300 455 5 10 1 1 90 0 1
-pinlabel=unknown
+pinlabel=GND
 T 3250 305 5 10 1 1 90 6 1
 pinnumber=136
 T 3300 200 5 10 0 0 0 0 1
-pinseq=0
+pinseq=136
 }
 P 200 2800 400 2800 1 0 0
 {
 T 200 2800 5 10 0 0 0 0 1
 pintype=unknown
 T 455 2795 5 10 1 1 0 0 1
-pinlabel=unknown
+pinlabel=VCCAUX
 T 305 2845 5 10 1 1 0 6 1
 pinnumber=36
 T 200 2800 5 10 0 0 0 0 1
-pinseq=0
+pinseq=36
 }
+T 2000 1700 8 10 1 1 0 0 1
+refdes=U?
+T 800 1100 8 10 1 1 0 0 1
+device=Spartan6 Power
+T 2200 1100 8 10 1 1 0 0 1
+footprint=QFP144
