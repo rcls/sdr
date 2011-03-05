@@ -1,17 +1,31 @@
 #!/usr/bin/perl
 
-# Usage: fillin <sym>
+# Usage: fillin <def> <sym>
 
 my %pins;
 
-open my $PINS, '<', 'docs/spartan6slx9tqg144pkg.txt'  or  die $!;
+my $defpath = shift @ARGV;
+
+open my $PINS, '<', $defpath  or  die $!;
 
 while (<$PINS>) {
     chomp;
-    next  unless (/^P(\d+)\s+([0-3]|NA)\s+(\w\w)\s+(\S+)\s*$/);
 
     my $pin = $1;
-    my $name = $4;
+    my $name = $2;
+
+    if (/^P(\d+)\s+(?:[0-3]|NA)\s+\w\w\s+(\S+)\s*$/) {
+        $pin = $1;
+        $name = $2;
+    }
+    elsif (m{^\|?(\d+)\s+([A-Z0-9_/]+)\s+\w+\s*$}) {
+        $pin = $1;
+        $name = $2;
+        $name = 'AVDD_BUF'  if  $pin == 21  and  $name eq 'NC';
+    }
+    else {
+        next;
+    }
 
     $name =~ s/^IO_//;
     $name =~ s/_[0-3]$//;
@@ -20,6 +34,8 @@ while (<$PINS>) {
 }
 
 close $PINS  or  die $!;
+
+#print "$_\t$pins{$_}\n"  for  sort { $a <=> $b } keys %pins;
 
 my $acc = '';
 

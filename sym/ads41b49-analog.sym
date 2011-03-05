@@ -1,0 +1,96 @@
+v 20100214 2
+B 300 0 3500 2500 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+P 100 2100 300 2100 1 0 0
+{
+T 100 2100 5 10 0 0 0 0 1
+pintype=unknown
+T 355 2095 5 10 1 1 0 0 1
+pinlabel=unknown
+T 205 2145 5 10 1 1 0 6 1
+pinnumber=13
+T 100 2100 5 10 0 0 0 0 1
+pinseq=0
+}
+P 100 1600 300 1600 1 0 0
+{
+T 100 1600 5 10 0 0 0 0 1
+pintype=unknown
+T 355 1595 5 10 1 1 0 0 1
+pinlabel=unknown
+T 205 1645 5 10 1 1 0 6 1
+pinnumber=15
+T 100 1600 5 10 0 0 0 0 1
+pinseq=0
+}
+P 100 1300 300 1300 1 0 0
+{
+T 100 1300 5 10 0 0 0 0 1
+pintype=unknown
+T 355 1295 5 10 1 1 0 0 1
+pinlabel=unknown
+T 205 1345 5 10 1 1 0 6 1
+pinnumber=16
+T 100 1300 5 10 0 0 0 0 1
+pinseq=0
+}
+P 4000 2100 3800 2100 1 0 0
+{
+T 4000 2100 5 10 0 0 0 6 1
+pintype=unknown
+T 3745 2095 5 10 1 1 0 6 1
+pinlabel=unknown
+T 3895 2145 5 10 1 1 0 0 1
+pinnumber=31
+T 4000 2100 5 10 0 0 0 6 1
+pinseq=0
+}
+P 4000 1800 3800 1800 1 0 0
+{
+T 4000 1800 5 10 0 0 0 6 1
+pintype=unknown
+T 3745 1795 5 10 1 1 0 6 1
+pinlabel=unknown
+T 3895 1845 5 10 1 1 0 0 1
+pinnumber=32
+T 4000 1800 5 10 0 0 0 6 1
+pinseq=0
+}
+P 4000 1200 3800 1200 1 0 0
+{
+T 4000 1200 5 10 0 0 0 6 1
+pintype=unknown
+T 3745 1195 5 10 1 1 0 6 1
+pinlabel=unknown
+T 3895 1245 5 10 1 1 0 0 1
+pinnumber=6
+T 4000 1200 5 10 0 0 0 6 1
+pinseq=0
+}
+P 4000 900 3800 900 1 0 0
+{
+T 4000 900 5 10 0 0 0 6 1
+pintype=unknown
+T 3745 895 5 10 1 1 0 6 1
+pinlabel=unknown
+T 3895 945 5 10 1 1 0 0 1
+pinnumber=7
+T 4000 900 5 10 0 0 0 6 1
+pinseq=0
+}
+T 700 400 8 10 1 1 0 0 1
+device=ADS41B49 Analog
+T 2700 400 8 10 1 1 0 0 1
+footprint=QFN48
+T 2000 1300 8 10 1 1 0 0 1
+refdes=U?
+P 100 800 300 800 1 0 0
+{
+T 100 800 5 10 0 0 0 0 1
+pintype=unknown
+T 355 795 5 10 1 1 0 0 1
+pinlabel=unknown
+T 205 845 5 10 1 1 0 6 1
+pinnumber=23
+T 100 800 5 10 0 0 0 0 1
+pinseq=0
+}
