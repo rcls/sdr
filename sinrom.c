@@ -42,22 +42,12 @@ static int ddd(int deltas)
 }
 
 
-int main(void)
+static void print_sintable(const char * name, double scale)
 {
-    double scale = 16384 / M_PI;
     double omega = M_PI / 16384;
-
     int used = 0;
 
-    printf ("library IEEE;\n"
-            "use IEEE.NUMERIC_STD.ALL;\n"
-            "\n"
-            "library work;\n"
-            "use work.defs.all;\n"
-            "\n"
-            "package sincos is\n"
-            "function sinoffset(sinent : unsigned18; lowbits : unsigned2) return unsigned3;\n"
-            "constant sinrom : sinrom_t := (\n");
+    printf("constant %s : sinrom_t := (\n", name);
 
     for (int i = 0; i != 1024; ++i) {
         if (i & 3)
@@ -103,8 +93,25 @@ int main(void)
         printf ("\"%i%i\"&x\"%04x\"",
                 (index & 8) != 0, (index & 4) != 0, (index & 3) * 16384 + v0);
     }
-    printf (");\n\n");
-    printf ("-- Used bitmask: %0x\n", used);
+    printf (");\n");
+    printf ("    -- Used bitmask: %0x\n", used);
+}
+
+
+int main(void)
+{
+    printf ("library IEEE;\n"
+            "use IEEE.NUMERIC_STD.ALL;\n"
+            "\n"
+            "library work;\n"
+            "use work.defs.all;\n"
+            "\n"
+            "package sincos is\n"
+            "function sinoffset(sinent : unsigned18; lowbits : unsigned2) return unsigned3;\n");
+    print_sintable("sinrom", 16384 / M_PI);
+    /* printf("\n"); */
+    /* print_sintable("sinrom2", 4095.49999); */
+
     printf ("end sincos;\n"
             "\n"
             "package body sincos is\n"

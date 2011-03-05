@@ -32,8 +32,17 @@ static void update(state_t * __restrict__ s, int sample)
 {
     // Reduce the phase to 14 bits.
     int phase = (s->phase >> 22) & 0x3fff;
+
+#if 1
+    // Sine and cosine with same amplitude as input calcs...
     int cosine = (16384 / M_PI) * cos((phase * 2 + 1) * (M_PI / 16384));
     int sine = (16384 / M_PI) * sin((phase * 2 + 1) * (M_PI / 16384));
+#else
+    // Sine and cosine with amplitude 4096.
+    int cosine = 4096 * cos((phase * 2 + 1) * (M_PI / 16384));
+    int sine = 4096 * sin((phase * 2 + 1) * (M_PI / 16384));
+#endif
+
     int product = cosine * sample;
     int produss = sine * sample;
 

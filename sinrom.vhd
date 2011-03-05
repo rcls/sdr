@@ -263,8 +263,7 @@ constant sinrom : sinrom_t := (
     "00"&x"145e", "00"&x"945e", "00"&x"145f", "00"&x"145f",
     "00"&x"145f", "00"&x"145f", "00"&x"145f", "00"&x"145f",
     "00"&x"145f", "00"&x"145f", "00"&x"145f", "00"&x"145f");
-
--- Used bitmask: ffef
+    -- Used bitmask: ffef
 end sincos;
 
 package body sincos is

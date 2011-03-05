@@ -283,7 +283,7 @@ static int angle_table(void)
 }
 
 
-static inline _Complex double cnorm(_Complex double z)
+static inline double cnorm(_Complex double z)
 {
     double re = creal(z);
     double im = cimag(z);
