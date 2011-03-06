@@ -1,0 +1,129 @@
+v 20100214 2
+B 300 0 1600 2400 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+T 1000 2100 8 10 1 1 0 0 1
+refdes=U?
+T 400 200 8 10 1 1 0 0 1
+device=LM49450 Audio
+T 1000 1200 8 10 1 1 0 0 1
+footprint=QFN32
+P 100 1500 300 1500 1 0 0
+{
+T 100 1500 5 10 0 0 0 0 1
+pintype=unknown
+T 355 1495 5 10 1 1 0 0 1
+pinlabel=LLS+
+T 205 1545 5 10 1 1 0 6 1
+pinnumber=19
+T 100 1500 5 10 0 0 0 0 1
+pinseq=19
+}
+P 100 1200 300 1200 1 0 0
+{
+T 100 1200 5 10 0 0 0 0 1
+pintype=unknown
+T 355 1195 5 10 1 1 0 0 1
+pinlabel=LLS-
+T 205 1245 5 10 1 1 0 6 1
+pinnumber=20
+T 100 1200 5 10 0 0 0 0 1
+pinseq=20
+}
+P 100 800 300 800 1 0 0
+{
+T 100 800 5 10 0 0 0 0 1
+pintype=unknown
+T 355 795 5 10 1 1 0 0 1
+pinlabel=RLS-
+T 205 845 5 10 1 1 0 6 1
+pinnumber=22
+T 100 800 5 10 0 0 0 0 1
+pinseq=22
+}
+P 100 500 300 500 1 0 0
+{
+T 100 500 5 10 0 0 0 0 1
+pintype=unknown
+T 355 495 5 10 1 1 0 0 1
+pinlabel=RLS+
+T 205 545 5 10 1 1 0 6 1
+pinnumber=23
+T 100 500 5 10 0 0 0 0 1
+pinseq=23
+}
+P 2100 2100 1900 2100 1 0 0
+{
+T 2100 2100 5 10 0 0 0 0 1
+pintype=unknown
+T 1845 2095 5 10 1 1 0 6 1
+pinlabel=HPL
+T 1995 2145 5 10 1 1 0 0 1
+pinnumber=29
+T 2100 2100 5 10 0 0 0 0 1
+pinseq=29
+}
+P 2100 1800 1900 1800 1 0 0
+{
+T 2100 1800 5 10 0 0 0 0 1
+pintype=unknown
+T 1845 1795 5 10 1 1 0 6 1
+pinlabel=HPR
+T 1995 1845 5 10 1 1 0 0 1
+pinnumber=27
+T 2100 1800 5 10 0 0 0 0 1
+pinseq=27
+}
+P 2100 1500 1900 1500 1 0 0
+{
+T 2100 1500 5 10 0 0 0 0 1
+pintype=unknown
+T 1845 1495 5 10 1 1 0 6 1
+pinlabel=HPS
+T 1995 1545 5 10 1 1 0 0 1
+pinnumber=26
+T 2100 1500 5 10 0 0 0 0 1
+pinseq=26
+}
+P 100 2200 300 2200 1 0 0
+{
+T 100 2200 5 10 0 0 0 6 1
+pintype=unknown
+T 355 2195 5 10 1 1 0 0 1
+pinlabel=C1N
+T 205 2245 5 10 1 1 0 6 1
+pinnumber=31
+T 100 2200 5 10 0 0 0 6 1
+pinseq=31
+}
+P 100 1900 300 1900 1 0 0
+{
+T 100 1900 5 10 0 0 0 6 1
+pintype=unknown
+T 355 1895 5 10 1 1 0 0 1
+pinlabel=C1P
+T 205 1945 5 10 1 1 0 6 1
+pinnumber=1
+T 100 1900 5 10 0 0 0 6 1
+pinseq=1
+}
+P 2100 900 1900 900 1 0 0
+{
+T 2100 900 5 10 0 0 0 0 1
+pintype=unknown
+T 1845 895 5 10 1 1 0 6 1
+pinlabel=HPVSS
+T 1995 945 5 10 1 1 0 0 1
+pinnumber=30
+T 2100 900 5 10 0 0 0 0 1
+pinseq=30
+}
+P 2100 600 1900 600 1 0 0
+{
+T 2100 600 5 10 0 0 0 0 1
+pintype=unknown
+T 1845 595 5 10 1 1 0 6 1
+pinlabel=HPVDD
+T 1995 645 5 10 1 1 0 0 1
+pinnumber=28
+T 2100 600 5 10 0 0 0 0 1
+pinseq=28
+}

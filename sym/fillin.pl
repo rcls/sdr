@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+use strict;
+use warnings;
+
 # Usage: fillin <def> <sym>
 
 my %pins;
@@ -8,13 +11,16 @@ my $path = shift @ARGV;
 
 my $FPGA    = ($path =~ /spartan6/);
 my $ADC     = ($path =~ /ads41b49/);
-my $FT2232  = ($path =~ /ft2232h/);
+my $SPACED  = ($path =~ /ft2232h/  or  $path =~ /lm49450/);
 my $LM3S828 = ($path =~ /LM3S828/);
 
 open my $PINS, '<', $path  or  die $!;
 
 while (<$PINS>) {
     chomp;
+
+    my $pin;
+    my $name;
 
     if ($FPGA  and  /^P(\d+)\s+(?:[0-3]|NA)\s+\w\w\s+(\S+)\s*$/) {
         $pin = $1;
@@ -28,11 +34,12 @@ while (<$PINS>) {
         $name = 'AVDD_BUF'  if  $pin == 21  and  $name eq 'NC';
         $name =~ s|^D\d+/(D\d+_D\d+[MP])$|$1|;
     }
-    if ($FT2232 and m/^(\d+)\s+(\S+)/) {
+    if ($SPACED  and  /^(\d+)\s+(\S+)/) {
         $pin = $1;
         $name = $2;
+#        print "$pin $name\n";
     }
-    if ($LM3S828 and m/^"?(\d+)"?,"?([A-Za-z0-9]+)"?,/) {
+    if ($LM3S828  and  /^"?(\d+)"?,"?([A-Za-z0-9]+)"?,/) {
         $pin = $1;
         $name = $2;
         $name = "$pins{$pin}/$name"  if  exists $pins{$pin};
@@ -43,7 +50,7 @@ while (<$PINS>) {
 
 close $PINS  or  die $!;
 
-#print "$_\t$pins{$_}\n"  for  sort { $a <=> $b } keys %pins;
+#print STDERR "$_\t$pins{$_}\n"  for  sort { $a <=> $b } keys %pins;
 
 my $acc = '';
 

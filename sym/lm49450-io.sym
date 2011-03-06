@@ -1,0 +1,118 @@
+v 20100214 2
+B 200 0 1700 2400 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+T 900 1900 8 10 1 1 0 0 1
+refdes=U?
+T 300 200 8 10 1 1 0 0 1
+device=LM49450 I/O
+T 800 1600 8 10 1 1 0 0 1
+footprint=QFN32
+P 0 2200 200 2200 1 0 0
+{
+T 0 2200 5 10 0 0 0 0 1
+pintype=unknown
+T 255 2195 5 10 1 1 0 0 1
+pinlabel=SDA
+T 105 2245 5 10 1 1 0 6 1
+pinnumber=3
+T 0 2200 5 10 0 0 0 0 1
+pinseq=3
+}
+P 0 1900 200 1900 1 0 0
+{
+T 0 1900 5 10 0 0 0 0 1
+pintype=unknown
+T 255 1895 5 10 1 1 0 0 1
+pinlabel=SCL
+T 105 1945 5 10 1 1 0 6 1
+pinnumber=9
+T 0 1900 5 10 0 0 0 0 1
+pinseq=9
+}
+P 0 1200 200 1200 1 0 0
+{
+T 0 1200 5 10 0 0 0 0 1
+pintype=unknown
+T 255 1195 5 10 1 1 0 0 1
+pinlabel=I2S_WS
+T 105 1245 5 10 1 1 0 6 1
+pinnumber=5
+T 0 1200 5 10 0 0 0 0 1
+pinseq=5
+}
+P 0 900 200 900 1 0 0
+{
+T 0 900 5 10 0 0 0 0 1
+pintype=unknown
+T 255 895 5 10 1 1 0 0 1
+pinlabel=I2S_SDI
+T 105 945 5 10 1 1 0 6 1
+pinnumber=6
+T 0 900 5 10 0 0 0 0 1
+pinseq=6
+}
+P 0 600 200 600 1 0 0
+{
+T 0 600 5 10 0 0 0 0 1
+pintype=unknown
+T 255 595 5 10 1 1 0 0 1
+pinlabel=I2S_CLK
+T 105 645 5 10 1 1 0 6 1
+pinnumber=7
+T 0 600 5 10 0 0 0 0 1
+pinseq=7
+}
+P 2100 600 1900 600 1 0 0
+{
+T 2100 600 5 10 0 0 0 6 1
+pintype=unknown
+T 1845 595 5 10 1 1 0 6 1
+pinlabel=MCLK
+T 1995 645 5 10 1 1 0 0 1
+pinnumber=8
+T 2100 600 5 10 0 0 0 6 1
+pinseq=8
+}
+P 2100 1100 1900 1100 1 0 0
+{
+T 2100 1100 5 10 0 0 0 6 1
+pintype=unknown
+T 1845 1095 5 10 1 1 0 6 1
+pinlabel=INR
+T 1995 1145 5 10 1 1 0 0 1
+pinnumber=14
+T 2100 1100 5 10 0 0 0 6 1
+pinseq=14
+}
+P 2100 1400 1900 1400 1 0 0
+{
+T 2100 1400 5 10 0 0 0 6 1
+pintype=unknown
+T 1845 1395 5 10 1 1 0 6 1
+pinlabel=INL
+T 1995 1445 5 10 1 1 0 0 1
+pinnumber=15
+T 2100 1400 5 10 0 0 0 6 1
+pinseq=15
+}
+P 2100 1900 1900 1900 1 0 0
+{
+T 2100 1900 5 10 0 0 0 0 1
+pintype=unknown
+T 1845 1895 5 10 1 1 0 6 1
+pinlabel=REF
+T 1995 1945 5 10 1 1 0 0 1
+pinnumber=13
+T 2100 1900 5 10 0 0 0 0 1
+pinseq=13
+}
+P 2100 2200 1900 2200 1 0 0
+{
+T 2100 2200 5 10 0 0 0 0 1
+pintype=unknown
+T 1845 2195 5 10 1 1 0 6 1
+pinlabel=BYPASS
+T 1995 2245 5 10 1 1 0 0 1
+pinnumber=17
+T 2100 2200 5 10 0 0 0 0 1
+pinseq=17
+}

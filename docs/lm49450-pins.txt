@@ -1,0 +1,32 @@
+1 C1P Charge Pump Flying Capacitor Positive Terminal
+2 CPGND Charge Pump Ground
+3 SDA I2C Serial Data Input
+4 DGND Digital Ground
+5 I2S_WS I2S Word Select Input
+6 I2S_SDI I2S Serial Data Input
+7 I2S_CLK I2S Clock Input
+8 MCLK Master Clock
+9 SCL I2C Clock Input
+10 DVDD Digital Core Power Supply
+11 IOVDD Digital Interface Power Supply
+12 GND Analog Ground
+13 REF DAC Reference Bypass
+14 INR Right Channel Analog Input
+15 INL Left Channel Analog Input
+16 VDD Analog Power Supply
+17 BYPASS Mid-Rail Bias Bypass
+18 LSVDD Speaker Power Supply
+19 LLS+ Left Channel Non-Inverting Speaker Output
+20 LLS- Left Channel Inverting Speaker Output
+21 LSGND Speaker Ground
+22 RLS- Right Channel Inverting Speaker Output
+23 RLS+ Right Channel Non-Inverting Speaker Output
+24 LSVDD Speaker Power Supply
+25 HPGND Headphone Amplifier Ground
+26 HPS Headphone Sense Input
+27 HPR Right Channel Headphone Amplifier Output
+28 HPVDD Headphone Amplifier Power Supply
+29 HPL Left Channel Headphone Amplifier Output
+30 HPVSS Charge Pump Output and Headphone Amplifier Negative Power Supply.
+31 C1N Charge Pump Flying Capacitor Negative Terminal
+32 CPVDD Charge Pump Power Supply

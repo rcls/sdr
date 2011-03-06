@@ -1,0 +1,140 @@
+v 20100214 2
+B 0 300 2200 2100 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+T 1700 900 8 10 1 1 0 0 1
+refdes=U?
+T 100 1300 8 10 1 1 0 0 1
+device=LM49450 Power
+T 1500 1300 8 10 1 1 0 0 1
+footprint=QFN32
+P 300 100 300 300 1 0 0
+{
+T 300 100 5 10 0 0 0 0 1
+pintype=unknown
+T 300 355 5 10 1 1 90 0 1
+pinlabel=CPGND
+T 250 205 5 10 1 1 90 6 1
+pinnumber=2
+T 300 100 5 10 0 0 0 0 1
+pinseq=2
+}
+P 600 100 600 300 1 0 0
+{
+T 600 100 5 10 0 0 0 0 1
+pintype=unknown
+T 600 355 5 10 1 1 90 0 1
+pinlabel=DGND
+T 550 205 5 10 1 1 90 6 1
+pinnumber=4
+T 600 100 5 10 0 0 0 0 1
+pinseq=4
+}
+P 900 100 900 300 1 0 0
+{
+T 900 100 5 10 0 0 0 0 1
+pintype=unknown
+T 900 355 5 10 1 1 90 0 1
+pinlabel=GND
+T 850 205 5 10 1 1 90 6 1
+pinnumber=12
+T 900 100 5 10 0 0 0 0 1
+pinseq=12
+}
+P 1200 100 1200 300 1 0 0
+{
+T 1200 100 5 10 0 0 0 0 1
+pintype=unknown
+T 1200 355 5 10 1 1 90 0 1
+pinlabel=LSGND
+T 1150 205 5 10 1 1 90 6 1
+pinnumber=21
+T 1200 100 5 10 0 0 0 0 1
+pinseq=21
+}
+P 1500 100 1500 300 1 0 0
+{
+T 1500 100 5 10 0 0 0 0 1
+pintype=unknown
+T 1500 355 5 10 1 1 90 0 1
+pinlabel=HPGND
+T 1450 205 5 10 1 1 90 6 1
+pinnumber=25
+T 1500 100 5 10 0 0 0 0 1
+pinseq=25
+}
+P 1900 100 1900 300 1 0 0
+{
+T 1900 100 5 10 0 0 0 0 1
+pintype=unknown
+T 1900 355 5 10 1 1 90 0 1
+pinlabel=Pad
+T 1850 205 5 10 1 1 90 6 1
+pinnumber=33
+T 1900 100 5 10 0 0 0 0 1
+pinseq=0
+}
+P 400 2600 400 2400 1 0 0
+{
+T 400 2600 5 10 0 0 0 0 1
+pintype=unknown
+T 400 2345 5 10 1 1 90 6 1
+pinlabel=CPVDD
+T 350 2495 5 10 1 1 90 0 1
+pinnumber=32
+T 400 2600 5 10 0 0 0 0 1
+pinseq=32
+}
+P 700 2600 700 2400 1 0 0
+{
+T 700 2600 5 10 0 0 0 0 1
+pintype=unknown
+T 700 2345 5 10 1 1 90 6 1
+pinlabel=LSVDD
+T 650 2495 5 10 1 1 90 0 1
+pinnumber=24
+T 700 2600 5 10 0 0 0 0 1
+pinseq=24
+}
+P 1000 2600 1000 2400 1 0 0
+{
+T 1000 2600 5 10 0 0 0 0 1
+pintype=unknown
+T 1000 2345 5 10 1 1 90 6 1
+pinlabel=LSVDD
+T 950 2495 5 10 1 1 90 0 1
+pinnumber=18
+T 1000 2600 5 10 0 0 0 0 1
+pinseq=18
+}
+P 1300 2600 1300 2400 1 0 0
+{
+T 1300 2600 5 10 0 0 0 0 1
+pintype=unknown
+T 1300 2345 5 10 1 1 90 6 1
+pinlabel=VDD
+T 1250 2495 5 10 1 1 90 0 1
+pinnumber=16
+T 1300 2600 5 10 0 0 0 0 1
+pinseq=16
+}
+P 1600 2600 1600 2400 1 0 0
+{
+T 1600 2600 5 10 0 0 0 0 1
+pintype=unknown
+T 1600 2345 5 10 1 1 90 6 1
+pinlabel=IOVDD
+T 1550 2495 5 10 1 1 90 0 1
+pinnumber=11
+T 1600 2600 5 10 0 0 0 0 1
+pinseq=11
+}
+P 1900 2600 1900 2400 1 0 0
+{
+T 1900 2600 5 10 0 0 0 0 1
+pintype=unknown
+T 1900 2345 5 10 1 1 90 6 1
+pinlabel=DVDD
+T 1850 2495 5 10 1 1 90 0 1
+pinnumber=10
+T 1900 2600 5 10 0 0 0 0 1
+pinseq=10
+}
