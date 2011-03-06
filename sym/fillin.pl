@@ -4,33 +4,35 @@
 
 my %pins;
 
-my $defpath = shift @ARGV;
+my $path = shift @ARGV;
 
-open my $PINS, '<', $defpath  or  die $!;
+my $FPGA   = ($path =~ /spartan6/);
+my $ADC    = ($path =~ /ads41b49/);
+my $FT2232 = ($path =~ /ft2232h/);
+
+open my $PINS, '<', $path  or  die $!;
 
 while (<$PINS>) {
     chomp;
 
-    my $pin = $1;
-    my $name = $2;
-
-    if (/^P(\d+)\s+(?:[0-3]|NA)\s+\w\w\s+(\S+)\s*$/) {
+    if ($FPGA  and  /^P(\d+)\s+(?:[0-3]|NA)\s+\w\w\s+(\S+)\s*$/) {
         $pin = $1;
         $name = $2;
         $name =~ s/^IO_//;
         $name =~ s/_[0-3]$//;
     }
-    elsif (m{^\|?(\d+)\s+([A-Z0-9_/]+)\s+\w+\s*$}) {
+    if ($ADC  and  m{^\|?(\d+)\s+([A-Z0-9_/]+)\s+\w+\s*$}) {
         $pin = $1;
         $name = $2;
         $name = 'AVDD_BUF'  if  $pin == 21  and  $name eq 'NC';
         $name =~ s|^D\d+/(D\d+_D\d+[MP])$|$1|;
     }
-    else {
-        next;
+    if ($FT2232 and m/^(\d+)\s+(\S+)/) {
+        $pin = $1;
+        $name = $2;
     }
 
-    $pins{$pin} = $name;
+    $pins{$pin} = $name  if  defined $pin;
 }
 
 close $PINS  or  die $!;

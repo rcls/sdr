@@ -1,0 +1,184 @@
+v 20100214 2
+B 300 0 2200 3000 3 0 0 0 -1 -1 0 -1 -1 -1 -1 -1
+T 400 300 8 10 1 1 0 0 1
+device=FT2232 Bus B
+T 1800 300 8 10 1 1 0 0 1
+footprint=QFP64
+T 1300 1800 8 10 1 1 0 0 1
+refdes=U?
+P 100 2800 300 2800 1 0 0
+{
+T 100 2800 5 10 0 0 0 0 1
+pintype=unknown
+T 355 2795 5 10 1 1 0 0 1
+pinlabel=BDBUS0
+T 205 2845 5 10 1 1 0 6 1
+pinnumber=38
+T 100 2800 5 10 0 0 0 0 1
+pinseq=38
+}
+P 100 2500 300 2500 1 0 0
+{
+T 100 2500 5 10 0 0 0 0 1
+pintype=unknown
+T 355 2495 5 10 1 1 0 0 1
+pinlabel=BDBUS1
+T 205 2545 5 10 1 1 0 6 1
+pinnumber=39
+T 100 2500 5 10 0 0 0 0 1
+pinseq=39
+}
+P 100 2200 300 2200 1 0 0
+{
+T 100 2200 5 10 0 0 0 0 1
+pintype=unknown
+T 355 2195 5 10 1 1 0 0 1
+pinlabel=BDBUS2
+T 205 2245 5 10 1 1 0 6 1
+pinnumber=40
+T 100 2200 5 10 0 0 0 0 1
+pinseq=40
+}
+P 100 1900 300 1900 1 0 0
+{
+T 100 1900 5 10 0 0 0 0 1
+pintype=unknown
+T 355 1895 5 10 1 1 0 0 1
+pinlabel=BDBUS3
+T 205 1945 5 10 1 1 0 6 1
+pinnumber=41
+T 100 1900 5 10 0 0 0 0 1
+pinseq=41
+}
+P 2700 2500 2500 2500 1 0 0
+{
+T 2700 2500 5 10 0 0 0 0 1
+pintype=unknown
+T 2445 2495 5 10 1 1 0 6 1
+pinlabel=BCBUS6
+T 2595 2545 5 10 1 1 0 0 1
+pinnumber=58
+T 2700 2500 5 10 0 0 0 0 1
+pinseq=58
+}
+P 2700 2800 2500 2800 1 0 0
+{
+T 2700 2800 5 10 0 0 0 0 1
+pintype=unknown
+T 2445 2795 5 10 1 1 0 6 1
+pinlabel=BCBUS7
+T 2595 2845 5 10 1 1 0 0 1
+pinnumber=59
+T 2700 2800 5 10 0 0 0 0 1
+pinseq=59
+}
+P 2700 2200 2500 2200 1 0 0
+{
+T 2700 2200 5 10 0 0 0 0 1
+pintype=unknown
+T 2445 2195 5 10 1 1 0 6 1
+pinlabel=BCBUS5
+T 2595 2245 5 10 1 1 0 0 1
+pinnumber=57
+T 2700 2200 5 10 0 0 0 0 1
+pinseq=57
+}
+P 2700 1900 2500 1900 1 0 0
+{
+T 2700 1900 5 10 0 0 0 0 1
+pintype=unknown
+T 2445 1895 5 10 1 1 0 6 1
+pinlabel=BCBUS4
+T 2595 1945 5 10 1 1 0 0 1
+pinnumber=55
+T 2700 1900 5 10 0 0 0 0 1
+pinseq=55
+}
+P 100 1600 300 1600 1 0 0
+{
+T 100 1600 5 10 0 0 0 0 1
+pintype=unknown
+T 355 1595 5 10 1 1 0 0 1
+pinlabel=BDBUS4
+T 205 1645 5 10 1 1 0 6 1
+pinnumber=43
+T 100 1600 5 10 0 0 0 0 1
+pinseq=43
+}
+P 100 1300 300 1300 1 0 0
+{
+T 100 1300 5 10 0 0 0 0 1
+pintype=unknown
+T 355 1295 5 10 1 1 0 0 1
+pinlabel=BDBUS5
+T 205 1345 5 10 1 1 0 6 1
+pinnumber=44
+T 100 1300 5 10 0 0 0 0 1
+pinseq=44
+}
+P 100 1000 300 1000 1 0 0
+{
+T 100 1000 5 10 0 0 0 0 1
+pintype=unknown
+T 355 995 5 10 1 1 0 0 1
+pinlabel=BDBUS6
+T 205 1045 5 10 1 1 0 6 1
+pinnumber=45
+T 100 1000 5 10 0 0 0 0 1
+pinseq=45
+}
+P 100 700 300 700 1 0 0
+{
+T 100 700 5 10 0 0 0 0 1
+pintype=unknown
+T 355 695 5 10 1 1 0 0 1
+pinlabel=BDBUS7
+T 205 745 5 10 1 1 0 6 1
+pinnumber=46
+T 100 700 5 10 0 0 0 0 1
+pinseq=46
+}
+P 2700 1300 2500 1300 1 0 0
+{
+T 2700 1300 5 10 0 0 0 0 1
+pintype=unknown
+T 2445 1295 5 10 1 1 0 6 1
+pinlabel=BCBUS2
+T 2595 1345 5 10 1 1 0 0 1
+pinnumber=53
+T 2700 1300 5 10 0 0 0 0 1
+pinseq=53
+}
+P 2700 1600 2500 1600 1 0 0
+{
+T 2700 1600 5 10 0 0 0 0 1
+pintype=unknown
+T 2445 1595 5 10 1 1 0 6 1
+pinlabel=BCBUS3
+T 2595 1645 5 10 1 1 0 0 1
+pinnumber=54
+T 2700 1600 5 10 0 0 0 0 1
+pinseq=54
+}
+P 2700 1000 2500 1000 1 0 0
+{
+T 2700 1000 5 10 0 0 0 0 1
+pintype=unknown
+T 2445 995 5 10 1 1 0 6 1
+pinlabel=BCBUS1
+T 2595 1045 5 10 1 1 0 0 1
+pinnumber=52
+T 2700 1000 5 10 0 0 0 0 1
+pinseq=52
+}
+P 2700 700 2500 700 1 0 0
+{
+T 2700 700 5 10 0 0 0 0 1
+pintype=unknown
+T 2445 695 5 10 1 1 0 6 1
+pinlabel=BCBUS0
+T 2595 745 5 10 1 1 0 0 1
+pinnumber=48
+T 2700 700 5 10 0 0 0 0 1
+pinseq=48
+}
