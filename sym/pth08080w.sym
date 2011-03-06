@@ -9,7 +9,7 @@ pinlabel=Inhibit#
 T 105 1545 5 10 1 1 0 6 1
 pinnumber=5
 T 0 1500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=5
 }
 P 0 400 200 400 1 0 0
 {
@@ -20,7 +20,7 @@ pinlabel=VIN
 T 105 445 5 10 1 1 0 6 1
 pinnumber=1
 T 0 400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=1
 }
 P 1200 0 1200 200 1 0 0
 {
@@ -31,7 +31,7 @@ pinlabel=GND
 T 1150 105 5 10 1 1 90 6 1
 pinnumber=2
 T 1200 0 5 10 0 0 0 0 1
-pinseq=0
+pinseq=2
 }
 P 2400 400 2200 400 1 0 0
 {
@@ -42,7 +42,7 @@ pinlabel=Vout
 T 2295 445 5 10 1 1 0 0 1
 pinnumber=3
 T 2400 400 5 10 0 0 0 0 1
-pinseq=0
+pinseq=3
 }
 P 2400 1500 2200 1500 1 0 0
 {
@@ -53,7 +53,7 @@ pinlabel=Vo Adjust
 T 2295 1545 5 10 1 1 0 0 1
 pinnumber=4
 T 2400 1500 5 10 0 0 0 0 1
-pinseq=0
+pinseq=4
 }
 T 400 1100 8 10 1 1 0 0 1
 device=PTH0808W

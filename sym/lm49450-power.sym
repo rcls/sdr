@@ -70,7 +70,7 @@ pinlabel=Pad
 T 1850 205 5 10 1 1 90 6 1
 pinnumber=33
 T 1900 100 5 10 0 0 0 0 1
-pinseq=0
+pinseq=33
 }
 P 400 2600 400 2400 1 0 0
 {
