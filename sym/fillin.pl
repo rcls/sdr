@@ -6,9 +6,10 @@ my %pins;
 
 my $path = shift @ARGV;
 
-my $FPGA   = ($path =~ /spartan6/);
-my $ADC    = ($path =~ /ads41b49/);
-my $FT2232 = ($path =~ /ft2232h/);
+my $FPGA    = ($path =~ /spartan6/);
+my $ADC     = ($path =~ /ads41b49/);
+my $FT2232  = ($path =~ /ft2232h/);
+my $LM3S828 = ($path =~ /LM3S828/);
 
 open my $PINS, '<', $path  or  die $!;
 
@@ -30,6 +31,11 @@ while (<$PINS>) {
     if ($FT2232 and m/^(\d+)\s+(\S+)/) {
         $pin = $1;
         $name = $2;
+    }
+    if ($LM3S828 and m/^"?(\d+)"?,"?([A-Za-z0-9]+)"?,/) {
+        $pin = $1;
+        $name = $2;
+        $name = "$pins{$pin}/$name"  if  exists $pins{$pin};
     }
 
     $pins{$pin} = $name  if  defined $pin;
