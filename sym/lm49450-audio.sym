@@ -105,25 +105,25 @@ pinnumber=1
 T 100 1900 5 10 0 0 0 6 1
 pinseq=1
 }
-P 2100 900 1900 900 1 0 0
-{
-T 2100 900 5 10 0 0 0 0 1
-pintype=unknown
-T 1845 895 5 10 1 1 0 6 1
-pinlabel=HPVSS
-T 1995 945 5 10 1 1 0 0 1
-pinnumber=30
-T 2100 900 5 10 0 0 0 0 1
-pinseq=30
-}
 P 2100 600 1900 600 1 0 0
 {
 T 2100 600 5 10 0 0 0 0 1
 pintype=unknown
 T 1845 595 5 10 1 1 0 6 1
-pinlabel=HPVDD
+pinlabel=HPVSS
 T 1995 645 5 10 1 1 0 0 1
-pinnumber=28
+pinnumber=30
 T 2100 600 5 10 0 0 0 0 1
+pinseq=30
+}
+P 2100 900 1900 900 1 0 0
+{
+T 2100 900 5 10 0 0 0 0 1
+pintype=unknown
+T 1845 895 5 10 1 1 0 6 1
+pinlabel=HPVDD
+T 1995 945 5 10 1 1 0 0 1
+pinnumber=28
+T 2100 900 5 10 0 0 0 0 1
 pinseq=28
 }
