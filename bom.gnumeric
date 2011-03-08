@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gnm:Workbook xmlns:gnm="http://www.gnumeric.org/v10.dtd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gnumeric.org/v9.xsd">
+  <gnm:Version Epoch="1" Major="10" Minor="13" Full="1.10.13"/>
+  <gnm:Attributes>
+    <gnm:Attribute>
+      <gnm:type>4</gnm:type>
+      <gnm:name>WorkbookView::show_horizontal_scrollbar</gnm:name>
+      <gnm:value>TRUE</gnm:value>
+    </gnm:Attribute>
+    <gnm:Attribute>
+      <gnm:type>4</gnm:type>
+      <gnm:name>WorkbookView::show_vertical_scrollbar</gnm:name>
+      <gnm:value>TRUE</gnm:value>
+    </gnm:Attribute>
+    <gnm:Attribute>
+      <gnm:type>4</gnm:type>
+      <gnm:name>WorkbookView::show_notebook_tabs</gnm:name>
+      <gnm:value>TRUE</gnm:value>
+    </gnm:Attribute>
+    <gnm:Attribute>
+      <gnm:type>4</gnm:type>
+      <gnm:name>WorkbookView::do_auto_completion</gnm:name>
+      <gnm:value>TRUE</gnm:value>
+    </gnm:Attribute>
+    <gnm:Attribute>
+      <gnm:type>4</gnm:type>
+      <gnm:name>WorkbookView::is_protected</gnm:name>
+      <gnm:value>FALSE</gnm:value>
+    </gnm:Attribute>
+  </gnm:Attributes>
+  <office:document-meta xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:ooo="http://openoffice.org/2004/office" office:version="1.1">
+    <office:meta>
+      <dc:date>2011-03-08T07:40:32Z</dc:date>
+      <meta:creation-date>2011-03-07T23:44:38Z</meta:creation-date>
+    </office:meta>
+  </office:document-meta>
+  <gnm:Calculation ManualRecalc="0" EnableIteration="1" MaxIterations="100" IterationTolerance="0.001" FloatRadix="2" FloatDigits="53"/>
+  <gnm:SheetNameIndex>
+    <gnm:SheetName gnm:Cols="256" gnm:Rows="65536">temp.txt</gnm:SheetName>
+  </gnm:SheetNameIndex>
+  <gnm:Names/>
+  <gnm:Geometry Width="1440" Height="727"/>
+  <gnm:Sheets>
+    <gnm:Sheet DisplayFormulas="0" HideZero="0" HideGrid="0" HideColHeader="0" HideRowHeader="0" DisplayOutlines="1" OutlineSymbolsBelow="1" OutlineSymbolsRight="1" Visibility="GNM_SHEET_VISIBILITY_VISIBLE" GridColor="0:0:0">
+      <gnm:Name>temp.txt</gnm:Name>
+      <gnm:MaxCol>5</gnm:MaxCol>
+      <gnm:MaxRow>196</gnm:MaxRow>
+      <gnm:Zoom>1</gnm:Zoom>
+      <gnm:Names>
+        <gnm:Name>
+          <gnm:name>Print_Area</gnm:name>
+          <gnm:value>#REF!</gnm:value>
+          <gnm:position>A1</gnm:position>
+        </gnm:Name>
+        <gnm:Name>
+          <gnm:name>Sheet_Title</gnm:name>
+          <gnm:value>&quot;temp.txt&quot;</gnm:value>
+          <gnm:position>A1</gnm:position>
+        </gnm:Name>
+      </gnm:Names>
+      <gnm:PrintInformation>
+        <gnm:Margins>
+          <gnm:top Points="120" PrefUnit="mm"/>
+          <gnm:bottom Points="120" PrefUnit="mm"/>
+          <gnm:left Points="72" PrefUnit="mm"/>
+          <gnm:right Points="72" PrefUnit="mm"/>
+          <gnm:header Points="72" PrefUnit="mm"/>
+          <gnm:footer Points="72" PrefUnit="mm"/>
+        </gnm:Margins>
+        <gnm:Scale type="percentage" percentage="100"/>
+        <gnm:vcenter value="0"/>
+        <gnm:hcenter value="0"/>
+        <gnm:grid value="0"/>
+        <gnm:even_if_only_styles value="0"/>
+        <gnm:monochrome value="0"/>
+        <gnm:draft value="0"/>
+        <gnm:titles value="0"/>
+        <gnm:do_not_print value="0"/>
+        <gnm:order>d_then_r</gnm:order>
+        <gnm:orientation>portrait</gnm:orientation>
+        <gnm:Header Left="" Middle="&amp;[TAB]" Right=""/>
+        <gnm:Footer Left="" Middle="Page &amp;[PAGE]" Right=""/>
+        <gnm:paper>iso_a4</gnm:paper>
+      </gnm:PrintInformation>
+      <gnm:Styles>
+        <gnm:StyleRegion startCol="0" startRow="0" endCol="7" endRow="159">
+          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
+            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
+          </gnm:Style>
+        </gnm:StyleRegion>
+        <gnm:StyleRegion startCol="0" startRow="160" endCol="7" endRow="175">
+          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
+            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
+          </gnm:Style>
+        </gnm:StyleRegion>
+        <gnm:StyleRegion startCol="0" startRow="176" endCol="7" endRow="255">
+          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
+            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
+          </gnm:Style>
+        </gnm:StyleRegion>
+        <gnm:StyleRegion startCol="0" startRow="256" endCol="63" endRow="4095">
+          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
+            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
+          </gnm:Style>
+        </gnm:StyleRegion>
+        <gnm:StyleRegion startCol="0" startRow="4096" endCol="255" endRow="65535">
+          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
+            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
+          </gnm:Style>
+        </gnm:StyleRegion>
+        <gnm:StyleRegion startCol="8" startRow="0" endCol="63" endRow="255">
+          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
+            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
+          </gnm:Style>
+        </gnm:StyleRegion>
+        <gnm:StyleRegion startCol="64" startRow="0" endCol="255" endRow="4095">
+          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
+            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
+          </gnm:Style>
+        </gnm:StyleRegion>
+      </gnm:Styles>
+      <gnm:Cols DefaultSizePts="48">
+        <gnm:ColInfo No="0" Unit="48" Count="2"/>
+        <gnm:ColInfo No="2" Unit="122.2"/>
+        <gnm:ColInfo No="3" Unit="48" Count="3"/>
+      </gnm:Cols>
+      <gnm:Rows DefaultSizePts="12.75">
+        <gnm:RowInfo No="0" Unit="13.5" Count="46"/>
+        <gnm:RowInfo No="46" Unit="12.75"/>
+        <gnm:RowInfo No="47" Unit="13.5" Count="10"/>
+        <gnm:RowInfo No="57" Unit="12.75" Count="27"/>
+        <gnm:RowInfo No="84" Unit="13.5" Count="111"/>
+      </gnm:Rows>
+      <gnm:Selections CursorCol="1" CursorRow="196">
+        <gnm:Selection startCol="1" startRow="196" endCol="1" endRow="196"/>
+      </gnm:Selections>
+      <gnm:Cells>
+        <gnm:Cell Row="0" Col="0" ValueType="60">C101</gnm:Cell>
+        <gnm:Cell Row="0" Col="1" ValueType="60">10n</gnm:Cell>
+        <gnm:Cell Row="1" Col="0" ValueType="60">C102</gnm:Cell>
+        <gnm:Cell Row="1" Col="1" ValueType="60">1u</gnm:Cell>
+        <gnm:Cell Row="1" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="2" Col="0" ValueType="60">C103</gnm:Cell>
+        <gnm:Cell Row="2" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="2" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="3" Col="0" ValueType="60">C104</gnm:Cell>
+        <gnm:Cell Row="3" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="3" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="4" Col="0" ValueType="60">C105</gnm:Cell>
+        <gnm:Cell Row="4" Col="1" ValueType="60">1u</gnm:Cell>
+        <gnm:Cell Row="4" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="5" Col="0" ValueType="60">C106</gnm:Cell>
+        <gnm:Cell Row="5" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="5" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="6" Col="0" ValueType="60">C107</gnm:Cell>
+        <gnm:Cell Row="6" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="6" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="7" Col="0" ValueType="60">C108</gnm:Cell>
+        <gnm:Cell Row="7" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="7" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="8" Col="0" ValueType="60">C109</gnm:Cell>
+        <gnm:Cell Row="8" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="8" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="9" Col="0" ValueType="60">C110</gnm:Cell>
+        <gnm:Cell Row="9" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="9" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="10" Col="0" ValueType="60">C111</gnm:Cell>
+        <gnm:Cell Row="10" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="10" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="11" Col="0" ValueType="60">C112</gnm:Cell>
+        <gnm:Cell Row="11" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="11" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="12" Col="0" ValueType="60">C113</gnm:Cell>
+        <gnm:Cell Row="12" Col="1" ValueType="60">1u</gnm:Cell>
+        <gnm:Cell Row="12" Col="2" ValueType="60">?Check EVM</gnm:Cell>
+        <gnm:Cell Row="13" Col="0" ValueType="60">C21</gnm:Cell>
+        <gnm:Cell Row="13" Col="1" ValueType="60">10n</gnm:Cell>
+        <gnm:Cell Row="14" Col="0" ValueType="60">C22</gnm:Cell>
+        <gnm:Cell Row="14" Col="1" ValueType="60">10n</gnm:Cell>
+        <gnm:Cell Row="15" Col="0" ValueType="60">C301</gnm:Cell>
+        <gnm:Cell Row="15" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="15" Col="3" ValueType="60">GRM188R71E104KA01D</gnm:Cell>
+        <gnm:Cell Row="16" Col="0" ValueType="60">C302</gnm:Cell>
+        <gnm:Cell Row="16" Col="1" ValueType="60">10n</gnm:Cell>
+        <gnm:Cell Row="17" Col="0" ValueType="60">C303</gnm:Cell>
+        <gnm:Cell Row="17" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="18" Col="0" ValueType="60">C304</gnm:Cell>
+        <gnm:Cell Row="18" Col="1" ValueType="60">1u</gnm:Cell>
+        <gnm:Cell Row="19" Col="0" ValueType="60">C305</gnm:Cell>
+        <gnm:Cell Row="19" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="20" Col="0" ValueType="60">C306</gnm:Cell>
+        <gnm:Cell Row="20" Col="1" ValueType="60">22n</gnm:Cell>
+        <gnm:Cell Row="20" Col="3" ValueType="60">C1608X7R1E223K</gnm:Cell>
+        <gnm:Cell Row="21" Col="0" ValueType="60">C307</gnm:Cell>
+        <gnm:Cell Row="21" Col="1" ValueType="60">220u</gnm:Cell>
+        <gnm:Cell Row="21" Col="2" ValueType="60">Electro</gnm:Cell>
+        <gnm:Cell Row="21" Col="3" ValueType="60">AFK227M06D16T-F</gnm:Cell>
+        <gnm:Cell Row="22" Col="0" ValueType="60">C308</gnm:Cell>
+        <gnm:Cell Row="22" Col="1" ValueType="60">1u</gnm:Cell>
+        <gnm:Cell Row="23" Col="0" ValueType="60">C309</gnm:Cell>
+        <gnm:Cell Row="23" Col="1" ValueType="60">220u</gnm:Cell>
+        <gnm:Cell Row="23" Col="2" ValueType="60">Electro</gnm:Cell>
+        <gnm:Cell Row="24" Col="0" ValueType="60">C310</gnm:Cell>
+        <gnm:Cell Row="24" Col="1" ValueType="60">22n</gnm:Cell>
+        <gnm:Cell Row="25" Col="0" ValueType="60">C311</gnm:Cell>
+        <gnm:Cell Row="25" Col="1" ValueType="60">10u</gnm:Cell>
+        <gnm:Cell Row="26" Col="0" ValueType="60">C401</gnm:Cell>
+        <gnm:Cell Row="26" Col="1" ValueType="60">10u</gnm:Cell>
+        <gnm:Cell Row="27" Col="0" ValueType="60">C402</gnm:Cell>
+        <gnm:Cell Row="27" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="28" Col="0" ValueType="60">C403</gnm:Cell>
+        <gnm:Cell Row="28" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="29" Col="0" ValueType="60">C404</gnm:Cell>
+        <gnm:Cell Row="29" Col="1" ValueType="60">100u</gnm:Cell>
+        <gnm:Cell Row="29" Col="2" ValueType="60">Ceramic</gnm:Cell>
+        <gnm:Cell Row="29" Col="3" ValueType="60">FIXME - sort these out.</gnm:Cell>
+        <gnm:Cell Row="30" Col="0" ValueType="60">C405</gnm:Cell>
+        <gnm:Cell Row="30" Col="1" ValueType="60">100u</gnm:Cell>
+        <gnm:Cell Row="31" Col="0" ValueType="60">C406</gnm:Cell>
+        <gnm:Cell Row="31" Col="1" ValueType="60">22n</gnm:Cell>
+        <gnm:Cell Row="32" Col="0" ValueType="60">C407</gnm:Cell>
+        <gnm:Cell Row="32" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="33" Col="0" ValueType="60">C408</gnm:Cell>
+        <gnm:Cell Row="33" Col="1" ValueType="60">4.7u</gnm:Cell>
+        <gnm:Cell Row="33" Col="2" ValueType="60">10u?</gnm:Cell>
+        <gnm:Cell Row="34" Col="0" ValueType="60">C409</gnm:Cell>
+        <gnm:Cell Row="34" Col="1" ValueType="60">100u</gnm:Cell>
+        <gnm:Cell Row="34" Col="2" ValueType="60">???</gnm:Cell>
+        <gnm:Cell Row="35" Col="0" ValueType="60">C410</gnm:Cell>
+        <gnm:Cell Row="35" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="36" Col="0" ValueType="60">C411</gnm:Cell>
+        <gnm:Cell Row="36" Col="1" ValueType="60">10u</gnm:Cell>
+        <gnm:Cell Row="37" Col="0" ValueType="60">C412</gnm:Cell>
+        <gnm:Cell Row="37" Col="1" ValueType="60">22n</gnm:Cell>
+        <gnm:Cell Row="38" Col="0" ValueType="60">C413</gnm:Cell>
+        <gnm:Cell Row="38" Col="1" ValueType="60">22n</gnm:Cell>
+        <gnm:Cell Row="39" Col="0" ValueType="60">C601</gnm:Cell>
+        <gnm:Cell Row="39" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="39" Col="2" ValueType="60">Smaller?</gnm:Cell>
+        <gnm:Cell Row="40" Col="0" ValueType="60">C602</gnm:Cell>
+        <gnm:Cell Row="40" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="41" Col="0" ValueType="60">C603</gnm:Cell>
+        <gnm:Cell Row="41" Col="1" ValueType="60">10n</gnm:Cell>
+        <gnm:Cell Row="42" Col="0" ValueType="60">C604</gnm:Cell>
+        <gnm:Cell Row="42" Col="1" ValueType="60">1u</gnm:Cell>
+        <gnm:Cell Row="43" Col="0" ValueType="60">C605</gnm:Cell>
+        <gnm:Cell Row="43" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="43" Col="2" ValueType="60">?</gnm:Cell>
+        <gnm:Cell Row="44" Col="0" ValueType="60">C701</gnm:Cell>
+        <gnm:Cell Row="44" Col="1" ValueType="60">10n</gnm:Cell>
+        <gnm:Cell Row="45" Col="0" ValueType="60">C702</gnm:Cell>
+        <gnm:Cell Row="45" Col="2" ValueType="60">Double up</gnm:Cell>
+        <gnm:Cell Row="46" Col="0" ValueType="60">C703</gnm:Cell>
+        <gnm:Cell Row="47" Col="0" ValueType="60">C704</gnm:Cell>
+        <gnm:Cell Row="47" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="48" Col="0" ValueType="60">C705</gnm:Cell>
+        <gnm:Cell Row="48" Col="1" ValueType="60">22p</gnm:Cell>
+        <gnm:Cell Row="48" Col="2" ValueType="60">15pF for 8pF xtal</gnm:Cell>
+        <gnm:Cell Row="48" Col="3" ValueType="60">C1608C0G1H150J</gnm:Cell>
+        <gnm:Cell Row="49" Col="0" ValueType="60">C706</gnm:Cell>
+        <gnm:Cell Row="49" Col="1" ValueType="60">22p</gnm:Cell>
+        <gnm:Cell Row="49" Col="2" ValueType="60">? xtal</gnm:Cell>
+        <gnm:Cell Row="49" Col="3" ValueType="60">C1608C0G1H150J</gnm:Cell>
+        <gnm:Cell Row="50" Col="0" ValueType="60">C707</gnm:Cell>
+        <gnm:Cell Row="50" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="51" Col="0" ValueType="60">C708</gnm:Cell>
+        <gnm:Cell Row="51" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="52" Col="0" ValueType="60">C709</gnm:Cell>
+        <gnm:Cell Row="52" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="53" Col="0" ValueType="60">C710</gnm:Cell>
+        <gnm:Cell Row="53" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="54" Col="0" ValueType="60">C711</gnm:Cell>
+        <gnm:Cell Row="54" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="55" Col="0" ValueType="60">C712</gnm:Cell>
+        <gnm:Cell Row="55" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="56" Col="0" ValueType="60">C713</gnm:Cell>
+        <gnm:Cell Row="56" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="57" Col="0" ValueType="60">C901</gnm:Cell>
+        <gnm:Cell Row="58" Col="0" ValueType="60">C902</gnm:Cell>
+        <gnm:Cell Row="59" Col="0" ValueType="60">C903</gnm:Cell>
+        <gnm:Cell Row="60" Col="0" ValueType="60">C904</gnm:Cell>
+        <gnm:Cell Row="61" Col="0" ValueType="60">C905</gnm:Cell>
+        <gnm:Cell Row="62" Col="0" ValueType="60">C906</gnm:Cell>
+        <gnm:Cell Row="63" Col="0" ValueType="60">C907</gnm:Cell>
+        <gnm:Cell Row="64" Col="0" ValueType="60">C908</gnm:Cell>
+        <gnm:Cell Row="65" Col="0" ValueType="60">C909</gnm:Cell>
+        <gnm:Cell Row="66" Col="0" ValueType="60">C910</gnm:Cell>
+        <gnm:Cell Row="67" Col="0" ValueType="60">C911</gnm:Cell>
+        <gnm:Cell Row="68" Col="0" ValueType="60">C912</gnm:Cell>
+        <gnm:Cell Row="69" Col="0" ValueType="60">C913</gnm:Cell>
+        <gnm:Cell Row="70" Col="0" ValueType="60">C914</gnm:Cell>
+        <gnm:Cell Row="71" Col="0" ValueType="60">C915</gnm:Cell>
+        <gnm:Cell Row="72" Col="0" ValueType="60">C916</gnm:Cell>
+        <gnm:Cell Row="73" Col="0" ValueType="60">C917</gnm:Cell>
+        <gnm:Cell Row="74" Col="0" ValueType="60">C918</gnm:Cell>
+        <gnm:Cell Row="75" Col="0" ValueType="60">C919</gnm:Cell>
+        <gnm:Cell Row="76" Col="0" ValueType="60">C920</gnm:Cell>
+        <gnm:Cell Row="77" Col="0" ValueType="60">C921</gnm:Cell>
+        <gnm:Cell Row="78" Col="0" ValueType="60">C922</gnm:Cell>
+        <gnm:Cell Row="79" Col="0" ValueType="60">C923</gnm:Cell>
+        <gnm:Cell Row="80" Col="0" ValueType="60">C924</gnm:Cell>
+        <gnm:Cell Row="81" Col="0" ValueType="60">C925</gnm:Cell>
+        <gnm:Cell Row="82" Col="0" ValueType="60">C926</gnm:Cell>
+        <gnm:Cell Row="83" Col="0" ValueType="60">C927</gnm:Cell>
+        <gnm:Cell Row="84" Col="0" ValueType="60">C928</gnm:Cell>
+        <gnm:Cell Row="84" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="85" Col="0" ValueType="60">C929</gnm:Cell>
+        <gnm:Cell Row="85" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="86" Col="0" ValueType="60">C930</gnm:Cell>
+        <gnm:Cell Row="86" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="87" Col="0" ValueType="60">C931</gnm:Cell>
+        <gnm:Cell Row="87" Col="1" ValueType="60">100n</gnm:Cell>
+        <gnm:Cell Row="88" Col="0" ValueType="60">CONN11</gnm:Cell>
+        <gnm:Cell Row="88" Col="1" ValueType="60">SMA</gnm:Cell>
+        <gnm:Cell Row="89" Col="0" ValueType="60">CONN31</gnm:Cell>
+        <gnm:Cell Row="89" Col="2" ValueType="60">?CPU serial</gnm:Cell>
+        <gnm:Cell Row="90" Col="0" ValueType="60">CONN32</gnm:Cell>
+        <gnm:Cell Row="90" Col="1" ValueType="60">3.5 Jack</gnm:Cell>
+        <gnm:Cell Row="90" Col="4" ValueType="60">CP-3524SJPICT-ND</gnm:Cell>
+        <gnm:Cell Row="91" Col="0" ValueType="60">CONN41</gnm:Cell>
+        <gnm:Cell Row="91" Col="2" ValueType="60">?Power</gnm:Cell>
+        <gnm:Cell Row="91" Col="4" ValueType="60">XXXX</gnm:Cell>
+        <gnm:Cell Row="92" Col="0" ValueType="60">CONN61</gnm:Cell>
+        <gnm:Cell Row="92" Col="2" ValueType="60">?CPU jtag</gnm:Cell>
+        <gnm:Cell Row="93" Col="0" ValueType="60">CONN62</gnm:Cell>
+        <gnm:Cell Row="93" Col="1" ValueType="60">7by2 0.1</gnm:Cell>
+        <gnm:Cell Row="93" Col="2" ValueType="60">Daughter</gnm:Cell>
+        <gnm:Cell Row="93" Col="4" ValueType="60">SFH11-PBPC-D07-RA-BK</gnm:Cell>
+        <gnm:Cell Row="94" Col="0" ValueType="60">CONN71</gnm:Cell>
+        <gnm:Cell Row="94" Col="1" ValueType="60">Miniusb</gnm:Cell>
+        <gnm:Cell Row="94" Col="4" ValueType="60">ED90341CT-ND</gnm:Cell>
+        <gnm:Cell Row="95" Col="0" ValueType="60">D41</gnm:Cell>
+        <gnm:Cell Row="95" Col="1" ValueType="60">Power schotky</gnm:Cell>
+        <gnm:Cell Row="95" Col="4" ValueType="60">MBRS240LT3GOSCT-ND</gnm:Cell>
+        <gnm:Cell Row="96" Col="0" ValueType="60">D42</gnm:Cell>
+        <gnm:Cell Row="96" Col="1" ValueType="60">14v Zener</gnm:Cell>
+        <gnm:Cell Row="96" Col="4" ValueType="60">SMAZ15-FDICT-ND</gnm:Cell>
+        <gnm:Cell Row="97" Col="0" ValueType="60">D51</gnm:Cell>
+        <gnm:Cell Row="97" Col="1" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="97" Col="2" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="98" Col="0" ValueType="60">D601</gnm:Cell>
+        <gnm:Cell Row="98" Col="1" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="98" Col="2" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="99" Col="0" ValueType="60">D602</gnm:Cell>
+        <gnm:Cell Row="99" Col="1" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="99" Col="2" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="100" Col="0" ValueType="60">D603</gnm:Cell>
+        <gnm:Cell Row="100" Col="1" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="100" Col="2" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="101" Col="0" ValueType="60">D604</gnm:Cell>
+        <gnm:Cell Row="101" Col="1" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="101" Col="2" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="102" Col="0" ValueType="60">D605</gnm:Cell>
+        <gnm:Cell Row="102" Col="1" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="102" Col="2" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="103" Col="0" ValueType="60">D606</gnm:Cell>
+        <gnm:Cell Row="103" Col="1" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="103" Col="2" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="104" Col="0" ValueType="60">D607</gnm:Cell>
+        <gnm:Cell Row="104" Col="1" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="104" Col="2" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="105" Col="0" ValueType="60">D608</gnm:Cell>
+        <gnm:Cell Row="105" Col="1" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="105" Col="2" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="106" Col="0" ValueType="60">FB11</gnm:Cell>
+        <gnm:Cell Row="106" Col="1" ValueType="60">Analog</gnm:Cell>
+        <gnm:Cell Row="107" Col="0" ValueType="60">FB12</gnm:Cell>
+        <gnm:Cell Row="107" Col="1" ValueType="60">Digital</gnm:Cell>
+        <gnm:Cell Row="107" Col="2" ValueType="60">? Needed?</gnm:Cell>
+        <gnm:Cell Row="108" Col="0" ValueType="60">FB13</gnm:Cell>
+        <gnm:Cell Row="108" Col="1" ValueType="60">Analog</gnm:Cell>
+        <gnm:Cell Row="109" Col="0" ValueType="60">FB31</gnm:Cell>
+        <gnm:Cell Row="109" Col="1" ValueType="60">Analog</gnm:Cell>
+        <gnm:Cell Row="110" Col="0" ValueType="60">FB41</gnm:Cell>
+        <gnm:Cell Row="110" Col="1" ValueType="60">Main</gnm:Cell>
+        <gnm:Cell Row="110" Col="2" ValueType="60">HI1206T161R-10 for high current</gnm:Cell>
+        <gnm:Cell Row="111" Col="0" ValueType="60">FB42</gnm:Cell>
+        <gnm:Cell Row="111" Col="1" ValueType="60">Main</gnm:Cell>
+        <gnm:Cell Row="111" Col="2" ValueType="60">MPZ2012S221A for small current</gnm:Cell>
+        <gnm:Cell Row="112" Col="0" ValueType="60">FB43</gnm:Cell>
+        <gnm:Cell Row="112" Col="1" ValueType="60">Main</gnm:Cell>
+        <gnm:Cell Row="113" Col="0" ValueType="60">FB44</gnm:Cell>
+        <gnm:Cell Row="113" Col="1" ValueType="60">Input</gnm:Cell>
+        <gnm:Cell Row="114" Col="0" ValueType="60">FB45</gnm:Cell>
+        <gnm:Cell Row="114" Col="1" ValueType="60">Input</gnm:Cell>
+        <gnm:Cell Row="115" Col="0" ValueType="60">FB71</gnm:Cell>
+        <gnm:Cell Row="115" Col="1" ValueType="60">Input</gnm:Cell>
+        <gnm:Cell Row="116" Col="0" ValueType="60">FB72</gnm:Cell>
+        <gnm:Cell Row="116" Col="1" ValueType="60">USB</gnm:Cell>
+        <gnm:Cell Row="117" Col="0" ValueType="60">FB73</gnm:Cell>
+        <gnm:Cell Row="117" Col="1" ValueType="60">USB</gnm:Cell>
+        <gnm:Cell Row="118" Col="0" ValueType="60">FB91</gnm:Cell>
+        <gnm:Cell Row="118" Col="1" ValueType="60">Main/Digi</gnm:Cell>
+        <gnm:Cell Row="119" Col="0" ValueType="60">J41</gnm:Cell>
+        <gnm:Cell Row="119" Col="1" ValueType="60">3pin 0.1</gnm:Cell>
+        <gnm:Cell Row="119" Col="4" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="120" Col="0" ValueType="60">J91</gnm:Cell>
+        <gnm:Cell Row="120" Col="1" ValueType="60">3pin 0.1</gnm:Cell>
+        <gnm:Cell Row="120" Col="4" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="121" Col="0" ValueType="60">L41</gnm:Cell>
+        <gnm:Cell Row="121" Col="1" ValueType="60">2u2</gnm:Cell>
+        <gnm:Cell Row="121" Col="2" ValueType="60">ELL-VGG2R2N</gnm:Cell>
+        <gnm:Cell Row="122" Col="0" ValueType="60">Q71</gnm:Cell>
+        <gnm:Cell Row="122" Col="1" ValueType="60">12Mhz</gnm:Cell>
+        <gnm:Cell Row="122" Col="2" ValueType="60">USB</gnm:Cell>
+        <gnm:Cell Row="122" Col="3" ValueType="60">8pF</gnm:Cell>
+        <gnm:Cell Row="122" Col="4" ValueType="60">NX3225SA-12.000000MHZ</gnm:Cell>
+        <gnm:Cell Row="123" Col="0" ValueType="60">R101</gnm:Cell>
+        <gnm:Cell Row="123" Col="1" ValueType="60">~450R?</gnm:Cell>
+        <gnm:Cell Row="123" Col="2" ValueType="60">RF terminator</gnm:Cell>
+        <gnm:Cell Row="123" Col="3" ValueType="60">alt ~220R</gnm:Cell>
+        <gnm:Cell Row="123" Col="4" ValueType="60">RMCF0603FT430RCT-ND</gnm:Cell>
+        <gnm:Cell Row="124" Col="0" ValueType="60">R102</gnm:Cell>
+        <gnm:Cell Row="124" Col="1" ValueType="60">~450R?</gnm:Cell>
+        <gnm:Cell Row="124" Col="4" ValueType="60">RMCF0603FT220RCT-ND</gnm:Cell>
+        <gnm:Cell Row="125" Col="0" ValueType="60">R103</gnm:Cell>
+        <gnm:Cell Row="125" Col="1" ValueType="60">5ohm</gnm:Cell>
+        <gnm:Cell Row="125" Col="2" ValueType="60">Can increase</gnm:Cell>
+        <gnm:Cell Row="125" Col="4" ValueType="60">Use 10ohm</gnm:Cell>
+        <gnm:Cell Row="126" Col="0" ValueType="60">R104</gnm:Cell>
+        <gnm:Cell Row="126" Col="1" ValueType="60">5ohm</gnm:Cell>
+        <gnm:Cell Row="127" Col="0" ValueType="60">R21</gnm:Cell>
+        <gnm:Cell Row="127" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="127" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="127" Col="4" ValueType="60">ERJ-3GEYJ680V</gnm:Cell>
+        <gnm:Cell Row="128" Col="0" ValueType="60">R22</gnm:Cell>
+        <gnm:Cell Row="128" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="128" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="129" Col="0" ValueType="60">R23</gnm:Cell>
+        <gnm:Cell Row="129" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="129" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="130" Col="0" ValueType="60">R24</gnm:Cell>
+        <gnm:Cell Row="130" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="130" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="131" Col="0" ValueType="60">R301</gnm:Cell>
+        <gnm:Cell Row="131" Col="2" ValueType="60">Pullup</gnm:Cell>
+        <gnm:Cell Row="132" Col="0" ValueType="60">R302</gnm:Cell>
+        <gnm:Cell Row="132" Col="2" ValueType="60">Pulldown</gnm:Cell>
+        <gnm:Cell Row="133" Col="0" ValueType="60">R303</gnm:Cell>
+        <gnm:Cell Row="133" Col="2" ValueType="60">Pullup</gnm:Cell>
+        <gnm:Cell Row="134" Col="0" ValueType="60">R304</gnm:Cell>
+        <gnm:Cell Row="134" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="134" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="135" Col="0" ValueType="60">R305</gnm:Cell>
+        <gnm:Cell Row="135" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="135" Col="2" ValueType="60">Thevenin</gnm:Cell>
+        <gnm:Cell Row="136" Col="0" ValueType="60">R306</gnm:Cell>
+        <gnm:Cell Row="136" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="136" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="137" Col="0" ValueType="60">R307</gnm:Cell>
+        <gnm:Cell Row="137" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="137" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="138" Col="0" ValueType="60">R308</gnm:Cell>
+        <gnm:Cell Row="138" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="138" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="139" Col="0" ValueType="60">R309</gnm:Cell>
+        <gnm:Cell Row="139" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="139" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="140" Col="0" ValueType="60">R310</gnm:Cell>
+        <gnm:Cell Row="140" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="140" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="141" Col="0" ValueType="60">R311</gnm:Cell>
+        <gnm:Cell Row="141" Col="2" ValueType="60">Pullup</gnm:Cell>
+        <gnm:Cell Row="142" Col="0" ValueType="60">R312</gnm:Cell>
+        <gnm:Cell Row="142" Col="1" ValueType="60">16R</gnm:Cell>
+        <gnm:Cell Row="142" Col="2" ValueType="60">15R is fine</gnm:Cell>
+        <gnm:Cell Row="142" Col="4" ValueType="60">have</gnm:Cell>
+        <gnm:Cell Row="143" Col="0" ValueType="60">R313</gnm:Cell>
+        <gnm:Cell Row="143" Col="1" ValueType="60">16R</gnm:Cell>
+        <gnm:Cell Row="143" Col="2" ValueType="60">15R is fine</gnm:Cell>
+        <gnm:Cell Row="143" Col="4" ValueType="60">have</gnm:Cell>
+        <gnm:Cell Row="144" Col="0" ValueType="60">R397</gnm:Cell>
+        <gnm:Cell Row="144" Col="1" ValueType="60">DNP</gnm:Cell>
+        <gnm:Cell Row="145" Col="0" ValueType="60">R398</gnm:Cell>
+        <gnm:Cell Row="145" Col="1" ValueType="60">DNP</gnm:Cell>
+        <gnm:Cell Row="146" Col="0" ValueType="60">R399</gnm:Cell>
+        <gnm:Cell Row="146" Col="1" ValueType="60">DNP</gnm:Cell>
+        <gnm:Cell Row="147" Col="0" ValueType="60">R402</gnm:Cell>
+        <gnm:Cell Row="147" Col="1" ValueType="60">32.4k</gnm:Cell>
+        <gnm:Cell Row="147" Col="4" ValueType="60">P32.4KHCT-ND</gnm:Cell>
+        <gnm:Cell Row="148" Col="0" ValueType="60">R404</gnm:Cell>
+        <gnm:Cell Row="148" Col="1" ValueType="60">1.50k</gnm:Cell>
+        <gnm:Cell Row="148" Col="2" ValueType="60">Precision</gnm:Cell>
+        <gnm:Cell Row="148" Col="4" ValueType="60">ERJ-3EKF1501V</gnm:Cell>
+        <gnm:Cell Row="149" Col="0" ValueType="60">R405</gnm:Cell>
+        <gnm:Cell Row="149" Col="1" ValueType="60">1.87k</gnm:Cell>
+        <gnm:Cell Row="149" Col="2" ValueType="60">Precision</gnm:Cell>
+        <gnm:Cell Row="149" Col="4" ValueType="60">P18.7KHCT-ND</gnm:Cell>
+        <gnm:Cell Row="150" Col="0" ValueType="60">R406</gnm:Cell>
+        <gnm:Cell Row="150" Col="1" ValueType="60">1.87k</gnm:Cell>
+        <gnm:Cell Row="150" Col="2" ValueType="60">Precision</gnm:Cell>
+        <gnm:Cell Row="151" Col="0" ValueType="60">R498</gnm:Cell>
+        <gnm:Cell Row="151" Col="1" ValueType="60">DNP</gnm:Cell>
+        <gnm:Cell Row="152" Col="0" ValueType="60">R499</gnm:Cell>
+        <gnm:Cell Row="152" Col="1" ValueType="60">DNP</gnm:Cell>
+        <gnm:Cell Row="153" Col="0" ValueType="60">R51</gnm:Cell>
+        <gnm:Cell Row="153" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="153" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="154" Col="0" ValueType="60">R52</gnm:Cell>
+        <gnm:Cell Row="154" Col="2" ValueType="60">Pullup</gnm:Cell>
+        <gnm:Cell Row="155" Col="0" ValueType="60">R53</gnm:Cell>
+        <gnm:Cell Row="155" Col="1" ValueType="60">1k</gnm:Cell>
+        <gnm:Cell Row="155" Col="2" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="156" Col="0" ValueType="60">R601</gnm:Cell>
+        <gnm:Cell Row="156" Col="1" ValueType="60">1k</gnm:Cell>
+        <gnm:Cell Row="156" Col="2" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="157" Col="0" ValueType="60">R602</gnm:Cell>
+        <gnm:Cell Row="157" Col="1" ValueType="60">1k</gnm:Cell>
+        <gnm:Cell Row="157" Col="2" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="158" Col="0" ValueType="60">R603</gnm:Cell>
+        <gnm:Cell Row="158" Col="1" ValueType="60">1k</gnm:Cell>
+        <gnm:Cell Row="158" Col="2" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="159" Col="0" ValueType="60">R604</gnm:Cell>
+        <gnm:Cell Row="159" Col="1" ValueType="60">1k</gnm:Cell>
+        <gnm:Cell Row="159" Col="2" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="160" Col="0" ValueType="60">R605</gnm:Cell>
+        <gnm:Cell Row="160" Col="1" ValueType="60">1k</gnm:Cell>
+        <gnm:Cell Row="160" Col="2" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="161" Col="0" ValueType="60">R606</gnm:Cell>
+        <gnm:Cell Row="161" Col="1" ValueType="60">1k</gnm:Cell>
+        <gnm:Cell Row="161" Col="2" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="162" Col="0" ValueType="60">R607</gnm:Cell>
+        <gnm:Cell Row="162" Col="1" ValueType="60">1k</gnm:Cell>
+        <gnm:Cell Row="162" Col="2" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="163" Col="0" ValueType="60">R608</gnm:Cell>
+        <gnm:Cell Row="163" Col="2" ValueType="60">Pullup</gnm:Cell>
+        <gnm:Cell Row="164" Col="0" ValueType="60">R609</gnm:Cell>
+        <gnm:Cell Row="164" Col="1" ValueType="60">1k</gnm:Cell>
+        <gnm:Cell Row="164" Col="2" ValueType="60">LED</gnm:Cell>
+        <gnm:Cell Row="165" Col="0" ValueType="60">R610</gnm:Cell>
+        <gnm:Cell Row="165" Col="1" ValueType="60">100k</gnm:Cell>
+        <gnm:Cell Row="165" Col="2" ValueType="60">Pullup</gnm:Cell>
+        <gnm:Cell Row="165" Col="4" ValueType="60">Have</gnm:Cell>
+        <gnm:Cell Row="166" Col="0" ValueType="60">R611</gnm:Cell>
+        <gnm:Cell Row="166" Col="1" ValueType="60">68R</gnm:Cell>
+        <gnm:Cell Row="166" Col="2" ValueType="60">Termination</gnm:Cell>
+        <gnm:Cell Row="167" Col="0" ValueType="60">R612</gnm:Cell>
+        <gnm:Cell Row="167" Col="2" ValueType="60">Thevenin</gnm:Cell>
+        <gnm:Cell Row="168" Col="0" ValueType="60">R698</gnm:Cell>
+        <gnm:Cell Row="168" Col="1" ValueType="60">DNP</gnm:Cell>
+        <gnm:Cell Row="169" Col="0" ValueType="60">R699</gnm:Cell>
+        <gnm:Cell Row="169" Col="1" ValueType="60">DNP</gnm:Cell>
+        <gnm:Cell Row="170" Col="0" ValueType="60">R701</gnm:Cell>
+        <gnm:Cell Row="170" Col="1" ValueType="60">10k</gnm:Cell>
+        <gnm:Cell Row="170" Col="4" ValueType="60">RMCF0603FT10K0CT-ND</gnm:Cell>
+        <gnm:Cell Row="171" Col="0" ValueType="60">R702</gnm:Cell>
+        <gnm:Cell Row="171" Col="1" ValueType="60">10k</gnm:Cell>
+        <gnm:Cell Row="172" Col="0" ValueType="60">R703</gnm:Cell>
+        <gnm:Cell Row="172" Col="1" ValueType="60">10k</gnm:Cell>
+        <gnm:Cell Row="173" Col="0" ValueType="60">R704</gnm:Cell>
+        <gnm:Cell Row="173" Col="1" ValueType="60">2k2</gnm:Cell>
+        <gnm:Cell Row="173" Col="2" ValueType="60">P2.20KHCT-ND</gnm:Cell>
+        <gnm:Cell Row="174" Col="0" ValueType="60">R705</gnm:Cell>
+        <gnm:Cell Row="174" Col="1" ValueType="60">1k</gnm:Cell>
+        <gnm:Cell Row="175" Col="0" ValueType="60">R706</gnm:Cell>
+        <gnm:Cell Row="175" Col="1" ValueType="60">12k</gnm:Cell>
+        <gnm:Cell Row="175" Col="2" ValueType="40" ValueFormat="0.00%">0.01</gnm:Cell>
+        <gnm:Cell Row="175" Col="4" ValueType="60">P12.0KHCT-ND</gnm:Cell>
+        <gnm:Cell Row="176" Col="0" ValueType="60">S51</gnm:Cell>
+        <gnm:Cell Row="176" Col="1" ValueType="60">Push</gnm:Cell>
+        <gnm:Cell Row="176" Col="4" ValueType="60">Sparkfun</gnm:Cell>
+        <gnm:Cell Row="177" Col="0" ValueType="60">T11</gnm:Cell>
+        <gnm:Cell Row="177" Col="1" ValueType="60">RF</gnm:Cell>
+        <gnm:Cell Row="177" Col="4" ValueType="60">Coilcraft</gnm:Cell>
+        <gnm:Cell Row="178" Col="0" ValueType="60">U1</gnm:Cell>
+        <gnm:Cell Row="178" Col="1" ValueType="60">DAC</gnm:Cell>
+        <gnm:Cell Row="178" Col="2" ValueType="60">ADS41B49</gnm:Cell>
+        <gnm:Cell Row="178" Col="3" ValueType="60">QFN48</gnm:Cell>
+        <gnm:Cell Row="179" Col="0" ValueType="60">U2</gnm:Cell>
+        <gnm:Cell Row="179" Col="1" ValueType="60">FPGA</gnm:Cell>
+        <gnm:Cell Row="179" Col="2" ValueType="60">LX6 QFP</gnm:Cell>
+        <gnm:Cell Row="179" Col="3" ValueType="60">QFP144</gnm:Cell>
+        <gnm:Cell Row="180" Col="0" ValueType="60">U3</gnm:Cell>
+        <gnm:Cell Row="180" Col="1" ValueType="60">USB</gnm:Cell>
+        <gnm:Cell Row="180" Col="2" ValueType="60">FT2232H</gnm:Cell>
+        <gnm:Cell Row="180" Col="3" ValueType="60">QFP64</gnm:Cell>
+        <gnm:Cell Row="181" Col="0" ValueType="60">U31</gnm:Cell>
+        <gnm:Cell Row="181" Col="1" ValueType="60">FLASH</gnm:Cell>
+        <gnm:Cell Row="181" Col="2" ValueType="60">AT45D081</gnm:Cell>
+        <gnm:Cell Row="181" Col="3" ValueType="60">MSOP8?</gnm:Cell>
+        <gnm:Cell Row="182" Col="0" ValueType="60">U32</gnm:Cell>
+        <gnm:Cell Row="182" Col="1" ValueType="60">Audio</gnm:Cell>
+        <gnm:Cell Row="182" Col="2" ValueType="60">PCM1771</gnm:Cell>
+        <gnm:Cell Row="182" Col="3" ValueType="60">SSOP16</gnm:Cell>
+        <gnm:Cell Row="182" Col="4" ValueType="60">TI Sample</gnm:Cell>
+        <gnm:Cell Row="183" Col="0" ValueType="60">U41</gnm:Cell>
+        <gnm:Cell Row="183" Col="2" ValueType="60">LM3671</gnm:Cell>
+        <gnm:Cell Row="183" Col="3" ValueType="60">LLP6</gnm:Cell>
+        <gnm:Cell Row="183" Col="4" ValueType="60">Sampled</gnm:Cell>
+        <gnm:Cell Row="184" Col="0" ValueType="60">U42</gnm:Cell>
+        <gnm:Cell Row="184" Col="1" ValueType="10"></gnm:Cell>
+        <gnm:Cell Row="184" Col="2" ValueType="60">LMZ12002</gnm:Cell>
+        <gnm:Cell Row="184" Col="3" ValueType="60">TO-PMOD7</gnm:Cell>
+        <gnm:Cell Row="184" Col="4" ValueType="60">Nat Sample</gnm:Cell>
+        <gnm:Cell Row="185" Col="0" ValueType="60">U43</gnm:Cell>
+        <gnm:Cell Row="185" Col="2" ValueType="60">PTH08080W</gnm:Cell>
+        <gnm:Cell Row="185" Col="4" ValueType="60">TI Sample</gnm:Cell>
+        <gnm:Cell Row="186" Col="0" ValueType="60">U61</gnm:Cell>
+        <gnm:Cell Row="186" Col="1" ValueType="60">Osc</gnm:Cell>
+        <gnm:Cell Row="186" Col="2" ValueType="60">KC3225A125.000C30E00</gnm:Cell>
+        <gnm:Cell Row="186" Col="4" ValueType="60">Or Fox sample</gnm:Cell>
+        <gnm:Cell Row="187" Col="0" ValueType="60">U62</gnm:Cell>
+        <gnm:Cell Row="187" Col="2" ValueType="60">74AUP1T04</gnm:Cell>
+        <gnm:Cell Row="187" Col="3" ValueType="60">SOT23-5</gnm:Cell>
+        <gnm:Cell Row="187" Col="4" ValueType="60">TI Sample</gnm:Cell>
+        <gnm:Cell Row="188" Col="0" ValueType="60">U71</gnm:Cell>
+        <gnm:Cell Row="188" Col="1" ValueType="60">EEPROM</gnm:Cell>
+        <gnm:Cell Row="188" Col="2" ValueType="60">Microchip 93AA66</gnm:Cell>
+        <gnm:Cell Row="191" Col="0" ValueType="60">Cxx</gnm:Cell>
+        <gnm:Cell Row="191" Col="1" ValueType="60">4u7</gnm:Cell>
+        <gnm:Cell Row="191" Col="2" ValueType="60">0603</gnm:Cell>
+        <gnm:Cell Row="191" Col="3" ValueType="60">6.3v</gnm:Cell>
+        <gnm:Cell Row="191" Col="4" ValueType="60">C1608X5R0J475K</gnm:Cell>
+        <gnm:Cell Row="192" Col="1" ValueType="60">330n</gnm:Cell>
+        <gnm:Cell Row="192" Col="2" ValueType="60">0603</gnm:Cell>
+        <gnm:Cell Row="192" Col="3" ValueType="60">25v</gnm:Cell>
+        <gnm:Cell Row="192" Col="4" ValueType="60">C1608X5R1E334K</gnm:Cell>
+        <gnm:Cell Row="193" Col="1" ValueType="60">470n</gnm:Cell>
+        <gnm:Cell Row="193" Col="2" ValueType="60">0603</gnm:Cell>
+        <gnm:Cell Row="193" Col="3" ValueType="60">25v</gnm:Cell>
+        <gnm:Cell Row="193" Col="4" ValueType="60">GRM188R71E474KA12D</gnm:Cell>
+        <gnm:Cell Row="194" Col="1" ValueType="60">10u</gnm:Cell>
+        <gnm:Cell Row="194" Col="2" ValueType="40">1206</gnm:Cell>
+        <gnm:Cell Row="194" Col="3" ValueType="60">25v</gnm:Cell>
+        <gnm:Cell Row="194" Col="4" ValueType="60">GRM31CR61E106KA12L</gnm:Cell>
+        <gnm:Cell Row="195" Col="1" ValueType="60">100u</gnm:Cell>
+        <gnm:Cell Row="195" Col="2" ValueType="60">CanHiRipple</gnm:Cell>
+        <gnm:Cell Row="195" Col="3" ValueType="60">25v</gnm:Cell>
+        <gnm:Cell Row="195" Col="4" ValueType="60">UCL1E101MCL1GS</gnm:Cell>
+      </gnm:Cells>
+      <gnm:SheetLayout TopLeft="A175"/>
+      <gnm:Solver ModelType="0" ProblemType="0" MaxTime="60" MaxIter="1000" NonNeg="1" Discr="0" AutoScale="0" ProgramR="0"/>
+    </gnm:Sheet>
+  </gnm:Sheets>
+  <gnm:UIData SelectedTab="0"/>
+</gnm:Workbook>
