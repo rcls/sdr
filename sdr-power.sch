@@ -4,7 +4,7 @@ C 42500 39900 1 0 0 lm3671.sym
 T 43200 41100 5 10 1 1 0 0 1
 device=LM3671
 T 43600 40800 5 10 1 1 0 0 1
-refdes=U401
+refdes=U41
 T 43100 40500 5 10 1 1 0 0 1
 footprint=SOT23-5
 }
@@ -13,14 +13,14 @@ C 43300 47200 1 0 0 lmz12002.sym
 T 43800 48100 5 10 1 1 0 0 1
 device=LMZ12002
 T 45200 48100 5 10 1 1 0 0 1
-footprint=U402
+footprint=U42
 }
 C 43200 42800 1 0 0 pth08080w.sym
 {
 T 43600 43900 5 10 1 1 0 0 1
 device=PTH0808W
 T 44900 43900 5 10 1 1 0 0 1
-refdes=U403
+refdes=U43
 T 44100 43600 5 10 1 1 0 0 1
 footprint=PTH-TH
 }
@@ -106,7 +106,7 @@ C 46700 43100 1 0 0 fuse-2.sym
 T 46900 43650 5 10 0 0 0 0 1
 device=FUSE
 T 46900 42900 5 10 1 1 0 0 1
-refdes=FB402
+refdes=FB42
 T 46900 43850 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -116,7 +116,7 @@ C 42100 47000 1 0 0 fuse-2.sym
 T 42300 47550 5 10 0 0 0 0 1
 device=FUSE
 T 42300 47300 5 10 1 1 0 0 1
-refdes=FB404
+refdes=FB44
 T 42300 47750 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -125,7 +125,7 @@ C 42200 43500 1 90 0 fuse-2.sym
 T 41650 43700 5 10 0 0 90 0 1
 device=FUSE
 T 41900 43700 5 10 1 1 90 0 1
-refdes=FB403
+refdes=FB45
 T 41450 43700 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -144,7 +144,7 @@ C 44400 41300 1 0 0 inductor-1.sym
 T 44600 41800 5 10 0 0 0 0 1
 device=INDUCTOR
 T 44600 41600 5 10 1 1 0 0 1
-refdes=L401
+refdes=L41
 T 44600 42000 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -188,7 +188,7 @@ C 46200 41300 1 0 0 fuse-2.sym
 T 46400 41850 5 10 0 0 0 0 1
 device=FUSE
 T 46200 41600 5 10 1 1 0 0 1
-refdes=FB403
+refdes=FB43
 T 46400 42050 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -199,7 +199,7 @@ C 40700 46100 1 180 0 header3-1.sym
 T 39700 45450 5 10 0 0 180 0 1
 device=HEADER3
 T 40300 44800 5 10 1 1 180 0 1
-refdes=J401
+refdes=J41
 }
 N 40700 45500 42100 45500 4
 N 43100 46200 43100 46600 4
@@ -297,21 +297,21 @@ C 40400 44300 1 180 1 pwrjack-1.sym
 T 40500 43800 5 10 0 0 180 6 1
 device=PWRJACK
 T 40300 43800 5 10 1 1 180 6 1
-refdes=CONN401
+refdes=CONN41
 }
 C 41500 44200 1 90 0 diode-1.sym
 {
 T 40900 44600 5 10 0 0 90 0 1
 device=DIODE
 T 41700 44500 5 10 1 1 90 0 1
-refdes=D401
+refdes=D41
 }
 C 42900 44600 1 90 0 zener-1.sym
 {
 T 42300 45000 5 10 0 0 90 0 1
 device=ZENER_DIODE
 T 42400 44900 5 10 1 1 90 0 1
-refdes=D402
+refdes=D42
 }
 C 42600 44300 1 0 0 gnd-1.sym
 C 40500 45900 1 0 0 5V-plus-1.sym
@@ -329,7 +329,7 @@ C 47300 47100 1 90 0 fuse-2.sym
 T 46750 47300 5 10 0 0 90 0 1
 device=FUSE
 T 47500 47300 5 10 1 1 90 0 1
-refdes=FB401
+refdes=FB41
 T 46550 47300 5 10 0 0 90 0 1
 symversion=0.1
 }

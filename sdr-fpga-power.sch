@@ -30,7 +30,7 @@ C 49500 44800 1 0 0 header3-1.sym
 T 50500 45450 5 10 0 0 0 0 1
 device=HEADER3
 T 49900 46100 5 10 1 1 0 0 1
-refdes=J901
+refdes=J91
 }
 N 46800 45400 49500 45400 4
 C 47600 44900 1 90 0 capacitor.sym
@@ -260,7 +260,7 @@ C 41400 49100 1 0 0 fuse-2.sym
 T 41600 49650 5 10 0 0 0 0 1
 device=FUSE
 T 41500 49400 5 10 1 1 0 0 1
-refdes=FB901
+refdes=FB91
 T 41600 49850 5 10 0 0 0 0 1
 symversion=0.1
 }

@@ -83,7 +83,7 @@ C 42300 51100 1 0 0 resistor-1.sym
 T 42600 51500 5 10 0 0 0 0 1
 device=RESISTOR
 T 42700 50900 5 10 1 1 0 0 1
-refdes=R509
+refdes=R53
 T 42300 51100 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -92,7 +92,7 @@ C 40800 51400 1 0 0 resistor-1.sym
 T 41100 51800 5 10 0 0 0 0 1
 device=RESISTOR
 T 41200 51700 5 10 1 1 0 0 1
-refdes=R508
+refdes=R52
 T 40800 51400 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -103,7 +103,7 @@ C 42500 50300 1 90 0 led-3.sym
 T 41850 51250 5 10 0 0 90 0 1
 device=LED
 T 42950 50750 5 10 1 1 180 0 1
-refdes=D501
+refdes=D51
 T 42300 50700 5 10 0 1 0 0 1
 footprint=0805
 }
@@ -113,7 +113,7 @@ N 43200 51200 43400 51200 4
 C 40800 50800 1 0 0 switch-pushbutton-no-1.sym
 {
 T 41100 50600 5 10 1 1 0 0 1
-refdes=S501
+refdes=S51
 T 41200 51400 5 10 0 0 0 0 1
 device=SWITCH_PUSHBUTTON_NO
 }
@@ -147,7 +147,7 @@ C 45900 47300 1 0 0 resistor-1.sym
 T 46200 47700 5 10 0 0 0 0 1
 device=RESISTOR
 T 46000 47100 5 10 1 1 0 0 1
-refdes=R501
+refdes=R51
 T 45900 47300 5 10 0 1 0 0 1
 footprint=0603
 }

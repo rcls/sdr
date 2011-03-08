@@ -29,7 +29,7 @@ footprint=0603
 C 39500 46000 1 0 0 transformer.sym
 {
 T 39700 45800 5 10 1 1 0 0 1
-refdes=T101
+refdes=T11
 T 39200 47600 5 10 0 0 0 0 1
 device=TRANSFORMER
 }
@@ -74,7 +74,7 @@ N 45000 46500 45300 46500 4
 C 38600 46900 1 0 0 coax-conn.sym
 {
 T 38600 47600 5 10 1 1 0 0 1
-refdes=CONN101
+refdes=CONN11
 T 38900 46900 5 10 1 1 0 0 1
 footprint=SMA
 }
@@ -108,7 +108,7 @@ C 38300 50500 1 0 0 fuse-2.sym
 T 38500 51050 5 10 0 0 0 0 1
 device=FUSE
 T 38500 50300 5 10 1 1 0 0 1
-refdes=FB101
+refdes=FB11
 T 38500 51250 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -141,7 +141,7 @@ C 46500 49700 1 90 0 fuse-2.sym
 T 45950 49900 5 10 0 0 90 0 1
 device=FUSE
 T 46700 49900 5 10 1 1 90 0 1
-refdes=FB103
+refdes=FB13
 T 45750 49900 5 10 0 0 90 0 1
 symversion=0.1
 }
@@ -223,7 +223,7 @@ C 38200 49100 1 0 0 fuse-2.sym
 T 38400 49650 5 10 0 0 0 0 1
 device=FUSE
 T 38500 49400 5 10 1 1 0 0 1
-refdes=FB102
+refdes=FB12
 T 38400 49850 5 10 0 0 0 0 1
 symversion=0.1
 }

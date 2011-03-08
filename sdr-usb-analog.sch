@@ -24,7 +24,7 @@ device=93c66
 T 48000 46200 5 10 1 1 0 0 1
 footprint=MSOP8
 T 47800 47200 5 10 1 1 0 0 1
-refdes=U701
+refdes=U71
 }
 T 45500 44600 6 20 1 0 0 0 2
 Sheet 7 - USB Analog
@@ -34,7 +34,7 @@ C 39100 47500 1 0 0 conn5.sym
 T 40900 48400 5 10 0 0 0 0 1
 device=CONNECTOR_4
 T 39100 49200 5 10 1 1 0 0 1
-refdes=CONN701
+refdes=CONN71
 }
 N 39900 48600 41300 48600 4
 N 39900 48300 41300 48300 4
@@ -45,7 +45,7 @@ C 40300 48800 1 0 0 fuse-2.sym
 T 40500 49350 5 10 0 0 0 0 1
 device=FUSE
 T 40500 49100 5 10 1 1 0 0 1
-refdes=FB701
+refdes=FB71
 T 40500 49550 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -130,7 +130,7 @@ C 39600 43300 1 0 0 fuse-2.sym
 T 39800 43850 5 10 0 0 0 0 1
 device=FUSE
 T 40000 43600 5 10 1 1 0 0 1
-refdes=FB702
+refdes=FB72
 T 39800 44050 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -139,7 +139,7 @@ C 39600 42800 1 0 0 fuse-2.sym
 T 39800 43350 5 10 0 0 0 0 1
 device=FUSE
 T 39600 42600 5 10 1 1 0 0 1
-refdes=FB701
+refdes=FB73
 T 39800 43550 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -280,7 +280,7 @@ C 44600 47800 1 0 0 crystal-1.sym
 T 44800 48300 5 10 0 0 0 0 1
 device=CRYSTAL
 T 44800 47600 5 10 1 1 0 0 1
-refdes=Q701
+refdes=Q71
 T 44800 48500 5 10 0 0 0 0 1
 symversion=0.1
 }
