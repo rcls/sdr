@@ -6,7 +6,7 @@ device=LM3S828 Analog & Debug
 T 46000 41200 5 10 1 1 0 0 1
 footprint=QFN48
 T 46200 42000 5 10 1 1 0 0 1
-footprint=U5
+refdes=U5
 }
 C 46800 44400 1 0 0 spartan6-qfp144-bank0.sym
 {
@@ -322,7 +322,7 @@ C 53600 48000 1 0 1 74aup1g04.sym
 T 53300 48100 5 10 1 1 0 6 1
 device=74 1G04
 T 52500 48100 5 10 1 1 0 6 1
-footprint=SC70
+footprint=SC70-5
 T 52800 48600 5 10 1 1 0 6 1
 refdes=U62
 }

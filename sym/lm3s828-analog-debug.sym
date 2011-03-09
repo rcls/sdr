@@ -192,4 +192,4 @@ T 100 600 5 10 0 0 0 6 1
 pinseq=5
 }
 T 1500 1700 8 10 1 1 0 0 1
-footprint=U?
+refdes=U?

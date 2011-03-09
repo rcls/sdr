@@ -91,4 +91,4 @@ pinseq=7
 T 500 900 8 10 1 1 0 0 1
 device=LMZ12002
 T 1900 900 8 10 1 1 0 0 1
-footprint=U?
+refdes=U?

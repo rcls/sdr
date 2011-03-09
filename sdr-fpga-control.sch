@@ -168,7 +168,7 @@ device=LM3S828 GPIO
 T 37500 48700 5 10 1 1 180 0 1
 footprint=QFN48
 T 38000 45900 5 10 1 1 180 0 1
-footprint=U5
+refdes=U5
 }
 C 39600 46700 1 0 0 resistor-1.sym
 {
