@@ -57,7 +57,7 @@ T 43600 40800 5 10 0 1 0 0 1
 footprint=0603
 }
 C 43400 40900 1 0 0 3.3v-digital-1.sym
-T 44900 40000 8 10 1 0 0 0 1
+T 44400 44000 8 10 1 0 0 0 1
 FIXME - add voltage monitors?
 C 50400 49300 1 0 0 resistor-1.sym
 {
