@@ -1,0 +1,47 @@
+RF boards.
+
+Voltage monitors to CPU.
+
+Add a 5v linear reg for display driver?
+
+Check pinout of CPU jtag.
+Sort out headers for CPU jtag and serial.
+
+Header for FPGA jtag - improve pinout?
+
+On right angle header, check pin size - 1mm hole looks huge...
+
+Check SMA footprint against physical device.  Ditto other connectors etc.
+
+Dangle LED(s) off the CPU.
+
+Input buttons.
+
+Sort out main input capacitors.
++ output capacitors for PTH08080W.
++ double bypass on lm3671 input?
++ headers in main power feeds?
+
+
+Does the double filtering on the DAC 1.8v digital make sense?
++ maybe separate filtering instead?
+
+
+SOT-23 v. LLP for LM3671
+
+Provision CPU oscillator?
+
+Activity LEDs on FT2232?
+
+xtal - footprint v. symbol.
++ pads are oversized internally...
+
+74hct4094
+zero ohm 0805
+CAP 1uF 0603
+DIVIDER RESISTERS FOR 1.2v.
+
+Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "name" "number" flags]
+Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags]
+
+
