@@ -30,8 +30,8 @@
   </gnm:Attributes>
   <office:document-meta xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:ooo="http://openoffice.org/2004/office" office:version="1.1">
     <office:meta>
-      <dc:date>2011-03-08T07:40:32Z</dc:date>
-      <meta:creation-date>2011-03-07T23:44:38Z</meta:creation-date>
+      <dc:date>2011-03-10T01:46:19Z</dc:date>
+      <meta:creation-date>2011-03-08T00:44:38Z</meta:creation-date>
     </office:meta>
   </office:document-meta>
   <gnm:Calculation ManualRecalc="0" EnableIteration="1" MaxIterations="100" IterationTolerance="0.001" FloatRadix="2" FloatDigits="53"/>
@@ -44,7 +44,7 @@
     <gnm:Sheet DisplayFormulas="0" HideZero="0" HideGrid="0" HideColHeader="0" HideRowHeader="0" DisplayOutlines="1" OutlineSymbolsBelow="1" OutlineSymbolsRight="1" Visibility="GNM_SHEET_VISIBILITY_VISIBLE" GridColor="0:0:0">
       <gnm:Name>temp.txt</gnm:Name>
       <gnm:MaxCol>5</gnm:MaxCol>
-      <gnm:MaxRow>196</gnm:MaxRow>
+      <gnm:MaxRow>195</gnm:MaxRow>
       <gnm:Zoom>1</gnm:Zoom>
       <gnm:Names>
         <gnm:Name>
@@ -83,37 +83,7 @@
         <gnm:paper>iso_a4</gnm:paper>
       </gnm:PrintInformation>
       <gnm:Styles>
-        <gnm:StyleRegion startCol="0" startRow="0" endCol="7" endRow="159">
-          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
-            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
-          </gnm:Style>
-        </gnm:StyleRegion>
-        <gnm:StyleRegion startCol="0" startRow="160" endCol="7" endRow="175">
-          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
-            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
-          </gnm:Style>
-        </gnm:StyleRegion>
-        <gnm:StyleRegion startCol="0" startRow="176" endCol="7" endRow="255">
-          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
-            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
-          </gnm:Style>
-        </gnm:StyleRegion>
-        <gnm:StyleRegion startCol="0" startRow="256" endCol="63" endRow="4095">
-          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
-            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
-          </gnm:Style>
-        </gnm:StyleRegion>
-        <gnm:StyleRegion startCol="0" startRow="4096" endCol="255" endRow="65535">
-          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
-            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
-          </gnm:Style>
-        </gnm:StyleRegion>
-        <gnm:StyleRegion startCol="8" startRow="0" endCol="63" endRow="255">
-          <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
-            <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
-          </gnm:Style>
-        </gnm:StyleRegion>
-        <gnm:StyleRegion startCol="64" startRow="0" endCol="255" endRow="4095">
+        <gnm:StyleRegion startCol="0" startRow="0" endCol="255" endRow="65535">
           <gnm:Style HAlign="1" VAlign="2" WrapText="0" ShrinkToFit="0" Rotation="0" Shade="0" Indent="0" Locked="1" Hidden="0" Fore="0:0:0" Back="FFFF:FFFF:FFFF" PatternColor="0:0:0" Format="General">
             <gnm:Font Unit="10" Bold="0" Italic="0" Underline="0" StrikeThrough="0" Script="0">Sans</gnm:Font>
           </gnm:Style>
@@ -130,9 +100,10 @@
         <gnm:RowInfo No="47" Unit="13.5" Count="10"/>
         <gnm:RowInfo No="57" Unit="12.75" Count="27"/>
         <gnm:RowInfo No="84" Unit="13.5" Count="111"/>
+        <gnm:RowInfo No="195" Unit="12.75"/>
       </gnm:Rows>
-      <gnm:Selections CursorCol="1" CursorRow="196">
-        <gnm:Selection startCol="1" startRow="196" endCol="1" endRow="196"/>
+      <gnm:Selections CursorCol="4" CursorRow="186">
+        <gnm:Selection startCol="4" startRow="186" endCol="4" endRow="186"/>
       </gnm:Selections>
       <gnm:Cells>
         <gnm:Cell Row="0" Col="0" ValueType="60">C101</gnm:Cell>
@@ -598,7 +569,6 @@
         <gnm:Cell Row="186" Col="0" ValueType="60">U61</gnm:Cell>
         <gnm:Cell Row="186" Col="1" ValueType="60">Osc</gnm:Cell>
         <gnm:Cell Row="186" Col="2" ValueType="60">KC3225A125.000C30E00</gnm:Cell>
-        <gnm:Cell Row="186" Col="4" ValueType="60">Or Fox sample</gnm:Cell>
         <gnm:Cell Row="187" Col="0" ValueType="60">U62</gnm:Cell>
         <gnm:Cell Row="187" Col="2" ValueType="60">74AUP1T04</gnm:Cell>
         <gnm:Cell Row="187" Col="3" ValueType="60">SOT23-5</gnm:Cell>
@@ -628,7 +598,7 @@
         <gnm:Cell Row="195" Col="3" ValueType="60">25v</gnm:Cell>
         <gnm:Cell Row="195" Col="4" ValueType="60">UCL1E101MCL1GS</gnm:Cell>
       </gnm:Cells>
-      <gnm:SheetLayout TopLeft="A175"/>
+      <gnm:SheetLayout TopLeft="A161"/>
       <gnm:Solver ModelType="0" ProblemType="0" MaxTime="60" MaxIter="1000" NonNeg="1" Discr="0" AutoScale="0" ProgramR="0"/>
     </gnm:Sheet>
   </gnm:Sheets>

@@ -1,12 +1,12 @@
 # release: pcb 20100929
-# date:    Wed Mar  9 20:55:27 2011
+# date:    Thu Mar 10 12:30:08 2011
 # user:    ralph (Ralph Loader)
 # host:    i.geek.nz
 
 # To read pcb files, the pcb version (or the git source date) must be >= the file version
 FileVersion[20100606]
 
-PCB["" 78740 78740]
+PCB["" 39370 39370]
 
 Grid[393.700775 0 0 1]
 Cursor[0 0 0.000000]
@@ -15,7 +15,7 @@ Thermal[0.500000]
 DRC[1000 1000 1000 1000 1500 1000]
 Flags("nameonpcb,uniquename,clearnew,snappin")
 Groups("1,c:2,s:3:4:5:6:7:8")
-Styles["Signal,1000,16732,13780,1000:Power,2500,6000,3500,1000:Fat,4000,6000,3500,1000:Skinny,984,2402,1181,600"]
+Styles["Signal,4724,3600,2000,1000:Power,2500,6000,3500,1000:Fat,4000,6000,3500,1000:Skinny,787,2402,1181,600"]
 
 Symbol(' ' 18)
 (
@@ -798,14 +798,16 @@ Symbol('~' 12)
 	SymbolLine(20 35 25 30 8)
 )
 
-Element["" "" "" "" 53937 39370 0 0 0 100 ""]
+Element["" "" "" "" 19685 19685 0 0 0 100 ""]
 (
-	Pin[-23622 0 14764 2000 15364 11811 "2" "2" ""]
-	Pin[0 0 16732 2000 17332 13780 "1" "1" ""]
-	ElementLine [3150 21654 3150 11024 984]
-	ElementLine [3150 -21653 3150 -10630 984]
-	ElementLine [3150 -21653 -38189 -21653 984]
-	ElementLine [3150 21654 -38189 21654 984]
+	Pad[-5905 4331 -5118 4331 4724 2000 6724 "1" "1" "square"]
+	Pad[5118 4331 5905 4331 4724 2000 6724 "2" "2" "square,edge2"]
+	Pad[5118 -4331 5905 -4331 4724 2000 6724 "3" "3" "square,edge2"]
+	Pad[-5905 -4331 -5118 -4331 4724 2000 6724 "4" "4" "square"]
+	ElementLine [1772 4921 -1772 4921 787]
+	ElementLine [-6299 -591 -6299 591 787]
+	ElementLine [1772 -4921 -1772 -4921 787]
+	ElementLine [6299 -591 6299 591 787]
 
 	)
 Layer(1 "component")
