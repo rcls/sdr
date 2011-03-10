@@ -1,4 +1,4 @@
-Element["" "" "" "" 19685 19685 0 0 0 100 ""]
+Element["" "SMT oscillator, 3.2mm by 2.5mm, pads on sides" "" "smt-osc-3mm" 19685 19685 0 0 0 100 ""]
 (
 	Pad[-4724 4921 -3937 4921 3937 2000 4537 "1" "1" "square"]
 	Pad[3937 4921 4724 4921 3937 2000 4537 "2" "2" "square,edge2"]

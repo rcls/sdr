@@ -1,4 +1,4 @@
-Element["" "" "" "" 30000 30000 0 0 0 100 ""]
+Element["" "Coilcraft 5 pin transformer" "" "wbc-xfrmr-3-2" 30000 30000 0 0 0 100 ""]
 (
 	Pad[-6000 6000 -6000 10000 3000 2000 3600 "1" "1" "square,edge2"]
 	Pad[6000 6000 6000 10000 3000 2000 3600 "2" "2" "square,edge2"]

@@ -1,4 +1,4 @@
-Element["" "" "" "" 39370 39370 0 0 0 100 ""]
+Element["" "National 7-pin TO switcher module" "" "" 39370 39370 0 0 0 100 "TO-PMOD"]
 (
 	Pad[-15000 26772 -15000 33071 3504 2000 4104 "1" "1" "square,edge2"]
 	Pad[-10000 26772 -10000 33071 3504 2000 4104 "2" "2" "square,edge2"]

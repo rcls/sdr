@@ -1,4 +1,4 @@
-Element["" "" "" "" 19685 39370 0 0 0 100 ""]
+Element["" "3.5mm stereo audio jack with switch" "" "audio-jack" 19685 39370 0 0 0 100 ""]
 (
 	Pin[-3543 0 8480 2000 9080 6693 "8" "8" "edge2"]
 	Pin[24016 0 8480 2000 9080 6693 "9" "9" "edge2"]
