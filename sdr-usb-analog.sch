@@ -268,7 +268,7 @@ C 44600 47800 1 0 0 crystal-1.sym
 T 44800 48300 5 10 0 0 0 0 1
 device=CRYSTAL
 T 44800 47600 5 10 1 1 0 0 1
-refdes=Q71
+refdes=X71
 T 44800 48500 5 10 0 0 0 0 1
 symversion=0.1
 }
@@ -343,3 +343,5 @@ refdes=FB71
 T 40700 49750 5 10 0 0 0 0 1
 symversion=0.1
 }
+T 39500 45700 8 10 1 0 0 0 1
+FIXME - does Vregin need to be connected?
