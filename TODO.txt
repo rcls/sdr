@@ -45,3 +45,4 @@ Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "name" "number" flags]
 Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags]
 
 
+Pin[rX rY Thickness Clearance Mask Drill "Name" "Number" SFlags]
