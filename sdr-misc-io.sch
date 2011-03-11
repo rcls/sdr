@@ -86,7 +86,7 @@ T 53700 46500 5 10 1 1 0 6 1
 refdes=U61
 T 53700 47600 5 10 0 0 0 6 1
 device=VTXO
-T 53000 46600 5 10 1 1 0 0 1
+T 53000 46600 5 10 0 1 0 0 1
 footprint=smt-osc-3mm.fp
 }
 N 53900 46300 53900 46000 4
@@ -364,7 +364,7 @@ C 52500 40200 1 0 0 conn7by2.sym
 T 52900 44500 5 10 1 1 0 0 1
 refdes=CONN62
 T 53400 42500 5 10 0 1 0 0 1
-refdes=ra-0.1inch-female
+footprint=ra-0.1inch-female
 }
 T 43700 44400 8 10 1 0 0 0 1
 FIXME - add switches.

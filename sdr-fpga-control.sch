@@ -188,6 +188,8 @@ T 38100 44100 5 10 0 0 90 0 1
 device=CONNECTOR_6
 T 38200 42200 5 10 1 1 180 0 1
 refdes=CONN31
+T 38400 42600 5 10 0 1 0 0 1
+footprint=8p8c
 }
 C 36800 42900 1 0 0 gnd-1.sym
 N 36900 43200 38200 43200 4
@@ -263,15 +265,6 @@ refdes=C308
 T 50100 44400 5 10 0 0 90 0 1
 symversion=0.1
 }
-C 49700 42700 1 0 0 capacitor.sym
-{
-T 49900 43400 5 10 0 0 0 0 1
-device=CAPACITOR
-T 49600 43100 5 10 1 1 0 0 1
-refdes=C309
-T 49900 43600 5 10 0 0 0 0 1
-symversion=0.1
-}
 C 49800 42100 1 90 0 capacitor.sym
 {
 T 49100 42300 5 10 0 0 90 0 1
@@ -321,15 +314,6 @@ refdes=R313
 T 49700 41200 5 10 0 1 0 0 1
 footprint=0603
 }
-C 49700 43300 1 0 0 capacitor.sym
-{
-T 49900 44000 5 10 0 0 0 0 1
-device=CAPACITOR
-T 49900 43700 5 10 1 1 180 0 1
-refdes=C307
-T 49900 44200 5 10 0 0 0 0 1
-symversion=0.1
-}
 C 49100 44900 1 90 0 capacitor.sym
 {
 T 48400 45100 5 10 0 0 90 0 1
@@ -343,6 +327,8 @@ C 51400 43700 1 180 0 audio-jack.sym
 {
 T 51300 43700 5 10 1 1 180 0 1
 refdes=CONN32
+T 50800 43300 5 10 0 1 0 0 1
+footprint=audio-jack
 }
 N 48700 41500 48500 41500 4
 N 49000 41500 49000 41000 4
@@ -399,3 +385,25 @@ N 45600 45600 46800 45600 4
 C 46000 45600 1 0 0 3.3v-digital-1.sym
 C 50000 42300 1 0 0 gnd-1.sym
 N 50200 42600 50100 42600 4
+C 49700 43300 1 0 0 cap-polar.sym
+{
+T 49700 44000 5 10 0 0 0 0 1
+device=POLARIZED_CAPACITOR
+T 49700 43800 5 10 1 1 0 0 1
+refdes=C307
+T 49700 44200 5 10 0 0 0 0 1
+symversion=0.1
+T 49800 43500 5 10 0 1 0 0 1
+footprint=smt-can-6.3mm
+}
+C 49700 42700 1 0 0 cap-polar.sym
+{
+T 49700 43400 5 10 0 0 0 0 1
+device=POLARIZED_CAPACITOR
+T 49700 43100 5 10 1 1 0 0 1
+refdes=C309
+T 49700 43600 5 10 0 0 0 0 1
+symversion=0.1
+T 50000 42900 5 10 0 1 0 0 1
+footprint=smt-can-6.3mm
+}
