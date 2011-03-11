@@ -280,6 +280,8 @@ T 41000 43700 5 10 0 0 180 6 1
 device=PWRJACK
 T 40900 43700 5 10 1 1 180 6 1
 refdes=CONN41
+T 40900 44200 5 10 0 0 0 0 1
+footprint=power-jack-2mm
 }
 C 42000 44100 1 90 0 diode-1.sym
 {

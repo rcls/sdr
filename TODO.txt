@@ -46,3 +46,5 @@ Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags]
 
 
 Pin[rX rY Thickness Clearance Mask Drill "Name" "Number" SFlags]
+
+If using 8p8c, then check the footprint.

@@ -1,6 +1,10 @@
 ise
 bandpass
+pcb*.save
 phasedetectsim
 pllsim
 sinrom
 /docs/*.pdf
+/iseconfig
+/sdr.cmd
+/sdr.net
