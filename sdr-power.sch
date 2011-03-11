@@ -64,19 +64,6 @@ symversion=0.1
 T 47300 46600 5 10 0 0 0 0 1
 footprint=0603
 }
-C 42400 42700 1 90 0 capacitor.sym
-{
-T 41700 42900 5 10 0 0 90 0 1
-device=CAPACITOR
-T 42100 43200 5 10 1 1 180 0 1
-refdes=C403
-T 41500 42900 5 10 0 0 90 0 1
-symversion=0.1
-T 41700 42700 5 10 1 1 0 0 1
-value=100u
-T 42400 42900 5 10 0 1 0 0 1
-footprint=smt-can-6.3mm
-}
 C 43100 42700 1 90 0 capacitor.sym
 {
 T 42400 42900 5 10 0 0 90 0 1
@@ -124,6 +111,8 @@ T 43900 41900 5 10 1 1 0 0 1
 refdes=L41
 T 43900 42300 5 10 0 0 0 0 1
 symversion=0.1
+T 43700 41600 5 10 0 0 0 0 1
+footprint=inductor-3mm
 }
 C 41600 41200 1 90 0 capacitor.sym
 {
@@ -380,3 +369,16 @@ T 47000 47300 5 10 0 1 0 0 1
 footprint=JUMPER2
 }
 N 46600 47100 46600 47300 4
+C 42000 43200 1 270 0 cap-polar.sym
+{
+T 42700 43200 5 10 0 0 270 0 1
+device=POLARIZED_CAPACITOR
+T 41500 43000 5 10 1 1 0 0 1
+refdes=C402
+T 42900 43200 5 10 0 0 270 0 1
+symversion=0.1
+T 41500 42800 5 10 1 1 0 0 1
+value=100u
+T 42200 42900 5 10 0 1 270 0 1
+footprint=smt-can-6.3mm
+}
