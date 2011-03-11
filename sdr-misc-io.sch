@@ -190,7 +190,7 @@ device=LED
 T 44550 48350 5 10 1 1 180 0 1
 refdes=D603
 T 43900 48100 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 }
 C 45900 48100 1 90 0 led-3.sym
 {
@@ -199,7 +199,7 @@ device=LED
 T 45950 48050 5 10 1 1 180 0 1
 refdes=D607
 T 45500 48100 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 }
 C 46300 48700 1 90 0 led-3.sym
 {
@@ -208,7 +208,7 @@ device=LED
 T 46550 49450 5 10 1 1 180 0 1
 refdes=D608
 T 45900 48700 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 }
 N 43300 49600 46100 49600 4
 N 45700 48100 46100 48100 4
@@ -375,7 +375,7 @@ device=LED
 T 43250 48350 5 10 1 1 180 0 1
 refdes=D601
 T 43100 48100 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 }
 C 44700 48700 1 90 0 led-3.sym
 {
@@ -384,7 +384,7 @@ device=LED
 T 44250 49650 5 10 1 1 0 0 1
 refdes=D604
 T 44300 48700 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 }
 C 45100 48100 1 90 0 led-3.sym
 {
@@ -393,7 +393,7 @@ device=LED
 T 45350 48350 5 10 1 1 180 0 1
 refdes=D605
 T 44700 48100 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 }
 C 45500 48700 1 90 0 led-3.sym
 {
@@ -402,7 +402,7 @@ device=LED
 T 45050 49650 5 10 1 1 0 0 1
 refdes=D606
 T 45100 48700 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 }
 C 43900 48700 1 90 0 led-3.sym
 {
@@ -411,6 +411,6 @@ device=LED
 T 43450 49650 5 10 1 1 0 0 1
 refdes=D602
 T 43500 48700 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 }
 C 45500 49600 1 0 0 3.3V-plus-1.sym

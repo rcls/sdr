@@ -105,7 +105,7 @@ device=LED
 T 42250 50650 5 10 1 1 180 0 1
 refdes=D51
 T 41600 50600 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 }
 C 41500 49900 1 0 0 gnd-1.sym
 C 42600 50200 1 0 0 gnd-1.sym

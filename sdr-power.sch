@@ -51,7 +51,7 @@ symversion=0.1
 T 46300 46300 5 10 1 1 90 0 1
 value=10u
 T 46300 46600 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 }
 C 47300 46600 1 90 0 capacitor.sym
 {
@@ -134,7 +134,7 @@ refdes=C410
 T 44300 41400 5 10 0 0 90 0 1
 symversion=0.1
 T 45200 41200 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 T 44600 41200 5 10 1 1 0 0 1
 value=10u
 }
@@ -341,7 +341,7 @@ refdes=C401
 T 45900 46800 5 10 0 0 90 0 1
 symversion=0.1
 T 46200 46800 5 10 0 1 0 0 1
-footprint=0805
+footprint=s0805
 T 46800 46400 5 10 1 1 90 0 1
 value=10u
 }
@@ -374,7 +374,7 @@ C 42000 43200 1 270 0 cap-polar.sym
 T 42700 43200 5 10 0 0 270 0 1
 device=POLARIZED_CAPACITOR
 T 41500 43000 5 10 1 1 0 0 1
-refdes=C402
+refdes=C403
 T 42900 43200 5 10 0 0 270 0 1
 symversion=0.1
 T 41500 42800 5 10 1 1 0 0 1
