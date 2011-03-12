@@ -413,4 +413,4 @@ refdes=D602
 T 43500 48700 5 10 0 1 0 0 1
 footprint=s0805
 }
-C 45500 49600 1 0 0 3.3V-plus-1.sym
+C 45500 49600 1 0 0 3.3v-digital-1.sym
