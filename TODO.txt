@@ -53,3 +53,6 @@ If using 8p8c, then check the footprint.
 Validate solder 0603 side by side 50 mils apart.
 
 Use capacitor arrays?
+
+"Suspend must be low at power-up"
+
