@@ -27,7 +27,7 @@ Does the double filtering on the DAC 1.8v digital make sense?
 + maybe separate filtering instead?
 
 
-SOT-23 v. LLP for LM3671
+Verify soldering LLP LM3671 + inductor.
 
 Provision CPU oscillator?
 
@@ -56,3 +56,4 @@ Use capacitor arrays?
 
 "Suspend must be low at power-up"
 
+Spread out discretes new LMZ converter?
