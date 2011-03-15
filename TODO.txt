@@ -60,4 +60,5 @@ Use capacitor arrays?
 
 Spread out discretes nearw LMZ converter?
 
-
+FPGA to ADC clock goes over a ground break.
+OVR does not go over a ground.
