@@ -41,6 +41,7 @@ zero ohm 0805
 CAP 1uF 0603
 *DIVIDER RESISTERS FOR 1.2v*
 *22uF 0805*
+* 20 pin headers *
 
 Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "name" "number" flags]
 Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags]
@@ -57,4 +58,6 @@ Use capacitor arrays?
 
 "Suspend must be low at power-up"
 
-Spread out discretes new LMZ converter?
+Spread out discretes nearw LMZ converter?
+
+
