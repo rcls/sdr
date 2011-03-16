@@ -64,3 +64,5 @@ FPGA to ADC clock goes over a ground break.
 OVR does not go over a ground.
 Neaten up USB trace.
 Redo ends of diff. pairs.
+Check FPGA voltages.
+Choose decoupling caps for clock.
