@@ -66,3 +66,5 @@ Neaten up USB trace.
 Redo ends of diff. pairs.
 Check FPGA voltages.
 Choose decoupling caps for clock.
+Protection diodes for RF input?
+Check jumper pin sizes.
