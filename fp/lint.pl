@@ -17,7 +17,7 @@ sub lint($$$$$$)
 sub lint_pin($$$$)
 {
     my ($thick, $clear, $mask, $drill) = @_;
-    print "$_ : annulus is small\n"  if  $thick - $drill < 1016;
+    print "$_ : annulus is small\n"  if  $thick - $drill < 1575;
 }
 
 
@@ -33,6 +33,6 @@ while(<>) {
         lint_pin $3, $4, $5, $6;
     }
     else {
-        die $_ if  /Pad|Pin/;
+        die $_  if  /Pad|Pin/;
     }
 }

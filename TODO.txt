@@ -2,10 +2,7 @@ RF boards.
 
 Voltage monitors to CPU.
 
-Add a 5v linear reg for display driver?
-
 Check pinout of CPU jtag.
-Sort out headers for CPU jtag and serial.
 
 Header for FPGA jtag - improve pinout?
 
@@ -18,20 +15,16 @@ Dangle LED(s) off the CPU.
 Input buttons.
 
 Sort out main input capacitors.
-+ output capacitors for PTH08080W.
++ output capacitors for PTH08080W?
 + double bypass on lm3671 input?
-+ headers in main power feeds?
-
-
-Does the double filtering on the DAC 1.8v digital make sense?
-+ maybe separate filtering instead?
 
 
 Verify soldering LLP LM3671 + inductor.
 
-Provision CPU oscillator?
+Provision CPU oscillator? - low priority, could take a trace from fpga?
 
-Activity LEDs on FT2232?
+Activity LEDs on FT2232? - only on port b, not worth it?  Worth doing anything
+with spare port b pins?
 
 xtal - footprint v. symbol.
 + pads are oversized internally...
@@ -49,16 +42,15 @@ Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags]
 
 Pin[rX rY Thickness Clearance Mask Drill "Name" "Number" SFlags]
 
-If using 8p8c, then check the footprint.
-
 Validate solder 0603 side by side 50 mils apart.
++ Use capacitor array on clock if need be.
 Validate solder s0805 footprint.
 
-Use capacitor arrays?
 
-"Suspend must be low at power-up"
+"Suspend must be low at power-up" - yeah lets triple check all FPGA control
+pins.
 
-Spread out discretes nearw LMZ converter?
+Spread out discretes near LMZ converter?
 
 FPGA to ADC clock goes over a ground break.
 OVR does not go over a ground.
@@ -68,3 +60,5 @@ Check FPGA voltages.
 Choose decoupling caps for clock.
 Protection diodes for RF input?
 Check jumper pin sizes.
+FPGA pins to bottom header.
+Check tactile switch ground, or route it?
