@@ -5,6 +5,7 @@ Voltage monitors to CPU.
 Check pinout of CPU jtag.
 
 Header for FPGA jtag - improve pinout?
+Power / ground to both sides...
 
 On right angle header, check pin size - 1mm hole looks huge...
 
