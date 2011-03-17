@@ -1,5 +1,5 @@
 # release: pcb 20100929
-# date:    Thu Mar 17 23:35:59 2011
+# date:    Fri Mar 18 09:05:20 2011
 # user:    ralph (Ralph Loader)
 # host:    i.geek.nz
 
@@ -9,7 +9,7 @@ FileVersion[20100606]
 PCB["" 393500 250000]
 
 Grid[500.000000 0 0 1]
-Cursor[0 250000 0.000000]
+Cursor[0 0 0.000000]
 PolyArea[200000000.000000]
 Thermal[0.500000]
 DRC[600 600 600 600 1200 787]
@@ -1026,6 +1026,8 @@ Via[143000 126000 2800 2000 0 1200 "" ""]
 Via[143000 132000 2800 2000 0 1200 "" ""]
 Via[147000 154500 2800 2000 0 1200 "" ""]
 Via[151500 154500 2800 2000 0 1200 "" ""]
+Via[145500 18500 2800 2000 0 1200 "" ""]
+Via[90000 30000 2800 2000 0 1200 "" ""]
 
 Element["" "ra-0.1inch-female" "CONN62" "unknown" 15000 7500 -14102 65933 0 100 ""]
 (
@@ -1544,7 +1546,7 @@ Element["" "0603" "R305" "unknown" 180000 122500 -4469 -6087 0 67 ""]
 
 	)
 
-Element["" "JUMPER3" "J91" "unknown" 77000 29000 -14189 5059 0 100 ""]
+Element["" "JUMPER3" "J91" "unknown" 74500 31500 -14189 5059 0 100 ""]
 (
 	Pin[0 0 6000 3000 6600 3800 "1" "1" "edge2"]
 	Pin[-10000 0 6000 3000 6600 3800 "2" "2" "edge2"]
@@ -3111,8 +3113,8 @@ Layer(1 "Component")
 	Line[164054 20054 162500 18500 800 2000 "clearline"]
 	Line[162500 18500 154563 18500 800 2000 "clearline"]
 	Line[154563 18500 150000 13937 800 2000 "clearline"]
-	Line[96000 18567 96000 22000 1000 2000 "clearline"]
-	Line[96000 22000 98041 24041 1000 2000 "clearline"]
+	Line[96000 18567 96000 21500 1000 2000 "clearline"]
+	Line[96000 21500 97041 22541 1000 2000 "clearline"]
 	Line[103819 53819 103500 53500 600 2000 "clearline,rubberend"]
 	Line[303236 138326 309326 138326 800 2000 "clearline,rubberend"]
 	Line[309326 138326 311000 140000 800 2000 "clearline,rubberend"]
@@ -3140,12 +3142,12 @@ Layer(1 "Component")
 	Line[305191 144091 305191 142263 1200 2000 "clearline,rubberend"]
 	Line[299000 132500 299079 132421 900 2000 "clearline"]
 	Line[299079 132421 305191 132421 900 2000 "clearline,rubberend"]
-	Line[73000 35000 79500 35000 2500 2000 "clearline"]
-	Line[79500 35000 84500 30000 2500 2000 "clearline"]
+	Line[69000 37000 77500 37000 2500 2000 "clearline"]
+	Line[77500 37000 84500 30000 2500 2000 "clearline"]
 	Line[112579 120921 115500 118000 600 2000 "clearline"]
 	Line[115500 118000 123500 118000 600 2000 "clearline"]
 	Line[108500 110000 114500 110000 1000 2000 "clearline"]
-	Line[98041 24041 114842 24041 1000 2000 "clearline"]
+	Line[97041 22541 114842 22541 1000 2000 "clearline"]
 	Line[110611 129803 110611 120389 600 2000 "clearline"]
 	Line[110611 120389 114500 116500 600 2000 "clearline"]
 	Line[114500 116500 122500 116500 600 2000 "clearline"]
@@ -3277,14 +3279,14 @@ Layer(1 "Component")
 	Line[114000 12500 20000 12500 600 2000 "clearline"]
 	Line[122716 21889 122716 18716 600 2000 "clearline"]
 	Line[115000 11000 18000 11000 600 2000 "clearline"]
-	Line[15000 37500 28000 24500 600 2000 "clearline"]
-	Line[17500 32500 27000 23000 600 2000 "clearline"]
+	Line[15000 37500 28500 24000 600 2000 "clearline"]
+	Line[17500 32500 27500 22500 600 2000 "clearline"]
 	Line[10000 32500 17500 32500 600 2000 "clearline"]
 	Line[122716 18716 115000 11000 600 2000 "clearline"]
 	Line[128500 19000 128621 19121 900 2000 ""]
 	Line[128621 19121 128621 24041 900 2000 "rubberend"]
 	Line[10000 12500 16500 12500 600 2000 "clearline"]
-	Line[124500 32000 115500 32000 600 2000 "clearline"]
+	Line[151000 34500 120000 34500 600 2000 "clearline"]
 	Line[124500 119500 130591 113409 600 2000 ""]
 	Line[118484 157559 118484 167484 600 2000 "clearline"]
 	Line[118484 167484 123500 172500 600 2000 "clearline"]
@@ -3690,7 +3692,7 @@ Layer(1 "Component")
 	Line[19067 88059 32941 88059 600 2000 ""]
 	Line[32941 88059 34500 86500 600 2000 ""]
 	Line[34500 86500 34500 81500 600 2000 ""]
-	Line[67000 29000 73000 35000 2500 2000 "clearline"]
+	Line[64500 31500 69000 37000 2500 2000 "clearline"]
 	Line[303236 116673 302173 116673 1000 2000 "clearline"]
 	Line[302173 116673 300500 115000 1000 2000 "clearline"]
 	Line[300500 115000 300500 108500 1000 2000 "clearline"]
@@ -3699,31 +3701,31 @@ Layer(1 "Component")
 	Line[306500 105500 309000 108000 1000 2000 "clearline"]
 	Line[309000 108000 309441 108000 1000 2000 "clearline"]
 	Line[126653 21889 126653 29847 600 2000 "clearline"]
-	Line[126653 29847 124500 32000 600 2000 "clearline"]
+	Line[126653 29847 125000 31500 600 2000 "clearline"]
 	Line[136495 21889 136495 28352 600 2000 "clearline"]
 	Line[136495 28352 137000 28857 600 2000 "clearline"]
-	Line[137000 28857 137000 31000 600 2000 "clearline"]
-	Line[137000 31000 134500 33500 600 2000 "clearline"]
-	Line[134500 33500 114500 33500 600 2000 "clearline"]
+	Line[137000 28857 137000 31000 600 2000 "clearline,rubberend"]
+	Line[137000 31000 135000 33000 600 2000 "clearline"]
+	Line[135000 33000 121000 33000 600 2000 "clearline"]
 	Line[18000 11000 16500 12500 600 2000 "clearline"]
-	Line[85000 23000 27000 23000 600 2000 "clearline"]
-	Line[84000 24500 28000 24500 600 2000 "clearline"]
-	Line[111500 15500 27000 15500 600 2000 "clearline"]
+	Line[93500 22500 27500 22500 600 2000 "clearline"]
+	Line[92500 24000 28500 24000 600 2000 "clearline"]
+	Line[112000 15500 27000 15500 600 2000 "clearline"]
 	Line[15000 17500 20000 12500 600 2000 "clearline"]
 	Line[5000 27500 10000 22500 600 2000 "clearline"]
 	Line[10000 22500 16500 22500 600 2000 "clearline"]
 	Line[118779 21889 118779 19779 600 2000 "clearline"]
 	Line[118779 19779 113000 14000 600 2000 "clearline"]
 	Line[113000 14000 25000 14000 600 2000 "clearline"]
-	Line[116810 22389 116810 20810 600 2000 "clearline"]
-	Line[116810 20810 111500 15500 600 2000 "clearline"]
+	Line[116810 22389 116810 20310 600 2000 "clearline"]
+	Line[116810 20310 112000 15500 600 2000 "clearline"]
 	Line[5000 17500 10000 12500 600 2000 "clearline"]
-	Line[114500 33500 111000 30000 600 2000 "clearline,rubberend"]
-	Line[111000 30000 89500 30000 600 2000 "clearline"]
-	Line[89500 30000 84000 24500 600 2000 "clearline,rubberend"]
-	Line[85000 23000 90500 28500 600 2000 "clearline"]
-	Line[90500 28500 112000 28500 600 2000 "clearline"]
-	Line[112000 28500 115500 32000 600 2000 "clearline"]
+	Line[119500 29000 114000 29000 600 2000 "clearline"]
+	Line[111000 28500 97000 28500 600 2000 "clearline"]
+	Line[97000 28500 92500 24000 600 2000 "clearline"]
+	Line[93500 22500 98000 27000 600 2000 "clearline"]
+	Line[98000 27000 112500 27000 600 2000 "clearline"]
+	Line[112500 27000 114000 29000 600 2000 "clearline"]
 	Line[107500 19000 101059 19000 1000 2000 "clearline"]
 	Line[95941 18508 95449 19000 1000 2000 "clearline"]
 	Line[95449 19000 90059 19000 1000 2000 "clearline"]
@@ -3834,6 +3836,30 @@ Layer(1 "Component")
 	Line[151500 157000 163500 169000 600 2000 "clearline"]
 	Line[163500 169000 171000 169000 600 2000 "clearline"]
 	Line[171000 169000 183500 181500 600 2000 "clearline"]
+	Line[154212 21889 154212 27712 600 2000 "clearline"]
+	Line[154212 27712 155000 28500 600 2000 "clearline"]
+	Line[155000 28500 155000 30500 600 2000 "clearline"]
+	Line[155000 30500 151000 34500 600 2000 "clearline"]
+	Line[125000 31500 122000 31500 600 2000 "clearline"]
+	Line[122000 31500 119500 29000 600 2000 "clearline"]
+	Line[121000 33000 118500 30500 600 2000 "clearline"]
+	Line[118500 30500 113000 30500 600 2000 "clearline"]
+	Line[113000 30500 111000 28500 600 2000 "clearline"]
+	Line[120000 34500 117500 32000 600 2000 "clearline"]
+	Line[117500 32000 112000 32000 600 2000 "clearline"]
+	Line[112000 32000 110000 30000 600 2000 "clearline"]
+	Line[110000 30000 96000 30000 600 2000 "clearline"]
+	Line[96000 30000 91500 25500 600 2000 "clearline"]
+	Line[146500 18500 145500 18500 600 2000 "clearline"]
+	Line[148306 21889 148306 20306 600 2000 "clearline"]
+	Line[148306 20306 146500 18500 600 2000 "clearline"]
+	Line[91500 25500 34000 25500 600 2000 "clearline"]
+	Line[90000 30000 87000 27000 600 2000 "clearline"]
+	Line[87000 27000 35500 27000 600 2000 "clearline"]
+	Line[35500 27000 15000 47500 600 2000 "clearline"]
+	Line[34000 25500 17000 42500 600 2000 "clearline"]
+	Line[10000 42500 5000 47500 600 2000 "clearline"]
+	Line[17000 42500 10000 42500 600 2000 "clearline"]
 )
 Layer(2 "CompPwr")
 (
@@ -4300,7 +4326,7 @@ Layer(5 "Power")
 	Line[335000 2500 265000 2500 4000 2000 "clearline"]
 	Line[265000 2500 247500 20000 4000 2000 "clearline"]
 	Line[247500 20000 227500 20000 4000 2000 "clearline"]
-	Line[227500 20000 214000 7000 4000 2000 "clearline,rubberend"]
+	Line[227500 20000 214500 7000 4000 2000 "clearline,rubberend"]
 	Line[85012 55512 71000 41500 2500 2000 "clearline"]
 	Line[350000 92500 342500 85000 4000 2000 "clearline"]
 	Line[342500 85000 342500 75000 4000 2000 "clearline"]
@@ -4319,7 +4345,7 @@ Layer(5 "Power")
 	Line[295000 110000 295000 110000 5500 2000 ""]
 	Line[270000 110000 270000 110000 5500 2000 ""]
 	Line[312500 175000 312500 175000 6500 2000 ""]
-	Line[214000 7000 113063 7000 3500 2000 "clearline"]
+	Line[214500 7000 113063 7000 3500 2000 "clearline"]
 	Line[148000 33000 148000 29500 2500 2000 ""]
 	Line[111500 85500 111500 85500 5500 2000 ""]
 	Line[113063 7000 109563 3500 4000 2000 "clearline"]
@@ -4327,14 +4353,14 @@ Layer(5 "Power")
 	Line[102500 67500 102500 67500 5500 2000 ""]
 	Line[270000 55000 210000 55000 4000 2000 "clearline"]
 	Line[210000 55000 205000 50000 4000 2000 "clearline"]
-	Line[57000 29000 57000 17500 4000 2000 "clearline"]
-	Line[57000 17500 71000 3500 4000 2000 "clearline"]
+	Line[54500 31500 54500 20000 4000 2000 "clearline"]
+	Line[54500 20000 71000 3500 4000 2000 "clearline"]
 	Line[210000 12500 76500 12500 4000 2000 "clearline"]
-	Line[72000 24000 77000 29000 4000 2000 "clearline"]
+	Line[72000 29000 74500 31500 4000 2000 "clearline"]
 	Line[50000 78500 50000 59500 2500 2000 "clearline"]
 	Line[55000 81500 53000 81500 2500 2000 "clearline"]
 	Line[53000 81500 50000 78500 2500 2000 "clearline"]
-	Line[77000 29000 58000 48000 4000 2000 "clearline"]
+	Line[74500 31500 58000 48000 4000 2000 "clearline"]
 	Line[58000 48000 54500 48000 4000 2000 "clearline"]
 	Line[85012 58575 86500 60063 2500 2000 "clearline"]
 	Line[84600 94300 86500 92400 2500 2000 "clearline,rubberend"]
@@ -4343,13 +4369,16 @@ Layer(5 "Power")
 	Line[300500 119500 299000 121000 2500 2000 "clearline"]
 	Line[299000 121000 264500 121000 2500 2000 "clearline"]
 	Line[76500 12500 72000 17000 4000 2000 "clearline"]
-	Line[72000 17000 72000 24000 4000 2000 "clearline"]
+	Line[72000 17000 72000 29000 4000 2000 "clearline"]
 	Line[100000 105000 92500 105000 2500 2000 ""]
 	Line[92500 105000 52500 105000 2500 2000 "clearline"]
 	Line[52500 105000 15000 67500 2500 2000 "clearline"]
 	Line[15000 67500 5000 67500 2500 2000 "clearline"]
 	Line[206500 178500 206500 178500 7000 2000 ""]
 	Line[149500 66000 149500 66000 10000 2000 ""]
+	Line[145500 18500 139500 24500 600 2000 "clearline"]
+	Line[139500 24500 95500 24500 600 2000 "clearline"]
+	Line[95500 24500 90000 30000 600 2000 "clearline"]
 	Polygon("clearpoly")
 	(
 		[387000 195000] [83500 195000] [83500 117000] [387000 117500] 
@@ -4654,7 +4683,7 @@ Layer(8 "SolderPwr")
 	Line[129500 29500 129441 25500 2500 2000 ""]
 	Line[237500 187500 230000 180000 2500 2000 "clearline"]
 	Line[227559 158201 227559 151500 2500 2000 "clearline"]
-	Line[55500 7500 5000 7500 2500 2000 "clearline"]
+	Line[54000 7500 5000 7500 2500 2000 "clearline"]
 	Line[152000 27051 152000 33000 2500 2000 ""]
 	Line[124000 32000 120500 32000 1100 2000 ""]
 	Line[120500 32000 107500 19000 600 2000 "clearline"]
@@ -4825,10 +4854,10 @@ Layer(8 "SolderPwr")
 	Line[86618 92282 86618 80500 2500 2000 "clearline"]
 	Line[71000 41500 67437 41500 2500 2000 "clearline"]
 	Line[34016 47437 35000 48421 2500 2000 ""]
-	Line[57000 29000 45500 29000 2500 2000 ""]
-	Line[45500 29000 35000 39563 2500 2000 ""]
-	Line[57000 29000 57000 39000 2500 2000 ""]
-	Line[57000 39000 59563 41500 2500 2000 ""]
+	Line[54500 31500 43000 31500 2500 2000 ""]
+	Line[43000 31500 35000 39563 2500 2000 ""]
+	Line[54500 31500 54500 36500 2500 2000 ""]
+	Line[54500 36500 59563 41500 2500 2000 ""]
 	Line[55000 73500 54500 73000 2500 2000 ""]
 	Line[277500 130000 273000 134500 8000 2000 ""]
 	Line[283563 124016 282579 125000 2500 2000 ""]
@@ -4840,7 +4869,7 @@ Layer(8 "SolderPwr")
 	Line[265453 130453 265500 130500 2500 2000 ""]
 	Line[84500 30000 91063 23437 2500 2000 "clearline"]
 	Line[91063 23437 91063 22500 2500 2000 "clearline"]
-	Line[77000 29000 55500 7500 2500 2000 "clearline"]
+	Line[74500 31500 54000 7500 2500 2000 "clearline"]
 	Line[155000 33000 159527 28473 2500 2000 ""]
 	Line[112500 101000 112500 97500 2500 2000 "clearline"]
 	Line[115000 95000 120500 95000 2500 2000 "clearline"]
@@ -4980,7 +5009,7 @@ Layer(11 "silk")
 	Line[318819 81595 317500 80276 900 2000 "clearline"]
 	Text[72000 35000 0 89 "3v3" "clearline"]
 	Text[52500 35000 0 100 "1v8" "clearline"]
-	Text[22500 25000 0 78 "P142/143" "clearline"]
+	Text[22500 25500 0 78 "P142/143" "clearline"]
 	Text[22500 35000 0 78 "P138/133" "clearline"]
 	Text[22500 15000 0 78 "P140/141" "clearline"]
 	Text[22500 5000 0 78 "3.3V" "clearline"]
@@ -5844,81 +5873,91 @@ NetList()
 	)
 	Net("unnamed_net91" "(unknown)")
 	(
+		Connect("CONN62-10")
+		Connect("U2-124")
+	)
+	Net("unnamed_net92" "(unknown)")
+	(
+		Connect("CONN62-9")
+		Connect("U2-127")
+	)
+	Net("unnamed_net93" "(unknown)")
+	(
 		Connect("D607-1")
 		Connect("U2-112")
 	)
-	Net("unnamed_net92" "(unknown)")
+	Net("unnamed_net94" "(unknown)")
 	(
 		Connect("D608-1")
 		Connect("U2-111")
 	)
-	Net("unnamed_net93" "(unknown)")
+	Net("unnamed_net95" "(unknown)")
 	(
 		Connect("C605-2")
 		Connect("FB61-2")
 		Connect("U61-4")
 	)
-	Net("unnamed_net94" "(unknown)")
+	Net("unnamed_net96" "(unknown)")
 	(
 		Connect("R698-2")
 		Connect("U61-1")
 	)
-	Net("unnamed_net95" "(unknown)")
+	Net("unnamed_net97" "(unknown)")
 	(
 		Connect("C601-2")
 		Connect("U62-5")
 	)
-	Net("unnamed_net96" "(unknown)")
+	Net("unnamed_net98" "(unknown)")
 	(
 		Connect("C603-2")
 		Connect("R612-1")
 	)
-	Net("unnamed_net97" "(unknown)")
+	Net("unnamed_net99" "(unknown)")
 	(
 		Connect("D601-2")
 		Connect("R609-2")
 	)
-	Net("unnamed_net98" "(unknown)")
+	Net("unnamed_net100" "(unknown)")
 	(
 		Connect("D602-2")
 		Connect("R607-2")
 	)
-	Net("unnamed_net99" "(unknown)")
+	Net("unnamed_net101" "(unknown)")
 	(
 		Connect("D603-2")
 		Connect("R606-2")
 	)
-	Net("unnamed_net100" "(unknown)")
+	Net("unnamed_net102" "(unknown)")
 	(
 		Connect("D604-2")
 		Connect("R605-2")
 	)
-	Net("unnamed_net101" "(unknown)")
+	Net("unnamed_net103" "(unknown)")
 	(
 		Connect("D605-2")
 		Connect("R604-2")
 	)
-	Net("unnamed_net102" "(unknown)")
+	Net("unnamed_net104" "(unknown)")
 	(
 		Connect("D606-2")
 		Connect("R603-2")
 	)
-	Net("unnamed_net103" "(unknown)")
+	Net("unnamed_net105" "(unknown)")
 	(
 		Connect("D607-2")
 		Connect("R602-2")
 	)
-	Net("unnamed_net104" "(unknown)")
+	Net("unnamed_net106" "(unknown)")
 	(
 		Connect("D608-2")
 		Connect("R601-2")
 	)
-	Net("unnamed_net105" "(unknown)")
+	Net("unnamed_net107" "(unknown)")
 	(
 		Connect("L41-1")
 		Connect("U41-6")
 	)
-	Net("unnamed_net106" "(unknown)")
+	Net("unnamed_net108" "(unknown)")
 	(
 		Connect("C410-2")
 		Connect("C411-2")
@@ -5926,7 +5965,7 @@ NetList()
 		Connect("L41-2")
 		Connect("U41-4")
 	)
-	Net("unnamed_net107" "(unknown)")
+	Net("unnamed_net109" "(unknown)")
 	(
 		Connect("C402-2")
 		Connect("FB44-2")
@@ -5934,30 +5973,30 @@ NetList()
 		Connect("R499-1")
 		Connect("U42-1")
 	)
-	Net("unnamed_net108" "(unknown)")
+	Net("unnamed_net110" "(unknown)")
 	(
 		Connect("R402-2")
 		Connect("U42-2")
 	)
-	Net("unnamed_net109" "(unknown)")
+	Net("unnamed_net111" "(unknown)")
 	(
 		Connect("R498-1")
 		Connect("R499-2")
 		Connect("U42-3")
 	)
-	Net("unnamed_net110" "(unknown)")
+	Net("unnamed_net112" "(unknown)")
 	(
 		Connect("C412-2")
 		Connect("U42-5")
 	)
-	Net("unnamed_net111" "(unknown)")
+	Net("unnamed_net113" "(unknown)")
 	(
 		Connect("C413-1")
 		Connect("R404-2")
 		Connect("R406-1")
 		Connect("U42-6")
 	)
-	Net("unnamed_net112" "(unknown)")
+	Net("unnamed_net114" "(unknown)")
 	(
 		Connect("C401-2")
 		Connect("C406-2")
@@ -5966,57 +6005,57 @@ NetList()
 		Connect("R406-2")
 		Connect("U42-7")
 	)
-	Net("unnamed_net113" "(unknown)")
+	Net("unnamed_net115" "(unknown)")
 	(
 		Connect("C403-1")
 		Connect("C405-2")
 		Connect("FB45-1")
 		Connect("U43-1")
 	)
-	Net("unnamed_net114" "(unknown)")
+	Net("unnamed_net116" "(unknown)")
 	(
 		Connect("C407-2")
 		Connect("J43-1")
 		Connect("U43-3")
 	)
-	Net("unnamed_net115" "(unknown)")
+	Net("unnamed_net117" "(unknown)")
 	(
 		Connect("R405-1")
 		Connect("U43-4")
 	)
-	Net("unnamed_net116" "(unknown)")
+	Net("unnamed_net118" "(unknown)")
 	(
 		Connect("C404-1")
 		Connect("FB44-1")
 		Connect("FB45-2")
 		Connect("J41-2")
 	)
-	Net("unnamed_net117" "(unknown)")
+	Net("unnamed_net119" "(unknown)")
 	(
 		Connect("D41-2")
 		Connect("J41-1")
 	)
-	Net("unnamed_net118" "(unknown)")
+	Net("unnamed_net120" "(unknown)")
 	(
 		Connect("CONN41-1")
 		Connect("D41-1")
 	)
-	Net("unnamed_net119" "(unknown)")
+	Net("unnamed_net121" "(unknown)")
 	(
 		Connect("FB41-1")
 		Connect("J42-2")
 	)
-	Net("unnamed_net120" "(unknown)")
+	Net("unnamed_net122" "(unknown)")
 	(
 		Connect("R103-2")
 		Connect("U1-15")
 	)
-	Net("unnamed_net121" "(unknown)")
+	Net("unnamed_net123" "(unknown)")
 	(
 		Connect("R104-2")
 		Connect("U1-16")
 	)
-	Net("unnamed_net122" "(unknown)")
+	Net("unnamed_net124" "(unknown)")
 	(
 		Connect("C107-2")
 		Connect("C108-2")
@@ -6035,31 +6074,31 @@ NetList()
 		Connect("U1-24")
 		Connect("U1-26")
 	)
-	Net("unnamed_net123" "(unknown)")
+	Net("unnamed_net125" "(unknown)")
 	(
 		Connect("R101-2")
 		Connect("R103-1")
 		Connect("T11-5")
 	)
-	Net("unnamed_net124" "(unknown)")
+	Net("unnamed_net126" "(unknown)")
 	(
 		Connect("R102-1")
 		Connect("R104-1")
 		Connect("T11-3")
 	)
-	Net("unnamed_net125" "(unknown)")
+	Net("unnamed_net127" "(unknown)")
 	(
 		Connect("CONN11-1")
 		Connect("T11-1")
 	)
-	Net("unnamed_net126" "(unknown)")
+	Net("unnamed_net128" "(unknown)")
 	(
 		Connect("C101-2")
 		Connect("R101-1")
 		Connect("R102-2")
 		Connect("T11-4")
 	)
-	Net("unnamed_net127" "(unknown)")
+	Net("unnamed_net129" "(unknown)")
 	(
 		Connect("CONN11-2")
 		Connect("CONN11-3")
@@ -6067,7 +6106,7 @@ NetList()
 		Connect("CONN11-5")
 		Connect("T11-2")
 	)
-	Net("unnamed_net128" "(unknown)")
+	Net("unnamed_net130" "(unknown)")
 	(
 		Connect("C102-2")
 		Connect("C103-2")
@@ -6076,226 +6115,226 @@ NetList()
 		Connect("U1-2")
 		Connect("U1-35")
 	)
-	Net("unnamed_net129" "(unknown)")
+	Net("unnamed_net131" "(unknown)")
 	(
 		Connect("C105-2")
 		Connect("C106-2")
 		Connect("FB11-2")
 		Connect("U1-21")
 	)
-	Net("unnamed_net130" "(unknown)")
+	Net("unnamed_net132" "(unknown)")
 	(
 		Connect("CONN71-2")
 		Connect("U3-7")
 	)
-	Net("unnamed_net131" "(unknown)")
+	Net("unnamed_net133" "(unknown)")
 	(
 		Connect("CONN71-3")
 		Connect("U3-8")
 	)
-	Net("unnamed_net132" "(unknown)")
+	Net("unnamed_net134" "(unknown)")
 	(
 		Connect("R705-2")
 		Connect("U3-14")
 	)
-	Net("unnamed_net133" "(unknown)")
+	Net("unnamed_net135" "(unknown)")
 	(
 		Connect("C706-1")
 		Connect("U3-3")
 		Connect("X71-3")
 	)
-	Net("unnamed_net134" "(unknown)")
+	Net("unnamed_net136" "(unknown)")
 	(
 		Connect("R706-1")
 		Connect("U3-6")
 	)
-	Net("unnamed_net135" "(unknown)")
+	Net("unnamed_net137" "(unknown)")
 	(
 		Connect("C705-1")
 		Connect("U3-2")
 		Connect("X71-1")
 	)
-	Net("unnamed_net136" "(unknown)")
+	Net("unnamed_net138" "(unknown)")
 	(
 		Connect("R702-1")
 		Connect("U3-63")
 		Connect("U71-1")
 	)
-	Net("unnamed_net137" "(unknown)")
+	Net("unnamed_net139" "(unknown)")
 	(
 		Connect("R704-1")
 		Connect("U3-61")
 		Connect("U71-3")
 	)
-	Net("unnamed_net138" "(unknown)")
+	Net("unnamed_net140" "(unknown)")
 	(
 		Connect("R703-1")
 		Connect("U3-62")
 		Connect("U71-2")
 	)
-	Net("unnamed_net139" "(unknown)")
+	Net("unnamed_net141" "(unknown)")
 	(
 		Connect("C703-2")
 		Connect("C715-2")
 		Connect("FB72-2")
 		Connect("U3-4")
 	)
-	Net("unnamed_net140" "(unknown)")
+	Net("unnamed_net142" "(unknown)")
 	(
 		Connect("C702-2")
 		Connect("C714-2")
 		Connect("FB73-2")
 		Connect("U3-9")
 	)
-	Net("unnamed_net141" "(unknown)")
+	Net("unnamed_net143" "(unknown)")
 	(
 		Connect("R701-1")
 		Connect("R704-2")
 		Connect("U71-4")
 	)
-	Net("unnamed_net142" "(unknown)")
+	Net("unnamed_net144" "(unknown)")
 	(
 		Connect("U2-105")
 		Connect("U3-24")
 	)
-	Net("unnamed_net143" "(unknown)")
+	Net("unnamed_net145" "(unknown)")
 	(
 		Connect("U2-104")
 		Connect("U3-23")
 	)
-	Net("unnamed_net144" "(unknown)")
+	Net("unnamed_net146" "(unknown)")
 	(
 		Connect("U2-101")
 		Connect("U3-22")
 	)
-	Net("unnamed_net145" "(unknown)")
+	Net("unnamed_net147" "(unknown)")
 	(
 		Connect("U2-100")
 		Connect("U3-21")
 	)
-	Net("unnamed_net146" "(unknown)")
+	Net("unnamed_net148" "(unknown)")
 	(
 		Connect("U2-99")
 		Connect("U3-19")
 	)
-	Net("unnamed_net147" "(unknown)")
+	Net("unnamed_net149" "(unknown)")
 	(
 		Connect("U2-98")
 		Connect("U3-18")
 	)
-	Net("unnamed_net148" "(unknown)")
+	Net("unnamed_net150" "(unknown)")
 	(
 		Connect("U2-95")
 		Connect("U3-17")
 	)
-	Net("unnamed_net149" "(unknown)")
+	Net("unnamed_net151" "(unknown)")
 	(
 		Connect("U2-94")
 		Connect("U3-16")
 	)
-	Net("unnamed_net150" "(unknown)")
+	Net("unnamed_net152" "(unknown)")
 	(
 		Connect("U2-78")
 		Connect("U3-34")
 	)
-	Net("unnamed_net151" "(unknown)")
+	Net("unnamed_net153" "(unknown)")
 	(
 		Connect("U2-79")
 		Connect("U3-33")
 	)
-	Net("unnamed_net152" "(unknown)")
+	Net("unnamed_net154" "(unknown)")
 	(
 		Connect("R51-2")
 		Connect("U2-80")
 	)
-	Net("unnamed_net153" "(unknown)")
+	Net("unnamed_net155" "(unknown)")
 	(
 		Connect("U2-81")
 		Connect("U3-30")
 	)
-	Net("unnamed_net154" "(unknown)")
+	Net("unnamed_net156" "(unknown)")
 	(
 		Connect("U2-82")
 		Connect("U3-29")
 	)
-	Net("unnamed_net155" "(unknown)")
+	Net("unnamed_net157" "(unknown)")
 	(
 		Connect("U2-83")
 		Connect("U3-28")
 	)
-	Net("unnamed_net156" "(unknown)")
+	Net("unnamed_net158" "(unknown)")
 	(
 		Connect("U2-84")
 		Connect("U3-27")
 	)
-	Net("unnamed_net157" "(unknown)")
+	Net("unnamed_net159" "(unknown)")
 	(
 		Connect("U2-85")
 		Connect("U3-26")
 	)
-	Net("unnamed_net158" "(unknown)")
+	Net("unnamed_net160" "(unknown)")
 	(
 		Connect("R51-1")
 		Connect("U3-32")
 	)
-	Net("unnamed_net159" "(unknown)")
+	Net("unnamed_net161" "(unknown)")
 	(
 		Connect("C51-2")
 		Connect("R52-2")
 		Connect("S51-2")
 		Connect("U2-37")
 	)
-	Net("unnamed_net160" "(unknown)")
+	Net("unnamed_net162" "(unknown)")
 	(
 		Connect("R53-2")
 		Connect("U2-71")
 	)
-	Net("unnamed_net161" "(unknown)")
+	Net("unnamed_net163" "(unknown)")
 	(
 		Connect("CONN51-5")
 		Connect("U2-110")
 	)
-	Net("unnamed_net162" "(unknown)")
+	Net("unnamed_net164" "(unknown)")
 	(
 		Connect("CONN51-3")
 		Connect("U2-109")
 	)
-	Net("unnamed_net163" "(unknown)")
+	Net("unnamed_net165" "(unknown)")
 	(
 		Connect("CONN51-6")
 		Connect("U2-107")
 	)
-	Net("unnamed_net164" "(unknown)")
+	Net("unnamed_net166" "(unknown)")
 	(
 		Connect("CONN51-4")
 		Connect("U2-106")
 	)
-	Net("unnamed_net165" "(unknown)")
+	Net("unnamed_net167" "(unknown)")
 	(
 		Connect("D51-2")
 		Connect("R53-1")
 	)
-	Net("unnamed_net166" "(unknown)")
+	Net("unnamed_net168" "(unknown)")
 	(
 		Connect("CONN51-9")
 		Connect("U3-38")
 	)
-	Net("unnamed_net167" "(unknown)")
+	Net("unnamed_net169" "(unknown)")
 	(
 		Connect("CONN51-8")
 		Connect("U3-39")
 	)
-	Net("unnamed_net168" "(unknown)")
+	Net("unnamed_net170" "(unknown)")
 	(
 		Connect("CONN51-10")
 		Connect("U3-40")
 	)
-	Net("unnamed_net169" "(unknown)")
+	Net("unnamed_net171" "(unknown)")
 	(
 		Connect("CONN51-7")
 		Connect("U3-41")
 	)
-	Net("unnamed_net170" "(unknown)")
+	Net("unnamed_net172" "(unknown)")
 	(
 		Connect("R54-1")
 		Connect("R55-1")

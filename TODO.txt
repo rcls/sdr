@@ -58,8 +58,12 @@ OVR does not go over a ground.
 Neaten up USB trace.
 Redo ends of diff. pairs.
 Check FPGA voltages.
-Choose decoupling caps for clock.
 Protection diodes for RF input?
 Check jumper pin sizes.
 FPGA pins to bottom header.
 Check tactile switch ground, or route it?
+Get termination resistors in some of the fpga lines to off board.
+Check that all FBs have enough capacitance downstream (oscillator!).
+Choose decoupling caps for clock.
+Solder points for a shield over the trannie.
+Clean up CPU ground connections.
