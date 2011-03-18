@@ -40,12 +40,8 @@ Validate solder 0603 side by side 50 mils apart.
 Validate solder s0805 footprint.
 
 
-"Suspend must be low at power-up" - yeah lets triple check all FPGA control
-pins.
-- pulling down done pin via the led might be a problem.
-- let's switch the led so it's one during config.
+Cheap again all FPGA control pins.
 
-FPGA to ADC clock goes over a ground break.
 OVR does not go over a ground.
 Check FPGA voltages.
 Protection diodes for RF input?
@@ -54,6 +50,7 @@ Check that all FBs have enough capacitance downstream (oscillator!).
 Choose decoupling caps for clock.
 Solder points for a shield over the trannie.
 Clean up CPU ground connections.
+Clean up ground connections around usb xtal.
 
 
 pth08080w pin size 40mil
