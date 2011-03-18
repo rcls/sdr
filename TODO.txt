@@ -1,13 +1,15 @@
 RF boards.
 
+Is spartan EP or not?
+
 Voltage monitors to CPU?
 
 Header for FPGA jtag - improve pinout?
 
 On right angle header, check pin size - 1mm hole looks huge...
+ok, but could reduce.
 
 Check SMA footprint against physical device.  Ditto other connectors etc.
-Impedance between SMA and trannie.
 
 Dangle LED(s) off the CPU?
 
@@ -18,10 +20,6 @@ Sort out main input capacitors.
 
 Verify soldering LLP LM3671 + inductor.
 
-Provision CPU oscillator? - low priority, don't do it?
-
-Activity LEDs on FT2232? - only on port b, not worth it?  Worth doing anything
-with spare port b pins?
 
 xtal - footprint v. symbol.
 + pads are oversized internally...
@@ -48,10 +46,7 @@ Solder points for a shield over the trannie.
 Clean up CPU ground connections.
 Check soic8 tssop16 and msop8 footprints.
 
-pth08080w pin size 40mil
-headers fit just fine in 1mm, could go smaller.
-
-Case connection on xtal.
+Case connection on xtal - should it be grounded or not?
 
 
 74hct4094
@@ -60,3 +55,9 @@ CAP 1uF 0603
 *DIVIDER RESISTERS FOR 1.2v*
 *22uF 0805*
 * 20 pin headers *
+
+
+Triaged....
+Provision CPU oscillator? - low priority, don't do it?
+Activity LEDs on FT2232? - only on port b, not worth it?  Worth doing anything
+with spare port b pins?

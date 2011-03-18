@@ -397,20 +397,20 @@ N 53800 41000 53800 41200 4
 C 49100 41600 1 0 0 input-2.sym
 {
 T 48700 41600 5 10 1 0 0 0 1
-net=U0Rx:1
+net=U0Tx:1
 T 49700 42300 5 10 0 0 0 0 1
 device=none
 T 50200 41700 5 10 1 1 0 7 1
-value=U0Rx
+value=U0Tx
 }
 C 49400 41900 1 0 0 input-2.sym
 {
 T 49000 41900 5 10 1 0 0 0 1
-net=U0Tx:1
+net=U0Rx:1
 T 50000 42600 5 10 0 0 0 0 1
 device=none
 T 50500 42000 5 10 1 1 0 7 1
-value=U0Tx
+value=U0Rx
 }
 C 48500 41000 1 0 0 input-2.sym
 {

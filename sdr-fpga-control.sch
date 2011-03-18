@@ -434,20 +434,20 @@ value=PB6
 C 38700 42600 1 0 0 output-2.sym
 {
 T 39600 42600 5 10 1 0 0 0 1
-net=U0Rx:1
+net=U0Tx:1
 T 38900 43300 5 10 0 0 0 0 1
 device=none
 T 39000 42700 5 10 1 1 0 1 1
-value=U0Rx
+value=U0Tx
 }
 C 38500 42300 1 0 0 output-2.sym
 {
 T 39400 42300 5 10 1 0 0 0 1
-net=U0Tx:1
+net=U0Rx:1
 T 38700 43000 5 10 0 0 0 0 1
 device=none
 T 38800 42400 5 10 1 1 0 1 1
-value=U0Tx
+value=U0Rx
 }
 N 38300 48300 39500 48300 4
 N 38300 48600 39500 48600 4
