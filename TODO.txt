@@ -42,8 +42,6 @@ Validate solder s0805 footprint.
 "Suspend must be low at power-up" - yeah lets triple check all FPGA control
 pins.
 
-Spread out discretes near LMZ converter?
-
 FPGA to ADC clock goes over a ground break.
 OVR does not go over a ground.
 Check FPGA voltages.
