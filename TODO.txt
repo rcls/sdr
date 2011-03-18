@@ -1,18 +1,15 @@
 RF boards.
 
-Voltage monitors to CPU.
+Voltage monitors to CPU?
 
 Header for FPGA jtag - improve pinout?
-Power / ground to both sides...
 
 On right angle header, check pin size - 1mm hole looks huge...
 
 Check SMA footprint against physical device.  Ditto other connectors etc.
 Impedance between SMA and trannie.
 
-Dangle LED(s) off the CPU.
-
-Input buttons.
+Dangle LED(s) off the CPU?
 
 Sort out main input capacitors.
 + output capacitors for PTH08080W?
@@ -40,18 +37,16 @@ Validate solder 0603 side by side 50 mils apart.
 Validate solder s0805 footprint.
 
 
-Cheap again all FPGA control pins.
+Check again all FPGA control pins.
 
 OVR does not go over a ground.
 Check FPGA voltages.
 Protection diodes for RF input?
 Get termination resistors in some of the fpga lines to off board.
-Check that all FBs have enough capacitance downstream (oscillator!).
 Choose decoupling caps for clock.
 Solder points for a shield over the trannie.
 Clean up CPU ground connections.
-Clean up ground connections around usb xtal.
-
+Check soic8 tssop16 and msop8 footprints.
 
 pth08080w pin size 40mil
 headers fit just fine in 1mm, could go smaller.
