@@ -2,8 +2,6 @@ RF boards.
 
 Voltage monitors to CPU.
 
-Check pinout of CPU jtag.
-
 Header for FPGA jtag - improve pinout?
 Power / ground to both sides...
 
@@ -22,20 +20,13 @@ Sort out main input capacitors.
 
 Verify soldering LLP LM3671 + inductor.
 
-Provision CPU oscillator? - low priority, could take a trace from fpga?
+Provision CPU oscillator? - low priority, don't do it?
 
 Activity LEDs on FT2232? - only on port b, not worth it?  Worth doing anything
 with spare port b pins?
 
 xtal - footprint v. symbol.
 + pads are oversized internally...
-
-74hct4094
-zero ohm 0805
-CAP 1uF 0603
-*DIVIDER RESISTERS FOR 1.2v*
-*22uF 0805*
-* 20 pin headers *
 
 Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "name" "number" flags]
 Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags]
@@ -55,15 +46,24 @@ Spread out discretes near LMZ converter?
 
 FPGA to ADC clock goes over a ground break.
 OVR does not go over a ground.
-Neaten up USB trace.
-Redo ends of diff. pairs.
 Check FPGA voltages.
 Protection diodes for RF input?
-Check jumper pin sizes.
-FPGA pins to bottom header.
-Check tactile switch ground, or route it?
 Get termination resistors in some of the fpga lines to off board.
 Check that all FBs have enough capacitance downstream (oscillator!).
 Choose decoupling caps for clock.
 Solder points for a shield over the trannie.
 Clean up CPU ground connections.
+
+
+pth08080w pin size 40mil
+headers fit just fine in 1mm, could go smaller.
+
+Case connection on xtal.
+
+
+74hct4094
+zero ohm 0805
+CAP 1uF 0603
+*DIVIDER RESISTERS FOR 1.2v*
+*22uF 0805*
+* 20 pin headers *
