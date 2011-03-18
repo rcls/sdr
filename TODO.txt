@@ -8,6 +8,7 @@ Power / ground to both sides...
 On right angle header, check pin size - 1mm hole looks huge...
 
 Check SMA footprint against physical device.  Ditto other connectors etc.
+Impedance between SMA and trannie.
 
 Dangle LED(s) off the CPU.
 
@@ -41,6 +42,8 @@ Validate solder s0805 footprint.
 
 "Suspend must be low at power-up" - yeah lets triple check all FPGA control
 pins.
+- pulling down done pin via the led might be a problem.
+- let's switch the led so it's one during config.
 
 FPGA to ADC clock goes over a ground break.
 OVR does not go over a ground.
