@@ -39,7 +39,6 @@ Check again all FPGA control pins.
 
 OVR does not go over a ground.
 Check FPGA voltages.
-Protection diodes for RF input?
 Get termination resistors in some of the fpga lines to off board.
 Choose decoupling caps for clock.
 Solder points for a shield over the trannie.
