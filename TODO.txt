@@ -1,10 +1,6 @@
 RF boards.
 
-Is spartan EP or not?
-
 Voltage monitors to CPU?
-
-Header for FPGA jtag - improve pinout?
 
 On right angle header, check pin size - 1mm hole looks huge...
 ok, but could reduce.
@@ -38,12 +34,11 @@ Validate solder s0805 footprint.
 Check again all FPGA control pins.
 
 OVR does not go over a ground.
-Check FPGA voltages.
 Get termination resistors in some of the fpga lines to off board.
 Choose decoupling caps for clock.
 Solder points for a shield over the trannie.
 Clean up CPU ground connections.
-Check soic8 tssop16 and msop8 footprints.
+Check soic8, tssop16 and msop8 footprints.
 
 Case connection on xtal - should it be grounded or not?
 
