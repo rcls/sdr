@@ -1,5 +1,5 @@
 # release: pcb 20100929
-# date:    Mon Mar 21 16:53:26 2011
+# date:    Tue Mar 22 07:31:46 2011
 # user:    ralph (Ralph Loader)
 # host:    i.geek.nz
 
@@ -13,7 +13,7 @@ Cursor[0 0 0.000000]
 PolyArea[200000000.000000]
 Thermal[0.500000]
 DRC[800 600 800 800 2000 800]
-Flags("localref,showdrc,rubberband,nameonpcb,autodrc,swapstartdir,uniquename,snappin,thindrawpoly")
+Flags("localref,showdrc,rubberband,nameonpcb,autodrc,swapstartdir,uniquename,snappin")
 Groups("1,2,3,c:4,5,6,s:7:8")
 Styles["Signal,1000,3600,2000,1000:Power,2500,6000,3500,1000:Fat,4000,6000,3500,1000:Skinny,800,3600,2000,1000"]
 
@@ -1033,7 +1033,7 @@ Element["" "0603" "C1" "unknown" 30000 42000 -2150 -7650 0 90 ""]
 
 	)
 
-Element["" "0603" "L3" "100nH" 100000 56000 -3141 2290 0 100 ""]
+Element["" "0603" "L3" "100nH" 100000 56000 -2141 2290 0 100 ""]
 (
 	Attribute("device" "INDUCTOR")
 	Attribute("manufacturer" "unknown")
@@ -1083,7 +1083,7 @@ Element["onsolder" "0603" "C12" "unknown" 57500 60000 -2973 6650 0 76 "auto"]
 
 	)
 
-Element["" "wbc-xfrmr-3-2" "T1" "unknown" 135000 52000 -2500 9000 0 100 ""]
+Element["" "wbc-xfrmr-3-2" "T1" "unknown" 135000 52000 4500 8500 0 100 ""]
 (
 	Attribute("device" "TRANSFORMER")
 	Attribute("manufacturer" "unknown")
@@ -1290,6 +1290,28 @@ Element["onsolder" "0603" "C7" "unknown" 70500 42500 -2150 -3350 0 100 "auto"]
 	Pad[2559 -492 2559 492 2952 2200 3552 "2" "2" "onsolder,square"]
 
 	)
+
+Element["" "testpoint" "TP2" "unknown" 135000 70000 -15000 -3000 0 100 ""]
+(
+	Attribute("device" "terminal")
+	Attribute("manufacturer" "unknown")
+	Attribute("manufacturer_part_number" "unknown")
+	Attribute("vendor" "unknown")
+	Attribute("vendor_part_number" "unknown")
+	Pin[0 0 6900 2000 7500 3900 "terminal" "1" ""]
+
+	)
+
+Element["" "testpoint" "TP1" "unknown" 134500 34000 -11358 2831 0 86 ""]
+(
+	Attribute("device" "terminal")
+	Attribute("manufacturer" "unknown")
+	Attribute("manufacturer_part_number" "unknown")
+	Attribute("vendor" "unknown")
+	Attribute("vendor_part_number" "unknown")
+	Pin[0 0 6900 2000 7500 3900 "terminal" "1" ""]
+
+	)
 Layer(1 "Top")
 (
 	Line[46000 63000 55000 63000 1000 2000 "clearline"]
@@ -1384,6 +1406,8 @@ Layer(2 "TopGND")
 	Line[50452 54952 51496 54952 1000 2000 ""]
 	Line[47500 52000 50452 49048 1000 2000 ""]
 	Line[50452 49048 51496 49048 1000 2000 ""]
+	Line[134500 34000 134500 34000 9200 2000 ""]
+	Line[135000 70000 135000 70000 9200 2000 ""]
 )
 Layer(3 "TopPWR")
 (
@@ -1425,10 +1449,10 @@ Layer(4 "Back")
 )
 Layer(5 "BackGND")
 (
-	Line[73059 61008 73000 60949 2500 2000 ""]
+	Line[73000 66000 73059 38500 2500 2000 ""]
 	Line[29941 34508 29933 34500 2500 2000 ""]
 	Line[29941 69008 29449 69500 2500 2000 ""]
-	Line[73000 60949 73059 42500 2500 2000 ""]
+	Line[135000 70000 135000 70000 9200 2000 ""]
 	Line[29933 34500 26500 34500 2500 2000 ""]
 	Line[29941 69508 29933 69500 2500 2000 ""]
 	Line[29449 69500 26000 69500 2500 2000 ""]
@@ -1447,6 +1471,7 @@ Layer(5 "BackGND")
 	Line[54941 43508 55000 43567 2500 2000 ""]
 	Line[47500 52000 47500 52000 7600 2000 ""]
 	Line[53500 38500 55000 40000 2500 2000 ""]
+	Line[134500 34000 134500 34000 9200 2000 ""]
 	Polygon("clearpoly")
 	(
 		[1000 500] [48500 500] [48500 19000] [51500 19000] [51500 500] 
@@ -1483,7 +1508,8 @@ Layer(10 "silk")
 (
 	Polygon("clearpoly")
 	(
-		[76500 500] [184000 500] [184000 36500] [76500 36500] 
+		[76500 500] [184000 500] [184000 36500] [138500 36500] [138500 30000] 
+		[130500 30000] [130500 36500] [76500 36500] 
 	)
 )
 NetList()
@@ -1517,6 +1543,8 @@ NetList()
 		Connect("CONN2-11")
 		Connect("CONN2-12")
 		Connect("T1-3")
+		Connect("TP1-1")
+		Connect("TP2-1")
 		Connect("U1-13")
 		Connect("U1-14")
 		Connect("U1-15")
