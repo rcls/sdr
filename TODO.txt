@@ -34,14 +34,11 @@ Validate solder s0805 footprint.
 Check again all FPGA control pins.
 
 OVR does not go over a ground.
-Get termination resistors in some of the fpga lines to off board.
+Get termination resistors in some of the fpga lines to off board?
 Choose decoupling caps for clock.
 Solder points for a shield over the trannie.
 Clean up CPU ground connections.
 Check soic8, tssop16 and msop8 footprints.
-
-Case connection on xtal - should it be grounded or not?
-
 
 74hct4094
 zero ohm 0805
