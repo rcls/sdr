@@ -10,7 +10,6 @@ Check SMA footprint against physical device.  Ditto other connectors etc.
 Dangle LED(s) off the CPU?
 
 Sort out main input capacitors.
-+ output capacitors for PTH08080W?
 + double bypass on lm3671 input?
 
 
@@ -35,7 +34,6 @@ Check again all FPGA control pins.
 
 OVR does not go over a ground.
 Get termination resistors in some of the fpga lines to off board?
-Choose decoupling caps for clock.
 Solder points for a shield over the trannie.
 Clean up CPU ground connections.
 Check soic8, tssop16 and msop8 footprints.
