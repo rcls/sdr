@@ -10,7 +10,7 @@ sub lint($$$$$$)
     s/^\s+//;
 
     print "$_ : mask is not 600\n"  if  $mask != $thick + 600;
-    print "$_ : clear is not 2000\n"  if  $clear != 2000;
+    print "$_ : clear is not 2000\n"  if  $clear != 2000  and  $clear != 2200;
     print "$_ : name v. number\n"  if  $name ne $number;
 }
 
@@ -25,10 +25,10 @@ my $n = qr/-?\d+/;
 
 while(<>) {
     chomp;
-    if (/Pad\[($n) ($n) ($n) ($n) ($n) ($n) ($n) "(\d*)" "(\d*)" "(.*")\]/) {
+    if (/Pad\[($n) ($n) ($n) ($n) ($n) ($n) ($n) "(.*)" "(\d*)" "(.*")\]/) {
         lint $5, $6, $7, $8, $9, $10;
     }
-    elsif (/Pin\[($n) ($n) ($n) ($n) ($n) ($n) "(\d*)" "(\d*)" "(.*")\]/) {
+    elsif (/Pin\[($n) ($n) ($n) ($n) ($n) ($n) "(.*)" "(\d*)" "(.*")\]/) {
         lint $3, $4, $5, $7, $8, $9;
         lint_pin $3, $4, $5, $6;
     }

@@ -1,5 +1,5 @@
 # release: pcb 20100929
-# date:    Tue Mar 22 14:42:15 2011
+# date:    Tue Mar 22 14:55:50 2011
 # user:    ralph (Ralph Loader)
 # host:    i.geek.nz
 
@@ -13,7 +13,7 @@ Cursor[0 196700 0.000000]
 PolyArea[200000000.000000]
 Thermal[0.500000]
 DRC[600 600 600 600 1200 787]
-Flags("showdrc,rubberband,nameonpcb,autodrc,swapstartdir,uniquename,thindrawpoly")
+Flags("showdrc,rubberband,nameonpcb,autodrc,swapstartdir,uniquename")
 Groups("1,2,c:3,4:5,6:7,8,9,s")
 Styles["Signal,1000,3600,2000,1000:Power,2500,6000,3500,1000:Fat,4000,9600,8000,1000:Skinny,600,2800,1200,1000"]
 
@@ -3084,6 +3084,13 @@ Element["" "0603" "C52" "unknown" 207000 78000 -3150 2350 0 80 ""]
 	Pad[2559 -492 2559 492 2952 2000 3552 "2" "2" "square"]
 
 	)
+
+Element["" "0603" "C409" "unknown" 383500 98500 -4000 2500 0 66 ""]
+(
+	Pad[2559 -492 2559 492 2952 2000 3552 "1" "1" "square"]
+	Pad[-2559 -492 -2559 492 2952 2000 3552 "2" "2" "square"]
+
+	)
 Layer(1 "Component")
 (
 	Line[90800 77900 90384 77484 600 2000 "clearline"]
@@ -4264,6 +4271,9 @@ Layer(2 "CompPwr")
 	Line[210051 78000 216500 78000 2500 2000 "clearline"]
 	Line[216500 78000 216500 62500 2500 2000 "clearline"]
 	Line[198500 74500 201185 71815 2500 2000 "clearline"]
+	Line[378000 98500 381000 98500 2500 2000 ""]
+	Line[386059 98008 386059 95059 2500 2000 ""]
+	Line[386059 95059 386000 95000 2500 2000 ""]
 	Polygon("clearpoly")
 	(
 		[380500 88500] [391000 88500] [391000 96000] [380500 96000] 
@@ -5189,6 +5199,7 @@ NetList()
 	Net("+3.3V" "(unknown)")
 	(
 		Connect("C408-2")
+		Connect("C409-2")
 		Connect("CONN62-1")
 		Connect("CONN62-2")
 		Connect("FB11-1")
@@ -5342,6 +5353,7 @@ NetList()
 		Connect("C406-1")
 		Connect("C407-1")
 		Connect("C408-1")
+		Connect("C409-1")
 		Connect("C410-1")
 		Connect("C411-1")
 		Connect("C412-1")

@@ -9,10 +9,6 @@ Check SMA footprint against physical device.  Ditto other connectors etc.
 
 Dangle LED(s) off the CPU?
 
-Sort out main input capacitors.
-+ double bypass on lm3671 input?
-
-
 Verify soldering LLP LM3671 + inductor.
 
 
@@ -26,7 +22,7 @@ Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags]
 Pin[rX rY Thickness Clearance Mask Drill "Name" "Number" SFlags]
 
 Validate solder 0603 side by side 50 mils apart.
-+ Use capacitor array on clock if need be.
++ Use capacitor array on clock lines if need be.
 Validate solder s0805 footprint.
 
 
@@ -35,7 +31,6 @@ Check again all FPGA control pins.
 OVR does not go over a ground.
 Get termination resistors in some of the fpga lines to off board?
 Solder points for a shield over the trannie.
-Clean up CPU ground connections.
 Check soic8, tssop16 and msop8 footprints.
 Check that oscillator does not have extra pins.
 
