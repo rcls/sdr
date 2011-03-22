@@ -1,38 +1,25 @@
-RF boards.
+Check again all FPGA control pins.
+OVR does not go over a ground.
+Get termination resistors in some of the fpga lines to off board?
+Solder points for a shield over the trannie.
+Check soic8, tssop16 and msop8 footprints.
+Check that oscillator does not have extra pins.
+Clean-up ground planes around lm3671.
 
-Voltage monitors to CPU?
+Check USB pinout.
 
-On right angle header, check pin size - 1mm hole looks huge...
-ok, but could reduce.
+Validate solder 0603 side by side 50 mils apart.
++ Use capacitor array on clock lines if need be.
+Validate solder s0805 footprint.
 
 Check SMA footprint against physical device.  Ditto other connectors etc.
-
-Dangle LED(s) off the CPU?
-
 Verify soldering LLP LM3671 + inductor.
 
 
 xtal - footprint v. symbol.
 + pads are oversized internally...
 
-Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "name" "number" flags]
-Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags]
 
-
-Pin[rX rY Thickness Clearance Mask Drill "Name" "Number" SFlags]
-
-Validate solder 0603 side by side 50 mils apart.
-+ Use capacitor array on clock lines if need be.
-Validate solder s0805 footprint.
-
-
-Check again all FPGA control pins.
-
-OVR does not go over a ground.
-Get termination resistors in some of the fpga lines to off board?
-Solder points for a shield over the trannie.
-Check soic8, tssop16 and msop8 footprints.
-Check that oscillator does not have extra pins.
 
 74hct4094
 zero ohm 0805
@@ -46,3 +33,9 @@ Triaged....
 Provision CPU oscillator? - low priority, don't do it?
 Activity LEDs on FT2232? - only on port b, not worth it?  Worth doing anything
 with spare port b pins?
+Voltage monitors to CPU?
+
+
+Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "name" "number" flags]
+Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags]
+Pin[rX rY Thickness Clearance Mask Drill "Name" "Number" SFlags]

@@ -3,36 +3,127 @@
 <title>Ralph's software defined radio</title>
 </head>
 <body>
-<h1>Ralph's software defined radio</h1>
+<h2>Ralph's software defined radio</h1>
+<h2>Overview</h2>
 <p>
-The main board takes RF into a 50ohm SMA connector and various outputs.
+This is the design for a software defined radio.  It consists of a high-speed
+analog-to-digital converter, coupled with an FPGA for DSP, and audio, USB, and
+parallel outputs.
 </p>
 <p>
-The main silicon are a Texas Instruments ADS41B49 analog-to-digital converter
-and with a Spartan6 LX9 FPGA.
+While it's intended for SDR usage, although nothing stops it from being used as
+an oscilloscope uploading data to a PC for display (although USB 2.0 can't cope
+with anything like the full data rate of the ADC).
+</p>
+<p>
+The main board takes RF input via a 50&ohm; SMA connector feeding the A-to-D,
+which then passes the digitised signal to the FPGA at up to 3.5Gbps.  The FPGA
+(when correctly programmed) processes the data and passes it on to the outputs.
+</p>
+<h2>Main components</h2>
+<p>
+The main silicon are a Texas
+Instruments <a href="http://focus.ti.com/docs/prod/folders/print/ads41b49.html">ADS41B49</a>
+analog-to-digital converter and a
+Xilinx <a href="http://www.xilinx.com/products/spartan6/">Spartan 6</a> LX9
+FPGA.
 </p>
 <p>
 Outputs are audio (what good is a radio if you can't listen to it!), USB and
-quite a few digital lines via 0.1 inch heads.
+quite a few digital lines via 0.1 inch headers.
 </p>
 <p>
-USB is via a FTDI 2232H chip; this has two channels, channel A is connected
-to FPGA IO, channel B is dedicated to the FPGA JTAG.
+USB is via a
+FTDI <a href="http://www.ftdichip.com/Products/ICs/FT2232H.htm">FT2232H</a>
+chip; this has two channels.  Channel A is connected to FPGA IO, and channel B
+is dedicated to the FPGA JTAG.
 </p>
 <p>
-The audio output is a Texas Instruments PCM1771.
+The audio output is a <a href="http://www.ti.com/"><b>Texas
+Instruments</b></a> <a href="http://focus.ti.com/docs/prod/folders/print/pcm1771.html">PCM1771</a>.
 </p>
 <p>
-There's a ARM Cortex M3 on the board, it doesn't go anywhere near the data
-processing chain, it's main purpose is for soldering practice (it's the same
-footprint as the A-to-D.
+There's an ARM Cortex M3 CPU on the board, a
+TI <a href="http://focus.ti.com/docs/prod/folders/print/lm3s828.html">LM3S828</a>.
+It doesn't go anywhere near the data processing chain, it's main purpose is for
+soldering practice (it's the same footprint as the A-to-D.  It does have some
+switches hanging off it and a fast serial link to the FPGA, so it can carry out
+supervisory functions.
 </p>
 <p>
-The board design is done using the free gEDA toolchain.  The files sdr-*.sch are
-the main board schematic, and sdr.pcb is the pcb layout for it, a four layer
-board with 6mil minimum trace width and separation.
+Misc. ICs are three power converters, an EEPROM, serial flash, a level converter
+and two oscillators (one left unpopulated) complete.
 </p>
-<ul>
-<li>
+<h2>Input sensitivity</h2>
+<p>
+The A-to-D takes a 1V to 1.5V p-p differential input signal (depending on
+internal config), but the input has a 1:2.8 step up transformer
+(<a href="http://www.coilcraft.com/"><b>Coilcraft</b></a> <a href="http://www.coilcraft.com/wbc.cfm">WBC8-1L</a>),
+giving a 360mV p-p input range.  The A-to-D is 14-bit, which gives
+approx. 21&micro;V resolution, which is -78dBm into 50&ohm; (although
+realistically you probably want a -60dBm signal).
+</p>
+<h2>Power supplies</h2>
+<p>
+The board uses three voltage levels: 3.3V, 1.8V and 1.2V, all supplied via
+switchmode converters.  A
+TI <a href="http://focus.ti.com/docs/prod/folders/print/pth08080w.html">PTH08080W</a>
+module supplies 3.3V, a <a href="http://www.national.com/analog/"><b>National
+Semiconductor</b></a> <a href="http://www.national.com/pf/LM/LMZ12002.html">LMZ12002</a>
+module supplies 1.2V, and a National
+Semiconductor <a href="http://www.national.com/pf/LM/LM3671.html">LM3671</a>
+provides 1.8V.  The last of these hangs of the 3.3V rail, the first two can cope
+with a reasonable voltage range, so either a 5V or 12V input is fine.
+</p>
+<p>
+The 3.3V and 1.2V power supplies are grossly over provisioned, both can provide
+about 2 amps, but much less than that is needed in practice.  The total power
+consumption should be about 2.5W, meaning that it'll run off USB on a good day
+(there's an alternative power jack as well).
+</p>
+<h2>Design software</h1>
+<p>
+The board design is done using the free
+software <a href="http://www.gpleda.org/index.html">gEDA</a> toolchain, written
+by <b>Ales Hvezda and hundreds of others</b>.  The files sdr-*.sch are the main
+board schematic, and sdr.pcb is the pcb layout for it, a four layer board with
+6mil minimum trace width and separation.
+</p>
+<p>
+Xilinx ISE is used for compiling the VHDL code to run on the FPGA.
+</p>
+<h2>Daughter board</h1>
+<p>
+A daughter board (files input-4509-third.sch and input-4509-third.pcb) provides
+an RF amp
+(TI <a href="http://focus.ti.com/docs/prod/folders/print/ths4509.html">THS4509</a>)
+and a third-order band pass filter.  The first build of that will provide 20db
+gain on the 88MHz to 108Mhz band with a 300&ohm; input.  That's stereo FM off a
+folder dipole aerial.  Although where I live, the signal strength is probably
+high enough to go into the ADC unamplified.
+</p>
+<p>
+I'm skimping on the pcb for this
+board; it's a two layer board, but it should od for front ends up to a few
+hundred MHz or so.
+</p>
+<h2>Useful links</h1>
+<p>
+The late <a href="http://www-users.cs.york.ac.uk/~fisher/"><b>Tony
+Fisher</b></a> has a useful
+<a href="http://www-users.cs.york.ac.uk/~fisher/lcfilter/">analog filter</a>
+design tool.
+</p>
+<p>
+PCB trace impendance calculations can be done using <b>Dan McMahill</b>'s
+<a href="http://wcalc.sourceforge.net/cgi-bin/coupled_microstrip.cgi?wc_unit_menu_2_0=dB&wc_unit_menu_3_0=dB&wc_unit_menu_3_1=inch&wc_unit_menu_7_0=mil&wc_unit_menu_6_0=ns&wc_unit_menu_8_0=mil&w=6&wc_unit_menu_0_0=mil&s=7&l=1000&tmet=2.8&rho=3e-08&wc_unit_menu_4_0=Ohm&wc_unit_menu_4_1=m&rough=0.001&wc_unit_menu_5_0=mil&h=10&es=4.4&tand=0.01&freq=100&wc_unit_menu_1_0=MHz&analyze=Analyze&stype=zk&Ro=84.9713&k=0.158625&zeven=99.7123&zodd=72.4095&elen=5.31576">wcalc</a>.
+My LVDS link impedance are slightly low (86&ohm; instead of 100&ohm;), but the
+traces are pretty short so it shouldn't matter.
+</p>
+<h2>Thanks</h2>
+<p>
+People / companies with their names in bold above provided something useful
+without charge.  Thank you very much.
+</p>
 </body>
 </html>
