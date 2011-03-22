@@ -1,0 +1,38 @@
+<html>
+<head>
+<title>Ralph's software defined radio</title>
+</head>
+<body>
+<h1>Ralph's software defined radio</h1>
+<p>
+The main board takes RF into a 50ohm SMA connector and various outputs.
+</p>
+<p>
+The main silicon are a Texas Instruments ADS41B49 analog-to-digital converter
+and with a Spartan6 LX9 FPGA.
+</p>
+<p>
+Outputs are audio (what good is a radio if you can't listen to it!), USB and
+quite a few digital lines via 0.1 inch heads.
+</p>
+<p>
+USB is via a FTDI 2232H chip; this has two channels, channel A is connected
+to FPGA IO, channel B is dedicated to the FPGA JTAG.
+</p>
+<p>
+The audio output is a Texas Instruments PCM1771.
+</p>
+<p>
+There's a ARM Cortex M3 on the board, it doesn't go anywhere near the data
+processing chain, it's main purpose is for soldering practice (it's the same
+footprint as the A-to-D.
+</p>
+<p>
+The board design is done using the free gEDA toolchain.  The files sdr-*.sch are
+the main board schematic, and sdr.pcb is the pcb layout for it, a four layer
+board with 6mil minimum trace width and separation.
+</p>
+<ul>
+<li>
+</body>
+</html>
