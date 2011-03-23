@@ -1,6 +1,4 @@
 Check again all FPGA control pins.
-OVR does not go over a ground.
-Get termination resistors in some of the fpga lines to off board?
 Solder points for a shield over the trannie.
 Check soic8, tssop16 and msop8 footprints.
 Check that oscillator does not have extra pins.
