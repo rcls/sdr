@@ -4,6 +4,19 @@ Check soic8, tssop16 and msop8 footprints.
 Check that oscillator does not have extra pins.
 Clean-up ground planes around lm3671.
 
+LQFP144 pads are 23 mm ext to ext, compared with 22mm device.
+LQFP64 pads are 12.8mm compared with 12mm device - widen by 0.1mm each side.
+
+QFN48 exposed pad is 5.6mm by 5.6mm
+pads are 8mm ext to ext (device is 7mm by 7mm).
+
+SOIC8 is 7.35mm (291mil) ext to ext.
+
+SSOP16 is 292mil ext to ext (7.4mm)
+MSOP8 is 5.2mm ext to ext (205mil)
+
+SOT23 is 105mil ext to ext (2.65mm)
+
 Check USB pinout.
 
 Validate solder 0603 side by side 50 mils apart.
