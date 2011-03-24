@@ -10,8 +10,6 @@ Check USB pinout.
 
 Check SMA footprint against physical device.
 
-Resistors on reset switches - suppress ringing.
-
 74hct4094
 zero ohm 0805
 CAP 1uF 0603
@@ -64,6 +62,8 @@ LQFP64 pads are 12.8mm compared with 12mm device - widen by 0.1mm each side?
 Pads for power input diode are too large.
 
 Source termination in CS to flash?
+
+Resistors on reset switches - suppress ringing.
 
 
 
