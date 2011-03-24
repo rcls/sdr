@@ -1,10 +1,6 @@
 
 Check again all FPGA control pins.
 Solder points for a shield over the trannie.
-Clean-up ground planes around lm3671.
-
-More vias under cpu have cut up ground plane.
-Try and get more planes near adc?
 
 Check USB pinout.
 
@@ -26,6 +22,7 @@ with spare port b pins?
 Voltage monitors to CPU?
 
 Trannie FP is wide - harmless, don't care.
+Try and get more planes near adc?
 
 
 Verified....
@@ -68,6 +65,9 @@ Source termination in CS to flash?
 
 Resistors on reset switches - suppress ringing.
 
+More vias under cpu have cut up ground plane.
+
+Clean-up ground planes around lm3671.
 
 
 Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "name" "number" flags]
