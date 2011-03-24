@@ -4,12 +4,11 @@ Solder points for a shield over the trannie.
 Clean-up ground planes around lm3671.
 
 More vias under cpu have cut up ground plane.
+Try and get more planes near adc?
 
 Check USB pinout.
 
 Check SMA footprint against physical device.
-
-Source termination in CS to flash?
 
 Resistors on reset switches - suppress ringing.
 
@@ -63,6 +62,8 @@ Want 5.9mm
 LQFP64 pads are 12.8mm compared with 12mm device - widen by 0.1mm each side?
 
 Pads for power input diode are too large.
+
+Source termination in CS to flash?
 
 
 
