@@ -20,6 +20,9 @@ SOT23 is 105mil ext to ext (2.65mm) - might be narrow, but OK for this package?
 Lengthen can cap pads.  Leads end-end is 7.4mm, currently have 7.7mm on pads,
 added .35mm each end to give 8.4mm.
 
+Widen pads for push switch. 8mm end-end device, so we want 9mm.
+We now have 1.4 by 1.6 pads instead of 1.2 by 1.4.
+
 Pads for power input diode are too large.
 
 Check USB pinout.
