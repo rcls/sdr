@@ -1,25 +1,17 @@
+
 Check again all FPGA control pins.
 Solder points for a shield over the trannie.
-Check soic8, tssop16 and msop8 footprints.
-Check that oscillator does not have extra pins.
 Clean-up ground planes around lm3671.
 
 More vias under cpu have cut up ground plane.
 
-
-Pads for power input diode are too large.
-
 Check USB pinout.
 
-Check SMA footprint against physical device.  Ditto other connectors etc.
+Check SMA footprint against physical device.
 
-Verify soldering LLP LM3671 + inductor.
-Inductor looks fine... LLP footprint?
+Source termination in CS to flash?
 
-xtal - footprint v. symbol.
-+ pads are oversized internally...
-
-
+Resistors on reset switches - suppress ringing.
 
 74hct4094
 zero ohm 0805
@@ -47,6 +39,12 @@ Validate solder 0603 side by side 50 mils apart - needs reflow, we can do it.
 
 SOIC8 is 7.35mm (291mil) ext to ext - CHECK THIS - looks OK to me.
 
+Check that oscillator does not have extra pins.
+xtal - footprint v. symbol.
++ pads are oversized internally...
+
+Verify soldering LLP LM3671 + inductor.
+Inductor looks fine... LLP footprint?
 
 Done...
 
@@ -63,6 +61,8 @@ MSOP8 is 5.2mm ext to ext (205mil) - package 4.9 WIDEN
 Want 5.9mm
 
 LQFP64 pads are 12.8mm compared with 12mm device - widen by 0.1mm each side?
+
+Pads for power input diode are too large.
 
 
 
