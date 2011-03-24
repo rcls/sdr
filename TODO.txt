@@ -8,15 +8,15 @@ More vias under cpu have cut up ground plane.
 
 LQFP64 pads are 12.8mm compared with 12mm device - widen by 0.1mm each side?
 
-MSOP8 is 5.2mm ext to ext (205mil) - package 4.9 WIDEN
 
 Pads for power input diode are too large.
 
 Check USB pinout.
 
 Check SMA footprint against physical device.  Ditto other connectors etc.
-Verify soldering LLP LM3671 + inductor.
 
+Verify soldering LLP LM3671 + inductor.
+Inductor looks fine... LLP footprint?
 
 xtal - footprint v. symbol.
 + pads are oversized internally...
@@ -58,8 +58,11 @@ added .35mm each end to give 8.4mm.
 Widen pads for push switch. 8mm end-end device, so we want 9mm.
 We now have 1.4 by 1.6 pads instead of 1.2 by 1.4.
 
-SOT23 is 105mil ext to ext (2.65mm) - might be narrow, WIDEN
-Device is 2.1, want 3.1.
+SC70 is 105mil ext to ext (2.65mm) - might be narrow, WIDEN
+Device is 2.1, want 3.1
+
+MSOP8 is 5.2mm ext to ext (205mil) - package 4.9 WIDEN
+Want 5.9mm
 
 
 
