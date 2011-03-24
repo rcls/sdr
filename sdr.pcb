@@ -1523,15 +1523,15 @@ Element["onsolder" "0603" "C602" "unknown" 217000 187559 3350 4150 0 87 "auto"]
 
 Element["onsolder" "SC70_5" "U62" "unknown" 125000 17559 2979 -11731 1 100 "auto"]
 (
-	Pad[0 -1000 0 1000 1500 2000 2100 "4" "4" "onsolder,square,edge2"]
-	Pad[-5100 -1000 -5100 1000 1500 2000 2100 "5" "5" "onsolder,square,edge2"]
-	Pad[-5100 -8000 -5100 -6000 1500 2000 2100 "1" "1" "onsolder,square"]
-	Pad[-2600 -8000 -2600 -6000 1500 2000 2100 "2" "2" "onsolder,square"]
-	Pad[0 -8000 0 -6000 1500 2000 2100 "3" "3" "onsolder,square"]
-	ElementLine [-6600 -9400 1400 -9400 1000]
-	ElementLine [-6600 -9400 -6600 2500 1000]
-	ElementLine [-6600 2500 1400 2500 1000]
-	ElementLine [1400 -9400 1400 2500 1000]
+	Pad[0 -1000 0 1852 1500 2000 2100 "4" "4" "onsolder,square,edge2"]
+	Pad[-5100 -1000 -5100 1852 1500 2000 2100 "5" "5" "onsolder,square,edge2"]
+	Pad[-5100 -8852 -5100 -6000 1500 2000 2100 "1" "1" "onsolder,square"]
+	Pad[-2600 -8852 -2600 -6000 1500 2000 2100 "2" "2" "onsolder,square"]
+	Pad[0 -8852 0 -6000 1500 2000 2100 "3" "3" "onsolder,square"]
+	ElementLine [-6600 -10352 1500 -10352 600]
+	ElementLine [-6600 -10352 -6600 3352 600]
+	ElementLine [-6600 3352 1500 3352 600]
+	ElementLine [1500 -10352 1500 3352 600]
 
 	)
 

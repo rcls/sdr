@@ -4,30 +4,15 @@ Check soic8, tssop16 and msop8 footprints.
 Check that oscillator does not have extra pins.
 Clean-up ground planes around lm3671.
 
-LQFP144 pads are 23 mm ext to ext, compared with 22mm device.
+More vias under cpu have cut up ground plane.
+
 LQFP64 pads are 12.8mm compared with 12mm device - widen by 0.1mm each side?
 
-QFN48 exposed pad is 5.6mm by 5.6mm
-pads are 8mm ext to ext (device is 7mm by 7mm).
-
-SOIC8 is 7.35mm (291mil) ext to ext - CHECK THIS - looks OK to me.
-
-SSOP16 is 292mil ext to ext (7.4mm) - package 6.4.
 MSOP8 is 5.2mm ext to ext (205mil) - package 4.9 WIDEN
-
-SOT23 is 105mil ext to ext (2.65mm) - might be narrow, but OK for this package?
-
-Lengthen can cap pads.  Leads end-end is 7.4mm, currently have 7.7mm on pads,
-added .35mm each end to give 8.4mm.
-
-Widen pads for push switch. 8mm end-end device, so we want 9mm.
-We now have 1.4 by 1.6 pads instead of 1.2 by 1.4.
 
 Pads for power input diode are too large.
 
 Check USB pinout.
-
-Validate solder 0603 side by side 50 mils apart - needs reflow.
 
 Check SMA footprint against physical device.  Ditto other connectors etc.
 Verify soldering LLP LM3671 + inductor.
@@ -53,6 +38,33 @@ with spare port b pins?
 Voltage monitors to CPU?
 
 
+Verified....
+LQFP144 pads are 23 mm ext to ext, compared with 22mm device.
+
+SSOP16 is 292mil ext to ext (7.4mm) - package 6.4.
+
+QFN48 exposed pad is 5.6mm by 5.6mm, pads are 8mm ext to ext (device is 7mm by 7mm).
+
+Validate solder 0603 side by side 50 mils apart - needs reflow, we can do it.
+
+SOIC8 is 7.35mm (291mil) ext to ext - CHECK THIS - looks OK to me.
+
+
+Done...
+
+Lengthen can cap pads.  Leads end-end is 7.4mm, currently have 7.7mm on pads,
+added .35mm each end to give 8.4mm.
+
+Widen pads for push switch. 8mm end-end device, so we want 9mm.
+We now have 1.4 by 1.6 pads instead of 1.2 by 1.4.
+
+SOT23 is 105mil ext to ext (2.65mm) - might be narrow, WIDEN
+Device is 2.1, want 3.1.
+
+
+
 Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "name" "number" flags]
 Element [SFlags "Desc" "Name" "Value" MX MY TX TY TDir TScale TSFlags]
 Pin[rX rY Thickness Clearance Mask Drill "Name" "Number" SFlags]
+
+
