@@ -1,6 +1,5 @@
 
 Check again all FPGA control pins.
-Solder points for a shield over the trannie.
 
 Check USB pinout.
 
@@ -68,6 +67,8 @@ Resistors on reset switches - suppress ringing.
 More vias under cpu have cut up ground plane.
 
 Clean-up ground planes around lm3671.
+
+Solder points for a shield over the trannie.
 
 
 Pad [rX1 rY1 rX2 rY2 Thickness Clearance Mask "name" "number" flags]

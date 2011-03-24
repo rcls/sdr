@@ -370,3 +370,23 @@ value=DNP
 }
 N 39700 46400 39700 46600 4
 C 40500 46100 1 0 0 gnd-1.sym
+C 46700 48200 1 0 0 terminal-1.sym
+{
+T 47010 48950 5 10 0 0 0 0 1
+device=terminal
+T 47010 48800 5 10 0 1 0 0 1
+footprint=testpoint
+T 46950 48250 5 10 1 1 0 6 1
+refdes=TP11
+}
+C 46700 47800 1 0 0 terminal-1.sym
+{
+T 47010 48550 5 10 0 0 0 0 1
+device=terminal
+T 47010 48400 5 10 0 1 0 0 1
+footprint=testpoint
+T 46950 47850 5 10 1 1 0 6 1
+refdes=TP12
+}
+N 47600 48300 47600 47900 4
+C 47500 47600 1 0 0 gnd-1.sym

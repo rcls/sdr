@@ -1,5 +1,5 @@
 # release: pcb 20100929
-# date:    Fri Mar 25 09:38:53 2011
+# date:    Fri Mar 25 09:50:56 2011
 # user:    ralph (Ralph Loader)
 # host:    i.geek.nz
 
@@ -3160,6 +3160,18 @@ Element["onsolder" "0603" "R614" "STERM" 174000 171500 -6650 7150 0 100 "auto"]
 	Pad[-2559 -492 -2559 492 2952 2000 3552 "2" "2" "onsolder,square"]
 
 	)
+
+Element["" "testpoint" "TP11" "unknown" 18000 89000 -7000 -8000 0 80 ""]
+(
+	Pin[0 0 5475 2000 6075 3900 "1" "1" "thermal(2X,3X)"]
+
+	)
+
+Element["" "testpoint" "TP12" "unknown" 48000 97000 -4000 3000 0 80 ""]
+(
+	Pin[0 0 5475 2000 6075 3900 "1" "1" "thermal(2X)"]
+
+	)
 Layer(1 "Component")
 (
 	Line[90800 77900 90384 77484 600 2000 "clearline"]
@@ -5540,6 +5552,8 @@ NetList()
 		Connect("S31-5")
 		Connect("S51-1")
 		Connect("S61-1")
+		Connect("TP11-1")
+		Connect("TP12-1")
 		Connect("U1-1")
 		Connect("U1-9")
 		Connect("U1-12")
