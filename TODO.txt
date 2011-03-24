@@ -6,8 +6,6 @@ Clean-up ground planes around lm3671.
 
 More vias under cpu have cut up ground plane.
 
-LQFP64 pads are 12.8mm compared with 12mm device - widen by 0.1mm each side?
-
 
 Pads for power input diode are too large.
 
@@ -63,6 +61,8 @@ Device is 2.1, want 3.1
 
 MSOP8 is 5.2mm ext to ext (205mil) - package 4.9 WIDEN
 Want 5.9mm
+
+LQFP64 pads are 12.8mm compared with 12mm device - widen by 0.1mm each side?
 
 
 
