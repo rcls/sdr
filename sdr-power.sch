@@ -42,7 +42,7 @@ symversion=0.1
 T 45700 42700 5 10 0 1 0 0 1
 footprint=0603
 T 45700 42700 5 10 1 1 0 0 1
-value=1u
+value=4u7
 }
 C 46500 46600 1 90 0 capacitor.sym
 {
@@ -55,7 +55,7 @@ symversion=0.1
 T 46500 46600 5 10 0 0 0 0 1
 footprint=0603
 T 46600 46800 5 10 1 1 0 0 1
-value=1u
+value=470n
 }
 C 43000 42700 1 90 0 capacitor.sym
 {
@@ -68,7 +68,7 @@ symversion=0.1
 T 42800 42900 5 10 0 1 0 0 1
 footprint=0603
 T 43100 42500 5 10 1 1 0 0 1
-value=1u
+value=470n
 }
 C 46300 43100 1 0 0 fuse-2.sym
 {
@@ -411,7 +411,7 @@ symversion=0.1
 T 42500 44900 5 10 0 1 0 0 1
 footprint=0603
 T 42700 44900 5 10 1 1 0 0 1
-value=10n
+value=100n
 }
 C 42600 44500 1 0 0 gnd-1.sym
 N 41800 45800 41700 45800 4

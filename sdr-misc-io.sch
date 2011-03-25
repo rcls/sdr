@@ -26,7 +26,7 @@ refdes=C604
 T 47900 40400 5 10 0 0 90 0 1
 symversion=0.1
 T 48700 40100 5 10 1 1 0 0 1
-value=1uF
+value=4u7
 T 48800 40400 5 10 0 1 0 0 1
 footprint=0603
 }
@@ -143,7 +143,7 @@ symversion=0.1
 T 53300 49600 5 10 0 1 0 0 1
 footprint=0603
 T 53100 49900 5 10 0 1 0 0 1
-value=10n
+value=100n
 }
 C 53200 50100 1 90 0 resistor-1.sym
 {

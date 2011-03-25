@@ -131,7 +131,7 @@ symversion=0.1
 T 40000 49500 5 10 0 1 0 0 1
 footprint=0603
 T 39800 49600 5 10 0 1 0 0 1
-value=1u/4u7
+value=4u7
 }
 C 40500 49500 1 90 0 capacitor.sym
 {
@@ -253,7 +253,7 @@ symversion=0.1
 T 48100 49200 5 10 0 1 0 0 1
 footprint=0603
 T 47800 49400 5 10 0 1 0 0 1
-value=1u/4u7
+value=4u7
 }
 N 44700 50000 44900 50000 4
 N 44900 49700 44900 51500 4
@@ -300,7 +300,7 @@ symversion=0.1
 T 39500 50900 5 10 0 1 0 0 1
 footprint=0603
 T 39200 51200 5 10 0 1 0 0 1
-value=1u/4u7
+value=4u7
 }
 C 40500 50900 1 90 0 capacitor.sym
 {

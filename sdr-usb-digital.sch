@@ -129,7 +129,7 @@ symversion=0.1
 T 43900 51100 5 10 0 1 90 0 1
 footprint=0603
 T 43900 51200 5 10 0 1 90 0 1
-value=1u
+value=470n
 }
 C 48600 50600 1 0 0 conn6by2.sym
 {
