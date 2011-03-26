@@ -57,7 +57,7 @@ $(BATCH): group2.gbr_ext=g2
 	$(call RENAME,back.gbr)
 	$(call RENAME,backmask.gbr)
 	$(call DELETE,backpaste.gbr)
-	$(call RENAME,backsilk.gbr)
+	-$(call RENAME,backsilk.gbr)
 	-$(call RENAME,group1.gbr)
 	-$(call RENAME,group2.gbr)
 	$(call RENAME,outline.gbr)
@@ -66,7 +66,7 @@ $(BATCH): group2.gbr_ext=g2
 	rm $*-gerber/$*.pcb
 
 %.zip: %-gerbers
-	rm $*.zip
+	-rm $*.zip
 	cd $*-gerber && zip ../$*.zip *.*
 
 
