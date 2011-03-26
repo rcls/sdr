@@ -26,19 +26,20 @@ DELETE=rm $*-gerber/$*.$1.gbr
 	cp $*.pcb $*-gerber/
 	cd $*-gerber && pcb -x gerber $*.pcb --outfile foo
 	$(call RENAME,front,TopSide)
-	$(call RENAME,frontmask,TopSolderMask)
+	$(call RENAME,frontmask,TopSoldermask)
 	$(call DELETE,frontpaste)
 	$(call RENAME,frontsilk,TopSilkscreen)
 	$(call RENAME,back,BotSide)
-	$(call RENAME,backmask,BackSolderMask)
+	$(call RENAME,backmask,BotSoldermask)
 	$(call DELETE,backpaste)
-	$(call RENAME,backsilk,BackSilkscreen)
+	$(call RENAME,backsilk,BotSilkscreen)
 	$(call RENAME,group1,Innerlayer1,-f)
 	$(call RENAME,group2,Innerlayer2,-f)
 	$(call RENAME,outline,BoardOutline)
 	$(call DELETE,fab)
 	mv $*-gerber/$*.plated-drill.cnc $*-gerber/$*.Drill.cnc
 	rm $*-gerber/$*.pcb
+	cd $*-gerber && zip $*.zip *.gbr *.cnc
 
 
 phasedetectsim: LDFLAGS=-lfftw3 -lpthread -lm
