@@ -16,5 +16,29 @@ png:
 www: png
 	cp sdr.png sdrb.png sdr-s.png sdrb-s.png ~/public_html/sdr
 
+RENAME=mv $3 $*-gerber/$*.$1.gbr $*-gerber/$*.$2.gbr
+DELETE=rm $*-gerber/$*.$1.gbr
+
+%-gerbers:
+	rm $*-gerber/* || true
+	rmdir $*-gerber/ || true
+	mkdir sdr-gerber
+	cp $*.pcb $*-gerber/
+	cd $*-gerber && pcb -x gerber $*.pcb --outfile foo
+	$(call RENAME,front,TopSide)
+	$(call RENAME,frontmask,TopSolderMask)
+	$(call DELETE,frontpaste)
+	$(call RENAME,frontsilk,TopSilkscreen)
+	$(call RENAME,back,BotSide)
+	$(call RENAME,backmask,BackSolderMask)
+	$(call DELETE,backpaste)
+	$(call RENAME,backsilk,BackSilkscreen)
+	$(call RENAME,group1,Innerlayer1,-f)
+	$(call RENAME,group2,Innerlayer2,-f)
+	$(call RENAME,outline,BoardOutline)
+	$(call DELETE,fab)
+	mv $*-gerber/$*.plated-drill.cnc $*-gerber/$*.Drill.cnc
+	rm $*-gerber/$*.pcb
+
 
 phasedetectsim: LDFLAGS=-lfftw3 -lpthread -lm
