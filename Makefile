@@ -30,7 +30,7 @@ sdr-gerbers: plated-drill.cnc_ext=Drill.cnc
 sdr-gerbers: group1.gbr_ext=Innerlayer1.gbr
 sdr-gerbers: group2.gbr_ext=Innerlayer2.gbr
 
-BATCH=ether-spy-gerbers input-4509-third-gerbers
+BATCH=ether-spy-gerbers ether-spy-rv-gerbers input-4509-third-gerbers
 
 $(BATCH): front.gbr_ext=top
 $(BATCH): frontmask.gbr_ext=stoptop
