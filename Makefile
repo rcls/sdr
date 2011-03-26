@@ -69,5 +69,7 @@ $(BATCH): group2.gbr_ext=g2
 	-rm $*.zip
 	cd $*-gerber && zip ../$*.zip *.*
 
+.PHONY: zips
+zips: sdr.zip input-4509-third.zip ether-spy.zip ether-spy-rv.zip
 
 phasedetectsim: LDFLAGS=-lfftw3 -lpthread -lm
