@@ -1,5 +1,5 @@
 # release: pcb 20100929
-# date:    Sat Mar 26 19:14:02 2011
+# date:    Sun Mar 27 11:45:18 2011
 # user:    ralph (Ralph Loader)
 # host:    i.geek.nz
 
@@ -8,7 +8,7 @@ FileVersion[20100606]
 
 PCB["" 393500 196700]
 
-Grid[100.000000 0 0 1]
+Grid[500.000000 0 0 1]
 Cursor[0 196700 0.000000]
 PolyArea[200000000.000000]
 Thermal[0.500000]
@@ -1763,7 +1763,7 @@ Element["" "ra-0.1inch-female-10by2" "CONN61" "unknown" 93500 181500 -11500 1400
 
 	)
 
-Element["" "QFP144" "U2" "unknown" 149291 66614 -44272 -43008 0 100 ""]
+Element["" "QFP144" "U2" "unknown" 149291 66614 -43772 -50008 0 100 ""]
 (
 	Pad[-44725 -34448 -40421 -34448 1102 2000 1702 "1" "1" "square"]
 	Pad[-44725 -32480 -40421 -32480 1102 2000 1702 "2" "2" "square"]
@@ -2002,7 +2002,7 @@ Element["" "JUMPER3" "J41" "unknown" 382500 60000 -34000 1000 0 102 ""]
 
 	)
 
-Element["" "QFP64" "U3" "unknown" 282500 127500 18721 17635 0 100 ""]
+Element["" "QFP64" "U3" "unknown" 282500 127500 3662 11635 0 100 ""]
 (
 	Pad[20736 14763 25039 14763 1102 2000 1702 "1" "1" "square,edge2"]
 	Pad[20736 12795 25039 12795 1102 2000 1702 "2" "2" "square,edge2"]
@@ -5239,6 +5239,27 @@ Layer(12 "silk")
 	Line[317500 80276 317500 72500 900 2000 "clearline"]
 	Line[325000 72500 325000 67500 900 2000 "clearline"]
 	Line[325000 67500 322500 65000 900 2000 "clearline"]
+	Line[56500 94500 52500 98500 600 2000 "found,clearline"]
+	Line[56500 58500 48500 50500 600 2000 "found,clearline"]
+	Line[92500 94500 101000 103000 600 2000 "found,clearline"]
+	Line[93500 57500 102000 49000 600 2000 "found,clearline"]
+	Line[99500 127000 94000 121500 600 2000 "found,clearline"]
+	Line[135500 127000 143000 119500 600 2000 "found,clearline"]
+	Line[136500 164000 138500 166000 600 2000 "found,clearline"]
+	Line[99500 163000 97000 165500 600 2000 "found,clearline"]
+	Line[382000 83500 387000 78500 600 2000 "found,clearline"]
+	Line[371000 83500 370500 83000 600 2000 "found,clearline"]
+	Line[369000 81500 368000 80500 600 2000 "found,clearline"]
+	Line[372000 93500 370000 95500 600 2000 "found,clearline"]
+	Line[382000 94500 383500 96000 600 2000 "found,clearline"]
+	Line[263500 108500 260500 105500 600 2000 "found,clearline"]
+	Line[301500 108500 304500 105500 600 2000 "found,clearline"]
+	Line[263500 146500 259000 151000 600 2000 "found,clearline"]
+	Line[300500 145500 306000 151000 600 2000 "found,clearline"]
+	Line[188000 28000 197500 18500 600 2000 "found,clearline"]
+	Line[188000 105500 190000 107500 600 2000 "found,clearline"]
+	Line[110500 105500 108500 107500 600 2000 "found,clearline"]
+	Line[112000 29000 103500 20500 600 2000 "found,clearline"]
 	Text[70000 36500 0 109 "3v3" "clearline"]
 	Text[50000 36500 0 120 "1v8" "clearline"]
 	Text[21500 25000 0 88 "P142/143" "clearline"]
