@@ -9,3 +9,6 @@ sinrom
 /sdr.cmd
 /sdr.net
 /#*#
+*-gerber
+*.zip
+*.png
