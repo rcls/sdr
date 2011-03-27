@@ -9,14 +9,26 @@ sinrom.vhd: sinrom
 
 phasedetectsim: LDFLAGS=-lfftw3 -lpthread -lm
 
-.PHONY: png live
-png:
-	pcb -x png --outfile sdr.png --dpi 300 --as-shown --layer-stack silk,Component,CompPwr,GND,GNDsig,Power,PowerSig,Solder,SolderPwr,SolderGND sdr.pcb
-	pcb -x png --outfile sdrb.png --dpi 300 --as-shown --layer-stack silk,solderside,Component,CompPwr,GND,GNDsig,Power,PowerSig,Solder,SolderPwr,SolderGND sdr.pcb
-	pcb -x png --outfile sdr-s.png --dpi 100 --as-shown --layer-stack silk,Component,CompPwr,GND,GNDsig,Power,PowerSig,Solder,SolderPwr,SolderGND sdr.pcb
-	pcb -x png --outfile sdrb-s.png --dpi 100 --as-shown --layer-stack silk,solderside,Component,CompPwr,GND,GNDsig,Power,PowerSig,Solder,SolderPwr,SolderGND sdr.pcb
-www: png
-	cp sdr.png sdrb.png sdr-s.png sdrb-s.png ~/public_html/sdr
+W=~/public_html/sdr
+LS=Top,TopGND,TopPWR,Back,BackGND,BackPWR
+sdr-png: LS=Component,CompPwr,GND,GNDsig,Power,PowerSig,Solder,SolderPwr,SolderGND
+
+PCBPNG=pcb -x png --as-shown --layer-stack silk,$(LS)
+
+PNGS=sdr-png ether-spy-png ether-spy-rv-png input-4509-third-png
+.PHONY: pngs $(PNGS)
+$(PNGS): %-png: $W/%.png $W/%-s.png $W/%b.png $W/%b-s.png
+
+pngs: $(PNGS)
+
+$W/%.png: %.pcb
+	$(PCBPNG) --outfile $@ --dpi 300 $<
+$W/%-s.png: %.pcb
+	$(PCBPNG) --outfile $@ --dpi 100 $<
+$W/%b.png: %.pcb
+	$(PCBPNG),solderside --outfile $@ --dpi 300 $<
+$W/%b-s.png: %.pcb
+	$(PCBPNG),solderside --outfile $@ --dpi 100 $<
 
 RENAME=mv $*-gerber/$*.$1 $*-gerber/$*.$($1_ext)
 DELETE=rm $*-gerber/$*.$1

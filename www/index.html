@@ -3,7 +3,7 @@
 <title>Ralph's software defined radio</title>
 </head>
 <body>
-<h2>Ralph's software defined radio</h1>
+<h1>Ralph's software defined radio</h1>
 <h2>Overview</h2>
 <p>
 This is the design for a software defined radio.  It consists of a high-speed
@@ -19,6 +19,11 @@ with anything like the full data rate of the ADC).
 The main board takes RF input via a 50&ohm; SMA connector feeding the A-to-D,
 which then passes the digitised signal to the FPGA at up to 3.5Gbps.  The FPGA
 (when correctly programmed) processes the data and passes it on to the outputs.
+</p>
+<p>
+Everything is GPL3 copyright license, and <a href="https://github.com/rcls/sdr.git">design files</a> are available
+on <a href="https://github.com/"><b>github</b></a>,
+git://github.com/rcls/sdr.git.
 </p>
 <h2>Main components</h2>
 <p>
@@ -44,20 +49,22 @@ Instruments</b></a> <a href="http://focus.ti.com/docs/prod/folders/print/pcm1771
 </p>
 <p>
 There's an ARM Cortex M3 CPU on the board, a
-TI <a href="http://focus.ti.com/docs/prod/folders/print/lm3s828.html">LM3S828</a>.
-It doesn't go anywhere near the data processing chain, it's main purpose is for
-soldering practice (it's the same footprint as the A-to-D).  It does have some
-switches hanging off it and a fast serial link to the FPGA, so it can carry out
-supervisory functions.
+<a href="http://www.ti.com/"><b>Texas
+Instruments</b></a> <a href="http://focus.ti.com/docs/prod/folders/print/lm3s828.html">LM3S828</a>.
+It doesn't go anywhere near the data processing chain, it's there for
+supervisory functions; it's got a 5-way switch hanging off it and a fast serial
+link to the FPGA.  Also, it's the same package as the ADC, so it gives me useful
+soldering practice.
 </p>
 <p>
 Misc. ICs are three power converters, an EEPROM, serial flash, a level converter
-and two oscillators (one left unpopulated) complete.
+and two oscillators (one left unpopulated).
 </p>
 <h2>Input sensitivity</h2>
 <p>
 The A-to-D takes a 1V to 1.5V p-p differential input signal (depending on
-internal config), but the input has a 1:2.8 step up transformer
+internal config), but the input has a 1:2.8 (1:8 impedence ratio) step up
+transformer
 (<a href="http://www.coilcraft.com/"><b>Coilcraft</b></a> <a href="http://www.coilcraft.com/wbc.cfm">WBC8-1L</a>),
 giving a 360mV p-p input range.  The A-to-D is 14-bit, which gives
 approx. 21&micro;V resolution, which is -78dBm into 50&ohm; (although
@@ -67,7 +74,8 @@ realistically you probably want a -60dBm signal).
 <p>
 The board uses three voltage levels: 3.3V, 1.8V and 1.2V, all supplied via
 switchmode converters.  A
-TI <a href="http://focus.ti.com/docs/prod/folders/print/pth08080w.html">PTH08080W</a>
+<a href="http://www.ti.com/"><b>Texas
+Instruments</b></a> <a href="http://focus.ti.com/docs/prod/folders/print/pth08080w.html">PTH08080W</a>
 module supplies 3.3V, a <a href="http://www.national.com/analog/"><b>National
 Semiconductor</b></a> <a href="http://www.national.com/pf/LM/LMZ12002.html">LMZ12002</a>
 module supplies 1.2V, and a National
@@ -76,12 +84,12 @@ provides 1.8V.  The last of these hangs of the 3.3V rail, the first two can cope
 with a reasonable voltage range, so either a 5V or 12V input is fine.
 </p>
 <p>
-The 3.3V and 1.2V power supplies are grossly over provisioned, both can provide
-about 2 amps, but much less than that is needed in practice.  The total power
+The 3.3V and 1.2V power supplies are over provisioned, both can provide about 2
+amps, but much less than that is needed in practice.  The total power
 consumption should be about 2.5W, meaning that it'll run off USB on a good day
 (there's an alternative power jack as well).
 </p>
-<h2>Design software</h1>
+<h2>Design software</h2>
 <p>
 The board design is done using the free
 software <a href="http://www.gpleda.org/index.html">gEDA</a> toolchain, written
@@ -92,7 +100,7 @@ board schematic, and sdr.pcb is the pcb layout for it, a four layer board with
 <p>
 Xilinx ISE is used for compiling the VHDL code to run on the FPGA.
 </p>
-<h2>Daughter board</h1>
+<h2>Daughter boards</h2>
 <p>
 A daughter board (files input-4509-third.sch and input-4509-third.pcb) provides
 an RF amp
@@ -103,11 +111,15 @@ folder dipole aerial.  Although where I live, the signal strength is probably
 high enough to go into the ADC unamplified.
 </p>
 <p>
-I'm skimping on the pcb for this
-board; it's a two layer board, but it should od for front ends up to a few
-hundred MHz or so.
+I'm skimping on the pcb for this board; it's a two layer board, but with
+appropriate values for the filter components, it should do for front ends up to
+a few hundred MHz or so.
 </p>
-<h2>Useful links</h1>
+<p>
+Also, I'm building a input board that gives me a 50&ohm; tap off an ethernet
+cable.
+</p>
+<h2>Useful links</h2>
 <p>
 The late <a href="http://www-users.cs.york.ac.uk/~fisher/"><b>Tony
 Fisher</b></a> has a useful
