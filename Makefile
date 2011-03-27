@@ -7,6 +7,8 @@ all: sinrom.vhd phasedetectsim pllsim
 sinrom.vhd: sinrom
 	./sinrom > sinrom.vhd
 
+phasedetectsim: LDFLAGS=-lfftw3 -lpthread -lm
+
 .PHONY: png live
 png:
 	pcb -x png --outfile sdr.png --dpi 300 --as-shown --layer-stack silk,Component,CompPwr,GND,GNDsig,Power,PowerSig,Solder,SolderPwr,SolderGND sdr.pcb
@@ -71,5 +73,3 @@ $(BATCH): group2.gbr_ext=g2
 
 .PHONY: zips
 zips: sdr.zip input-4509-third.zip ether-spy.zip ether-spy-rv.zip
-
-phasedetectsim: LDFLAGS=-lfftw3 -lpthread -lm
