@@ -9,7 +9,7 @@ sinrom.vhd: sinrom
 
 phasedetectsim: LDFLAGS=-lfftw3 -lpthread -lm
 
-W=~/public_html/sdr
+W=www
 LS=Top,TopGND,TopPWR,Back,BackGND,BackPWR
 sdr-png: LS=Component,CompPwr,GND,GNDsig,Power,PowerSig,Solder,SolderPwr,SolderGND
 

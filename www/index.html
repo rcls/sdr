@@ -1,14 +1,15 @@
 <html>
 <head>
 <title>Ralph's software defined radio</title>
-</head>
+<link rel="stylesheet" type="text/css" href="main.css"></head>
 <body>
 <h1>Ralph's software defined radio</h1>
 <h2>Overview</h2>
+<a href="sdr-images.html"><img class="flow" src="sdr-s.png"/></a>
 <p>
-This is the design for a software defined radio.  It consists of a high-speed
-analog-to-digital converter, coupled with an FPGA for DSP, and audio, USB, and
-parallel outputs.
+This is the design for a software defined radio receiver.  It consists of a
+high-speed analog-to-digital converter, coupled with an FPGA for DSP, and audio,
+USB, and parallel outputs.
 </p>
 <p>
 While it's intended for SDR usage, although nothing stops it from being used as
@@ -60,10 +61,14 @@ soldering practice.
 Misc. ICs are three power converters, an EEPROM, serial flash, a level converter
 and two oscillators (one left unpopulated).
 </p>
+<p>
+The FPGA is a baby one, but even though, it should provide enough resources
+to provide seven or eight separate receiver channels.
+</p>
 <h2>Input sensitivity</h2>
 <p>
 The A-to-D takes a 1V to 1.5V p-p differential input signal (depending on
-internal config), but the input has a 1:2.8 (1:8 impedence ratio) step up
+internal config), but the input has a 1:2.8 (1:8 impedance ratio) step up
 transformer
 (<a href="http://www.coilcraft.com/"><b>Coilcraft</b></a> <a href="http://www.coilcraft.com/wbc.cfm">WBC8-1L</a>),
 giving a 360mV p-p input range.  The A-to-D is 14-bit, which gives
@@ -101,13 +106,14 @@ board schematic, and sdr.pcb is the pcb layout for it, a four layer board with
 Xilinx ISE is used for compiling the VHDL code to run on the FPGA.
 </p>
 <h2>Daughter boards</h2>
+<a href="input.html"><img class="flow" src="input-4509-third.png" /></a>
 <p>
-A daughter board (files input-4509-third.sch and input-4509-third.pcb) provides
-an RF amp
-(TI <a href="http://focus.ti.com/docs/prod/folders/print/ths4509.html">THS4509</a>)
+A <a href="input.html">daughter board</a> (files input-4509-third.sch and
+input-4509-third.pcb) provides an RF amp (<a href="http://www.ti.com/"><b>Texas
+Instruments</b></a> <a href="http://focus.ti.com/docs/prod/folders/print/ths4509.html">THS4509</a>)
 and a third-order band pass filter.  The first build of that will provide 20db
 gain on the 88MHz to 108Mhz band with a 300&ohm; input.  That's stereo FM off a
-folder dipole aerial.  Although where I live, the signal strength is probably
+folded dipole aerial.  Although where I live, the signal strength is probably
 high enough to go into the ADC unamplified.
 </p>
 <p>
@@ -115,10 +121,28 @@ I'm skimping on the pcb for this board; it's a two layer board, but with
 appropriate values for the filter components, it should do for front ends up to
 a few hundred MHz or so.
 </p>
+<h3>Ethernet Tap</h3>
+<img class="lflow" src="ether-spy-rv-s.png" />
+<img class="flow" src="ether-spy-rvb-s.png" />
 <p>
 Also, I'm building a input board that gives me a 50&ohm; tap off an ethernet
-cable.
+cable.  This board has a fun construction; the three 133&ohm; load resistors are
+0603 components mounted vertically within holes in the PCB, connecting traces on
+opposite sides of the board.
 </p>
+<p>
+This board is entirely passive.  The tap is off pair 2 (pins 3 and 6), a star
+topology splits current coming in one jack equally between the other jack and
+the tap transformer.  The tap transformer is 2:1 impedance ratio, so the 50&ohm;
+SMA connection on the secondary appears as a 100&ohm; load on the primary.
+</p>
+<p>
+The other three pairs have a resistor network to match the 6db insertion loss
+from the tap.  Oh, I forgot the 33&ohm; of additional matching load resistance
+on the tap, so I'll have to break a trace to solder that resistor.  Serves me
+right for laying out a board without a proper circuit diagram.
+</p>
+
 <h2>Useful links</h2>
 <p>
 The late <a href="http://www-users.cs.york.ac.uk/~fisher/"><b>Tony
@@ -129,8 +153,6 @@ design tool.
 <p>
 PCB trace impendance calculations can be done using <b>Dan McMahill</b>'s
 <a href="http://wcalc.sourceforge.net/cgi-bin/coupled_microstrip.cgi?wc_unit_menu_2_0=dB&wc_unit_menu_3_0=dB&wc_unit_menu_3_1=inch&wc_unit_menu_7_0=mil&wc_unit_menu_6_0=ns&wc_unit_menu_8_0=mil&w=6&wc_unit_menu_0_0=mil&s=7&l=1000&tmet=2.8&rho=3e-08&wc_unit_menu_4_0=Ohm&wc_unit_menu_4_1=m&rough=0.001&wc_unit_menu_5_0=mil&h=10&es=4.4&tand=0.01&freq=100&wc_unit_menu_1_0=MHz&analyze=Analyze&stype=zk&Ro=84.9713&k=0.158625&zeven=99.7123&zodd=72.4095&elen=5.31576">wcalc</a>.
-My LVDS link impedance are slightly low (86&ohm; instead of 100&ohm;), but the
-traces are pretty short so it shouldn't matter.
 </p>
 <h2>Thanks</h2>
 <p>

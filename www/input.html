@@ -1,0 +1,38 @@
+<html>
+<head>
+<title>RF input daughter board</title>
+<link rel="stylesheet" type="text/css" href="main.css"></head>
+</head>
+<body>
+<h1>RF input daughter board</h1>
+<img class="flow" src="input-4509-third.png" />
+<img class="clflow" src="input-4509-thirdb.png" />
+<p>This is an input board for my <a href="index.html">software defined
+radio</a>.
+</p>
+<p>
+A 300&ohm; input is amplified by a <a href="http://www.ti.com/"><b>Texas
+Instruments</b></a> <a href="http://focus.ti.com/docs/prod/folders/print/ths4509.html">THS4509</a>
+op. amp and passed through a third-order band pass filter, and output to a
+50&ohm; SMA connector.
+</p>
+<p>
+The initial build will be tuned to the broadcast audio FM band, with a 20db
+gain, but all going well I'll build variants for different bands.
+</p>
+<p>
+There's a couple of compromises in the design.
+</p>
+<p>
+Firstly, I'm doing it on a two layer board, which makes proper impedance
+matching of the traces impossible.  The trace impendance is too high, which
+means that everything will see a few nH of parasitic inductance.
+</p>
+<p>
+Secondly, the band-pass filter is after the amplifier.  This makes the filter
+component values more convenient and less sensitive to interferance, but means
+that the op. amp is potentially swamped by a strong out-of-band signal.  This is
+somewhat ameliorated both by the antennae response, and by the input coupling
+capacitors giving a high pass filter.
+</p>
+</body>
