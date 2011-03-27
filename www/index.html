@@ -17,9 +17,10 @@ an oscilloscope uploading data to a PC for display (although USB 2.0 can't cope
 with anything like the full data rate of the ADC).
 </p>
 <p>
-The main board takes RF input via a 50&ohm; SMA connector feeding the A-to-D,
-which then passes the digitised signal to the FPGA at up to 3.5Gbps.  The FPGA
-(when correctly programmed) processes the data and passes it on to the outputs.
+The main board takes RF input via a 50&ohm; SMA connector feeding the Texas
+Instruments A-to-D, which then passes the digitised signal to the FPGA at up to
+3.5Gbps.  The FPGA (when correctly programmed) processes the data and passes it
+on to the outputs.
 </p>
 <p>
 Everything is GPL3 copyright license, and <a href="https://github.com/rcls/sdr.git">design files</a> are available
@@ -74,6 +75,12 @@ transformer
 giving a 360mV p-p input range.  The A-to-D is 14-bit, which gives
 approx. 21&micro;V resolution, which is -78dBm into 50&ohm; (although
 realistically you probably want a -60dBm signal).
+</p>
+<p>
+The low end of the input frequency response is limited by the input transformer;
+it goes down to about 500kHz.  The A-to-D is rated for input signals up to about
+800MHz, but I suspect the PCB layout of the input circuits will be a limitation
+also.
 </p>
 <h2>Power supplies</h2>
 <p>
@@ -158,6 +165,14 @@ PCB trace impendance calculations can be done using <b>Dan McMahill</b>'s
 <p>
 People / companies with their names in bold above provided something useful
 without charge.  Thank you very much.
+</p>
+<hr/>
+<p>
+Copyright &copy; 2011 Ralph Loader.
+</p>
+<p>
+If you're reading this page somewhere else, here is
+the <a href="http://i.geek.nz/~ralph/sdr/index.html">master copy</a>.
 </p>
 </body>
 </html>
