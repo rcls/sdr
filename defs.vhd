@@ -1,4 +1,5 @@
 library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 package defs is
@@ -15,5 +16,7 @@ subtype signed72 is signed(71 downto 0);
 subtype signed36 is signed(35 downto 0);
 subtype signed18 is signed(17 downto 0);
 subtype signed14 is signed(13 downto 0);
+
+subtype std_logic7 is std_logic_vector(6 downto 0);
 
 end defs;

@@ -8,22 +8,21 @@
 <a href="sdr-images.html"><img class="flow" src="sdr-s.png"/></a>
 <p>
 This is the design for a software defined radio receiver.  It consists of a
-high-speed analog-to-digital converter, coupled with an FPGA for DSP, and audio,
-USB, and parallel outputs.
+Texas Instruments high-speed analog-to-digital converter, coupled with an FPGA
+for DSP, and audio, USB, and parallel outputs.
 </p>
 <p>
 While it's intended for SDR usage, although nothing stops it from being used as
 an oscilloscope uploading data to a PC for display (although USB 2.0 can't cope
-with anything like the full data rate of the ADC).
+with anything like the full data rate off the ADC).
 </p>
 <p>
-The main board takes RF input via a 50&ohm; SMA connector feeding the Texas
-Instruments A-to-D, which then passes the digitised signal to the FPGA at up to
+The main board takes RF input via a 50&ohm; SMA connector feeding the A-to-D, which then passes the digitised signal to the FPGA at up to
 3.5Gbps.  The FPGA (when correctly programmed) processes the data and passes it
 on to the outputs.
 </p>
 <p>
-Everything is GPL3 copyright license, and <a href="https://github.com/rcls/sdr.git">design files</a> are available
+Everything is GPL3 copyright license, and <a href="https://github.com/rcls/sdr/">design files</a> are available
 on <a href="https://github.com/"><b>github</b></a>,
 git://github.com/rcls/sdr.git.
 </p>
@@ -40,14 +39,14 @@ Outputs are audio (what good is a radio if you can't listen to it!), USB and
 quite a few digital lines via 0.1 inch headers.
 </p>
 <p>
+The audio output is a <a href="http://www.ti.com/"><b>Texas
+Instruments</b></a> <a href="http://focus.ti.com/docs/prod/folders/print/pcm1771.html">PCM1771</a>.
+</p>
+<p>
 USB is via a
 FTDI <a href="http://www.ftdichip.com/Products/ICs/FT2232H.htm">FT2232H</a>
 chip; this has two channels.  Channel A is connected to FPGA IO, and channel B
 is dedicated to the FPGA JTAG.
-</p>
-<p>
-The audio output is a <a href="http://www.ti.com/"><b>Texas
-Instruments</b></a> <a href="http://focus.ti.com/docs/prod/folders/print/pcm1771.html">PCM1771</a>.
 </p>
 <p>
 There's an ARM Cortex M3 CPU on the board, a
@@ -129,8 +128,8 @@ appropriate values for the filter components, it should do for front ends up to
 a few hundred MHz or so.
 </p>
 <h3>Ethernet Tap</h3>
-<img class="lflow" src="ether-spy-rv-s.png" />
-<img class="flow" src="ether-spy-rvb-s.png" />
+<a href="ether-spy-rv.png"><img class="lflow" src="ether-spy-rv-s.png" /></a>
+<a href="ether-spy-rvb.png"><img class="flow" src="ether-spy-rvb-s.png" /></a>
 <p>
 Also, I'm building a input board that gives me a 50&ohm; tap off an ethernet
 cable.  This board has a fun construction; the three 133&ohm; load resistors are
