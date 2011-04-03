@@ -204,7 +204,7 @@ refdes=R404
 T 44600 45400 5 10 0 1 0 0 1
 footprint=0603
 T 44900 45200 5 10 1 1 0 0 1
-value=4k22
+value=8k45
 }
 C 46200 45400 1 0 0 resistor-1.sym
 {
@@ -215,7 +215,7 @@ refdes=R406
 T 46200 45400 5 10 0 1 0 0 1
 footprint=0603
 T 46700 45200 5 10 1 1 0 0 1
-value=8k45
+value=4k22
 }
 C 46100 44000 1 0 0 gnd-1.sym
 C 45400 46600 1 90 0 capacitor.sym

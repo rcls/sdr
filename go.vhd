@@ -34,14 +34,14 @@ architecture Behavioral of go is
   signal qq_buf : signed36;
   signal ii_buf : signed36;
 
-  signal clk_fast : std_logic; -- 125MHz clock.
+  signal clk_fast     : std_logic; -- 125MHz clock.
   signal clk_fast_neg : std_logic;
-  signal clk62m5 : std_logic; -- 62.5MHz clock.
+  signal clk62m5      : std_logic; -- 62.5MHz clock.
 
-  signal clkbuf125 : std_logic; -- buffered input clock.
-  signal clkgen_fast : std_logic; -- 125MHz CMT output.
-  signal clkgen62m5 : std_logic; -- 62.5Mhz CMT output.
-  signal clkfbout : std_logic; -- FB output from CMT.
+  signal clkbuf125    : std_logic; -- buffered input clock.
+  signal clkgen_fast  : std_logic; -- 125MHz PLL output.
+  signal clkgen62m5   : std_logic; -- 62.5Mhz PLL output.
+  signal clkfbout     : std_logic; -- FB output from PLL.
   signal clkfbout_buf : std_logic; -- FB output from BUFG.
 
   signal adc_diff : std_logic7;
