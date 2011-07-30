@@ -21,7 +21,7 @@ end led;
 
 architecture Behavioral of led is
  signal divide : std_logic_vector(23 downto 0);
- signal leds : std_logic_vector(7 downto 0);
+ signal leds : std_logic_vector(7 downto 0) := "00000001";
 
  alias nRXF : STD_LOGIC is usb_c(0);
  alias nTXE : STD_LOGIC is usb_c(1);
@@ -30,8 +30,9 @@ architecture Behavioral of led is
  alias SIWA : STD_LOGIC is usb_c(4);
 
  signal nREAD : STD_LOGIC := '1';
+ signal wr : boolean := false;
 begin
-  led <= leds;
+  led <= not leds(7 downto 0);
   clkin125_en <= '1';
 
   nRD <= nREAD;
@@ -43,27 +44,29 @@ begin
 
   usb_c(7 downto 4) <= "ZZZZ";
 
+  usb_d <= leds(7 downto 0) when wr else "ZZZZZZZZ";
+
   process(clkin125)
   begin
     if clkin125'event and clkin125 = '1' then
       divide <= std_logic_vector(unsigned(divide) + 1);
       case divide is
         when x"ffffff" =>
-          leds <= (leds(4) xor leds(3) xor leds(2) xor leds(0) xor '1') & leds(7 downto 1);
+          leds <= (leds(4) xor leds(3) xor leds(2) xor leds(0)) & leds(7 downto 1);
         when x"000000" =>
           nREAD <= nRXF;
         when x"000004" =>
           if nREAD = '0' then
-            leds <= not usb_d;
+            leds <= usb_d;
           end if;
           nREAD <= '1';
         when x"000010" =>
-          usb_d <= not leds;
-        when x"000011" =>
+          wr <= true;
+        when x"000012" =>
           nWR <= '0';
-        when x"000014" =>
+        when x"000015" =>
           nWR <= '1';
-          usb_d <= "ZZZZZZZZ";
+          wr <= false;
         when others =>
       end case;
     end if;

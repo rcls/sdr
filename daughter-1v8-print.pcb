@@ -1,0 +1,3669 @@
+# release: pcb 20100929
+# date:    Wed Apr 20 13:18:20 2011
+# user:    ralph (Ralph Loader)
+# host:    i.geek.nz
+
+# To read pcb files, the pcb version (or the git source date) must be >= the file version
+FileVersion[20100606]
+
+PCB["" 669291 984252]
+
+Grid[500.000000 0 0 1]
+Cursor[0 100000 0.000000]
+PolyArea[200000000.000000]
+Thermal[0.500000]
+DRC[1000 1000 1000 1000 1500 1000]
+Flags("rubberband,nameonpcb,uniquename,snappin")
+Groups("1,c:2,s:3:4:5:6:7:8")
+Styles["Signal,1200,6000,2000,1000:Power,2500,6000,3500,1000:Fat,4000,6000,3500,1000:Skinny,1000,2402,1181,600"]
+
+Symbol(' ' 18)
+(
+)
+Symbol('!' 12)
+(
+	SymbolLine(0 45 0 50 8)
+	SymbolLine(0 10 0 35 8)
+)
+Symbol('"' 12)
+(
+	SymbolLine(0 10 0 20 8)
+	SymbolLine(10 10 10 20 8)
+)
+Symbol('#' 12)
+(
+	SymbolLine(0 35 20 35 8)
+	SymbolLine(0 25 20 25 8)
+	SymbolLine(15 20 15 40 8)
+	SymbolLine(5 20 5 40 8)
+)
+Symbol('$' 12)
+(
+	SymbolLine(15 15 20 20 8)
+	SymbolLine(5 15 15 15 8)
+	SymbolLine(0 20 5 15 8)
+	SymbolLine(0 20 0 25 8)
+	SymbolLine(0 25 5 30 8)
+	SymbolLine(5 30 15 30 8)
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(20 35 20 40 8)
+	SymbolLine(15 45 20 40 8)
+	SymbolLine(5 45 15 45 8)
+	SymbolLine(0 40 5 45 8)
+	SymbolLine(10 10 10 50 8)
+)
+Symbol('%' 12)
+(
+	SymbolLine(0 15 0 20 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(5 10 10 10 8)
+	SymbolLine(10 10 15 15 8)
+	SymbolLine(15 15 15 20 8)
+	SymbolLine(10 25 15 20 8)
+	SymbolLine(5 25 10 25 8)
+	SymbolLine(0 20 5 25 8)
+	SymbolLine(0 50 40 10 8)
+	SymbolLine(35 50 40 45 8)
+	SymbolLine(40 40 40 45 8)
+	SymbolLine(35 35 40 40 8)
+	SymbolLine(30 35 35 35 8)
+	SymbolLine(25 40 30 35 8)
+	SymbolLine(25 40 25 45 8)
+	SymbolLine(25 45 30 50 8)
+	SymbolLine(30 50 35 50 8)
+)
+Symbol('&' 12)
+(
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(0 15 0 25 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(0 35 15 20 8)
+	SymbolLine(5 50 10 50 8)
+	SymbolLine(10 50 20 40 8)
+	SymbolLine(0 25 25 50 8)
+	SymbolLine(5 10 10 10 8)
+	SymbolLine(10 10 15 15 8)
+	SymbolLine(15 15 15 20 8)
+	SymbolLine(0 35 0 45 8)
+)
+Symbol(''' 12)
+(
+	SymbolLine(0 20 10 10 8)
+)
+Symbol('(' 12)
+(
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(0 15 0 45 8)
+)
+Symbol(')' 12)
+(
+	SymbolLine(0 10 5 15 8)
+	SymbolLine(5 15 5 45 8)
+	SymbolLine(0 50 5 45 8)
+)
+Symbol('*' 12)
+(
+	SymbolLine(0 20 20 40 8)
+	SymbolLine(0 40 20 20 8)
+	SymbolLine(0 30 20 30 8)
+	SymbolLine(10 20 10 40 8)
+)
+Symbol('+' 12)
+(
+	SymbolLine(0 30 20 30 8)
+	SymbolLine(10 20 10 40 8)
+)
+Symbol(',' 12)
+(
+	SymbolLine(0 60 10 50 8)
+)
+Symbol('-' 12)
+(
+	SymbolLine(0 30 20 30 8)
+)
+Symbol('.' 12)
+(
+	SymbolLine(0 50 5 50 8)
+)
+Symbol('/' 12)
+(
+	SymbolLine(0 45 30 15 8)
+)
+Symbol('0' 12)
+(
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(0 15 0 45 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(5 10 15 10 8)
+	SymbolLine(15 10 20 15 8)
+	SymbolLine(20 15 20 45 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(0 40 20 20 8)
+)
+Symbol('1' 12)
+(
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(10 10 10 50 8)
+	SymbolLine(0 20 10 10 8)
+)
+Symbol('2' 12)
+(
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(5 10 20 10 8)
+	SymbolLine(20 10 25 15 8)
+	SymbolLine(25 15 25 25 8)
+	SymbolLine(0 50 25 25 8)
+	SymbolLine(0 50 25 50 8)
+)
+Symbol('3' 12)
+(
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(5 10 15 10 8)
+	SymbolLine(15 10 20 15 8)
+	SymbolLine(20 15 20 45 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(5 30 20 30 8)
+)
+Symbol('4' 12)
+(
+	SymbolLine(0 30 20 10 8)
+	SymbolLine(0 30 25 30 8)
+	SymbolLine(20 10 20 50 8)
+)
+Symbol('5' 12)
+(
+	SymbolLine(0 10 20 10 8)
+	SymbolLine(0 10 0 30 8)
+	SymbolLine(0 30 5 25 8)
+	SymbolLine(5 25 15 25 8)
+	SymbolLine(15 25 20 30 8)
+	SymbolLine(20 30 20 45 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(0 45 5 50 8)
+)
+Symbol('6' 12)
+(
+	SymbolLine(15 10 20 15 8)
+	SymbolLine(5 10 15 10 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(0 15 0 45 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(0 30 15 30 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(20 35 20 45 8)
+)
+Symbol('7' 12)
+(
+	SymbolLine(0 50 25 25 8)
+	SymbolLine(25 10 25 25 8)
+	SymbolLine(0 10 25 10 8)
+)
+Symbol('8' 12)
+(
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(0 35 0 45 8)
+	SymbolLine(0 35 5 30 8)
+	SymbolLine(5 30 15 30 8)
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(20 35 20 45 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(0 25 5 30 8)
+	SymbolLine(0 15 0 25 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(5 10 15 10 8)
+	SymbolLine(15 10 20 15 8)
+	SymbolLine(20 15 20 25 8)
+	SymbolLine(15 30 20 25 8)
+)
+Symbol('9' 12)
+(
+	SymbolLine(0 50 20 30 8)
+	SymbolLine(20 15 20 30 8)
+	SymbolLine(15 10 20 15 8)
+	SymbolLine(5 10 15 10 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(0 15 0 25 8)
+	SymbolLine(0 25 5 30 8)
+	SymbolLine(5 30 20 30 8)
+)
+Symbol(':' 12)
+(
+	SymbolLine(0 25 5 25 8)
+	SymbolLine(0 35 5 35 8)
+)
+Symbol(';' 12)
+(
+	SymbolLine(0 50 10 40 8)
+	SymbolLine(10 25 10 30 8)
+)
+Symbol('<' 12)
+(
+	SymbolLine(0 30 10 20 8)
+	SymbolLine(0 30 10 40 8)
+)
+Symbol('=' 12)
+(
+	SymbolLine(0 25 20 25 8)
+	SymbolLine(0 35 20 35 8)
+)
+Symbol('>' 12)
+(
+	SymbolLine(0 20 10 30 8)
+	SymbolLine(0 40 10 30 8)
+)
+Symbol('?' 12)
+(
+	SymbolLine(10 30 10 35 8)
+	SymbolLine(10 45 10 50 8)
+	SymbolLine(0 15 0 20 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(5 10 15 10 8)
+	SymbolLine(15 10 20 15 8)
+	SymbolLine(20 15 20 20 8)
+	SymbolLine(10 30 20 20 8)
+)
+Symbol('@' 12)
+(
+	SymbolLine(0 10 0 40 8)
+	SymbolLine(0 40 10 50 8)
+	SymbolLine(10 50 40 50 8)
+	SymbolLine(50 35 50 10 8)
+	SymbolLine(50 10 40 0 8)
+	SymbolLine(40 0 10 0 8)
+	SymbolLine(10 0 0 10 8)
+	SymbolLine(15 20 15 30 8)
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(20 35 30 35 8)
+	SymbolLine(30 35 35 30 8)
+	SymbolLine(35 30 40 35 8)
+	SymbolLine(35 30 35 15 8)
+	SymbolLine(35 20 30 15 8)
+	SymbolLine(20 15 30 15 8)
+	SymbolLine(20 15 15 20 8)
+	SymbolLine(40 35 50 35 8)
+)
+Symbol('A' 12)
+(
+	SymbolLine(0 15 0 50 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(5 10 20 10 8)
+	SymbolLine(20 10 25 15 8)
+	SymbolLine(25 15 25 50 8)
+	SymbolLine(0 30 25 30 8)
+)
+Symbol('B' 12)
+(
+	SymbolLine(0 50 20 50 8)
+	SymbolLine(20 50 25 45 8)
+	SymbolLine(25 35 25 45 8)
+	SymbolLine(20 30 25 35 8)
+	SymbolLine(5 30 20 30 8)
+	SymbolLine(5 10 5 50 8)
+	SymbolLine(0 10 20 10 8)
+	SymbolLine(20 10 25 15 8)
+	SymbolLine(25 15 25 25 8)
+	SymbolLine(20 30 25 25 8)
+)
+Symbol('C' 12)
+(
+	SymbolLine(5 50 20 50 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(0 15 0 45 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(5 10 20 10 8)
+)
+Symbol('D' 12)
+(
+	SymbolLine(5 10 5 50 8)
+	SymbolLine(20 10 25 15 8)
+	SymbolLine(25 15 25 45 8)
+	SymbolLine(20 50 25 45 8)
+	SymbolLine(0 50 20 50 8)
+	SymbolLine(0 10 20 10 8)
+)
+Symbol('E' 12)
+(
+	SymbolLine(0 30 15 30 8)
+	SymbolLine(0 50 20 50 8)
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(0 10 20 10 8)
+)
+Symbol('F' 12)
+(
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(0 10 20 10 8)
+	SymbolLine(0 30 15 30 8)
+)
+Symbol('G' 12)
+(
+	SymbolLine(20 10 25 15 8)
+	SymbolLine(5 10 20 10 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(0 15 0 45 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(5 50 20 50 8)
+	SymbolLine(20 50 25 45 8)
+	SymbolLine(25 35 25 45 8)
+	SymbolLine(20 30 25 35 8)
+	SymbolLine(10 30 20 30 8)
+)
+Symbol('H' 12)
+(
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(25 10 25 50 8)
+	SymbolLine(0 30 25 30 8)
+)
+Symbol('I' 12)
+(
+	SymbolLine(0 10 10 10 8)
+	SymbolLine(5 10 5 50 8)
+	SymbolLine(0 50 10 50 8)
+)
+Symbol('J' 12)
+(
+	SymbolLine(0 10 15 10 8)
+	SymbolLine(15 10 15 45 8)
+	SymbolLine(10 50 15 45 8)
+	SymbolLine(5 50 10 50 8)
+	SymbolLine(0 45 5 50 8)
+)
+Symbol('K' 12)
+(
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(0 30 20 10 8)
+	SymbolLine(0 30 20 50 8)
+)
+Symbol('L' 12)
+(
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(0 50 20 50 8)
+)
+Symbol('M' 12)
+(
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(0 10 15 25 8)
+	SymbolLine(15 25 30 10 8)
+	SymbolLine(30 10 30 50 8)
+)
+Symbol('N' 12)
+(
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(0 10 0 15 8)
+	SymbolLine(0 15 25 40 8)
+	SymbolLine(25 10 25 50 8)
+)
+Symbol('O' 12)
+(
+	SymbolLine(0 15 0 45 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(5 10 15 10 8)
+	SymbolLine(15 10 20 15 8)
+	SymbolLine(20 15 20 45 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(0 45 5 50 8)
+)
+Symbol('P' 12)
+(
+	SymbolLine(5 10 5 50 8)
+	SymbolLine(0 10 20 10 8)
+	SymbolLine(20 10 25 15 8)
+	SymbolLine(25 15 25 25 8)
+	SymbolLine(20 30 25 25 8)
+	SymbolLine(5 30 20 30 8)
+)
+Symbol('Q' 12)
+(
+	SymbolLine(0 15 0 45 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(5 10 15 10 8)
+	SymbolLine(15 10 20 15 8)
+	SymbolLine(20 15 20 45 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(10 40 20 50 8)
+)
+Symbol('R' 12)
+(
+	SymbolLine(0 10 20 10 8)
+	SymbolLine(20 10 25 15 8)
+	SymbolLine(25 15 25 25 8)
+	SymbolLine(20 30 25 25 8)
+	SymbolLine(5 30 20 30 8)
+	SymbolLine(5 10 5 50 8)
+	SymbolLine(5 30 25 50 8)
+)
+Symbol('S' 12)
+(
+	SymbolLine(20 10 25 15 8)
+	SymbolLine(5 10 20 10 8)
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(0 15 0 25 8)
+	SymbolLine(0 25 5 30 8)
+	SymbolLine(5 30 20 30 8)
+	SymbolLine(20 30 25 35 8)
+	SymbolLine(25 35 25 45 8)
+	SymbolLine(20 50 25 45 8)
+	SymbolLine(5 50 20 50 8)
+	SymbolLine(0 45 5 50 8)
+)
+Symbol('T' 12)
+(
+	SymbolLine(0 10 20 10 8)
+	SymbolLine(10 10 10 50 8)
+)
+Symbol('U' 12)
+(
+	SymbolLine(0 10 0 45 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(20 10 20 45 8)
+)
+Symbol('V' 12)
+(
+	SymbolLine(0 10 0 40 8)
+	SymbolLine(0 40 10 50 8)
+	SymbolLine(10 50 20 40 8)
+	SymbolLine(20 10 20 40 8)
+)
+Symbol('W' 12)
+(
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(0 50 15 35 8)
+	SymbolLine(15 35 30 50 8)
+	SymbolLine(30 10 30 50 8)
+)
+Symbol('X' 12)
+(
+	SymbolLine(0 10 0 15 8)
+	SymbolLine(0 15 25 40 8)
+	SymbolLine(25 40 25 50 8)
+	SymbolLine(0 40 0 50 8)
+	SymbolLine(0 40 25 15 8)
+	SymbolLine(25 10 25 15 8)
+)
+Symbol('Y' 12)
+(
+	SymbolLine(0 10 0 15 8)
+	SymbolLine(0 15 10 25 8)
+	SymbolLine(10 25 20 15 8)
+	SymbolLine(20 10 20 15 8)
+	SymbolLine(10 25 10 50 8)
+)
+Symbol('Z' 12)
+(
+	SymbolLine(0 10 25 10 8)
+	SymbolLine(25 10 25 15 8)
+	SymbolLine(0 40 25 15 8)
+	SymbolLine(0 40 0 50 8)
+	SymbolLine(0 50 25 50 8)
+)
+Symbol('[' 12)
+(
+	SymbolLine(0 10 5 10 8)
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(0 50 5 50 8)
+)
+Symbol('\' 12)
+(
+	SymbolLine(0 15 30 45 8)
+)
+Symbol(']' 12)
+(
+	SymbolLine(0 10 5 10 8)
+	SymbolLine(5 10 5 50 8)
+	SymbolLine(0 50 5 50 8)
+)
+Symbol('^' 12)
+(
+	SymbolLine(0 15 5 10 8)
+	SymbolLine(5 10 10 15 8)
+)
+Symbol('_' 12)
+(
+	SymbolLine(0 50 20 50 8)
+)
+Symbol('a' 12)
+(
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(5 30 15 30 8)
+	SymbolLine(0 35 5 30 8)
+	SymbolLine(0 35 0 45 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(20 30 20 45 8)
+	SymbolLine(20 45 25 50 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(15 50 20 45 8)
+)
+Symbol('b' 12)
+(
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(20 35 20 45 8)
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(5 30 15 30 8)
+	SymbolLine(0 35 5 30 8)
+)
+Symbol('c' 12)
+(
+	SymbolLine(5 30 20 30 8)
+	SymbolLine(0 35 5 30 8)
+	SymbolLine(0 35 0 45 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(5 50 20 50 8)
+)
+Symbol('d' 12)
+(
+	SymbolLine(20 10 20 50 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(0 35 0 45 8)
+	SymbolLine(0 35 5 30 8)
+	SymbolLine(5 30 15 30 8)
+	SymbolLine(15 30 20 35 8)
+)
+Symbol('e' 12)
+(
+	SymbolLine(5 50 20 50 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(0 35 0 45 8)
+	SymbolLine(0 35 5 30 8)
+	SymbolLine(5 30 15 30 8)
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(0 40 20 40 8)
+	SymbolLine(20 40 20 35 8)
+)
+Symbol('f' 10)
+(
+	SymbolLine(5 15 5 50 8)
+	SymbolLine(5 15 10 10 8)
+	SymbolLine(10 10 15 10 8)
+	SymbolLine(0 30 10 30 8)
+)
+Symbol('g' 12)
+(
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(5 30 15 30 8)
+	SymbolLine(0 35 5 30 8)
+	SymbolLine(0 35 0 45 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(0 60 5 65 8)
+	SymbolLine(5 65 15 65 8)
+	SymbolLine(15 65 20 60 8)
+	SymbolLine(20 30 20 60 8)
+)
+Symbol('h' 12)
+(
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(0 35 5 30 8)
+	SymbolLine(5 30 15 30 8)
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(20 35 20 50 8)
+)
+Symbol('i' 10)
+(
+	SymbolLine(0 20 0 25 8)
+	SymbolLine(0 35 0 50 8)
+)
+Symbol('j' 10)
+(
+	SymbolLine(5 20 5 25 8)
+	SymbolLine(5 35 5 60 8)
+	SymbolLine(0 65 5 60 8)
+)
+Symbol('k' 12)
+(
+	SymbolLine(0 10 0 50 8)
+	SymbolLine(0 35 15 50 8)
+	SymbolLine(0 35 10 25 8)
+)
+Symbol('l' 10)
+(
+	SymbolLine(0 10 0 45 8)
+	SymbolLine(0 45 5 50 8)
+)
+Symbol('m' 12)
+(
+	SymbolLine(5 35 5 50 8)
+	SymbolLine(5 35 10 30 8)
+	SymbolLine(10 30 15 30 8)
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(20 35 20 50 8)
+	SymbolLine(20 35 25 30 8)
+	SymbolLine(25 30 30 30 8)
+	SymbolLine(30 30 35 35 8)
+	SymbolLine(35 35 35 50 8)
+	SymbolLine(0 30 5 35 8)
+)
+Symbol('n' 12)
+(
+	SymbolLine(5 35 5 50 8)
+	SymbolLine(5 35 10 30 8)
+	SymbolLine(10 30 15 30 8)
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(20 35 20 50 8)
+	SymbolLine(0 30 5 35 8)
+)
+Symbol('o' 12)
+(
+	SymbolLine(0 35 0 45 8)
+	SymbolLine(0 35 5 30 8)
+	SymbolLine(5 30 15 30 8)
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(20 35 20 45 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(0 45 5 50 8)
+)
+Symbol('p' 12)
+(
+	SymbolLine(5 35 5 65 8)
+	SymbolLine(0 30 5 35 8)
+	SymbolLine(5 35 10 30 8)
+	SymbolLine(10 30 20 30 8)
+	SymbolLine(20 30 25 35 8)
+	SymbolLine(25 35 25 45 8)
+	SymbolLine(20 50 25 45 8)
+	SymbolLine(10 50 20 50 8)
+	SymbolLine(5 45 10 50 8)
+)
+Symbol('q' 12)
+(
+	SymbolLine(20 35 20 65 8)
+	SymbolLine(15 30 20 35 8)
+	SymbolLine(5 30 15 30 8)
+	SymbolLine(0 35 5 30 8)
+	SymbolLine(0 35 0 45 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(15 50 20 45 8)
+)
+Symbol('r' 12)
+(
+	SymbolLine(5 35 5 50 8)
+	SymbolLine(5 35 10 30 8)
+	SymbolLine(10 30 20 30 8)
+	SymbolLine(0 30 5 35 8)
+)
+Symbol('s' 12)
+(
+	SymbolLine(5 50 20 50 8)
+	SymbolLine(20 50 25 45 8)
+	SymbolLine(20 40 25 45 8)
+	SymbolLine(5 40 20 40 8)
+	SymbolLine(0 35 5 40 8)
+	SymbolLine(0 35 5 30 8)
+	SymbolLine(5 30 20 30 8)
+	SymbolLine(20 30 25 35 8)
+	SymbolLine(0 45 5 50 8)
+)
+Symbol('t' 10)
+(
+	SymbolLine(5 10 5 45 8)
+	SymbolLine(5 45 10 50 8)
+	SymbolLine(0 25 10 25 8)
+)
+Symbol('u' 12)
+(
+	SymbolLine(0 30 0 45 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(15 50 20 45 8)
+	SymbolLine(20 30 20 45 8)
+)
+Symbol('v' 12)
+(
+	SymbolLine(0 30 0 40 8)
+	SymbolLine(0 40 10 50 8)
+	SymbolLine(10 50 20 40 8)
+	SymbolLine(20 30 20 40 8)
+)
+Symbol('w' 12)
+(
+	SymbolLine(0 30 0 45 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(5 50 10 50 8)
+	SymbolLine(10 50 15 45 8)
+	SymbolLine(15 30 15 45 8)
+	SymbolLine(15 45 20 50 8)
+	SymbolLine(20 50 25 50 8)
+	SymbolLine(25 50 30 45 8)
+	SymbolLine(30 30 30 45 8)
+)
+Symbol('x' 12)
+(
+	SymbolLine(0 30 20 50 8)
+	SymbolLine(0 50 20 30 8)
+)
+Symbol('y' 12)
+(
+	SymbolLine(0 30 0 45 8)
+	SymbolLine(0 45 5 50 8)
+	SymbolLine(20 30 20 60 8)
+	SymbolLine(15 65 20 60 8)
+	SymbolLine(5 65 15 65 8)
+	SymbolLine(0 60 5 65 8)
+	SymbolLine(5 50 15 50 8)
+	SymbolLine(15 50 20 45 8)
+)
+Symbol('z' 12)
+(
+	SymbolLine(0 30 20 30 8)
+	SymbolLine(0 50 20 30 8)
+	SymbolLine(0 50 20 50 8)
+)
+Symbol('{' 12)
+(
+	SymbolLine(5 15 10 10 8)
+	SymbolLine(5 15 5 25 8)
+	SymbolLine(0 30 5 25 8)
+	SymbolLine(0 30 5 35 8)
+	SymbolLine(5 35 5 45 8)
+	SymbolLine(5 45 10 50 8)
+)
+Symbol('|' 12)
+(
+	SymbolLine(0 10 0 50 8)
+)
+Symbol('}' 12)
+(
+	SymbolLine(0 10 5 15 8)
+	SymbolLine(5 15 5 25 8)
+	SymbolLine(5 25 10 30 8)
+	SymbolLine(5 35 10 30 8)
+	SymbolLine(5 35 5 45 8)
+	SymbolLine(0 50 5 45 8)
+)
+Symbol('~' 12)
+(
+	SymbolLine(0 35 5 30 8)
+	SymbolLine(5 30 10 30 8)
+	SymbolLine(10 30 15 35 8)
+	SymbolLine(15 35 20 35 8)
+	SymbolLine(20 35 25 30 8)
+)
+Via[45500 113500 6000 2000 0 2000 "" ""]
+Via[52500 90000 6000 2000 0 2000 "" ""]
+Via[224914 113339 6000 2000 0 2000 "" ""]
+Via[231914 89839 6000 2000 0 2000 "" ""]
+Via[419414 113339 6000 2000 0 2000 "" ""]
+Via[426414 89839 6000 2000 0 2000 "" ""]
+Via[612914 113339 6000 2000 0 2000 "" ""]
+Via[619914 89839 6000 2000 0 2000 "" ""]
+Via[45500 296000 6000 2000 0 2000 "" ""]
+Via[52500 272500 6000 2000 0 2000 "" ""]
+Via[224914 295839 6000 2000 0 2000 "" ""]
+Via[231914 272339 6000 2000 0 2000 "" ""]
+Via[419414 295839 6000 2000 0 2000 "" ""]
+Via[426414 272339 6000 2000 0 2000 "" ""]
+Via[612914 295839 6000 2000 0 2000 "" ""]
+Via[619914 272339 6000 2000 0 2000 "" ""]
+Via[45500 495000 6000 2000 0 2000 "" ""]
+Via[52500 471500 6000 2000 0 2000 "" ""]
+Via[224914 494839 6000 2000 0 2000 "" ""]
+Via[231914 471339 6000 2000 0 2000 "" ""]
+Via[419414 494839 6000 2000 0 2000 "" ""]
+Via[426414 471339 6000 2000 0 2000 "" ""]
+Via[612914 494839 6000 2000 0 2000 "" ""]
+Via[619914 471339 6000 2000 0 2000 "" ""]
+Via[45500 686500 6000 2000 0 2000 "" ""]
+Via[52500 663000 6000 2000 0 2000 "" ""]
+Via[224914 686339 6000 2000 0 2000 "" ""]
+Via[231914 662839 6000 2000 0 2000 "" ""]
+Via[419414 686339 6000 2000 0 2000 "" ""]
+Via[426414 662839 6000 2000 0 2000 "" ""]
+Via[612914 686339 6000 2000 0 2000 "" ""]
+Via[619914 662839 6000 2000 0 2000 "" ""]
+Via[45500 880000 6000 2000 0 2000 "" ""]
+Via[52500 856500 6000 2000 0 2000 "" ""]
+Via[224914 879839 6000 2000 0 2000 "" ""]
+Via[231914 856339 6000 2000 0 2000 "" ""]
+Via[419414 879839 6000 2000 0 2000 "" ""]
+Via[426414 856339 6000 2000 0 2000 "" ""]
+Via[612914 879839 6000 2000 0 2000 "" ""]
+Via[619914 856339 6000 2000 0 2000 "" ""]
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 42500 106500 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 56500 101500 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 43000 91500 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 43000 99000 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 33000 101500 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 25500 101500 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 53000 121500 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 33000 121500 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 73000 111500 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 221914 106339 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 235914 101339 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 222414 91339 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 222414 98839 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 212414 101339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 204914 101339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 232414 121339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 212414 121339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 252414 111339 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 416414 106339 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 430414 101339 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 416914 91339 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 416914 98839 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 406914 101339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 399414 101339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 426914 121339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 406914 121339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 446914 111339 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 609914 106339 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 623914 101339 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 610414 91339 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 610414 98839 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 600414 101339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 592914 101339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 620414 121339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 600414 121339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 640414 111339 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 42500 289000 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 56500 284000 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 43000 274000 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 43000 281500 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 33000 284000 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 25500 284000 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 53000 304000 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 33000 304000 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 73000 294000 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 221914 288839 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 235914 283839 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 222414 273839 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 222414 281339 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 212414 283839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 204914 283839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 232414 303839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 212414 303839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 252414 293839 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 416414 288839 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 430414 283839 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 416914 273839 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 416914 281339 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 406914 283839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 399414 283839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 426914 303839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 406914 303839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 446914 293839 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 609914 288839 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 623914 283839 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 610414 273839 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 610414 281339 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 600414 283839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 592914 283839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 620414 303839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 600414 303839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 640414 293839 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 42500 488000 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 56500 483000 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 43000 473000 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 43000 480500 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 33000 483000 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 25500 483000 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 53000 503000 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 33000 503000 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 73000 493000 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 221914 487839 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 235914 482839 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 222414 472839 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 222414 480339 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 212414 482839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 204914 482839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 232414 502839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 212414 502839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 252414 492839 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 416414 487839 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 430414 482839 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 416914 472839 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 416914 480339 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 406914 482839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 399414 482839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 426914 502839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 406914 502839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 446914 492839 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 609914 487839 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 623914 482839 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 610414 472839 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 610414 480339 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 600414 482839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 592914 482839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 620414 502839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 600414 502839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 640414 492839 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 42500 679500 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 56500 674500 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 43000 664500 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 43000 672000 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 33000 674500 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 25500 674500 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 53000 694500 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 33000 694500 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 73000 684500 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 221914 679339 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 235914 674339 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 222414 664339 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 222414 671839 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 212414 674339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 204914 674339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 232414 694339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 212414 694339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 252414 684339 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 416414 679339 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 430414 674339 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 416914 664339 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 416914 671839 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 406914 674339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 399414 674339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 426914 694339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 406914 694339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 446914 684339 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 609914 679339 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 623914 674339 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 610414 664339 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 610414 671839 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 600414 674339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 592914 674339 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 620414 694339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 600414 694339 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 640414 684339 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 42500 873000 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 56500 868000 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 43000 858000 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 43000 865500 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 33000 868000 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 25500 868000 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 53000 888000 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 33000 888000 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 73000 878000 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 221914 872839 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 235914 867839 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 222414 857839 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 222414 865339 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 212414 867839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 204914 867839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 232414 887839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 212414 887839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 252414 877839 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 416414 872839 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 430414 867839 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 416914 857839 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 416914 865339 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 406914 867839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 399414 867839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 426914 887839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 406914 887839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 446914 877839 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+
+Element["onsolder" "6 pin leadless 0.5mm pitch" "" "LLP6" 609914 872839 3838 -1969 0 100 "auto"]
+(
+	Pad[-5433 1968 -2244 1968 984 2000 1584 "1" "1" "onsolder,square"]
+	Pad[-5433 0 -2244 0 984 2000 1584 "2" "2" "onsolder,square"]
+	Pad[-5433 -1969 -2244 -1969 984 2000 1584 "3" "3" "onsolder,square"]
+	Pad[2244 -1969 5433 -1969 984 2000 1584 "4" "4" "onsolder,square,edge2"]
+	Pad[2244 0 5433 0 984 2000 1584 "5" "5" "onsolder,square,edge2"]
+	Pad[2244 1968 5433 1968 984 2000 1584 "6" "6" "onsolder,square,edge2"]
+	ElementLine [-4331 -4331 4331 -4331 787]
+	ElementLine [-4331 4331 4331 4331 787]
+	ElementLine [-4331 -4331 -4331 -3937 787]
+	ElementLine [4331 -4331 4331 -3937 787]
+	ElementLine [-4331 4331 -4331 3543 787]
+	ElementLine [4331 4331 4331 3937 787]
+
+	)
+
+Element["onsolder" "SMT inductor, 3mm" "" "inductor-3mm" 623914 867839 0 -3543 3 100 "auto"]
+(
+	Pad[-4724 -3543 4724 -3543 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-1968 -6299 1968 -6299 3150 4000 3750 "1" "1" "onsolder,square"]
+	Pad[-4629 -5118 -3543 -6204 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[3543 -6204 4629 -5118 2362 4000 2962 "1" "1" "onsolder,square"]
+	Pad[-4724 3543 4724 3543 3150 4000 3750 "2" "2" "onsolder,square"]
+	Pad[-4629 5118 -3543 6204 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[3543 6204 4629 5118 2362 4000 2962 "2" "2" "onsolder,square,edge2"]
+	Pad[-1968 6299 1968 6299 3150 4000 3750 "2" "2" "onsolder,square"]
+	ElementLine [6299 -787 6299 787 984]
+	ElementLine [-6299 -787 -6299 787 984]
+
+	)
+
+Element["onsolder" "0805 SMT with sane pads" "" "0805" 610414 857839 -3937 0 0 100 "auto"]
+(
+	Pad[-3937 -984 -3937 984 3937 4000 4537 "1" "1" "onsolder,square"]
+	Pad[3937 -984 3937 984 3937 4000 4537 "2" "2" "onsolder,square"]
+	ElementLine [394 2362 -394 2362 787]
+	ElementLine [394 -2363 -394 -2363 787]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 610414 865339 -3150 3150 0 100 "auto"]
+(
+	Pad[-2559 -492 -2559 492 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[2559 -492 2559 492 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 600414 867839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["onsolder" "Standard SMT resistor, capacitor etc" "" "0603" 592914 867839 -3150 -3150 1 100 "auto"]
+(
+	Pad[-492 -2559 492 -2559 2952 4000 3552 "1" "1" "onsolder,square"]
+	Pad[-492 2559 492 2559 2952 4000 3552 "2" "2" "onsolder,square"]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 620414 887839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Header connector, DIP pin numbering" "" "HEADER2_1" 600414 887839 5000 21000 2 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" ""]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [-5000 -5000 -5000 5000 1000]
+	ElementLine [5000 -5000 5000 15000 1000]
+	ElementLine [-5000 15000 5000 15000 1000]
+	ElementLine [-5000 -5000 -5000 15000 1000]
+	ElementLine [-5000 -5000 5000 -5000 1000]
+
+	)
+
+Element["" "Jumper, i.e. single row headers" "" "JUMPER3" 640414 877839 11000 -5000 3 100 ""]
+(
+	Pin[0 0 6000 3000 6600 2000 "1" "1" "thermal(1X)"]
+	Pin[0 10000 6000 3000 6600 2000 "2" "2" ""]
+	Pin[0 20000 6000 3000 6600 2000 "3" "3" ""]
+	ElementLine [5000 5000 5000 -5000 1000]
+	ElementLine [-5000 5000 5000 5000 1000]
+	ElementLine [5000 -5000 -5000 -5000 1000]
+	ElementLine [5000 25000 5000 -5000 1000]
+	ElementLine [-5000 25000 5000 25000 1000]
+	ElementLine [-5000 -5000 -5000 25000 1000]
+
+	)
+Layer(1 "component")
+(
+)
+Layer(2 "solder")
+(
+	Line[33000 131500 33000 107500 4000 4000 "clearline"]
+	Line[53000 131500 53000 121500 4000 4000 "clearline"]
+	Line[40441 95941 39500 95000 2500 4000 ""]
+	Line[39000 91500 35500 91500 4000 4000 ""]
+	Line[40382 98941 40441 99000 2500 4000 ""]
+	Line[39500 95000 39500 91937 2500 4000 ""]
+	Line[40441 99000 40441 95941 2500 4000 ""]
+	Line[33000 108500 33000 104059 2200 4000 "clearline"]
+	Line[39161 104531 33472 104531 1000 4000 "clearline"]
+	Line[33472 104531 33000 104059 1000 4000 "clearline"]
+	Line[39161 108468 33473 108468 1000 4000 "clearline"]
+	Line[73000 111500 77000 115500 2500 2000 ""]
+	Line[39161 106500 46838 106500 1000 4000 "clearline"]
+	Line[46838 104531 55732 104531 1000 4000 "clearline"]
+	Line[55732 104531 56500 105299 1000 4000 "clearline"]
+	Line[45500 113500 45500 109000 1500 4000 "clearline"]
+	Line[42500 106500 42500 110000 1200 4000 ""]
+	Line[42500 103000 40500 101000 1200 4000 "clearline"]
+	Line[40500 101000 40500 99500 1200 4000 "clearline"]
+	Line[46000 98000 46000 93500 2100 4000 "clearline"]
+	Line[46400 98300 50900 98300 2500 4000 "clearline"]
+	Line[40382 98941 19000 98941 2500 4000 ""]
+	Line[73000 111500 77000 107500 2500 2000 ""]
+	Line[25500 104059 33000 104059 2500 4000 "clearline"]
+	Line[52500 90000 51000 91500 2500 4000 "clearline"]
+	Line[51000 91500 46937 91500 2500 4000 "clearline"]
+	Line[52500 90000 61500 90000 4000 4000 "clearline"]
+	Line[61500 90000 66500 95000 4000 4000 "clearline"]
+	Line[66500 95000 66500 115000 4000 4000 "clearline"]
+	Line[66500 115000 73000 121500 4000 4000 "clearline"]
+	Line[33000 98941 33000 93500 2500 2000 ""]
+	Line[25500 98941 25500 93000 2500 2000 ""]
+	Line[42500 110000 39000 113500 1200 2000 ""]
+	Line[42500 106500 42500 103000 1200 4000 "clearline"]
+	Line[212414 131339 212414 107339 4000 4000 "clearline"]
+	Line[232414 131339 232414 121339 4000 4000 "clearline"]
+	Line[219855 95780 218914 94839 2500 4000 ""]
+	Line[218414 91339 214914 91339 4000 4000 ""]
+	Line[219796 98780 219855 98839 2500 4000 ""]
+	Line[218914 94839 218914 91776 2500 4000 ""]
+	Line[219855 98839 219855 95780 2500 4000 ""]
+	Line[212414 108339 212414 103898 2200 4000 "clearline"]
+	Line[218575 104370 212886 104370 1000 4000 "clearline"]
+	Line[212886 104370 212414 103898 1000 4000 "clearline"]
+	Line[218575 108307 212887 108307 1000 4000 "clearline"]
+	Line[252414 111339 256414 115339 2500 2000 ""]
+	Line[218575 106339 226252 106339 1000 4000 "clearline"]
+	Line[226252 104370 235146 104370 1000 4000 "clearline"]
+	Line[235146 104370 235914 105138 1000 4000 "clearline"]
+	Line[224914 113339 224914 108839 1500 4000 "clearline"]
+	Line[221914 106339 221914 109839 1200 4000 ""]
+	Line[221914 102839 219914 100839 1200 4000 "clearline"]
+	Line[219914 100839 219914 99339 1200 4000 "clearline"]
+	Line[225414 97839 225414 93339 2100 4000 "clearline"]
+	Line[225814 98139 230314 98139 2500 4000 "clearline"]
+	Line[219796 98780 198414 98780 2500 4000 ""]
+	Line[252414 111339 256414 107339 2500 2000 ""]
+	Line[204914 103898 212414 103898 2500 4000 "clearline"]
+	Line[231914 89839 230414 91339 2500 4000 "clearline"]
+	Line[230414 91339 226351 91339 2500 4000 "clearline"]
+	Line[231914 89839 240914 89839 4000 4000 "clearline"]
+	Line[240914 89839 245914 94839 4000 4000 "clearline"]
+	Line[245914 94839 245914 114839 4000 4000 "clearline"]
+	Line[245914 114839 252414 121339 4000 4000 "clearline"]
+	Line[212414 98780 212414 93339 2500 2000 ""]
+	Line[204914 98780 204914 92839 2500 2000 ""]
+	Line[221914 109839 218414 113339 1200 2000 ""]
+	Line[221914 106339 221914 102839 1200 4000 "clearline"]
+	Line[406914 131339 406914 107339 4000 4000 "clearline"]
+	Line[426914 131339 426914 121339 4000 4000 "clearline"]
+	Line[414355 95780 413414 94839 2500 4000 ""]
+	Line[412914 91339 409414 91339 4000 4000 ""]
+	Line[414296 98780 414355 98839 2500 4000 ""]
+	Line[413414 94839 413414 91776 2500 4000 ""]
+	Line[414355 98839 414355 95780 2500 4000 ""]
+	Line[406914 108339 406914 103898 2200 4000 "clearline"]
+	Line[413075 104370 407386 104370 1000 4000 "clearline"]
+	Line[407386 104370 406914 103898 1000 4000 "clearline"]
+	Line[413075 108307 407387 108307 1000 4000 "clearline"]
+	Line[446914 111339 450914 115339 2500 2000 ""]
+	Line[413075 106339 420752 106339 1000 4000 "clearline"]
+	Line[420752 104370 429646 104370 1000 4000 "clearline"]
+	Line[429646 104370 430414 105138 1000 4000 "clearline"]
+	Line[419414 113339 419414 108839 1500 4000 "clearline"]
+	Line[416414 106339 416414 109839 1200 4000 ""]
+	Line[416414 102839 414414 100839 1200 4000 "clearline"]
+	Line[414414 100839 414414 99339 1200 4000 "clearline"]
+	Line[419914 97839 419914 93339 2100 4000 "clearline"]
+	Line[420314 98139 424814 98139 2500 4000 "clearline"]
+	Line[414296 98780 392914 98780 2500 4000 ""]
+	Line[446914 111339 450914 107339 2500 2000 ""]
+	Line[399414 103898 406914 103898 2500 4000 "clearline"]
+	Line[426414 89839 424914 91339 2500 4000 "clearline"]
+	Line[424914 91339 420851 91339 2500 4000 "clearline"]
+	Line[426414 89839 435414 89839 4000 4000 "clearline"]
+	Line[435414 89839 440414 94839 4000 4000 "clearline"]
+	Line[440414 94839 440414 114839 4000 4000 "clearline"]
+	Line[440414 114839 446914 121339 4000 4000 "clearline"]
+	Line[406914 98780 406914 93339 2500 2000 ""]
+	Line[399414 98780 399414 92839 2500 2000 ""]
+	Line[416414 109839 412914 113339 1200 2000 ""]
+	Line[416414 106339 416414 102839 1200 4000 "clearline"]
+	Line[600414 131339 600414 107339 4000 4000 "clearline"]
+	Line[620414 131339 620414 121339 4000 4000 "clearline"]
+	Line[607855 95780 606914 94839 2500 4000 ""]
+	Line[606414 91339 602914 91339 4000 4000 ""]
+	Line[607796 98780 607855 98839 2500 4000 ""]
+	Line[606914 94839 606914 91776 2500 4000 ""]
+	Line[607855 98839 607855 95780 2500 4000 ""]
+	Line[600414 108339 600414 103898 2200 4000 "clearline"]
+	Line[606575 104370 600886 104370 1000 4000 "clearline"]
+	Line[600886 104370 600414 103898 1000 4000 "clearline"]
+	Line[606575 108307 600887 108307 1000 4000 "clearline"]
+	Line[640414 111339 644414 115339 2500 2000 ""]
+	Line[606575 106339 614252 106339 1000 4000 "clearline"]
+	Line[614252 104370 623146 104370 1000 4000 "clearline"]
+	Line[623146 104370 623914 105138 1000 4000 "clearline"]
+	Line[612914 113339 612914 108839 1500 4000 "clearline"]
+	Line[609914 106339 609914 109839 1200 4000 ""]
+	Line[609914 102839 607914 100839 1200 4000 "clearline"]
+	Line[607914 100839 607914 99339 1200 4000 "clearline"]
+	Line[613414 97839 613414 93339 2100 4000 "clearline"]
+	Line[613814 98139 618314 98139 2500 4000 "clearline"]
+	Line[607796 98780 586414 98780 2500 4000 ""]
+	Line[640414 111339 644414 107339 2500 2000 ""]
+	Line[592914 103898 600414 103898 2500 4000 "clearline"]
+	Line[619914 89839 618414 91339 2500 4000 "clearline"]
+	Line[618414 91339 614351 91339 2500 4000 "clearline"]
+	Line[619914 89839 628914 89839 4000 4000 "clearline"]
+	Line[628914 89839 633914 94839 4000 4000 "clearline"]
+	Line[633914 94839 633914 114839 4000 4000 "clearline"]
+	Line[633914 114839 640414 121339 4000 4000 "clearline"]
+	Line[600414 98780 600414 93339 2500 2000 ""]
+	Line[592914 98780 592914 92839 2500 2000 ""]
+	Line[609914 109839 606414 113339 1200 2000 ""]
+	Line[609914 106339 609914 102839 1200 4000 "clearline"]
+	Line[33000 314000 33000 290000 4000 4000 "clearline"]
+	Line[53000 314000 53000 304000 4000 4000 "clearline"]
+	Line[40441 278441 39500 277500 2500 4000 ""]
+	Line[39000 274000 35500 274000 4000 4000 ""]
+	Line[40382 281441 40441 281500 2500 4000 ""]
+	Line[39500 277500 39500 274437 2500 4000 ""]
+	Line[40441 281500 40441 278441 2500 4000 ""]
+	Line[33000 291000 33000 286559 2200 4000 "clearline"]
+	Line[39161 287031 33472 287031 1000 4000 "clearline"]
+	Line[33472 287031 33000 286559 1000 4000 "clearline"]
+	Line[39161 290968 33473 290968 1000 4000 "clearline"]
+	Line[73000 294000 77000 298000 2500 2000 ""]
+	Line[39161 289000 46838 289000 1000 4000 "clearline"]
+	Line[46838 287031 55732 287031 1000 4000 "clearline"]
+	Line[55732 287031 56500 287799 1000 4000 "clearline"]
+	Line[45500 296000 45500 291500 1500 4000 "clearline"]
+	Line[42500 289000 42500 292500 1200 4000 ""]
+	Line[42500 285500 40500 283500 1200 4000 "clearline"]
+	Line[40500 283500 40500 282000 1200 4000 "clearline"]
+	Line[46000 280500 46000 276000 2100 4000 "clearline"]
+	Line[46400 280800 50900 280800 2500 4000 "clearline"]
+	Line[40382 281441 19000 281441 2500 4000 ""]
+	Line[73000 294000 77000 290000 2500 2000 ""]
+	Line[25500 286559 33000 286559 2500 4000 "clearline"]
+	Line[52500 272500 51000 274000 2500 4000 "clearline"]
+	Line[51000 274000 46937 274000 2500 4000 "clearline"]
+	Line[52500 272500 61500 272500 4000 4000 "clearline"]
+	Line[61500 272500 66500 277500 4000 4000 "clearline"]
+	Line[66500 277500 66500 297500 4000 4000 "clearline"]
+	Line[66500 297500 73000 304000 4000 4000 "clearline"]
+	Line[33000 281441 33000 276000 2500 2000 ""]
+	Line[25500 281441 25500 275500 2500 2000 ""]
+	Line[42500 292500 39000 296000 1200 2000 ""]
+	Line[42500 289000 42500 285500 1200 4000 "clearline"]
+	Line[212414 313839 212414 289839 4000 4000 "clearline"]
+	Line[232414 313839 232414 303839 4000 4000 "clearline"]
+	Line[219855 278280 218914 277339 2500 4000 ""]
+	Line[218414 273839 214914 273839 4000 4000 ""]
+	Line[219796 281280 219855 281339 2500 4000 ""]
+	Line[218914 277339 218914 274276 2500 4000 ""]
+	Line[219855 281339 219855 278280 2500 4000 ""]
+	Line[212414 290839 212414 286398 2200 4000 "clearline"]
+	Line[218575 286870 212886 286870 1000 4000 "clearline"]
+	Line[212886 286870 212414 286398 1000 4000 "clearline"]
+	Line[218575 290807 212887 290807 1000 4000 "clearline"]
+	Line[252414 293839 256414 297839 2500 2000 ""]
+	Line[218575 288839 226252 288839 1000 4000 "clearline"]
+	Line[226252 286870 235146 286870 1000 4000 "clearline"]
+	Line[235146 286870 235914 287638 1000 4000 "clearline"]
+	Line[224914 295839 224914 291339 1500 4000 "clearline"]
+	Line[221914 288839 221914 292339 1200 4000 ""]
+	Line[221914 285339 219914 283339 1200 4000 "clearline"]
+	Line[219914 283339 219914 281839 1200 4000 "clearline"]
+	Line[225414 280339 225414 275839 2100 4000 "clearline"]
+	Line[225814 280639 230314 280639 2500 4000 "clearline"]
+	Line[219796 281280 198414 281280 2500 4000 ""]
+	Line[252414 293839 256414 289839 2500 2000 ""]
+	Line[204914 286398 212414 286398 2500 4000 "clearline"]
+	Line[231914 272339 230414 273839 2500 4000 "clearline"]
+	Line[230414 273839 226351 273839 2500 4000 "clearline"]
+	Line[231914 272339 240914 272339 4000 4000 "clearline"]
+	Line[240914 272339 245914 277339 4000 4000 "clearline"]
+	Line[245914 277339 245914 297339 4000 4000 "clearline"]
+	Line[245914 297339 252414 303839 4000 4000 "clearline"]
+	Line[212414 281280 212414 275839 2500 2000 ""]
+	Line[204914 281280 204914 275339 2500 2000 ""]
+	Line[221914 292339 218414 295839 1200 2000 ""]
+	Line[221914 288839 221914 285339 1200 4000 "clearline"]
+	Line[406914 313839 406914 289839 4000 4000 "clearline"]
+	Line[426914 313839 426914 303839 4000 4000 "clearline"]
+	Line[414355 278280 413414 277339 2500 4000 ""]
+	Line[412914 273839 409414 273839 4000 4000 ""]
+	Line[414296 281280 414355 281339 2500 4000 ""]
+	Line[413414 277339 413414 274276 2500 4000 ""]
+	Line[414355 281339 414355 278280 2500 4000 ""]
+	Line[406914 290839 406914 286398 2200 4000 "clearline"]
+	Line[413075 286870 407386 286870 1000 4000 "clearline"]
+	Line[407386 286870 406914 286398 1000 4000 "clearline"]
+	Line[413075 290807 407387 290807 1000 4000 "clearline"]
+	Line[446914 293839 450914 297839 2500 2000 ""]
+	Line[413075 288839 420752 288839 1000 4000 "clearline"]
+	Line[420752 286870 429646 286870 1000 4000 "clearline"]
+	Line[429646 286870 430414 287638 1000 4000 "clearline"]
+	Line[419414 295839 419414 291339 1500 4000 "clearline"]
+	Line[416414 288839 416414 292339 1200 4000 ""]
+	Line[416414 285339 414414 283339 1200 4000 "clearline"]
+	Line[414414 283339 414414 281839 1200 4000 "clearline"]
+	Line[419914 280339 419914 275839 2100 4000 "clearline"]
+	Line[420314 280639 424814 280639 2500 4000 "clearline"]
+	Line[414296 281280 392914 281280 2500 4000 ""]
+	Line[446914 293839 450914 289839 2500 2000 ""]
+	Line[399414 286398 406914 286398 2500 4000 "clearline"]
+	Line[426414 272339 424914 273839 2500 4000 "clearline"]
+	Line[424914 273839 420851 273839 2500 4000 "clearline"]
+	Line[426414 272339 435414 272339 4000 4000 "clearline"]
+	Line[435414 272339 440414 277339 4000 4000 "clearline"]
+	Line[440414 277339 440414 297339 4000 4000 "clearline"]
+	Line[440414 297339 446914 303839 4000 4000 "clearline"]
+	Line[406914 281280 406914 275839 2500 2000 ""]
+	Line[399414 281280 399414 275339 2500 2000 ""]
+	Line[416414 292339 412914 295839 1200 2000 ""]
+	Line[416414 288839 416414 285339 1200 4000 "clearline"]
+	Line[600414 313839 600414 289839 4000 4000 "clearline"]
+	Line[620414 313839 620414 303839 4000 4000 "clearline"]
+	Line[607855 278280 606914 277339 2500 4000 ""]
+	Line[606414 273839 602914 273839 4000 4000 ""]
+	Line[607796 281280 607855 281339 2500 4000 ""]
+	Line[606914 277339 606914 274276 2500 4000 ""]
+	Line[607855 281339 607855 278280 2500 4000 ""]
+	Line[600414 290839 600414 286398 2200 4000 "clearline"]
+	Line[606575 286870 600886 286870 1000 4000 "clearline"]
+	Line[600886 286870 600414 286398 1000 4000 "clearline"]
+	Line[606575 290807 600887 290807 1000 4000 "clearline"]
+	Line[640414 293839 644414 297839 2500 2000 ""]
+	Line[606575 288839 614252 288839 1000 4000 "clearline"]
+	Line[614252 286870 623146 286870 1000 4000 "clearline"]
+	Line[623146 286870 623914 287638 1000 4000 "clearline"]
+	Line[612914 295839 612914 291339 1500 4000 "clearline"]
+	Line[609914 288839 609914 292339 1200 4000 ""]
+	Line[609914 285339 607914 283339 1200 4000 "clearline"]
+	Line[607914 283339 607914 281839 1200 4000 "clearline"]
+	Line[613414 280339 613414 275839 2100 4000 "clearline"]
+	Line[613814 280639 618314 280639 2500 4000 "clearline"]
+	Line[607796 281280 586414 281280 2500 4000 ""]
+	Line[640414 293839 644414 289839 2500 2000 ""]
+	Line[592914 286398 600414 286398 2500 4000 "clearline"]
+	Line[619914 272339 618414 273839 2500 4000 "clearline"]
+	Line[618414 273839 614351 273839 2500 4000 "clearline"]
+	Line[619914 272339 628914 272339 4000 4000 "clearline"]
+	Line[628914 272339 633914 277339 4000 4000 "clearline"]
+	Line[633914 277339 633914 297339 4000 4000 "clearline"]
+	Line[633914 297339 640414 303839 4000 4000 "clearline"]
+	Line[600414 281280 600414 275839 2500 2000 ""]
+	Line[592914 281280 592914 275339 2500 2000 ""]
+	Line[609914 292339 606414 295839 1200 2000 ""]
+	Line[609914 288839 609914 285339 1200 4000 "clearline"]
+	Line[33000 513000 33000 489000 4000 4000 "clearline"]
+	Line[53000 513000 53000 503000 4000 4000 "clearline"]
+	Line[40441 477441 39500 476500 2500 4000 ""]
+	Line[39000 473000 35500 473000 4000 4000 ""]
+	Line[40382 480441 40441 480500 2500 4000 ""]
+	Line[39500 476500 39500 473437 2500 4000 ""]
+	Line[40441 480500 40441 477441 2500 4000 ""]
+	Line[33000 490000 33000 485559 2200 4000 "clearline"]
+	Line[39161 486031 33472 486031 1000 4000 "clearline"]
+	Line[33472 486031 33000 485559 1000 4000 "clearline"]
+	Line[39161 489968 33473 489968 1000 4000 "clearline"]
+	Line[73000 493000 77000 497000 2500 2000 ""]
+	Line[39161 488000 46838 488000 1000 4000 "clearline"]
+	Line[46838 486031 55732 486031 1000 4000 "clearline"]
+	Line[55732 486031 56500 486799 1000 4000 "clearline"]
+	Line[45500 495000 45500 490500 1500 4000 "clearline"]
+	Line[42500 488000 42500 491500 1200 4000 ""]
+	Line[42500 484500 40500 482500 1200 4000 "clearline"]
+	Line[40500 482500 40500 481000 1200 4000 "clearline"]
+	Line[46000 479500 46000 475000 2100 4000 "clearline"]
+	Line[46400 479800 50900 479800 2500 4000 "clearline"]
+	Line[40382 480441 19000 480441 2500 4000 ""]
+	Line[73000 493000 77000 489000 2500 2000 ""]
+	Line[25500 485559 33000 485559 2500 4000 "clearline"]
+	Line[52500 471500 51000 473000 2500 4000 "clearline"]
+	Line[51000 473000 46937 473000 2500 4000 "clearline"]
+	Line[52500 471500 61500 471500 4000 4000 "clearline"]
+	Line[61500 471500 66500 476500 4000 4000 "clearline"]
+	Line[66500 476500 66500 496500 4000 4000 "clearline"]
+	Line[66500 496500 73000 503000 4000 4000 "clearline"]
+	Line[33000 480441 33000 475000 2500 2000 ""]
+	Line[25500 480441 25500 474500 2500 2000 ""]
+	Line[42500 491500 39000 495000 1200 2000 ""]
+	Line[42500 488000 42500 484500 1200 4000 "clearline"]
+	Line[212414 512839 212414 488839 4000 4000 "clearline"]
+	Line[232414 512839 232414 502839 4000 4000 "clearline"]
+	Line[219855 477280 218914 476339 2500 4000 ""]
+	Line[218414 472839 214914 472839 4000 4000 ""]
+	Line[219796 480280 219855 480339 2500 4000 ""]
+	Line[218914 476339 218914 473276 2500 4000 ""]
+	Line[219855 480339 219855 477280 2500 4000 ""]
+	Line[212414 489839 212414 485398 2200 4000 "clearline"]
+	Line[218575 485870 212886 485870 1000 4000 "clearline"]
+	Line[212886 485870 212414 485398 1000 4000 "clearline"]
+	Line[218575 489807 212887 489807 1000 4000 "clearline"]
+	Line[252414 492839 256414 496839 2500 2000 ""]
+	Line[218575 487839 226252 487839 1000 4000 "clearline"]
+	Line[226252 485870 235146 485870 1000 4000 "clearline"]
+	Line[235146 485870 235914 486638 1000 4000 "clearline"]
+	Line[224914 494839 224914 490339 1500 4000 "clearline"]
+	Line[221914 487839 221914 491339 1200 4000 ""]
+	Line[221914 484339 219914 482339 1200 4000 "clearline"]
+	Line[219914 482339 219914 480839 1200 4000 "clearline"]
+	Line[225414 479339 225414 474839 2100 4000 "clearline"]
+	Line[225814 479639 230314 479639 2500 4000 "clearline"]
+	Line[219796 480280 198414 480280 2500 4000 ""]
+	Line[252414 492839 256414 488839 2500 2000 ""]
+	Line[204914 485398 212414 485398 2500 4000 "clearline"]
+	Line[231914 471339 230414 472839 2500 4000 "clearline"]
+	Line[230414 472839 226351 472839 2500 4000 "clearline"]
+	Line[231914 471339 240914 471339 4000 4000 "clearline"]
+	Line[240914 471339 245914 476339 4000 4000 "clearline"]
+	Line[245914 476339 245914 496339 4000 4000 "clearline"]
+	Line[245914 496339 252414 502839 4000 4000 "clearline"]
+	Line[212414 480280 212414 474839 2500 2000 ""]
+	Line[204914 480280 204914 474339 2500 2000 ""]
+	Line[221914 491339 218414 494839 1200 2000 ""]
+	Line[221914 487839 221914 484339 1200 4000 "clearline"]
+	Line[406914 512839 406914 488839 4000 4000 "clearline"]
+	Line[426914 512839 426914 502839 4000 4000 "clearline"]
+	Line[414355 477280 413414 476339 2500 4000 ""]
+	Line[412914 472839 409414 472839 4000 4000 ""]
+	Line[414296 480280 414355 480339 2500 4000 ""]
+	Line[413414 476339 413414 473276 2500 4000 ""]
+	Line[414355 480339 414355 477280 2500 4000 ""]
+	Line[406914 489839 406914 485398 2200 4000 "clearline"]
+	Line[413075 485870 407386 485870 1000 4000 "clearline"]
+	Line[407386 485870 406914 485398 1000 4000 "clearline"]
+	Line[413075 489807 407387 489807 1000 4000 "clearline"]
+	Line[446914 492839 450914 496839 2500 2000 ""]
+	Line[413075 487839 420752 487839 1000 4000 "clearline"]
+	Line[420752 485870 429646 485870 1000 4000 "clearline"]
+	Line[429646 485870 430414 486638 1000 4000 "clearline"]
+	Line[419414 494839 419414 490339 1500 4000 "clearline"]
+	Line[416414 487839 416414 491339 1200 4000 ""]
+	Line[416414 484339 414414 482339 1200 4000 "clearline"]
+	Line[414414 482339 414414 480839 1200 4000 "clearline"]
+	Line[419914 479339 419914 474839 2100 4000 "clearline"]
+	Line[420314 479639 424814 479639 2500 4000 "clearline"]
+	Line[414296 480280 392914 480280 2500 4000 ""]
+	Line[446914 492839 450914 488839 2500 2000 ""]
+	Line[399414 485398 406914 485398 2500 4000 "clearline"]
+	Line[426414 471339 424914 472839 2500 4000 "clearline"]
+	Line[424914 472839 420851 472839 2500 4000 "clearline"]
+	Line[426414 471339 435414 471339 4000 4000 "clearline"]
+	Line[435414 471339 440414 476339 4000 4000 "clearline"]
+	Line[440414 476339 440414 496339 4000 4000 "clearline"]
+	Line[440414 496339 446914 502839 4000 4000 "clearline"]
+	Line[406914 480280 406914 474839 2500 2000 ""]
+	Line[399414 480280 399414 474339 2500 2000 ""]
+	Line[416414 491339 412914 494839 1200 2000 ""]
+	Line[416414 487839 416414 484339 1200 4000 "clearline"]
+	Line[600414 512839 600414 488839 4000 4000 "clearline"]
+	Line[620414 512839 620414 502839 4000 4000 "clearline"]
+	Line[607855 477280 606914 476339 2500 4000 ""]
+	Line[606414 472839 602914 472839 4000 4000 ""]
+	Line[607796 480280 607855 480339 2500 4000 ""]
+	Line[606914 476339 606914 473276 2500 4000 ""]
+	Line[607855 480339 607855 477280 2500 4000 ""]
+	Line[600414 489839 600414 485398 2200 4000 "clearline"]
+	Line[606575 485870 600886 485870 1000 4000 "clearline"]
+	Line[600886 485870 600414 485398 1000 4000 "clearline"]
+	Line[606575 489807 600887 489807 1000 4000 "clearline"]
+	Line[640414 492839 644414 496839 2500 2000 ""]
+	Line[606575 487839 614252 487839 1000 4000 "clearline"]
+	Line[614252 485870 623146 485870 1000 4000 "clearline"]
+	Line[623146 485870 623914 486638 1000 4000 "clearline"]
+	Line[612914 494839 612914 490339 1500 4000 "clearline"]
+	Line[609914 487839 609914 491339 1200 4000 ""]
+	Line[609914 484339 607914 482339 1200 4000 "clearline"]
+	Line[607914 482339 607914 480839 1200 4000 "clearline"]
+	Line[613414 479339 613414 474839 2100 4000 "clearline"]
+	Line[613814 479639 618314 479639 2500 4000 "clearline"]
+	Line[607796 480280 586414 480280 2500 4000 ""]
+	Line[640414 492839 644414 488839 2500 2000 ""]
+	Line[592914 485398 600414 485398 2500 4000 "clearline"]
+	Line[619914 471339 618414 472839 2500 4000 "clearline"]
+	Line[618414 472839 614351 472839 2500 4000 "clearline"]
+	Line[619914 471339 628914 471339 4000 4000 "clearline"]
+	Line[628914 471339 633914 476339 4000 4000 "clearline"]
+	Line[633914 476339 633914 496339 4000 4000 "clearline"]
+	Line[633914 496339 640414 502839 4000 4000 "clearline"]
+	Line[600414 480280 600414 474839 2500 2000 ""]
+	Line[592914 480280 592914 474339 2500 2000 ""]
+	Line[609914 491339 606414 494839 1200 2000 ""]
+	Line[609914 487839 609914 484339 1200 4000 "clearline"]
+	Line[33000 704500 33000 680500 4000 4000 "clearline"]
+	Line[53000 704500 53000 694500 4000 4000 "clearline"]
+	Line[40441 668941 39500 668000 2500 4000 ""]
+	Line[39000 664500 35500 664500 4000 4000 ""]
+	Line[40382 671941 40441 672000 2500 4000 ""]
+	Line[39500 668000 39500 664937 2500 4000 ""]
+	Line[40441 672000 40441 668941 2500 4000 ""]
+	Line[33000 681500 33000 677059 2200 4000 "clearline"]
+	Line[39161 677531 33472 677531 1000 4000 "clearline"]
+	Line[33472 677531 33000 677059 1000 4000 "clearline"]
+	Line[39161 681468 33473 681468 1000 4000 "clearline"]
+	Line[73000 684500 77000 688500 2500 2000 ""]
+	Line[39161 679500 46838 679500 1000 4000 "clearline"]
+	Line[46838 677531 55732 677531 1000 4000 "clearline"]
+	Line[55732 677531 56500 678299 1000 4000 "clearline"]
+	Line[45500 686500 45500 682000 1500 4000 "clearline"]
+	Line[42500 679500 42500 683000 1200 4000 ""]
+	Line[42500 676000 40500 674000 1200 4000 "clearline"]
+	Line[40500 674000 40500 672500 1200 4000 "clearline"]
+	Line[46000 671000 46000 666500 2100 4000 "clearline"]
+	Line[46400 671300 50900 671300 2500 4000 "clearline"]
+	Line[40382 671941 19000 671941 2500 4000 ""]
+	Line[73000 684500 77000 680500 2500 2000 ""]
+	Line[25500 677059 33000 677059 2500 4000 "clearline"]
+	Line[52500 663000 51000 664500 2500 4000 "clearline"]
+	Line[51000 664500 46937 664500 2500 4000 "clearline"]
+	Line[52500 663000 61500 663000 4000 4000 "clearline"]
+	Line[61500 663000 66500 668000 4000 4000 "clearline"]
+	Line[66500 668000 66500 688000 4000 4000 "clearline"]
+	Line[66500 688000 73000 694500 4000 4000 "clearline"]
+	Line[33000 671941 33000 666500 2500 2000 ""]
+	Line[25500 671941 25500 666000 2500 2000 ""]
+	Line[42500 683000 39000 686500 1200 2000 ""]
+	Line[42500 679500 42500 676000 1200 4000 "clearline"]
+	Line[212414 704339 212414 680339 4000 4000 "clearline"]
+	Line[232414 704339 232414 694339 4000 4000 "clearline"]
+	Line[219855 668780 218914 667839 2500 4000 ""]
+	Line[218414 664339 214914 664339 4000 4000 ""]
+	Line[219796 671780 219855 671839 2500 4000 ""]
+	Line[218914 667839 218914 664776 2500 4000 ""]
+	Line[219855 671839 219855 668780 2500 4000 ""]
+	Line[212414 681339 212414 676898 2200 4000 "clearline"]
+	Line[218575 677370 212886 677370 1000 4000 "clearline"]
+	Line[212886 677370 212414 676898 1000 4000 "clearline"]
+	Line[218575 681307 212887 681307 1000 4000 "clearline"]
+	Line[252414 684339 256414 688339 2500 2000 ""]
+	Line[218575 679339 226252 679339 1000 4000 "clearline"]
+	Line[226252 677370 235146 677370 1000 4000 "clearline"]
+	Line[235146 677370 235914 678138 1000 4000 "clearline"]
+	Line[224914 686339 224914 681839 1500 4000 "clearline"]
+	Line[221914 679339 221914 682839 1200 4000 ""]
+	Line[221914 675839 219914 673839 1200 4000 "clearline"]
+	Line[219914 673839 219914 672339 1200 4000 "clearline"]
+	Line[225414 670839 225414 666339 2100 4000 "clearline"]
+	Line[225814 671139 230314 671139 2500 4000 "clearline"]
+	Line[219796 671780 198414 671780 2500 4000 ""]
+	Line[252414 684339 256414 680339 2500 2000 ""]
+	Line[204914 676898 212414 676898 2500 4000 "clearline"]
+	Line[231914 662839 230414 664339 2500 4000 "clearline"]
+	Line[230414 664339 226351 664339 2500 4000 "clearline"]
+	Line[231914 662839 240914 662839 4000 4000 "clearline"]
+	Line[240914 662839 245914 667839 4000 4000 "clearline"]
+	Line[245914 667839 245914 687839 4000 4000 "clearline"]
+	Line[245914 687839 252414 694339 4000 4000 "clearline"]
+	Line[212414 671780 212414 666339 2500 2000 ""]
+	Line[204914 671780 204914 665839 2500 2000 ""]
+	Line[221914 682839 218414 686339 1200 2000 ""]
+	Line[221914 679339 221914 675839 1200 4000 "clearline"]
+	Line[406914 704339 406914 680339 4000 4000 "clearline"]
+	Line[426914 704339 426914 694339 4000 4000 "clearline"]
+	Line[414355 668780 413414 667839 2500 4000 ""]
+	Line[412914 664339 409414 664339 4000 4000 ""]
+	Line[414296 671780 414355 671839 2500 4000 ""]
+	Line[413414 667839 413414 664776 2500 4000 ""]
+	Line[414355 671839 414355 668780 2500 4000 ""]
+	Line[406914 681339 406914 676898 2200 4000 "clearline"]
+	Line[413075 677370 407386 677370 1000 4000 "clearline"]
+	Line[407386 677370 406914 676898 1000 4000 "clearline"]
+	Line[413075 681307 407387 681307 1000 4000 "clearline"]
+	Line[446914 684339 450914 688339 2500 2000 ""]
+	Line[413075 679339 420752 679339 1000 4000 "clearline"]
+	Line[420752 677370 429646 677370 1000 4000 "clearline"]
+	Line[429646 677370 430414 678138 1000 4000 "clearline"]
+	Line[419414 686339 419414 681839 1500 4000 "clearline"]
+	Line[416414 679339 416414 682839 1200 4000 ""]
+	Line[416414 675839 414414 673839 1200 4000 "clearline"]
+	Line[414414 673839 414414 672339 1200 4000 "clearline"]
+	Line[419914 670839 419914 666339 2100 4000 "clearline"]
+	Line[420314 671139 424814 671139 2500 4000 "clearline"]
+	Line[414296 671780 392914 671780 2500 4000 ""]
+	Line[446914 684339 450914 680339 2500 2000 ""]
+	Line[399414 676898 406914 676898 2500 4000 "clearline"]
+	Line[426414 662839 424914 664339 2500 4000 "clearline"]
+	Line[424914 664339 420851 664339 2500 4000 "clearline"]
+	Line[426414 662839 435414 662839 4000 4000 "clearline"]
+	Line[435414 662839 440414 667839 4000 4000 "clearline"]
+	Line[440414 667839 440414 687839 4000 4000 "clearline"]
+	Line[440414 687839 446914 694339 4000 4000 "clearline"]
+	Line[406914 671780 406914 666339 2500 2000 ""]
+	Line[399414 671780 399414 665839 2500 2000 ""]
+	Line[416414 682839 412914 686339 1200 2000 ""]
+	Line[416414 679339 416414 675839 1200 4000 "clearline"]
+	Line[600414 704339 600414 680339 4000 4000 "clearline"]
+	Line[620414 704339 620414 694339 4000 4000 "clearline"]
+	Line[607855 668780 606914 667839 2500 4000 ""]
+	Line[606414 664339 602914 664339 4000 4000 ""]
+	Line[607796 671780 607855 671839 2500 4000 ""]
+	Line[606914 667839 606914 664776 2500 4000 ""]
+	Line[607855 671839 607855 668780 2500 4000 ""]
+	Line[600414 681339 600414 676898 2200 4000 "clearline"]
+	Line[606575 677370 600886 677370 1000 4000 "clearline"]
+	Line[600886 677370 600414 676898 1000 4000 "clearline"]
+	Line[606575 681307 600887 681307 1000 4000 "clearline"]
+	Line[640414 684339 644414 688339 2500 2000 ""]
+	Line[606575 679339 614252 679339 1000 4000 "clearline"]
+	Line[614252 677370 623146 677370 1000 4000 "clearline"]
+	Line[623146 677370 623914 678138 1000 4000 "clearline"]
+	Line[612914 686339 612914 681839 1500 4000 "clearline"]
+	Line[609914 679339 609914 682839 1200 4000 ""]
+	Line[609914 675839 607914 673839 1200 4000 "clearline"]
+	Line[607914 673839 607914 672339 1200 4000 "clearline"]
+	Line[613414 670839 613414 666339 2100 4000 "clearline"]
+	Line[613814 671139 618314 671139 2500 4000 "clearline"]
+	Line[607796 671780 586414 671780 2500 4000 ""]
+	Line[640414 684339 644414 680339 2500 2000 ""]
+	Line[592914 676898 600414 676898 2500 4000 "clearline"]
+	Line[619914 662839 618414 664339 2500 4000 "clearline"]
+	Line[618414 664339 614351 664339 2500 4000 "clearline"]
+	Line[619914 662839 628914 662839 4000 4000 "clearline"]
+	Line[628914 662839 633914 667839 4000 4000 "clearline"]
+	Line[633914 667839 633914 687839 4000 4000 "clearline"]
+	Line[633914 687839 640414 694339 4000 4000 "clearline"]
+	Line[600414 671780 600414 666339 2500 2000 ""]
+	Line[592914 671780 592914 665839 2500 2000 ""]
+	Line[609914 682839 606414 686339 1200 2000 ""]
+	Line[609914 679339 609914 675839 1200 4000 "clearline"]
+	Line[33000 898000 33000 874000 4000 4000 "clearline"]
+	Line[53000 898000 53000 888000 4000 4000 "clearline"]
+	Line[40441 862441 39500 861500 2500 4000 ""]
+	Line[39000 858000 35500 858000 4000 4000 ""]
+	Line[40382 865441 40441 865500 2500 4000 ""]
+	Line[39500 861500 39500 858437 2500 4000 ""]
+	Line[40441 865500 40441 862441 2500 4000 ""]
+	Line[33000 875000 33000 870559 2200 4000 "clearline"]
+	Line[39161 871031 33472 871031 1000 4000 "clearline"]
+	Line[33472 871031 33000 870559 1000 4000 "clearline"]
+	Line[39161 874968 33473 874968 1000 4000 "clearline"]
+	Line[73000 878000 77000 882000 2500 2000 ""]
+	Line[39161 873000 46838 873000 1000 4000 "clearline"]
+	Line[46838 871031 55732 871031 1000 4000 "clearline"]
+	Line[55732 871031 56500 871799 1000 4000 "clearline"]
+	Line[45500 880000 45500 875500 1500 4000 "clearline"]
+	Line[42500 873000 42500 876500 1200 4000 ""]
+	Line[42500 869500 40500 867500 1200 4000 "clearline"]
+	Line[40500 867500 40500 866000 1200 4000 "clearline"]
+	Line[46000 864500 46000 860000 2100 4000 "clearline"]
+	Line[46400 864800 50900 864800 2500 4000 "clearline"]
+	Line[40382 865441 19000 865441 2500 4000 ""]
+	Line[73000 878000 77000 874000 2500 2000 ""]
+	Line[25500 870559 33000 870559 2500 4000 "clearline"]
+	Line[52500 856500 51000 858000 2500 4000 "clearline"]
+	Line[51000 858000 46937 858000 2500 4000 "clearline"]
+	Line[52500 856500 61500 856500 4000 4000 "clearline"]
+	Line[61500 856500 66500 861500 4000 4000 "clearline"]
+	Line[66500 861500 66500 881500 4000 4000 "clearline"]
+	Line[66500 881500 73000 888000 4000 4000 "clearline"]
+	Line[33000 865441 33000 860000 2500 2000 ""]
+	Line[25500 865441 25500 859500 2500 2000 ""]
+	Line[42500 876500 39000 880000 1200 2000 ""]
+	Line[42500 873000 42500 869500 1200 4000 "clearline"]
+	Line[212414 897839 212414 873839 4000 4000 "clearline"]
+	Line[232414 897839 232414 887839 4000 4000 "clearline"]
+	Line[219855 862280 218914 861339 2500 4000 ""]
+	Line[218414 857839 214914 857839 4000 4000 ""]
+	Line[219796 865280 219855 865339 2500 4000 ""]
+	Line[218914 861339 218914 858276 2500 4000 ""]
+	Line[219855 865339 219855 862280 2500 4000 ""]
+	Line[212414 874839 212414 870398 2200 4000 "clearline"]
+	Line[218575 870870 212886 870870 1000 4000 "clearline"]
+	Line[212886 870870 212414 870398 1000 4000 "clearline"]
+	Line[218575 874807 212887 874807 1000 4000 "clearline"]
+	Line[252414 877839 256414 881839 2500 2000 ""]
+	Line[218575 872839 226252 872839 1000 4000 "clearline"]
+	Line[226252 870870 235146 870870 1000 4000 "clearline"]
+	Line[235146 870870 235914 871638 1000 4000 "clearline"]
+	Line[224914 879839 224914 875339 1500 4000 "clearline"]
+	Line[221914 872839 221914 876339 1200 4000 ""]
+	Line[221914 869339 219914 867339 1200 4000 "clearline"]
+	Line[219914 867339 219914 865839 1200 4000 "clearline"]
+	Line[225414 864339 225414 859839 2100 4000 "clearline"]
+	Line[225814 864639 230314 864639 2500 4000 "clearline"]
+	Line[219796 865280 198414 865280 2500 4000 ""]
+	Line[252414 877839 256414 873839 2500 2000 ""]
+	Line[204914 870398 212414 870398 2500 4000 "clearline"]
+	Line[231914 856339 230414 857839 2500 4000 "clearline"]
+	Line[230414 857839 226351 857839 2500 4000 "clearline"]
+	Line[231914 856339 240914 856339 4000 4000 "clearline"]
+	Line[240914 856339 245914 861339 4000 4000 "clearline"]
+	Line[245914 861339 245914 881339 4000 4000 "clearline"]
+	Line[245914 881339 252414 887839 4000 4000 "clearline"]
+	Line[212414 865280 212414 859839 2500 2000 ""]
+	Line[204914 865280 204914 859339 2500 2000 ""]
+	Line[221914 876339 218414 879839 1200 2000 ""]
+	Line[221914 872839 221914 869339 1200 4000 "clearline"]
+	Line[406914 897839 406914 873839 4000 4000 "clearline"]
+	Line[426914 897839 426914 887839 4000 4000 "clearline"]
+	Line[414355 862280 413414 861339 2500 4000 ""]
+	Line[412914 857839 409414 857839 4000 4000 ""]
+	Line[414296 865280 414355 865339 2500 4000 ""]
+	Line[413414 861339 413414 858276 2500 4000 ""]
+	Line[414355 865339 414355 862280 2500 4000 ""]
+	Line[406914 874839 406914 870398 2200 4000 "clearline"]
+	Line[413075 870870 407386 870870 1000 4000 "clearline"]
+	Line[407386 870870 406914 870398 1000 4000 "clearline"]
+	Line[413075 874807 407387 874807 1000 4000 "clearline"]
+	Line[446914 877839 450914 881839 2500 2000 ""]
+	Line[413075 872839 420752 872839 1000 4000 "clearline"]
+	Line[420752 870870 429646 870870 1000 4000 "clearline"]
+	Line[429646 870870 430414 871638 1000 4000 "clearline"]
+	Line[419414 879839 419414 875339 1500 4000 "clearline"]
+	Line[416414 872839 416414 876339 1200 4000 ""]
+	Line[416414 869339 414414 867339 1200 4000 "clearline"]
+	Line[414414 867339 414414 865839 1200 4000 "clearline"]
+	Line[419914 864339 419914 859839 2100 4000 "clearline"]
+	Line[420314 864639 424814 864639 2500 4000 "clearline"]
+	Line[414296 865280 392914 865280 2500 4000 ""]
+	Line[446914 877839 450914 873839 2500 2000 ""]
+	Line[399414 870398 406914 870398 2500 4000 "clearline"]
+	Line[426414 856339 424914 857839 2500 4000 "clearline"]
+	Line[424914 857839 420851 857839 2500 4000 "clearline"]
+	Line[426414 856339 435414 856339 4000 4000 "clearline"]
+	Line[435414 856339 440414 861339 4000 4000 "clearline"]
+	Line[440414 861339 440414 881339 4000 4000 "clearline"]
+	Line[440414 881339 446914 887839 4000 4000 "clearline"]
+	Line[406914 865280 406914 859839 2500 2000 ""]
+	Line[399414 865280 399414 859339 2500 2000 ""]
+	Line[416414 876339 412914 879839 1200 2000 ""]
+	Line[416414 872839 416414 869339 1200 4000 "clearline"]
+	Line[600414 897839 600414 873839 4000 4000 "clearline"]
+	Line[620414 897839 620414 887839 4000 4000 "clearline"]
+	Line[607855 862280 606914 861339 2500 4000 ""]
+	Line[606414 857839 602914 857839 4000 4000 ""]
+	Line[607796 865280 607855 865339 2500 4000 ""]
+	Line[606914 861339 606914 858276 2500 4000 ""]
+	Line[607855 865339 607855 862280 2500 4000 ""]
+	Line[600414 874839 600414 870398 2200 4000 "clearline"]
+	Line[606575 870870 600886 870870 1000 4000 "clearline"]
+	Line[600886 870870 600414 870398 1000 4000 "clearline"]
+	Line[606575 874807 600887 874807 1000 4000 "clearline"]
+	Line[640414 877839 644414 881839 2500 2000 ""]
+	Line[606575 872839 614252 872839 1000 4000 "clearline"]
+	Line[614252 870870 623146 870870 1000 4000 "clearline"]
+	Line[623146 870870 623914 871638 1000 4000 "clearline"]
+	Line[612914 879839 612914 875339 1500 4000 "clearline"]
+	Line[609914 872839 609914 876339 1200 4000 ""]
+	Line[609914 869339 607914 867339 1200 4000 "clearline"]
+	Line[607914 867339 607914 865839 1200 4000 "clearline"]
+	Line[613414 864339 613414 859839 2100 4000 "clearline"]
+	Line[613814 864639 618314 864639 2500 4000 "clearline"]
+	Line[607796 865280 586414 865280 2500 4000 ""]
+	Line[640414 877839 644414 873839 2500 2000 ""]
+	Line[592914 870398 600414 870398 2500 4000 "clearline"]
+	Line[619914 856339 618414 857839 2500 4000 "clearline"]
+	Line[618414 857839 614351 857839 2500 4000 "clearline"]
+	Line[619914 856339 628914 856339 4000 4000 "clearline"]
+	Line[628914 856339 633914 861339 4000 4000 "clearline"]
+	Line[633914 861339 633914 881339 4000 4000 "clearline"]
+	Line[633914 881339 640414 887839 4000 4000 "clearline"]
+	Line[600414 865280 600414 859839 2500 2000 ""]
+	Line[592914 865280 592914 859339 2500 2000 ""]
+	Line[609914 876339 606414 879839 1200 2000 ""]
+	Line[609914 872839 609914 869339 1200 4000 "clearline"]
+	Polygon("clearpoly")
+	(
+		[500 161500] [100500 161500] [100500 61500] [500 62000] 
+	)
+	Polygon("clearpoly")
+	(
+		[179914 161339] [279914 161339] [279914 61339] [179914 61839] 
+	)
+	Polygon("clearpoly")
+	(
+		[374414 161339] [474414 161339] [474414 61339] [374414 61839] 
+	)
+	Polygon("clearpoly")
+	(
+		[567914 161339] [667914 161339] [667914 61339] [567914 61839] 
+	)
+	Polygon("clearpoly")
+	(
+		[500 344000] [100500 344000] [100500 244000] [500 244500] 
+	)
+	Polygon("clearpoly")
+	(
+		[179914 343839] [279914 343839] [279914 243839] [179914 244339] 
+	)
+	Polygon("clearpoly")
+	(
+		[374414 343839] [474414 343839] [474414 243839] [374414 244339] 
+	)
+	Polygon("clearpoly")
+	(
+		[567914 343839] [667914 343839] [667914 243839] [567914 244339] 
+	)
+	Polygon("clearpoly")
+	(
+		[500 543000] [100500 543000] [100500 443000] [500 443500] 
+	)
+	Polygon("clearpoly")
+	(
+		[179914 542839] [279914 542839] [279914 442839] [179914 443339] 
+	)
+	Polygon("clearpoly")
+	(
+		[374414 542839] [474414 542839] [474414 442839] [374414 443339] 
+	)
+	Polygon("clearpoly")
+	(
+		[567914 542839] [667914 542839] [667914 442839] [567914 443339] 
+	)
+	Polygon("clearpoly")
+	(
+		[500 734500] [100500 734500] [100500 634500] [500 635000] 
+	)
+	Polygon("clearpoly")
+	(
+		[179914 734339] [279914 734339] [279914 634339] [179914 634839] 
+	)
+	Polygon("clearpoly")
+	(
+		[374414 734339] [474414 734339] [474414 634339] [374414 634839] 
+	)
+	Polygon("clearpoly")
+	(
+		[567914 734339] [667914 734339] [667914 634339] [567914 634839] 
+	)
+	Polygon("clearpoly")
+	(
+		[500 928000] [100500 928000] [100500 828000] [500 828500] 
+	)
+	Polygon("clearpoly")
+	(
+		[179914 927839] [279914 927839] [279914 827839] [179914 828339] 
+	)
+	Polygon("clearpoly")
+	(
+		[374414 927839] [474414 927839] [474414 827839] [374414 828339] 
+	)
+	Polygon("clearpoly")
+	(
+		[567914 927839] [667914 927839] [667914 827839] [567914 828339] 
+	)
+)
+Layer(3 "GND")
+(
+)
+Layer(4 "power")
+(
+)
+Layer(5 "signal1")
+(
+)
+Layer(6 "signal2")
+(
+)
+Layer(7 "signal3")
+(
+)
+Layer(8 "signal4")
+(
+)
+Layer(9 "silk")
+(
+)
+Layer(10 "silk")
+(
+)
