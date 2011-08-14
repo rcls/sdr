@@ -15,8 +15,16 @@ entity sample is
        adc_clk_n : out std_logic;
        adc_reclk_p : in std_logic;
        adc_reclk_n : in std_logic;
+
+       adc_sen : out std_logic;
+       adc_sdata : out std_logic;
+       adc_sclk : out std_logic;
+       adc_reset : out std_logic;
+
        usb_d : inout unsigned8;
        usb_c : inout unsigned8 := "ZZZZ11ZZ";
+
+       led : out unsigned8;
 --       freq : in unsigned24;
 --       set_f0 : in std_logic;
 --       set_f1 : in std_logic;
@@ -44,6 +52,7 @@ architecture Behavioral of sample is
   signal adc_clk_u : std_logic;
   signal adc_clk_neg_u : std_logic;
   signal adc_clk_fb : std_logic;
+  signal adc_clk_locked : std_logic;
 
   -- Received clk from ADC.
   signal adc_reclk_b_p : std_logic;
@@ -56,6 +65,7 @@ architecture Behavioral of sample is
   signal clku_main : std_logic;
   signal clku_main_neg : std_logic;
   signal clk_main_fb : std_logic;
+  signal clk_main_locked : std_logic;
 
   constant phase_first : unsigned(5 downto 0) := "011011";
   signal phase : unsigned(5 downto 0) := phase_first;
@@ -82,6 +92,11 @@ begin
                 Q1 => adc_data(i*2+1));
   end generate;
 
+  adc_reset <= '1';
+  adc_sen <= '0';
+  adc_sdata <= '0';
+  adc_sclk <= '0';
+
   usb_nRXF <= 'Z';
   usb_nTXE <= 'Z';
   usb_SIWA <= '0';
@@ -90,6 +105,10 @@ begin
   clkin125_en <= '1';
 
   usb_d <= usb_d_out when usb_oe else "ZZZZZZZZ";
+
+  led(0) <= '0' when clk_main_locked = '1' else 'Z';
+  led(1) <= '0' when clk_main_locked = '1' else 'Z';
+  led(7 downto 2) <= "ZZZZZZ";
 
   -- We run on a period of 37 * 9ns = 333ns, generating 3 bytes each time, about
   -- 10Mbytes / sec.
@@ -186,7 +205,7 @@ begin
       CLKOUT0  => clku_main,
       CLKOUT1  => clku_main_neg,
       CLKOUT2  => open, CLKOUT3  => open, CLKOUT4  => open,
-      CLKOUT5  => open, LOCKED   => open,
+      CLKOUT5  => open, LOCKED   => clk_main_locked,
       RST      => '0',
       CLKFBIN  => clk_main_fb,
       CLKIN    => adc_reclk);
@@ -224,7 +243,7 @@ begin
       CLKOUT3             => open,
       CLKOUT4             => open,
       CLKOUT5             => open,
-      LOCKED              => open,
+      LOCKED              => adc_clk_locked,
       RST                 => '0',
       -- Input clock control
       CLKFBIN             => adc_clk_fb,
