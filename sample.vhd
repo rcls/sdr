@@ -160,13 +160,12 @@ begin
   end process;
 
 
-  -- Clk input from ADC.  The ADC drives the data as even on P-rising followed
-  -- by odd on P-falling.  We invert the clock so we get even on falling
-  -- followed by odd on rising, and then sync the DDRs to rising
+  -- Clk input from ADC.  The ADC drives the data as even on P-falling followed
+  -- by odd on P-rising.
   adc_reclk_in: IBUFGDS_DIFF_OUT
     generic map (diff_term => true)
     port map(I => adc_reclk_n, IB => adc_reclk_p,
-             O => adc_reclk_b_p, OB => adc_reclk_b_n);
+             O => adc_reclk_b_n, OB => adc_reclk_b_p);
   -- Are these needed?  Do we need to tie them together?
   adc_reclk_buf: BUFIO2_2CLK port map(
     I => adc_reclk_b_p, IB => adc_reclk_b_n,
