@@ -77,6 +77,16 @@ architecture Behavioral of sample is
   signal data_h : unsigned8;
   signal data_l : unsigned8;
 
+  attribute S : string;
+  attribute S of led : signal is "yes";
+--  attribute S of usb_c : signal is "yes";
+
+  signal div25 : unsigned(24 downto 0);
+
+  signal full : boolean;
+  signal empty : boolean;
+--  signal full_stretch : boolean;
+
 begin
   -- The adc DDR decode.
   adc_input: for i in 0 to 6 generate
@@ -100,22 +110,30 @@ begin
   usb_nRXF <= 'Z';
   usb_nTXE <= 'Z';
   usb_SIWA <= '0';
+  usb_nRD <= '1';
 
-  usb_c(7 downto 4) <= "ZZZZ";
+  usb_c(7 downto 5) <= "ZZZ";
   clkin125_en <= '1';
 
   usb_d <= usb_d_out when usb_oe else "ZZZZZZZZ";
 
   led(0) <= '0' when clk_main_locked = '1' else 'Z';
-  led(1) <= '0' when clk_main_locked = '1' else 'Z';
-  led(7 downto 2) <= "ZZZZZZ";
+  led(1) <= '0' when adc_clk_locked = '1' else 'Z';
+  led(2) <= '0' when div25(24) = '1' else 'Z';
+  led(3) <= '0' when full else 'Z';
+  led(4) <= '0' when empty else 'Z';
+  led(7 downto 5) <= "ZZZ";
 
   -- We run on a period of 37 * 9ns = 333ns, generating 3 bytes each time, about
   -- 10Mbytes / sec.
   process (clk_main)
     variable phase_inc : unsigned(6 downto 0);
+    variable div25_inc : unsigned(25 downto 0);
   begin
     if clk_main'event and clk_main = '1' then
+      div25_inc := ('0' & div25) + 1;
+      div25 <= div25_inc(24 downto 0);
+
       phase_inc := ('0' & phase) + 1;
       if phase_inc(6) = '1' then
         phase <= phase_first;
@@ -124,6 +142,24 @@ begin
         data_l <= '0' & adc_data(6 downto 0);
       else
         phase <= phase + 1;
+      end if;
+
+      if phase_inc(6) = '1' and usb_nTXE = '1' then
+        full <= true;
+--        full_stretch <= true;
+      elsif div25_inc(25) = '1' then
+        full <= false;
+--        full <= full_stretch;
+--        full_stretch <= false;
+      end if;
+
+      if phase(4 downto 1) = "0" and usb_nTXE = '0' then
+        empty <= true;
+--        full_stretch <= true;
+      elsif div25_inc(25) = '1' then
+        empty <= false;
+--        full <= full_stretch;
+--        full_stretch <= false;
       end if;
 
       -- Don't use last 3 slots here!  They overlap with phase(5)=0
