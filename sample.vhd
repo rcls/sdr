@@ -93,13 +93,13 @@ begin
     adc_in_ibuf: ibufds generic map (diff_term => true)
       port map (I => adc_n(i), IB => adc_p(i), O => adc_ddr(i));
     adc_ddr_expand: IDDR2
-      generic map (ddr_alignment => "C1")
-      port map (C0 => clk_main_neg,
-                C1 => clk_main,
+      generic map (ddr_alignment => "C0")
+      port map (C0 => clk_main,
+                C1 => clk_main_neg,
                 CE => '1',
                 D => adc_ddr(i),
-                Q0 => adc_data(i*2),
-                Q1 => adc_data(i*2+1));
+                Q0 => adc_data(i*2+1),
+                Q1 => adc_data(i*2));
   end generate;
 
   adc_reset <= '1';
