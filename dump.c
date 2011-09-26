@@ -75,6 +75,9 @@ int main()
     if (r != 0 && r != LIBUSB_ERROR_NOT_FOUND)
         exprintf("libusb_detach_kernel_driver failed\n");
 
+    if (libusb_claim_interface(dev, INTF) != 0)
+        exprintf("libusb_claim_interface failed\n");
+
     //static libusb_transfer urbs[NUM_URBS];
     static unsigned char bounce[NUM_URBS][XLEN];
     for (int i = 0; i != NUM_URBS; ++i) {
@@ -107,7 +110,12 @@ int main()
         p += r;
     }
 
-    libusb_attach_kernel_driver(dev, INTF);
+    if (libusb_release_interface(dev, INTF) != 0)
+        exprintf("libusb_release_interface failed\n");
+
+    r = libusb_attach_kernel_driver(dev, INTF);
+    if (r != 0)
+        exprintf("libusb_attach_kernel_driver failed %d!\n", r);
 
     exit(EXIT_SUCCESS);
 }
