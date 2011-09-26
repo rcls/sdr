@@ -55,7 +55,6 @@ architecture Behavioral of sample is
   signal adc_clk_locked : std_logic;
 
   -- Received clk from ADC.
-  signal adc_reclk_b_p : std_logic;
   signal adc_reclk_b_n : std_logic;
   signal adc_reclk : std_logic;
 
@@ -198,13 +197,13 @@ begin
 
   -- Clk input from ADC.  The ADC drives the data as even on P-falling followed
   -- by odd on P-rising.
-  adc_reclk_in: IBUFGDS_DIFF_OUT
+  adc_reclk_in: IBUFGDS
     generic map (diff_term => true)
     port map(I => adc_reclk_n, IB => adc_reclk_p,
-             O => adc_reclk_b_n, OB => adc_reclk_b_p);
+             O => adc_reclk_b_n);
   -- Are these needed?  Do we need to tie them together?
-  adc_reclk_buf: BUFIO2_2CLK port map(
-    I => adc_reclk_b_p, IB => adc_reclk_b_n,
+  adc_reclk_buf: BUFIO2 generic map(I_INVERT => true) port map(
+    I => adc_reclk_b_n,
     DIVCLK => adc_reclk, IOCLK => open, SERDESSTROBE => open);
   adc_reclkfb: BUFIO2FB port map(I => clk_main, O => clk_main_fb);
 
