@@ -4,6 +4,7 @@ all: sinrom.vhd phasedetectsim pllsim dump readdump
 CFLAGS=-O2 -Wall -Werror -std=gnu99 -g
 LDFLAGS=-lm
 dump: LDFLAGS=-lusb-1.0
+ftrans: LDFLAGS=-lfftw3 -lm
 
 sinrom.vhd: sinrom
 	./sinrom > sinrom.vhd

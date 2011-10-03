@@ -16,10 +16,10 @@ entity sample is
        adc_reclk_p : in std_logic;
        adc_reclk_n : in std_logic;
 
-       adc_sen : out std_logic;
-       adc_sdata : out std_logic;
-       adc_sclk : out std_logic;
-       adc_reset : out std_logic;
+       adc_sen : out std_logic := '0';
+       adc_sdata : out std_logic := '0';
+       adc_sclk : out std_logic := '0';
+       adc_reset : out std_logic := '1';
 
        usb_d : inout unsigned8;
        usb_c : inout unsigned8 := "ZZZZ11ZZ";
@@ -41,6 +41,8 @@ architecture Behavioral of sample is
   alias usb_nWR  : std_logic is usb_c(3);
   alias usb_SIWA : std_logic is usb_c(4);
 
+  signal led_on : unsigned8 := x"00";
+
   signal adc_ddr : unsigned7;
   signal adc_data : unsigned14;
 
@@ -52,7 +54,7 @@ architecture Behavioral of sample is
   signal adc_clk_u : std_logic;
   signal adc_clk_neg_u : std_logic;
   signal adc_clk_fb : std_logic;
-  signal adc_clk_locked : std_logic;
+  alias adc_clk_locked : std_logic is led_on(1);
 
   -- Received clk from ADC.
   signal adc_reclk_b_n : std_logic;
@@ -64,13 +66,15 @@ architecture Behavioral of sample is
   signal clku_main : std_logic;
   signal clku_main_neg : std_logic;
   signal clk_main_fb : std_logic;
-  signal clk_main_locked : std_logic;
+  alias clk_main_locked : std_logic is led_on(0);
 
   constant phase_first : unsigned(5 downto 0) := "011011";
   signal phase : unsigned(5 downto 0) := phase_first;
 
   signal usb_d_out : unsigned8;
   signal usb_oe : boolean := false;
+  signal usb_rdn : std_logic := '1';
+  signal capture : boolean := false; -- Process data from USB.
 
   signal status : unsigned8;
   signal data_h : unsigned8;
@@ -82,8 +86,9 @@ architecture Behavioral of sample is
 
   signal div25 : unsigned(24 downto 0);
 
-  signal full : boolean;
-  signal empty : boolean;
+  alias full : std_logic is led_on(3);
+  alias empty : std_logic is led_on(4);
+  alias pgrmble : std_logic is led_on(5);
 --  signal full_stretch : boolean;
 
 begin
@@ -101,27 +106,20 @@ begin
                 Q1 => adc_data(i*2));
   end generate;
 
-  adc_reset <= '1';
-  adc_sen <= '0';
-  adc_sdata <= '0';
-  adc_sclk <= '0';
-
   usb_nRXF <= 'Z';
   usb_nTXE <= 'Z';
   usb_SIWA <= '0';
-  usb_nRD <= '1';
+  usb_nRD <= usb_rdn;
 
   usb_c(7 downto 5) <= "ZZZ";
   clkin125_en <= '1';
 
   usb_d <= usb_d_out when usb_oe else "ZZZZZZZZ";
 
-  led(0) <= '0' when clk_main_locked = '1' else 'Z';
-  led(1) <= '0' when adc_clk_locked = '1' else 'Z';
-  led(2) <= '0' when div25(24) = '1' else 'Z';
-  led(3) <= '0' when full else 'Z';
-  led(4) <= '0' when empty else 'Z';
-  led(7 downto 5) <= "ZZZ";
+  led_control: for i in 0 to 7 generate
+    led(i) <= '0' when led_on(i) = '1' else 'Z';
+  end generate;
+  led_on(2) <= div25(24);
 
   -- We run on a period of 37 * 9ns = 333ns, generating 3 bytes each time, about
   -- 10Mbytes / sec.
@@ -144,19 +142,19 @@ begin
       end if;
 
       if phase_inc(6) = '1' and usb_nTXE = '1' then
-        full <= true;
+        full <= '1';
 --        full_stretch <= true;
       elsif div25_inc(25) = '1' then
-        full <= false;
+        full <= '0';
 --        full <= full_stretch;
 --        full_stretch <= false;
       end if;
 
       if phase(4 downto 1) = "0" and usb_nTXE = '0' then
-        empty <= true;
+        empty <= '1';
 --        full_stretch <= true;
       elsif div25_inc(25) = '1' then
-        empty <= false;
+        empty <= '0';
 --        full <= full_stretch;
 --        full_stretch <= false;
       end if;
@@ -164,12 +162,14 @@ begin
       -- Don't use last 3 slots here!  They overlap with phase(5)=0
       usb_oe <= false;
       usb_nWR <= '1';
+      usb_d_out <= "XXXXXXXX";
       case phase(4 downto 1) is
         when x"0" =>
           usb_d_out <= status;
           usb_oe <= true;
         when x"1" =>
           usb_nWR <= '0';
+          usb_d_out <= status;
           usb_oe <= true;
         when x"2" =>
           usb_nWR <= '0';
@@ -178,6 +178,7 @@ begin
           usb_oe <= true;
         when x"5" =>
           usb_nWR <= '0';
+          usb_d_out <= data_h;
           usb_oe <= true;
         when x"6" =>
           usb_nWR <= '0';
@@ -186,11 +187,26 @@ begin
           usb_oe <= true;
         when x"9" =>
           usb_nWR <= '0';
+          usb_d_out <= data_l;
           usb_oe <= true;
         when x"a" =>
           usb_nWR <= '0';
         when others =>
       end case;
+
+      if phase(4 downto 1) = x"b" and USB_nRXF = '0' then
+        usb_rdn <= '0';
+      elsif phase(4 downto 1) = x"f" then
+        usb_rdn <= '1';
+      end if;
+
+      if usb_rdn = '0' and phase(3 downto 0) = x"d" then
+        adc_sen <= usb_d(0);
+        adc_sdata <= usb_d(1);
+        adc_sclk <= usb_d(2);
+        adc_reset <= usb_d(3);
+        pgrmble <= usb_d(4);
+      end if;
     end if;
   end process;
 
@@ -202,10 +218,10 @@ begin
     port map(I => adc_reclk_n, IB => adc_reclk_p,
              O => adc_reclk_b_n);
   -- Are these needed?  Do we need to tie them together?
-  adc_reclk_buf: BUFIO2 generic map(I_INVERT => true) port map(
+  adc_reclk_buf: BUFIO2 port map(
     I => adc_reclk_b_n,
     DIVCLK => adc_reclk, IOCLK => open, SERDESSTROBE => open);
-  adc_reclkfb: BUFIO2FB port map(I => clk_main, O => clk_main_fb);
+  adc_reclkfb: BUFIO2FB port map(I => clk_main_neg, O => clk_main_fb);
 
   -- Pseudo differential drive of clock to ADC.
   adc_clk_ddr_p: ODDR2 port map(
@@ -236,8 +252,8 @@ begin
     port map(
       -- Output clocks
       CLKFBOUT => open,
-      CLKOUT0  => clku_main,
-      CLKOUT1  => clku_main_neg,
+      CLKOUT0  => clku_main_neg,
+      CLKOUT1  => clku_main,
       CLKOUT2  => open, CLKOUT3  => open, CLKOUT4  => open,
       CLKOUT5  => open, LOCKED   => clk_main_locked,
       RST      => '0',
