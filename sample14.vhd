@@ -8,7 +8,7 @@ use unisim.vcomponents.all;
 library work;
 use work.defs.all;
 
-entity sample is
+entity sample14 is
   port(adc_p : in unsigned7;
        adc_n : in unsigned7;
        adc_clk_p : out std_logic;
@@ -29,7 +29,7 @@ entity sample is
        clkin125_en : out STD_LOGIC);
 end sample;
 
-architecture Behavioral of sample is
+architecture Behavioral of sample14 is
 
   alias usb_nRXF : std_logic is usb_c(0);
   alias usb_nTXE : std_logic is usb_c(1);
@@ -65,15 +65,18 @@ architecture Behavioral of sample is
   alias clk_main_locked : std_logic is led_on(0);
 
 --  signal phase : unsigned(3 downto 0) := x"0";
-  constant phase_max : integer := 6;
+  constant phase_max : integer := 15;
   signal phase : integer range 0 to phase_max;
 
   signal usb_d_out : unsigned8;
   signal usb_oe : boolean := false;
-  signal usb_rdn : boolean := false;
+  signal usb_read : boolean := false;
   signal capture : boolean := false; -- Process data from USB.
 
   signal sample : boolean;
+
+  signal hi_byte : unsigned8;
+  signal lo_byte : unsigned8;
 
   attribute S : string;
   attribute S of led : signal is "yes";
@@ -83,8 +86,6 @@ architecture Behavioral of sample is
 
   alias full : std_logic is led_on(3);
   alias empty : std_logic is led_on(4);
-  alias capture_hi : std_logic is led_on(5);
---  signal full_stretch : boolean;
 
   -- Poly is 0x100802041
   signal lfsr : std_logic_vector(31 downto 0) := x"00000001";
@@ -107,7 +108,7 @@ begin
   usb_nRXF <= 'Z';
   usb_nTXE <= 'Z';
   usb_SIWA <= '0';
-  --usb_nRD <= usb_rdn;
+  --usb_nRD <= usb_read;
 
   usb_c(7 downto 5) <= "ZZZ";
   clkin125_en <= '1';
@@ -120,7 +121,7 @@ begin
   led_on(2) <= div25(24);
 
   -- We run on a period of 100ns, from a sample rate of 100MHz.  We output the
-  -- 7 low bits of the ADC, and an LFSR generated bit.
+  -- 14 low bits of the ADC in two bytes, each with an LFSR generated bit.
   process (clk_main)
     variable div25_inc : unsigned(25 downto 0);
   begin
@@ -137,17 +138,15 @@ begin
       end if;
 
       if sample then -- phase = 0
-        if capture_hi = '1' then
-          usb_d_out <= lfsr(0) & adc_data(13 downto 7);
-        else
-          usb_d_out <= lfsr(0) & adc_data(6 downto 0);
-        end if;
+        hi_byte <= lfsr(0) & adc_data(13 downto 7);
+        lo_byte <= lfsr(0) & adc_data(6 downto 0);
 
         lfsr <= lfsr(30 downto 0) & (
           lfsr(31) xor lfsr(22) xor lfsr(12) xor lfsr(5));
 
-        usb_rdn <= USB_nRXF = '0';
+        usb_read <= USB_nRXF = '0';
       end if;
+
       if sample and usb_nTXE = '0' then
         empty <= '1';
       elsif div25_inc(25) = '1' then
@@ -159,38 +158,43 @@ begin
         full <= '0';
       end if;
 
+      if phase < 8 then
+        usb_d_out <= hi_byte;
+      else
+        usb_d_out <= lo_byte;
+      end if;
+
       usb_oe <= false;
       usb_nWR <= '1';
       usb_nRD <= '1';
-      if usb_rdn then
+      case phase is
+        when 1|9 =>
+          usb_oe <= true;
+        when 2|10 =>
+          usb_nWR <= '0';
+          usb_oe <= true;
+        when 3|4|11|12 =>
+          usb_nWR <= '0';
+        when others =>
+      end case;
+      if usb_read then
         case phase is
-          when 0|1|2 =>
+          when 5|6|7 =>
             usb_nRD <= '0';
-          when 3 =>
-            if usb_rdn then
-              adc_sen <= usb_d(0);
-              adc_sdata <= usb_d(1);
-              adc_sclk <= usb_d(2);
-              adc_reset <= usb_d(3);
-              capture_hi <= usb_d(4);
-            end if;
-          when others =>
-        end case;
-      else
-        case phase is
-          when 0 =>
-            usb_oe <= true;
-          when 1 =>
-            usb_nWR <= '0';
-            usb_oe <= true;
-          when 2 =>
-            usb_nWR <= '0';
-          when 3 =>
-            usb_nWR <= '0';
+          when 8 =>
+            adc_sen <= usb_d(0);
+            adc_sdata <= usb_d(1);
+            adc_sclk <= usb_d(2);
+            adc_reset <= usb_d(3);
           when others =>
         end case;
       end if;
+
+      --if phase = phase_max then
+      --  usb_read <= usb_nRXF = '0';
+      --end if;
     end if;
+
   end process;
 
 
