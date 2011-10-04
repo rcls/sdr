@@ -25,10 +25,6 @@ entity sample is
        usb_c : inout unsigned8 := "ZZZZ11ZZ";
 
        led : out unsigned8;
---       freq : in unsigned24;
---       set_f0 : in std_logic;
---       set_f1 : in std_logic;
---       phase : out signed18;
        clkin125 : in std_logic;
        clkin125_en : out STD_LOGIC);
 end sample;
@@ -68,17 +64,16 @@ architecture Behavioral of sample is
   signal clk_main_fb : std_logic;
   alias clk_main_locked : std_logic is led_on(0);
 
-  constant phase_first : unsigned(5 downto 0) := "011011";
-  signal phase : unsigned(5 downto 0) := phase_first;
+--  signal phase : unsigned(3 downto 0) := x"0";
+  constant phase_max : integer := 6;
+  signal phase : integer range 0 to phase_max;
 
   signal usb_d_out : unsigned8;
   signal usb_oe : boolean := false;
-  signal usb_rdn : std_logic := '1';
+  signal usb_rdn : boolean := false;
   signal capture : boolean := false; -- Process data from USB.
 
-  signal status : unsigned8;
-  signal data_h : unsigned8;
-  signal data_l : unsigned8;
+  signal sample : boolean;
 
   attribute S : string;
   attribute S of led : signal is "yes";
@@ -88,8 +83,11 @@ architecture Behavioral of sample is
 
   alias full : std_logic is led_on(3);
   alias empty : std_logic is led_on(4);
-  alias pgrmble : std_logic is led_on(5);
+  alias capture_hi : std_logic is led_on(5);
 --  signal full_stretch : boolean;
+
+  -- Poly is 0x100802041
+  signal lfsr : std_logic_vector(31 downto 0) := x"00000001";
 
 begin
   -- The adc DDR decode.
@@ -109,7 +107,7 @@ begin
   usb_nRXF <= 'Z';
   usb_nTXE <= 'Z';
   usb_SIWA <= '0';
-  usb_nRD <= usb_rdn;
+  --usb_nRD <= usb_rdn;
 
   usb_c(7 downto 5) <= "ZZZ";
   clkin125_en <= '1';
@@ -121,93 +119,83 @@ begin
   end generate;
   led_on(2) <= div25(24);
 
-  -- We run on a period of 37 * 9ns = 333ns, generating 3 bytes each time, about
-  -- 10Mbytes / sec.
+  -- We run on a period of 100ns, from a sample rate of 100MHz.  We output the
+  -- 7 low bits of the ADC, and an LFSR generated bit.
   process (clk_main)
-    variable phase_inc : unsigned(6 downto 0);
     variable div25_inc : unsigned(25 downto 0);
   begin
     if clk_main'event and clk_main = '1' then
       div25_inc := ('0' & div25) + 1;
       div25 <= div25_inc(24 downto 0);
 
-      phase_inc := ('0' & phase) + 1;
-      if phase_inc(6) = '1' then
-        phase <= phase_first;
-        status <= '1' & (status(6 downto 0) + "1");
-        data_h <= '0' & adc_data(13 downto 7);
-        data_l <= '0' & adc_data(6 downto 0);
+      if phase = phase_max then
+        phase <= 0;
+        sample <= true;
       else
         phase <= phase + 1;
+        sample <= false;
       end if;
 
-      if phase_inc(6) = '1' and usb_nTXE = '1' then
-        full <= '1';
---        full_stretch <= true;
-      elsif div25_inc(25) = '1' then
-        full <= '0';
---        full <= full_stretch;
---        full_stretch <= false;
-      end if;
+      if sample then -- phase = 0
+        if capture_hi = '1' then
+          usb_d_out <= lfsr(0) & adc_data(13 downto 7);
+        else
+          usb_d_out <= lfsr(0) & adc_data(6 downto 0);
+        end if;
 
-      if phase(4 downto 1) = "0" and usb_nTXE = '0' then
+        lfsr <= lfsr(30 downto 0) & (
+          lfsr(31) xor lfsr(22) xor lfsr(12) xor lfsr(5));
+
+        usb_rdn <= USB_nRXF = '0';
+      end if;
+      if sample and usb_nTXE = '0' then
         empty <= '1';
---        full_stretch <= true;
       elsif div25_inc(25) = '1' then
         empty <= '0';
---        full <= full_stretch;
---        full_stretch <= false;
+      end if;
+      if sample and usb_nTXE = '1' then
+        full <= '1';
+      elsif div25_inc(25) = '1' then
+        full <= '0';
       end if;
 
-      -- Don't use last 3 slots here!  They overlap with phase(5)=0
       usb_oe <= false;
       usb_nWR <= '1';
-      usb_d_out <= "XXXXXXXX";
-      case phase(4 downto 1) is
-        when x"0" =>
-          usb_d_out <= status;
-          usb_oe <= true;
-        when x"1" =>
-          usb_nWR <= '0';
-          usb_d_out <= status;
-          usb_oe <= true;
-        when x"2" =>
-          usb_nWR <= '0';
-        when x"4" =>
-          usb_d_out <= data_h;
-          usb_oe <= true;
-        when x"5" =>
-          usb_nWR <= '0';
-          usb_d_out <= data_h;
-          usb_oe <= true;
-        when x"6" =>
-          usb_nWR <= '0';
-        when x"8" =>
-          usb_d_out <= data_l;
-          usb_oe <= true;
-        when x"9" =>
-          usb_nWR <= '0';
-          usb_d_out <= data_l;
-          usb_oe <= true;
-        when x"a" =>
-          usb_nWR <= '0';
-        when others =>
-      end case;
-
-      if phase(4 downto 1) = x"b" and USB_nRXF = '0' then
-        usb_rdn <= '0';
-      elsif phase(4 downto 1) = x"f" then
-        usb_rdn <= '1';
-      end if;
-
-      if usb_rdn = '0' and phase(3 downto 0) = x"d" then
-        adc_sen <= usb_d(0);
-        adc_sdata <= usb_d(1);
-        adc_sclk <= usb_d(2);
-        adc_reset <= usb_d(3);
-        pgrmble <= usb_d(4);
+      usb_nRD <= '1';
+      if usb_rdn then
+        case phase is
+          when 0|1|2 =>
+            usb_nRD <= '0';
+          when 3 =>
+            if usb_rdn then
+              adc_sen <= usb_d(0);
+              adc_sdata <= usb_d(1);
+              adc_sclk <= usb_d(2);
+              adc_reset <= usb_d(3);
+              capture_hi <= usb_d(4);
+            end if;
+          when others =>
+        end case;
+      else
+        case phase is
+          when 0 =>
+            usb_oe <= true;
+          when 1 =>
+            usb_nWR <= '0';
+            usb_oe <= true;
+          when 2 =>
+            usb_nWR <= '0';
+          when 3 =>
+            usb_nWR <= '0';
+          when others =>
+        end case;
       end if;
     end if;
+
+    if phase = 4 then
+      usb_rdn <= usb_nRXF = '0';
+    end if;
+
   end process;
 
 
@@ -232,7 +220,7 @@ begin
     CE => '1', Q => adc_clk_n);
 
   -- Regenerate the clock from the ADC.
-  -- We run the PLL oscillator at 999MHz, i.e., 9 times the input clock.
+  -- We run the PLL oscillator at 1000MHz, i.e., 10 times the input clock.
   main_pll : PLL_BASE
     generic map(
       BANDWIDTH            => "LOW",
@@ -241,13 +229,13 @@ begin
       DIVCLK_DIVIDE        => 1,
       CLKFBOUT_MULT        => 1,
       --CLKFBOUT_PHASE       => 0.000,
-      CLKOUT0_DIVIDE       => 9,
+      CLKOUT0_DIVIDE       => 10,
       --CLKOUT0_PHASE        => 0.000,
       --CLKOUT0_DUTY_CYCLE   => 0.500,
-      CLKOUT1_DIVIDE       => 9,
+      CLKOUT1_DIVIDE       => 10,
       CLKOUT1_PHASE        => 180.000,
       --CLKOUT1_DUTY_CYCLE   => 0.500,
-      CLKIN_PERIOD         => 9.0,
+      CLKIN_PERIOD         => 10.0,
       REF_JITTER           => 0.001)
     port map(
       -- Output clocks
@@ -265,9 +253,8 @@ begin
 
   clkin125_bufg : BUFG port map(I=>clkin125, O=>clkin125_buf);
 
-  -- Generate the clock to the ADC.
-  -- We run the PLL oscillator at 1GHz, which for the ADC at 125MHz is
-  -- 8 times the input clock, and then generate a 9ns output.
+  -- Generate the clock to the ADC.  We run the PLL oscillator at 1GHz, (8 times
+  -- the input clock), and then generate a 10ns output.
   adc_gen_pll : PLL_BASE
     generic map(
       BANDWIDTH            => "LOW",
@@ -276,10 +263,10 @@ begin
       DIVCLK_DIVIDE        => 1,
       CLKFBOUT_MULT        => 8,
       --CLKFBOUT_PHASE       => 0.000,
-      CLKOUT0_DIVIDE       => 9,
+      CLKOUT0_DIVIDE       => 10,
       --CLKOUT0_PHASE        => 0.000,
       --CLKOUT0_DUTY_CYCLE   => 0.500,
-      CLKOUT1_DIVIDE       => 9,
+      CLKOUT1_DIVIDE       => 10,
       CLKOUT1_PHASE        => 180.000,
       --CLKOUT1_DUTY_CYCLE   => 0.500,
       CLKIN_PERIOD         => 8.0,

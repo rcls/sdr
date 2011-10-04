@@ -1,17 +1,12 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 
-#define BUFSIZE 16777216
+#define WANTED 16777216
+#define BUFSIZE (2 * WANTED)
 static unsigned char buffer[BUFSIZE];
-
-static unsigned int wash(unsigned int x)
-{
-    return x;
-//    return ((x & 0x5555555) << 1) | ((x & 0xaaaaaaaa) >> 1);
-}
-
 
 int main()
 {
@@ -27,49 +22,43 @@ int main()
     }
 
     const unsigned char * end = buffer + r;
-    int state = 0;
-    int counter = 0;
-    for (const unsigned char * p = buffer; p != end; ++p) {
-        switch (state) {
-        default:
-            if (*p & 128) {
-                counter = *p;
-                state = 1;
-            }
-            break;
-        case 1:
-            if (*p & 128) {
-                printf("Sync not high byte at offset %#zx\n", p - buffer);
-                counter = *p;
-                state = 1;
-            }
-            else {
-                state = 2;
-            }
-            break;
-        case 2:
-            if (*p & 128) {
-                printf("Sync not low byte at offset %#zx\n", p - buffer);
-                counter = *p;
-                state = 1;
-            }
-            else {
-                printf("%04x\n", wash(p[-1] * 128 + *p));
-                state = 3;
-            }
-            break;
-        case 3:
-            if (*p & 128) {
-                if (((counter + 1) & 127) != (*p & 127))
-                    printf("Sync skip at offset %#zx\n", p - buffer);
-                counter = *p;
-                state = 1;
-            }
-            else {
-                printf("No sync at offset %#zx\n", p - buffer);
-                state = 0;
-            }
+    const unsigned char * p = buffer;
+    uint32_t running = 0;
+    for (int i = 0; i != 32; ++ i)
+        running = running * 2 + (*p++ >= 128);
+
+    const unsigned char * last_bad = p - 1;
+    const unsigned char * best_bad = last_bad;
+    int best_len = 0;
+    for (; p != end; ++p) {
+        // Poly is 0x100802041
+        uint32_t predicted
+            = running * 2 + __builtin_parity(running & 0x80401020);
+        running = running * 2 + (*p >= 128);
+        if (running == predicted)
+            continue;
+        if (p - last_bad > best_len) {
+            best_bad = last_bad;
+            best_len = p - last_bad;
         }
+        last_bad = p;
     }
-    exit(EXIT_FAILURE);
+    if (p - last_bad > best_len) {
+        best_bad = last_bad;
+        best_len = p - last_bad;
+    }
+    fprintf(stderr, "Best is length %u at offset %zu\n",
+             best_len, best_bad - buffer);
+    if (best_len < WANTED + 64) {
+        fprintf(stderr, "Not enough....\n");
+        exit(EXIT_FAILURE);
+    }
+    const unsigned char * start = best_bad + 32;
+    end = start + WANTED;
+    for (p = start; p != end; ++p) {
+        int x = *p & 127;
+        printf("%04x\n", 8192 + x - 2 * (x & 64));
+    }
+
+    exit(EXIT_SUCCESS);
 }

@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SIZE (1<<22)
+#define FREQ (1e8 / 7.0)
+
+#define SIZE (1<<24)
 #define HALF (SIZE/2)
 #define HALFp1 (HALF + 1)
 static double in[SIZE];
@@ -73,7 +75,7 @@ int main()
             double power = 0;
             for (int k = low; k != high; ++k)
                 power += out[k];
-            double freq = (low + high - 1) * (0.5 * 1e9 / 333 / SIZE);
+            double freq = (low + high - 1) * (0.5 * FREQ / SIZE);
             printf("%g\t%g\t", freq, power);
         }
         printf("\n");

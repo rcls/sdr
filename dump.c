@@ -8,11 +8,12 @@
 
 #define INTF 0
 #define EP 0x81
-#define NUM_URBS 128
+#define NUM_URBS 256
 #define XLEN 512
 
+#define WANTED (1<<24)
 #define SLOP (NUM_URBS * XLEN * 2)
-#define BUFSIZE (16777216 + SLOP)
+#define BUFSIZE (WANTED + 2 * SLOP)
 /* #define SLOP 0 */
 /* #define BUFSIZE 1024 */
 
@@ -103,7 +104,7 @@ int main()
         if (libusb_handle_events(NULL) != 0)
             exprintf("libusb_handle_events failed!\n");
 
-    for (const unsigned char * p = buffer + SLOP; p != BUFEND;) {
+    for (const unsigned char * p = buffer; p != BUFEND;) {
         ssize_t r = write(1, p, BUFEND - p);
         if (r < 0)
             experror("write");

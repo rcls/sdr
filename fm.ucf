@@ -36,7 +36,7 @@ NET "ADC_CLK_N" LOC = "P11" | IOSTANDARD = "LVCMOS25" | DRIVE = "4" | SLEW = "SL
 
 NET "ADC_RECLK_P" LOC = "P14" | IOSTANDARD = "LVDS_25" | TNM_NET = "adc_reclk";
 NET "ADC_RECLK_N" LOC = "P15" | IOSTANDARD = "LVDS_25";
-TIMESPEC TS_adc_reclk = PERIOD "adc_reclk" 9 ns HIGH 50%;
+TIMESPEC TS_adc_reclk = PERIOD "adc_reclk" 10 ns HIGH 50%;
 #NET "clk_main" TNM_NET = "adc_reclk";
 #NET "clk_main_neg" TNM_NET = "adc_reclk";
 
