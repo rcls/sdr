@@ -88,10 +88,15 @@ int main()
         exit(EXIT_FAILURE);
     }
 
+    // Paranoia...
+    best_start += 32;
+    best_len -= 64;
+
     assert ((best_len & 1) == 0);
 
-    for (int i = 0; i < WANTED + 2; i += 2) {
+    for (int i = 0; i < best_len; i += 2) {
         int x = (best_start[i] & 127) * 128 + (best_start[i + 1] & 127);
+//        printf("%d\n", x);
         printf("%04x\n", x);
     }
 

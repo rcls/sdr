@@ -27,7 +27,7 @@ entity sample14 is
        led : out unsigned8;
        clkin125 : in std_logic;
        clkin125_en : out STD_LOGIC);
-end sample;
+end sample14;
 
 architecture Behavioral of sample14 is
 

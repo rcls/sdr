@@ -1,9 +1,12 @@
 ise
 bandpass
+commands
 PCB*.save
 phasedetectsim
 pllsim
 sinrom
+readdump
+readdump14
 /docs/*.pdf
 /iseconfig
 /sdr.cmd
@@ -12,3 +15,6 @@ sinrom
 *-gerber
 *.zip
 *.png
+*.gnumeric
+*.tsv
+*.dump
