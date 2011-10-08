@@ -6,111 +6,31 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "lib/legendre.h"
+
 #define FREQ (1e8 / 16.0)
 
 #define SIZE (1<<23)
 #define HALF (SIZE/2)
 #define HALFp1 (HALF + 1)
 
-#define WIDTH 32
+#define WIDTH 1024
 
 //#define ROWS 4096
 #define ROWS HALF
 
 static int in[SIZE];
+static double out[SIZE + 1];
+
 static double mapped[SIZE];
-static complex chirped[SIZE];
-
-static double cmod_sq(complex z)
-{
-    double re = creal(z);
-    double im = cimag(z);
-    return re * re + im * im;
-}
 
 
-static void chirped_fft(double chirp)
-{
-    static fftw_plan plan;
-    printf("Chirp = %g\n", chirp);
-
-    if (!plan)
-        plan = fftw_plan_dft_1d(
-            SIZE, chirped, chirped, FFTW_FORWARD, FFTW_ESTIMATE);
-
-    for (int i = 0; i < SIZE; ++i) {
-        double ii = (i - HALF) * (1.0 / SIZE);
-        double phase = chirp * (ii * ii - 0.5);
-        chirped[i] = mapped[i] * (cos(phase) + I * sin(phase));
-    }
-
-    fftw_execute(plan);
-}
-
-
-// Find fit in form Y = 1/(slope*(X-offset)).  This turns out to not be a good
-// fit :-( .  The problem is that the peak is not at 90% phase to the tails...
-// The problem seems to be chirping... so we'll correct the chirp...
-static double regression(int CENTER,
-                         complex * __restrict__ slope,
-                         complex * __restrict__ offset)
-{
-    const int N = WIDTH * 2 + 1;
-    int X[N];
-    complex Y[N];
-    double weight[N];
-    double mean_X = 0;
-    double mean_Y = 0;
-    double weight_sum = 0;
-    for (int i = 0; i < N; ++i) {
-        int ii = i + CENTER - WIDTH;
-        X[i] = i - WIDTH;
-        complex d = chirped[ii];
-        Y[i] = 1 / d;
-        if (*slope == 0 && *offset == 0)
-            weight[i] = cmod_sq(d);
-        else
-            weight[i] = cabs(d / (*slope * (X[i] - *offset)));
-
-        mean_X += X[i] * weight[i];
-        mean_Y += Y[i] * weight[i];
-        weight_sum += weight[i];
-    }
-    mean_X /= weight_sum;
-    mean_Y /= weight_sum;
-
-    complex covariance = 0;
-    double x_variance = 0;
-    double y_variance = 0;
-
-    for (int i = 0; i < N; ++i) {
-        double w = weight[i] * weight[i];
-        complex xd = X[i] - mean_X;
-        complex yd = Y[i] - mean_Y;
-        covariance += w * conj(xd) * yd;
-        x_variance += w * cmod_sq(xd);
-        y_variance += w * cmod_sq(yd);
-    }
-    *slope = covariance / x_variance;
-    *offset = mean_X - mean_Y / *slope;
-    double cq = cabs(covariance) / sqrt(x_variance * y_variance);
-    printf("Slope = %.5g%+.5gi, offset = %.5g%+.5gi, fit = %f\n",
-           creal(*slope), cimag(*slope), creal(*offset), cimag(*offset), cq);
-    // for (int i = 0; i != N; ++i) {
-    //     complex eY = 1 / (*slope * (X[i] - *offset));
-    //     printf ("Actual % 11.05g%+11.05gi, est % 11.05g%+11.05gi\n",
-    //             creal(Y[i]), cimag(Y[i]), creal(eY), cimag(eY));
-    // }
-    return cq;
-}
-
-
-static double run_regression(int iterations)
+static void run_regression(void)
 {
     double max_power = 0;
     int max_index = 0;
-    for (int i = 100; i < HALF - 100; ++i) {
-        double power = cmod_sq(chirped[i]);
+    for (int i = 1; i < HALF; ++i) {
+        double power = out[i] * out[i] + out[SIZE-i] * out[SIZE-i];
         if (power > max_power) {
             max_power = power;
             max_index = i;
@@ -118,77 +38,110 @@ static double run_regression(int iterations)
     }
 
     fprintf(stderr, "Peak at %i, %f Hz\n",
-             max_index, max_index * (FREQ / SIZE));
+            max_index, max_index * (FREQ / SIZE));
     if (max_index <= WIDTH || max_index >= HALF - WIDTH) {
         fprintf(stderr, "Too close to end.\n");
         exit(EXIT_FAILURE);
     }
 
-    complex slope = 0;
-    complex offset = 0;
-    double fit = 0;
-    for (int i = 0; i < iterations; ++i)
-        fit = regression(max_index, &slope, &offset);
-    return fit;
-}
-
-
-static double run_chirped(double chirp)
-{
-    chirped_fft(chirp);
-    return run_regression(5);
-}
-
-
-static void chirp_test(void)
-{
-    double hi = -11;
-    double md = -10;
-    double lo = -9;
-    double fit_hi = run_chirped(hi);
-    double fit_md = run_chirped(md);
-    double fit_lo = run_chirped(lo);
-
-    while (fit_md > fit_lo && fit_md > fit_hi) {
-        double hh = (hi + md) * 0.5;
-        double ll = (lo + md) * 0.5;
-        double fit_hh = run_chirped(hh);
-        double fit_ll = run_chirped(ll);
-        if (fit_md >= fit_hh && fit_md >= fit_ll) {
-            hi = hh;
-            lo = lo;
-            fit_hi = fit_hh;
-            fit_lo = fit_ll;
-        }
-        else if (fit_hh > fit_ll) {
-            lo = md;
-            md = hh;
-            fit_lo = fit_md;
-            fit_md = fit_hh;
-        }
-        else {
-            hi = md;
-            md = ll;
-            fit_hi = fit_md;
-            fit_md = fit_ll;
-        }
+    static complex filtered[SIZE];
+    for (int i = 0; i < SIZE; ++i)
+        filtered[i] = 0;
+    filtered[0] = out[max_index] + I * out[SIZE-max_index];
+    for (int i = 1; i < WIDTH; ++i) {
+        filtered[i] = out[max_index+i] + I * out[SIZE-max_index-i];
+        filtered[SIZE-i] = out[max_index-i] + I * out[SIZE-max_index+i];
     }
+    static fftw_plan plan;
+    if (!plan)
+        plan = fftw_plan_dft_1d(SIZE, filtered, filtered,
+                                FFTW_BACKWARD, FFTW_ESTIMATE);
+    fftw_execute(plan);
+
+    static double phase[SIZE];
+    int last_phase_loops = 0;
+    double last_phase = 0;
+    double max_jump = 0;
+    // Run phase detection...
+    for (int i = 0; i != SIZE; ++i) {
+        double this_phase = carg(filtered[i]);
+        double jump = this_phase - last_phase;
+        if (this_phase > last_phase + M_PI) {
+            --last_phase_loops;
+            jump -= 2 * M_PI;
+        }
+        else if (this_phase < last_phase - M_PI) {
+            ++last_phase_loops;
+            jump += 2 * M_PI;
+        }
+        last_phase = this_phase;
+        phase[i] = this_phase + 2 * M_PI * last_phase_loops;
+        if (i && fabs(jump) > max_jump)
+            max_jump = fabs(jump);
+    }
+
+    fprintf(stderr, "Max jump = %g\n", max_jump);
+
+    // Polynomial fit.
+    const int order = 5;
+    double coeffs[order + 1];
+    lfit(coeffs, phase, SIZE, order);
+
+    // Find the RMS residual.
+    double sum = 0;
+    double mres = 0;
+    for (int i = 0; i != SIZE; ++i) {
+        sum += phase[i] * phase[i];
+        if (fabs(phase[i]) > mres)
+            mres = fabs(phase[i]);
+    }
+
+    fprintf(stderr, "RMS & max phase residual: %g & %g radians.\n",
+            sqrt(sum / SIZE), mres);
+    fprintf(stderr, "Normalised coeffs:");
+    for (int i = 0; i <= 10; ++i)
+        fprintf(stderr, " %g", coeffs[i]);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Mean frequency offset: %g Hz\n",
+            coeffs[1] * (FREQ / SIZE / M_PI));
+    fprintf(stderr, "End-end frequency drift: %g Hz\n",
+           6 * coeffs[2] * (FREQ / SIZE / M_PI));
+
+    unsigned int counts[1000][1000];
+    memset(counts, 0, sizeof(counts));
+    for (int i = 0; i < SIZE; ++i) {
+        int position
+            = (i * (unsigned long long) max_index) % SIZE; // (mod size).
+        double angle = l_eval(l_x(i, SIZE), coeffs, order); // mod 2pi
+        double coord = position * (1000.0 / SIZE) + angle * (1000 / 2 / M_PI);
+        coord = fmod(coord, 1000);
+        if (coord < 0)
+            coord += 1000;
+        ++counts[in[i] / 13][(int) coord];
+    }
+    printf("unset xtics\n");
+    printf("unset ytics\n");
+    printf("unset cbtics\n");
+    printf("unset colorbox\n");
+    printf("set xrange [0:2000]\n");
+    printf("set yrange [50:875]\n");
+    printf("set cbrange [0:140]\n");
+//    printf("set xrange [0:1999]\n");
+//    printf("set yrange [0:1000]\n");
+    printf("plot '-' matrix with image");
+    for (int i = 0; i < 1000; ++i) {
+        printf("\n%i", counts[i][0]);
+        for (int j = 1; j < 1000; ++j)
+            printf(" %i", counts[i][j]);
+        for (int j = 0; j < 1000; ++j)
+            printf(" %i", counts[i][j]);
+    }
+    printf("\ne\ne\n");
 }
 
 
 static void print_table(void)
 {
-    static double out[SIZE + 1];
-
-    fftw_plan plan = fftw_plan_r2r_1d(
-        SIZE, mapped, out, FFTW_R2HC, FFTW_ESTIMATE);
-
-    fprintf(stderr, "Executing...\n");
-
-    fftw_execute(plan);
-    out[0] = 0;                         // Not interesting...
-    out[SIZE] = 0;
-
     for (int i = 0; i != ROWS; ++i) {
         const char * sep = "";
         for (int mult = 1; mult * ROWS <= HALF; mult *= 2) {
@@ -272,12 +225,15 @@ int main()
     fftw_init_threads();
     fftw_plan_with_nthreads(4);
 
+    fftw_plan plan = fftw_plan_r2r_1d(
+        SIZE, mapped, out, FFTW_R2HC, FFTW_ESTIMATE);
+    fftw_execute(plan);
+    out[0] = 0;                         // Not interesting...
+    out[SIZE] = 0;
+
     if (1)
-        chirp_test();
-    if (0) {
-        chirped_fft(0);
-        run_regression(1);
-    }
+        run_regression();
+
     if (0)
         print_table();
 

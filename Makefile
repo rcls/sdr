@@ -1,11 +1,12 @@
 
 all: sinrom.vhd phasedetectsim pllsim dump readdump
 
-CFLAGS=-O2 -Wall -Werror -std=gnu99 -g
+CFLAGS=-O2 -Wall -Werror -std=gnu99 -g -I.
 LDFLAGS=-lm
 dump: LDFLAGS=-lusb-1.0
 ftrans: LDFLAGS=-lfftw3 -lm
 mlt3-detect: LDFLAGS=-lfftw3_threads -lfftw3 -lm
+mlt3-detect: lib/legendre.o
 
 sinrom.vhd: sinrom
 	./sinrom > sinrom.vhd
