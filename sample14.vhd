@@ -65,7 +65,7 @@ architecture Behavioral of sample14 is
   alias clk_main_locked : std_logic is led_on(0);
 
 --  signal phase : unsigned(3 downto 0) := x"0";
-  constant phase_max : integer := 15;
+  constant phase_max : integer := 14;
   signal phase : integer range 0 to phase_max;
 
   signal usb_d_out : unsigned8;
@@ -121,7 +121,7 @@ begin
   led_on(2) <= div25(24);
 
   -- We run on a period of 100ns, from a sample rate of 100MHz.  We output the
-  -- 14 low bits of the ADC in two bytes, each with an LFSR generated bit.
+  -- 14 bits of the ADC in two bytes, each with an LFSR generated bit.
   process (clk_main)
     variable div25_inc : unsigned(25 downto 0);
   begin

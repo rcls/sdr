@@ -14,7 +14,13 @@
 #define HALF (SIZE/2)
 #define HALFp1 (HALF + 1)
 
-#define WIDTH 1024
+// Time domain length of filter.
+#define FILTER_WIDTH 16384
+
+// Width of image (image is doubled & is actually twice this).
+#define I_WIDTH 350
+// Height of image
+#define I_HEIGHT 500
 
 //#define ROWS 4096
 #define ROWS HALF
@@ -39,31 +45,50 @@ static void run_regression(void)
 
     fprintf(stderr, "Peak at %i, %f Hz\n",
             max_index, max_index * (FREQ / SIZE));
-    if (max_index <= WIDTH || max_index >= HALF - WIDTH) {
+    if (max_index <= SIZE / FILTER_WIDTH
+        || max_index >= HALF - SIZE / FILTER_WIDTH) {
         fprintf(stderr, "Too close to end.\n");
         exit(EXIT_FAILURE);
     }
 
-    static complex filtered[SIZE];
-    for (int i = 0; i < SIZE; ++i)
-        filtered[i] = 0;
-    filtered[0] = out[max_index] + I * out[SIZE-max_index];
-    for (int i = 1; i < WIDTH; ++i) {
-        filtered[i] = out[max_index+i] + I * out[SIZE-max_index-i];
-        filtered[SIZE-i] = out[max_index-i] + I * out[SIZE-max_index+i];
-    }
+    // Doing a full size fft & then the regression on full time resolution is
+    // a bit silly...  CPU cycles are cheap.
     static fftw_plan plan;
+    static complex filtered[SIZE];
     if (!plan)
         plan = fftw_plan_dft_1d(SIZE, filtered, filtered,
                                 FFTW_BACKWARD, FFTW_ESTIMATE);
+    // First generate the filter spectrum.  Full complex instead of real
+    // symmetric FFT.  Again, waste waste waste.
+    for (unsigned int i = 0; i < SIZE; ++i)
+        filtered[i] = 0;
+    filtered[0] = M_PI / FILTER_WIDTH;
+    for (unsigned int i = 1; i < FILTER_WIDTH; ++i)
+        filtered[i] = filtered[SIZE - i] = sin(i * (M_PI / FILTER_WIDTH)) / i;
+    for (unsigned int i = FILTER_WIDTH; i < SIZE - FILTER_WIDTH; ++i)
+        filtered[i] = 0;
     fftw_execute(plan);
+
+    // Do the filtering in frequency domain.
+    for (int i = 1; i < max_index; ++i)
+        filtered[SIZE - max_index + i] *= out[i] + I * out[SIZE - i];
+    for (int i = max_index; i < HALF; ++i)
+        filtered[i - max_index] *= out[i] + I * out[SIZE - i];
+    for (int i = HALF - max_index; i <= SIZE - max_index; ++i)
+        filtered[i] = 0;
+
+    fftw_execute(plan);
+
+    const int START = FILTER_WIDTH;
+    const int END = SIZE - FILTER_WIDTH;
+    const int LEN = END - START;
 
     static double phase[SIZE];
     int last_phase_loops = 0;
     double last_phase = 0;
     double max_jump = 0;
     // Run phase detection...
-    for (int i = 0; i != SIZE; ++i) {
+    for (int i = START; i != END; ++i) {
         double this_phase = carg(filtered[i]);
         double jump = this_phase - last_phase;
         if (this_phase > last_phase + M_PI) {
@@ -85,55 +110,63 @@ static void run_regression(void)
     // Polynomial fit.
     const int order = 5;
     double coeffs[order + 1];
-    lfit(coeffs, phase, SIZE, order);
+    l_fit(coeffs, phase + START, LEN, order);
 
     // Find the RMS residual.
     double sum = 0;
     double mres = 0;
-    for (int i = 0; i != SIZE; ++i) {
+    for (int i = START; i != END; ++i) {
         sum += phase[i] * phase[i];
         if (fabs(phase[i]) > mres)
             mres = fabs(phase[i]);
     }
 
     fprintf(stderr, "RMS & max phase residual: %g & %g radians.\n",
-            sqrt(sum / SIZE), mres);
+            sqrt(sum / LEN), mres);
     fprintf(stderr, "Normalised coeffs:");
-    for (int i = 0; i <= 10; ++i)
+    for (int i = 0; i <= order; ++i)
         fprintf(stderr, " %g", coeffs[i]);
     fprintf(stderr, "\n");
     fprintf(stderr, "Mean frequency offset: %g Hz\n",
-            coeffs[1] * (FREQ / SIZE / M_PI));
-    fprintf(stderr, "End-end frequency drift: %g Hz\n",
-           6 * coeffs[2] * (FREQ / SIZE / M_PI));
+            coeffs[1] * (FREQ / LEN / M_PI));
+    if (order > 1)
+        fprintf(stderr, "End-end frequency drift: %g Hz\n",
+                6 * coeffs[2] * (FREQ / LEN / M_PI));
 
-    unsigned int counts[1000][1000];
+    unsigned int counts[I_HEIGHT][I_WIDTH];
     memset(counts, 0, sizeof(counts));
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = START; i < END; ++i) {
         int position
             = (i * (unsigned long long) max_index) % SIZE; // (mod size).
-        double angle = l_eval(l_x(i, SIZE), coeffs, order); // mod 2pi
-        double coord = position * (1000.0 / SIZE) + angle * (1000 / 2 / M_PI);
-        coord = fmod(coord, 1000);
+        double angle = l_eval(l_x(i, LEN), coeffs, order); // mod 2pi
+        double coord = position * (I_WIDTH / (double) SIZE)
+            + angle * (I_WIDTH / 2 / M_PI);
+        coord = fmod(coord, I_WIDTH);
         if (coord < 0)
-            coord += 1000;
-        ++counts[in[i] / 13][(int) coord];
+            coord += I_WIDTH;
+        ++counts[in[i] * I_HEIGHT / 13000][(int) coord];
     }
     printf("unset xtics\n");
     printf("unset ytics\n");
     printf("unset cbtics\n");
     printf("unset colorbox\n");
-    printf("set xrange [0:2000]\n");
-    printf("set yrange [50:875]\n");
-    printf("set cbrange [0:140]\n");
-//    printf("set xrange [0:1999]\n");
-//    printf("set yrange [0:1000]\n");
+    printf("unset border\n");
+    printf("set palette rgbformulae 22,21,23\n");
+    printf("set terminal wxt size %i, %i\n",
+           I_WIDTH * 2, 825 * I_HEIGHT / 1000);
+    printf("set lmargin 0\n");
+    printf("set rmargin 0\n");
+    printf("set tmargin 0\n");
+    printf("set bmargin 0\n");
+    printf("set xrange [0:%i]\n", 2 * I_WIDTH);
+    printf("set yrange [%i:%i]\n", 50 * I_HEIGHT / 1000, 875 * I_HEIGHT / 1000);
+    printf("set cbrange [0:%i]\n", 140000000 / I_WIDTH / I_HEIGHT);
     printf("plot '-' matrix with image");
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < I_HEIGHT; ++i) {
         printf("\n%i", counts[i][0]);
-        for (int j = 1; j < 1000; ++j)
+        for (int j = 1; j < I_WIDTH; ++j)
             printf(" %i", counts[i][j]);
-        for (int j = 0; j < 1000; ++j)
+        for (int j = 0; j < I_WIDTH; ++j)
             printf(" %i", counts[i][j]);
     }
     printf("\ne\ne\n");

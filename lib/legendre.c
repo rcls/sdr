@@ -73,8 +73,10 @@ static void l_coeff(double * CC, unsigned int order,
 static double l_norm_sq (int len, unsigned int order)
 {
     double sum = 0;
+    double M = M(len);
+    double C = C(len);
     for (unsigned int i = 0; i != len; ++i) {
-        double l = legendre(l_x(i, len), order);
+        double l = legendre(M * i + C, order);
         sum += l * l;
     }
     return sum;
@@ -84,17 +86,21 @@ static double l_norm_sq (int len, unsigned int order)
 static double inner_pr(const double * Y, unsigned int len, unsigned int order)
 {
     double sum = 0;
+    double M = M(len);
+    double C = C(len);
     for (int i = 0; i != len; ++i)
-        sum += Y[i] * legendre(l_x(i, len), order);
+        sum += Y[i] * legendre(M * i + C, order);
     return sum;
 }
 
 
-void lfit(double * __restrict__ coeffs, double * __restrict__ Y,
-          int len, unsigned int order)
+void l_fit(double * __restrict__ coeffs, double * __restrict__ Y,
+           int len, unsigned int order)
 {
     double norms[order + 1];
     double first_norm = 0;
+    double M = M(len);
+    double C = C(len);
     for (unsigned int n = 0; n <= order; ++n) {
         norms[n] = l_norm_sq(len, n);
         double ip = inner_pr(Y, len, n);
@@ -102,7 +108,7 @@ void lfit(double * __restrict__ coeffs, double * __restrict__ Y,
         fprintf(stderr, "%i: %g [%g/%g]\n", n, coeffs[n], ip, norms[n]);
         first_norm += ip * coeffs[n];
         for (unsigned int i = 0; i < len; ++i)
-            Y[i] -= coeffs[n] * legendre(l_x(i, len), n);
+            Y[i] -= coeffs[n] * legendre(M * i + C, n);
     }
     double this_norm;
     int count = 0;
@@ -116,10 +122,10 @@ void lfit(double * __restrict__ coeffs, double * __restrict__ Y,
             coeffs[n] += bb;
             this_norm += a * bb;
             for (unsigned int i = 0; i < len; ++i)
-                Y[i] -= bb * legendre(l_x(i, len), n);
+                Y[i] -= bb * legendre(M * i + C, n);
         }
     }
-    while (this_norm * 1e20 > first_norm && ++count < 1000);
+    while (this_norm * 1e20 > first_norm && ++count < 10);
     fprintf(stderr, "Iterations = %i\n", count);
 }
 
@@ -127,8 +133,8 @@ void lfit(double * __restrict__ coeffs, double * __restrict__ Y,
 // Transform from linear sum of Legendre polys to linear sum of monics.
 // CENTER and WIDTH (actually the half-width) allow taking "Legendre" polys
 // on [CENTER-WIDTH,CENTER+WIDTH] instead of [-1,+1].
-void lcoeffs2poly(double * coeffs,
-                  double CENTER, double WIDTH, unsigned int order)
+void l_coeffs2poly(double * coeffs,
+                   double CENTER, double WIDTH, unsigned int order)
 {
     double CC[(order + 1) * (order + 1)];
     l_coeff(CC, order, CENTER, WIDTH);
