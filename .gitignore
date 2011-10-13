@@ -5,6 +5,8 @@ PCB*.save
 phasedetectsim
 pllsim
 sinrom
+ftrans
+mlt3-detect
 readdump
 readdump14
 /docs/*.pdf

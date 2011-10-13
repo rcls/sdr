@@ -64,7 +64,6 @@ architecture Behavioral of sample14 is
   signal clk_main_fb : std_logic;
   alias clk_main_locked : std_logic is led_on(0);
 
---  signal phase : unsigned(3 downto 0) := x"0";
   constant phase_max : integer := 14;
   signal phase : integer range 0 to phase_max;
 
@@ -83,9 +82,6 @@ architecture Behavioral of sample14 is
 --  attribute S of usb_c : signal is "yes";
 
   signal div25 : unsigned(24 downto 0);
-
-  alias full : std_logic is led_on(3);
-  alias empty : std_logic is led_on(4);
 
   -- Poly is 0x100802041
   signal lfsr : std_logic_vector(31 downto 0) := x"00000001";
@@ -145,17 +141,6 @@ begin
           lfsr(31) xor lfsr(22) xor lfsr(12) xor lfsr(5));
 
         usb_read <= USB_nRXF = '0';
-      end if;
-
-      if sample and usb_nTXE = '0' then
-        empty <= '1';
-      elsif div25_inc(25) = '1' then
-        empty <= '0';
-      end if;
-      if sample and usb_nTXE = '1' then
-        full <= '1';
-      elsif div25_inc(25) = '1' then
-        full <= '0';
       end if;
 
       if phase < 8 then
