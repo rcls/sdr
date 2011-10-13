@@ -8,7 +8,7 @@
 
 #include "lib/legendre.h"
 
-#define FREQ (1e8 / 16.0)
+#define FREQ (1e8 / 15.0)
 
 #define SIZE (1<<23)
 #define HALF (SIZE/2)
@@ -53,6 +53,7 @@ static void run_regression(void)
 
     // Doing a full size fft & then the regression on full time resolution is
     // a bit silly...  CPU cycles are cheap.
+    fprintf(stderr, "Construct filter...\n");
     static fftw_plan plan;
     static complex filtered[SIZE];
     if (!plan)
@@ -79,6 +80,7 @@ static void run_regression(void)
 
     fftw_execute(plan);
 
+    fprintf(stderr, "Filtering...\n");
     const int START = FILTER_WIDTH;
     const int END = SIZE - FILTER_WIDTH;
     const int LEN = END - START;
@@ -108,7 +110,7 @@ static void run_regression(void)
     fprintf(stderr, "Max jump = %g\n", max_jump);
 
     // Polynomial fit.
-    const int order = 5;
+    const int order = 10;
     double coeffs[order + 1];
     l_fit(coeffs, phase + START, LEN, order);
 
@@ -141,7 +143,7 @@ static void run_regression(void)
         double angle = l_eval(l_x(i, LEN), coeffs, order); // mod 2pi
         double coord = position * (I_WIDTH / (double) SIZE)
             + angle * (I_WIDTH / 2 / M_PI);
-        coord = fmod(coord, I_WIDTH);
+        coord = fmod(-coord, I_WIDTH);
         if (coord < 0)
             coord += I_WIDTH;
         ++counts[in[i] * I_HEIGHT / 13000][(int) coord];

@@ -4,7 +4,7 @@
 
 // Leaves residuals in Y.
 void l_fit(double * __restrict__ coeffs, double * __restrict__ Y,
-           int len, unsigned int order);
+           unsigned int len, unsigned int order);
 
 // Transform the poly coefficients from the Legendre to monic basis.
 void l_coeffs2poly(double * coeffs,

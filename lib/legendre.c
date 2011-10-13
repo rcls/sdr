@@ -7,22 +7,16 @@
 #include "legendre.h"
 #include <string.h>
 
-#include <stdio.h>
-static double legendre(double x, unsigned int order)
-{
-    if (order == 0)
-        return 1;
-    double prev = 1;
-    double current = x;
-    for (unsigned int n = 1; n < order; ++n) {
-        double next = ((2*n+1) * x * current - n * prev) / (n + 1);
-        prev = current;
-        current = next;
-    }
-    //printf ("P_%i(%g)=%g\n", order, x, current);
-    return current;
-}
+#define M(len) (2.0 / (len))
+#define C(len) (1.0 / (len) - 1)
 
+#define L(n) (2*(n)+1.0) / ((n)+1), (n) / ((n)+1.0)
+#define LL(n) L(n), L(n+1), L(n+2), L(n+3)
+#define LLL(n) LL(n), LL(n+4), LL(n+8), LL(n+12)
+#define LLLL(n) LLL(n), LLL(n+16), LLL(n+32), LLL(n+48)
+static const double LCOEFF[] = { LLLL(0), LLLL(64), LLLL(128), LLLL(192) };
+
+#include <stdio.h>
 
 double l_eval(double x, const double * coeffs, unsigned int order)
 {
@@ -33,7 +27,7 @@ double l_eval(double x, const double * coeffs, unsigned int order)
     double current = x;
     for (unsigned int n = 1; n < order; ++n) {
         result += current * *coeffs++;
-        double next = ((2*n+1) * x * current - n * prev) / (n + 1);
+        double next = LCOEFF[2*n] * x * current - LCOEFF[2*n+1] * prev;
         prev = current;
         current = next;
     }
@@ -70,59 +64,84 @@ static void l_coeff(double * CC, unsigned int order,
 }
 
 
-static double l_norm_sq (int len, unsigned int order)
-{
-    double sum = 0;
-    double M = M(len);
-    double C = C(len);
-    for (unsigned int i = 0; i != len; ++i) {
-        double l = legendre(M * i + C, order);
-        sum += l * l;
-    }
-    return sum;
-}
-
-
-static double inner_pr(const double * Y, unsigned int len, unsigned int order)
-{
-    double sum = 0;
-    double M = M(len);
-    double C = C(len);
-    for (int i = 0; i != len; ++i)
-        sum += Y[i] * legendre(M * i + C, order);
-    return sum;
-}
-
 
 void l_fit(double * __restrict__ coeffs, double * __restrict__ Y,
-           int len, unsigned int order)
+           unsigned int len, unsigned int order)
 {
-    double norms[order + 1];
-    double first_norm = 0;
+    if (order == 0) {
+        double sum = 0;
+        for (unsigned int i = 0; i < len; ++i)
+            sum += Y[i];
+        *coeffs = sum / len;
+        for (unsigned int i = 0; i < len; ++i)
+            Y[i] -= *coeffs;
+        return;
+    }
+
     double M = M(len);
     double C = C(len);
-    for (unsigned int n = 0; n <= order; ++n) {
-        norms[n] = l_norm_sq(len, n);
-        double ip = inner_pr(Y, len, n);
-        coeffs[n] = ip / norms[n];
-        fprintf(stderr, "%i: %g [%g/%g]\n", n, coeffs[n], ip, norms[n]);
-        first_norm += ip * coeffs[n];
-        for (unsigned int i = 0; i < len; ++i)
-            Y[i] -= coeffs[n] * legendre(M * i + C, n);
+    double norms[order + 1];
+    double inners[order + 1];
+    for (unsigned int n = 0; n <= order; ++n)
+        norms[n] = inners[n] = 0;
+    norms[0] = len;
+    norms[1] = (len * (double) len - 1) * (1 / 3.0) / len;
+    for (unsigned int i = 0; i < len; ++i) {
+        double x = M * i + C;
+        double prev = 1;
+        double current = x;
+        inners[0] += Y[i];
+        inners[1] += x * Y[i];
+        for (unsigned int n = 1; n < order; ++n) {
+            double next = LCOEFF[2*n] * x * current - LCOEFF[2*n+1] * prev;
+            norms[n+1] += next * next;
+            inners[n+1] += next * Y[i];
+            prev = current;
+            current = next;
+        }
     }
-    double this_norm;
+    for (unsigned int n = 0; n <= order; ++n) {
+        coeffs[n] = inners[n] / norms[n];
+        fprintf(stderr, "%i: %g = %g/%g\n", n, coeffs[n], inners[n], norms[n]);
+    }
+
+    double first_norm = 0;
+    for (unsigned int i = 0; i < len; ++i) {
+        double y = l_eval(M * i + C, coeffs, order);
+        Y[i] -= y;
+        first_norm += y * y;
+    }
+
     int count = 0;
+    double this_norm;
     do {
-        this_norm = 0;
+        for (unsigned int n = 0; n <= order; ++n)
+            inners[n] = 0;
+        for (unsigned int i = 0; i < len; ++i) {
+            double x = M * i + C;
+            double prev = 1;
+            double current = x;
+            inners[0] += Y[i];
+            if (order >= 1)
+                inners[1] += x * Y[i];
+            for (unsigned int n = 1; n < order; ++n) {
+                double next = LCOEFF[2*n] * x * current - LCOEFF[2*n+1] * prev;
+                inners[n+1] += next * Y[i];
+                prev = current;
+                current = next;
+            }
+        }
         for (unsigned int n = 0; n <= order; ++n) {
-            double a = inner_pr(Y, len, n);
-            double bb = a / norms[n];
+            inners[n] /= norms[n];
             fprintf(stderr, "%i: %g = %g + %g\n",
-                    n, coeffs[n] + bb, coeffs[n], bb);
-            coeffs[n] += bb;
-            this_norm += a * bb;
-            for (unsigned int i = 0; i < len; ++i)
-                Y[i] -= bb * legendre(M * i + C, n);
+                    n, coeffs[n] + inners[n], coeffs[n], inners[n]);
+            coeffs[n] += inners[n];
+        }
+        this_norm = 0;
+        for (unsigned int i = 0; i < len; ++i) {
+            double y = l_eval(M * i + C, inners, order);
+            Y[i] -= y;
+            this_norm += y * y;
         }
     }
     while (this_norm * 1e20 > first_norm && ++count < 10);
