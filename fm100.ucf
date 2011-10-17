@@ -1,1 +1,1 @@
-TIMESPEC TS_adc_reclk = PERIOD "adc_reclk" 10 ns HIGH 50%;
+TIMESPEC TS_adc_reclk = PERIOD "adc_reclk" 10 ns;

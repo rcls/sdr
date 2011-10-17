@@ -65,7 +65,7 @@ architecture Behavioral of sample is
   alias clk_main_locked : std_logic is led_on(0);
 
 --  signal phase : unsigned(3 downto 0) := x"0";
-  constant phase_max : integer := 6;
+  constant phase_max : integer := 14;
   signal phase : integer range 0 to phase_max;
 
   signal usb_d_out : unsigned8;
@@ -164,9 +164,9 @@ begin
       usb_nRD <= '1';
       if usb_rdn then
         case phase is
-          when 0|1|2 =>
+          when 1|2|3|4|5|6|7 =>
             usb_nRD <= '0';
-          when 3 =>
+          when 8 =>
             if usb_rdn then
               adc_sen <= usb_d(0);
               adc_sdata <= usb_d(1);
@@ -178,14 +178,12 @@ begin
         end case;
       else
         case phase is
-          when 0 =>
+          when 1|2 =>
             usb_oe <= true;
-          when 1 =>
+          when 3|4 =>
             usb_nWR <= '0';
             usb_oe <= true;
-          when 2 =>
-            usb_nWR <= '0';
-          when 3 =>
+          when 5|6|7|8|9 =>
             usb_nWR <= '0';
           when others =>
         end case;
@@ -215,7 +213,7 @@ begin
     CE => '1', Q => adc_clk_n);
 
   -- Regenerate the clock from the ADC.
-  -- We run the PLL oscillator at 1000MHz, i.e., 10 times the input clock.
+  -- We run the PLL oscillator at 875MHz, i.e., 4 times the input clock.
   main_pll : PLL_BASE
     generic map(
       BANDWIDTH            => "LOW",
@@ -224,13 +222,13 @@ begin
       DIVCLK_DIVIDE        => 1,
       CLKFBOUT_MULT        => 1,
       --CLKFBOUT_PHASE       => 0.000,
-      CLKOUT0_DIVIDE       => 10,
+      CLKOUT0_DIVIDE       => 4,
       --CLKOUT0_PHASE        => 0.000,
       --CLKOUT0_DUTY_CYCLE   => 0.500,
-      CLKOUT1_DIVIDE       => 10,
+      CLKOUT1_DIVIDE       => 4,
       CLKOUT1_PHASE        => 180.000,
       --CLKOUT1_DUTY_CYCLE   => 0.500,
-      CLKIN_PERIOD         => 10.0,
+      --CLKIN_PERIOD         => 4.571428,
       REF_JITTER           => 0.001)
     port map(
       -- Output clocks
@@ -248,23 +246,23 @@ begin
 
   clkin125_bufg : BUFG port map(I=>clkin125, O=>clkin125_buf);
 
-  -- Generate the clock to the ADC.  We run the PLL oscillator at 1GHz, (8 times
-  -- the input clock), and then generate a 10ns output.
+  -- Generate the clock to the ADC.  We run the PLL oscillator at 875MHz, (7
+  -- times the input clock), and then generate a 217.5MHz output.
   adc_gen_pll : PLL_BASE
     generic map(
       BANDWIDTH            => "LOW",
       CLK_FEEDBACK         => "CLKFBOUT",
       --COMPENSATION         => "SYSTEM_SYNCHRONOUS",
       DIVCLK_DIVIDE        => 1,
-      CLKFBOUT_MULT        => 8,
+      CLKFBOUT_MULT        => 7,
       --CLKFBOUT_PHASE       => 0.000,
-      CLKOUT0_DIVIDE       => 10,
+      CLKOUT0_DIVIDE       => 4,
       --CLKOUT0_PHASE        => 0.000,
       --CLKOUT0_DUTY_CYCLE   => 0.500,
-      CLKOUT1_DIVIDE       => 10,
+      CLKOUT1_DIVIDE       => 4,
       CLKOUT1_PHASE        => 180.000,
       --CLKOUT1_DUTY_CYCLE   => 0.500,
-      CLKIN_PERIOD         => 8.0,
+      --CLKIN_PERIOD         => 8.0,
       REF_JITTER           => 0.001)
     port map(
       -- Output clocks

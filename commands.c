@@ -1,4 +1,6 @@
-// Send commands to the thing.
+// Send commands to the ADS41B49.
+
+// Hiperf mod-1: 0303, mode-2 4a01
 
 #include <stdio.h>
 #include <stdlib.h>
