@@ -102,7 +102,7 @@ architecture Behavioral of sample22 is
   -- Type that used for arithmetic in the filter chain.
   subtype word is signed(width downto 0);
   type word_array is array (natural range <>) of word;
-  constant zero : word := x"000000000000";
+  constant zero : word := (others => '0');
 
   signal cos : signed18;
   signal sin : signed18;
@@ -131,14 +131,10 @@ architecture Behavioral of sample22 is
   signal flt_r : word_array(0 to 5);
   signal flt_i : word_array(0 to 5);
 
-  signal out0_r : word;
-  signal out0_i : word;
-  signal out1_r : word;
-  signal out1_i : word;
-  signal out2_r : word;
-  signal out2_i : word;
-  signal out3_r : word;
-  signal out3_i : word;
+  signal out1_r : signed(17 downto 0);
+  signal out1_i : signed(17 downto 0);
+  signal out2_r : signed(11 downto 0);
+  signal out2_i : signed(11 downto 0);
 
   signal out0 : signed(7 downto 0);
   signal out1 : signed(7 downto 0);
@@ -560,45 +556,42 @@ begin
       end if;
       for i in 1 to 5 loop
         if op(i)(1) = '1' then
-          flt_r(i) <= shift_or_add(flt_r(i), flt_r(i-1), acc5_i, op(i), i);
+          flt_r(i) <= shift_or_add(flt_r(i), flt_r(i-1), acc5_r, op(i), i);
           flt_i(i) <= shift_or_add(flt_i(i), flt_i(i-1), acc5_i, op(i), i);
         end if;
       end loop;
 
       case shift(4 downto 3) is
-        when "01" => out1_r <= flt_r(5)(width - 8 downto 0) & x"00";
-                     out1_i <= flt_i(5)(width - 8 downto 0) & x"00";
-        when "10" => out1_r <= flt_r(5)(width - 16 downto 0) & x"0000";
-                     out1_i <= flt_i(5)(width - 16 downto 0) & x"0000";
-        when "11" => out1_r <= flt_r(5)(width - 24 downto 0) & x"000000";
-                     out1_i <= flt_i(5)(width - 24 downto 0) & x"000000";
-        when others => out1_r <= flt_r(5);
-                       out1_i <= flt_i(5);
+        when "01" => out1_r <= flt_r(5)(width- 8 downto width-25);
+                     out1_i <= flt_i(5)(width- 8 downto width-25);
+        when "10" => out1_r <= flt_r(5)(width-16 downto width-33);
+                     out1_i <= flt_i(5)(width-16 downto width-33);
+        when "11" => out1_r <= flt_r(5)(width-24 downto width-41);
+                     out1_i <= flt_i(5)(width-24 downto width-41);
+        when others => out1_r <= flt_r(5)(width downto width-17);
+                       out1_i <= flt_i(5)(width downto width-17);
       end case;
       case shift(2 downto 1) is
-        when "01" => out2_r <= out1_r(width - 2 downto 0) & "00";
-                     out2_i <= out1_i(width - 2 downto 0) & "00";
-        when "10" => out2_r <= out1_r(width - 4 downto 0) & "0000";
-                     out2_i <= out1_i(width - 4 downto 0) & "0000";
-        when "11" => out2_r <= out1_r(width - 6 downto 0) & "000000";
-                     out2_i <= out1_i(width - 6 downto 0) & "000000";
-        when others => out2_r <= out1_r;
-                       out2_i <= out1_i;
+        when "01" => out2_r <= out1_r(15 downto 4);
+                     out2_i <= out1_i(15 downto 4);
+        when "10" => out2_r <= out1_r(13 downto 2);
+                     out2_i <= out1_i(13 downto 2);
+        when "11" => out2_r <= out1_r(11 downto 0);
+                     out2_i <= out1_i(11 downto 0);
+        when others => out2_r <= out1_r(17 downto 6);
+                       out2_i <= out1_i(17 downto 6);
       end case;
       if state = 47 then
         if shift(0) = '0' then
-          out0 <= out2_r(width downto width-6) & (lfsr(0) and out2_i(width-10));
-          out1 <= out2_i(width downto width-6) & lfsr(0);
-          out2 <= out2_r(width-7 downto width-10)
-                  & out2_i(width-7 downto width-9)
-                  & (lfsr(0) or out2_i(width-10));
+          out0 <= out2_r(11 downto 5) & (lfsr(0) and out2_i(1));
+          out1 <= out2_i(11 downto 5) & lfsr(0);
+          out2 <= out2_r(4 downto 1) & out2_i(4 downto 2)
+                  & (lfsr(0) or out2_i(1));
         else
-          out0 <= out2_r(width-1 downto width-7)
-                  & (lfsr(0) and out2_i(width-11));
-          out1 <= out2_i(width-1 downto width-7) & lfsr(0);
-          out2 <= out2_r(width-8 downto width-11)
-                  & out2_i(width-8 downto width-10)
-                  & (lfsr(0) or out2_i(width-11));
+          out0 <= out2_r(10 downto 4) & (lfsr(0) and out2_i(0));
+          out1 <= out2_i(10 downto 4) & lfsr(0);
+          out2 <= out2_r(3 downto 0) & out2_i(3 downto 1)
+                  & (lfsr(0) or out2_i(0));
         end if;
         lfsr <= lfsr(30 downto 0) & (
           lfsr(31) xor lfsr(22) xor lfsr(12) xor lfsr(5));
