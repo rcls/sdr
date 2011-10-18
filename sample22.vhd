@@ -612,7 +612,7 @@ begin
           usb_nWR <= '0';
           usb_oe <= true;
         when 4|5|6|7|8|9 =>
-          usb_nWR <= '1';
+          usb_nWR <= '0';
         when others =>
       end case;
 
