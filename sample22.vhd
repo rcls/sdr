@@ -73,9 +73,7 @@ architecture Behavioral of sample22 is
   signal state : integer range 0 to state_max;
 
   signal phase_r : unsigned7;
-  signal phase_i : unsigned7;
   signal freq_r : unsigned7;
-  signal freq_i : unsigned7;
   signal offset : signed18;
   signal shift : unsigned(4 downto 0);
 
@@ -480,11 +478,9 @@ begin
       end if;
 
       phase_r <= addmod96(phase_r, freq_r);
-      phase_i <= addmod96(phase_r, freq_i);
-      freq_i <= addmod96(freq_r, "1001000");
 
       cos <= cos_table(to_integer(table_select & phase_r));
-      sin <= cos_table(to_integer(table_select & phase_i));
+      sin <= cos_table(to_integer(table_select & addmod96(phase_r, "1001000")));
 
       adc_r0 <= adc_data;
       adc_i0 <= adc_data;
@@ -584,14 +580,12 @@ begin
       if state = 47 then
         if shift(0) = '0' then
           out0 <= out2_r(11 downto 5) & (lfsr(0) and out2_i(1));
-          out1 <= out2_i(11 downto 5) & lfsr(0);
-          out2 <= out2_r(4 downto 1) & out2_i(4 downto 2)
-                  & (lfsr(0) or out2_i(1));
+          out1 <= out2_i(11 downto 5) & (lfsr(0) or out2_i(1));
+          out2 <= out2_r(4 downto 1) & out2_i(4 downto 2) & lfsr(0);
         else
           out0 <= out2_r(10 downto 4) & (lfsr(0) and out2_i(0));
-          out1 <= out2_i(10 downto 4) & lfsr(0);
-          out2 <= out2_r(3 downto 0) & out2_i(3 downto 1)
-                  & (lfsr(0) or out2_i(0));
+          out1 <= out2_i(10 downto 4) & (lfsr(0) or out2_i(0));
+          out2 <= out2_r(3 downto 0) & out2_i(3 downto 1) & lfsr(0);
         end if;
         lfsr <= lfsr(30 downto 0) & (
           lfsr(31) xor lfsr(22) xor lfsr(12) xor lfsr(5));
@@ -685,10 +679,10 @@ begin
     CE => '1', Q => adc_clk_n);
 
   -- Regenerate the clock from the ADC.
-  -- We run the PLL oscillator at 875MHz, i.e., 4 times the input clock.
+  -- We run the PLL oscillator at 1000MHz, i.e., 4 times the input clock.
   main_pll : PLL_BASE
     generic map(
-      BANDWIDTH            => "LOW",
+      --BANDWIDTH            => "LOW",
       CLK_FEEDBACK         => "CLKOUT0",
       --COMPENSATION         => "SYSTEM_SYNCHRONOUS",
       DIVCLK_DIVIDE        => 1,
@@ -718,15 +712,15 @@ begin
 
   clkin125_bufg : BUFG port map(I=>clkin125, O=>clkin125_buf);
 
-  -- Generate the clock to the ADC.  We run the PLL oscillator at 875MHz, (7
-  -- times the input clock), and then generate a 217.5MHz output.
+  -- Generate the clock to the ADC.  We run the PLL oscillator at 1000MHz, (8
+  -- times the input clock), and then generate a 250MHz output.
   adc_gen_pll : PLL_BASE
     generic map(
       BANDWIDTH            => "LOW",
       CLK_FEEDBACK         => "CLKFBOUT",
       --COMPENSATION         => "SYSTEM_SYNCHRONOUS",
       DIVCLK_DIVIDE        => 1,
-      CLKFBOUT_MULT        => 7,
+      CLKFBOUT_MULT        => 8,
       --CLKFBOUT_PHASE       => 0.000,
       CLKOUT0_DIVIDE       => 4,
       --CLKOUT0_PHASE        => 0.000,

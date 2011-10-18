@@ -1,9 +1,11 @@
+#include <getopt.h>
 #include <libusb-1.0/libusb.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <fcntl.h>
 #include <unistd.h>
 
 #define INTF 0
@@ -11,18 +13,14 @@
 #define NUM_URBS 256
 #define XLEN 512
 
-#define WANTED (1<<24)
 #define SLOP (NUM_URBS * XLEN * 2)
-#define BUFSIZE (WANTED + 2 * SLOP)
-/* #define SLOP 0 */
-/* #define BUFSIZE 1024 */
 
-static unsigned char buffer[BUFSIZE];
-#define BUFEND (buffer + sizeof(buffer))
-static unsigned char * bufptr = buffer;
-int outstanding = 0;
+static unsigned char * buffer;
+static unsigned char * bufend;
+static unsigned char * bufptr;
+static int outstanding = 0;
 
-typedef struct libusb_transfer libusb_transfer;
+static const char * outpath;
 
 static void exprintf(const char * f, ...) __attribute__(
     (__noreturn__, __format__(__printf__, 1, 2)));
@@ -42,7 +40,7 @@ static void experror(const char * m)
     exit(EXIT_FAILURE);
 }
 
-static void finish(libusb_transfer * u)
+static void finish(struct libusb_transfer * u)
 {
     if (u->status != LIBUSB_TRANSFER_COMPLETED)
         exprintf("usb transfer failed\n");
@@ -51,19 +49,57 @@ static void finish(libusb_transfer * u)
         exprintf("huh? short packet\n");
 
     int l = u->actual_length - 2;
-    if (l > BUFEND - bufptr)
-        l = BUFEND - bufptr;
+    if (l > bufend - bufptr)
+        l = bufend - bufptr;
     memcpy(bufptr, u->buffer + 2, l);
     bufptr += l;
 
-    if (bufptr == BUFEND)
+    if (bufptr == bufend) {
+        libusb_free_transfer(u);
         --outstanding;
+    }
     else if (libusb_submit_transfer(u) != 0)
         exprintf("libusb_submit_transfer failed\n");
 }
 
-int main()
+
+static void parse_opts(int argc, char * argv[])
 {
+    while (1) {
+        switch (getopt(argc, argv, "o:")) {
+        case 'o':
+            if (outpath)
+                exprintf("Multiple -o options.\n");
+            outpath = optarg;
+        case -1:
+            return;
+        default:
+            exprintf("Bad option.\n");
+        }
+    }
+}
+
+
+int main(int argc, char * argv[])
+{
+    parse_opts(argc, argv);
+
+    size_t bufsize = 1;
+    for (int i = optind; i < argc; ++i)
+        bufsize *= strtoul(argv[i], NULL, 0);
+    if (optind >= argc)
+        bufsize = 1 << 24;
+
+    bufsize += SLOP;
+    buffer = malloc(bufsize);
+    if (buffer == NULL)
+        experror("malloc");
+    bufptr = buffer;
+    bufend = buffer + bufsize;
+
+    mlockall(MCL_CURRENT | MCL_FUTURE);
+    memset(buffer, 0xff, bufsize);
+
     if (libusb_init(NULL) < 0)
         exprintf("libusb_init failed\n");
 
@@ -82,7 +118,7 @@ int main()
     //static libusb_transfer urbs[NUM_URBS];
     static unsigned char bounce[NUM_URBS][XLEN];
     for (int i = 0; i != NUM_URBS; ++i) {
-        libusb_transfer * u = libusb_alloc_transfer(0);
+        struct libusb_transfer * u = libusb_alloc_transfer(0);
         u->dev_handle = dev;
         u->flags = 0;
         u->endpoint = EP;
@@ -97,19 +133,25 @@ int main()
         ++outstanding;
     }
 
-    mlockall(MCL_CURRENT | MCL_FUTURE);
-    memset(buffer, 0xff, BUFSIZE);
-
     while (outstanding > 0)
         if (libusb_handle_events(NULL) != 0)
             exprintf("libusb_handle_events failed!\n");
 
-    for (const unsigned char * p = buffer; p != BUFEND;) {
-        ssize_t r = write(1, p, BUFEND - p);
+    int outfile = 1;
+    if (outpath) {
+        outfile = open(outpath, O_WRONLY|O_CREAT|O_TRUNC, 0666);
+        if (outfile < 0)
+            experror("opening output");
+    }
+    for (const unsigned char * p = buffer; p != bufend;) {
+        ssize_t r = write(outfile, p, bufend - p);
         if (r < 0)
-            experror("write");
+            experror("writing output");
         p += r;
     }
+
+    if (outpath && close(outfile) < 0)
+        experror("closing output");
 
     if (libusb_release_interface(dev, INTF) != 0)
         exprintf("libusb_release_interface failed\n");
