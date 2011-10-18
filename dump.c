@@ -1,12 +1,13 @@
 #include <getopt.h>
 #include <libusb-1.0/libusb.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+#include "lib/util.h"
 
 #define INTF 0
 #define EP 0x81
@@ -21,24 +22,6 @@ static unsigned char * bufptr;
 static int outstanding = 0;
 
 static const char * outpath;
-
-static void exprintf(const char * f, ...) __attribute__(
-    (__noreturn__, __format__(__printf__, 1, 2)));
-static void exprintf(const char * f, ...)
-{
-    va_list args;
-    va_start(args, f);
-    vfprintf(stderr, f, args);
-    va_end(args);
-    exit(EXIT_FAILURE);
-}
-
-static void experror(const char * m) __attribute__((__noreturn__));
-static void experror(const char * m)
-{
-    perror(m);
-    exit(EXIT_FAILURE);
-}
 
 static void finish(struct libusb_transfer * u)
 {
@@ -91,9 +74,7 @@ int main(int argc, char * argv[])
         bufsize = 1 << 24;
 
     bufsize += SLOP;
-    buffer = malloc(bufsize);
-    if (buffer == NULL)
-        experror("malloc");
+    buffer = xmalloc(bufsize);
     bufptr = buffer;
     bufend = buffer + bufsize;
 
@@ -138,20 +119,15 @@ int main(int argc, char * argv[])
             exprintf("libusb_handle_events failed!\n");
 
     int outfile = 1;
-    if (outpath) {
-        outfile = open(outpath, O_WRONLY|O_CREAT|O_TRUNC, 0666);
-        if (outfile < 0)
-            experror("opening output");
-    }
-    for (const unsigned char * p = buffer; p != bufend;) {
-        ssize_t r = write(outfile, p, bufend - p);
-        if (r < 0)
-            experror("writing output");
-        p += r;
-    }
+    if (outpath)
+        outfile = checki(open(outpath, O_WRONLY|O_CREAT|O_TRUNC, 0666),
+                         "opening output");
 
-    if (outpath && close(outfile) < 0)
-        experror("closing output");
+    for (const unsigned char * p = buffer; p != bufend;)
+        p += checkz(write(outfile, p, bufend - p), "writing output");
+
+    if (outpath)
+        checki(close(outfile), "closing output");
 
     if (libusb_release_interface(dev, INTF) != 0)
         exprintf("libusb_release_interface failed\n");

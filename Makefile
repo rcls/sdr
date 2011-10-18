@@ -8,6 +8,7 @@ ftrans: LDFLAGS=$(CFLAGS) -lfftw3 -lm
 mlt3-detect: LDFLAGS=$(CFLAGS) -lfftw3_threads -lfftw3 -lm
 mlt3-detect: lib/legendre.o
 readdump22: lib/util.o
+dump: lib/util.o
 
 sinrom.vhd: sinrom
 	./sinrom > sinrom.vhd

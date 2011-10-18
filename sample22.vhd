@@ -72,10 +72,10 @@ architecture Behavioral of sample22 is
   constant state_max : integer := 47;
   signal state : integer range 0 to state_max;
 
-  signal phase_r : unsigned7;
-  signal freq_r : unsigned7;
-  signal offset : signed18;
-  signal shift : unsigned(4 downto 0);
+  signal phase_r : unsigned7 := "0000000";
+  signal freq : unsigned7 := "0000000";
+  signal offset : signed18 := "00" & x"2000";
+  signal shift : unsigned(4 downto 0) := "00000";
 
   signal usb_d_out : unsigned8;
   signal usb_oe : boolean := false;
@@ -399,7 +399,7 @@ architecture Behavioral of sample22 is
     "00" & x"0000", "00" & x"0000", "00" & x"0000", "00" & x"0000",
     "00" & x"0000", "00" & x"0000", "00" & x"0000", "00" & x"0000",
     "00" & x"0000", "00" & x"0000", "00" & x"0000", "00" & x"0000",
--- Scale = 131071.
+    -- Scale = 131071.
     "01" & x"ffff", "01" & x"fee6", "01" & x"fb9e", "01" & x"f629",
     "01" & x"ee8d", "01" & x"e4d3", "01" & x"d906", "01" & x"cb32",
     "01" & x"bb67", "01" & x"a9b6", "01" & x"9632", "01" & x"80f0",
@@ -466,6 +466,7 @@ begin
 
   process (clk_main)
     variable div25_inc : unsigned(25 downto 0);
+    variable phase_added : unsigned7;
   begin
     if clk_main'event and clk_main = '1' then
       div25_inc := ('0' & div25) + 1;
@@ -477,15 +478,19 @@ begin
         state <= state + 1;
       end if;
 
-      phase_r <= addmod96(phase_r, freq_r);
+      if usb_rd_process then
+        phase_r <= (others => '0');
+      else
+        phase_r <= addmod96(phase_r, freq);
+      end if;
 
       cos <= cos_table(to_integer(table_select & phase_r));
       sin <= cos_table(to_integer(table_select & addmod96(phase_r, "1001000")));
 
       adc_r0 <= adc_data;
       adc_i0 <= adc_data;
-      adc_r1 <= (x"0" & signed(adc_r0)) + offset;
-      adc_i1 <= (x"0" & signed(adc_i0)) + offset;
+      adc_r1 <= (x"0" & signed(adc_r0)) - offset;
+      adc_i1 <= (x"0" & signed(adc_i0)) - offset;
       cos_1 <= cos;
       sin_1 <= sin;
 
@@ -637,9 +642,9 @@ begin
             adc_sclk <= usb_d(2);
             adc_reset <= usb_d(3);
           when "001" =>
-            freq_r(4 downto 0) <= usb_d(4 downto 0);
+            freq(4 downto 0) <= usb_d(4 downto 0);
           when "010" =>
-            freq_r(6 downto 5) <= usb_d(1 downto 0);
+            freq(6 downto 5) <= usb_d(1 downto 0);
             table_select <= usb_d(4 downto 2);
           when "011" =>
             shift <= usb_d(4 downto 0);
@@ -692,10 +697,11 @@ begin
       --CLKOUT0_PHASE        => 0.000,
       --CLKOUT0_DUTY_CYCLE   => 0.500,
       CLKOUT1_DIVIDE       => 4,
-      CLKOUT1_PHASE        => 180.000,
+      CLKOUT1_PHASE        => 180.000
       --CLKOUT1_DUTY_CYCLE   => 0.500,
       --CLKIN_PERIOD         => 10.0,
-      REF_JITTER           => 0.001)
+      --REF_JITTER           => 0.001
+      )
     port map(
       -- Output clocks
       CLKFBOUT => open,
@@ -720,16 +726,17 @@ begin
       CLK_FEEDBACK         => "CLKFBOUT",
       --COMPENSATION         => "SYSTEM_SYNCHRONOUS",
       DIVCLK_DIVIDE        => 1,
-      CLKFBOUT_MULT        => 8,
+      CLKFBOUT_MULT        => 7,
       --CLKFBOUT_PHASE       => 0.000,
       CLKOUT0_DIVIDE       => 4,
       --CLKOUT0_PHASE        => 0.000,
       --CLKOUT0_DUTY_CYCLE   => 0.500,
       CLKOUT1_DIVIDE       => 4,
-      CLKOUT1_PHASE        => 180.000,
+      CLKOUT1_PHASE        => 180.000
       --CLKOUT1_DUTY_CYCLE   => 0.500,
       --CLKIN_PERIOD         => 8.0,
-      REF_JITTER           => 0.001)
+      --REF_JITTER           => 0.001
+      )
     port map(
       -- Output clocks
       CLKFBOUT            => adc_clk_fb,

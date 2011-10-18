@@ -1,0 +1,1 @@
+TIMESPEC TS_adc_reclk = PERIOD "adc_reclk" 250 MHz;
