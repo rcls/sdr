@@ -24,38 +24,15 @@ package defs is
 
 --subtype std_logic7 is std_logic_vector(6 downto 0);
 
-  function addmod96(x : unsigned7; y : unsigned7) return unsigned7;
+  function addmod120(x : unsigned7; y : unsigned7) return unsigned7;
 
 end defs;
 
 package body defs is
-  function addmod96(x : unsigned7; y : unsigned7) return unsigned7 is
-    variable low: unsigned6;
-    variable high: unsigned2;
+  function addmod120(x : unsigned7; y : unsigned7) return unsigned7 is
+    variable carry : unsigned(4 downto 0);
   begin
-    low := ("0" & x(4 downto 0)) + ("0" & y(4 downto 0));
-    case low(5) & x(6 downto 5) & y(6 downto 5) is
-      when "00000" => high := "00";
-      when "00001" => high := "01";
-      when "00010" => high := "10";
-      when "00100" => high := "01";
-      when "00101" => high := "10";
-      when "00110" => high := "00";
-      when "01000" => high := "10";
-      when "01001" => high := "00";
-      when "01010" => high := "01";
-      when "10000" => high := "01";
-      when "10001" => high := "10";
-      when "10010" => high := "00";
-      when "10100" => high := "10";
-      when "10101" => high := "00";
-      when "10110" => high := "01";
-      when "11000" => high := "00";
-      when "11001" => high := "01";
-      when "11010" => high := "10";
-      when others => high := "XX";
-    end case;
-    return high & low(4 downto 0);
-  end addmod96;
-
+    carry := ('0' & x(3 downto 0)) + y(3 downto 0) + 1;
+    return x + y + carry(4 downto 4);
+  end;
 end package body defs;

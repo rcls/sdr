@@ -97,7 +97,7 @@ int main(int argc, char * argv[])
         exprintf("libusb_claim_interface failed\n");
 
     //static libusb_transfer urbs[NUM_URBS];
-    static unsigned char bounce[NUM_URBS][XLEN];
+    static unsigned char bounce[XLEN];
     for (int i = 0; i != NUM_URBS; ++i) {
         struct libusb_transfer * u = libusb_alloc_transfer(0);
         u->dev_handle = dev;
@@ -107,7 +107,7 @@ int main(int argc, char * argv[])
         u->timeout = 0;
         u->length = XLEN;
         u->callback = finish;
-        u->buffer = bounce[i];
+        u->buffer = bounce;
         u->num_iso_packets = 0;
         if (libusb_submit_transfer(u) != 0)
             exprintf("libusb_submit_transfer failed\n");
