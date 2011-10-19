@@ -33,5 +33,7 @@ void slurp_file(int file, unsigned char * * restrict b,
 // Returns number of samples...
 size_t best22(const unsigned char ** restrict buffer,
               size_t * restrict bytes);
+size_t best14(const unsigned char ** restrict buffer,
+              size_t * restrict bytes);
 
 #endif

@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+#define USB_IN_EP 0x81
+#define USB_OUT_EP 2
 #define USB_SLOP 262144
 
 typedef struct libusb_device_handle libusb_device_handle;

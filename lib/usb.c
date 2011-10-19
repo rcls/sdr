@@ -5,7 +5,6 @@
 #include "lib/util.h"
 
 #define INTF 0
-#define EP 0x81
 #define NUM_URBS 256
 #define XLEN 512
 
@@ -82,7 +81,7 @@ void usb_slurp(libusb_device_handle * dev, void * buffer, size_t len)
         struct libusb_transfer * u = libusb_alloc_transfer(0);
         u->dev_handle = dev;
         u->flags = 0;
-        u->endpoint = EP;
+        u->endpoint = USB_IN_EP;
         u->type = LIBUSB_TRANSFER_TYPE_BULK;
         u->timeout = 0;
         u->length = XLEN;

@@ -53,8 +53,7 @@ void slurp_file(int file, unsigned char * * restrict buffer,
 }
 
 
-size_t best22(const unsigned char ** restrict buffer,
-              size_t * restrict bytes)
+size_t best22(const unsigned char ** restrict buffer, size_t * restrict bytes)
 {
     uint32_t runA = 0;
     uint32_t runB = 0;
@@ -93,4 +92,43 @@ size_t best22(const unsigned char ** restrict buffer,
     bestsize -= 63 * 3;
     *bytes = bestsize;
     return bestsize / 3;
+}
+
+
+size_t best14(const unsigned char ** restrict buffer, size_t * restrict bytes)
+{
+    uint32_t runA = 0;
+    uint32_t runB = 0;
+    const unsigned char * badA = *buffer;
+    const unsigned char * badB = *buffer;
+    const unsigned char * best = *buffer;
+    const unsigned char * end = *buffer + *bytes;
+    size_t bestsize = 0;
+    for (const unsigned char * p = *buffer; p != end; ++p) {
+        int predicted = __builtin_parity(runB & 0x80401020);
+        int got = !!(*p & 128);
+        uint32_t runNext = runB * 2 + got;
+        const unsigned char * badNext = badB;
+        if (runA != runNext || predicted != got)
+            badNext = p;
+        else if (p - badB >= bestsize) {
+            best = badB;
+            bestsize = p - badB;
+        }
+
+        badB = badA;
+        badA = badNext;
+        runB = runA;
+        runA = runNext;
+    }
+
+    if (bestsize < 64 * 2) {
+        *bytes = 0;
+        return 0;
+    }
+
+    *buffer = best + 32 * 2 - 1;
+    bestsize -= 63 * 2;
+    *bytes = bestsize;
+    return bestsize / 2;
 }
