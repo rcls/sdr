@@ -1,20 +1,24 @@
 
-all: sinrom.vhd phasedetectsim pllsim dump readdump
+all: sinrom.vhd phasedetectsim pllsim dump readdump readdump14 readdump22
 
-CFLAGS=-O3 -flto -ffast-math -Wall -Werror -std=gnu99 -g -I.
+DEP=-MMD -MP -MF.$(subst /,:,$@).d
+
+CFLAGS=-O3 -flto -ffast-math -Wall -Werror -std=gnu99 -g -I. $(DEP)
 LDFLAGS=$(CFLAGS) -lm
 dump: LDFLAGS=$(CFLAGS) -lusb-1.0
 ftrans: LDFLAGS=$(CFLAGS) -lfftw3 -lm
 mlt3-detect: LDFLAGS=$(CFLAGS) -lfftw3_threads -lfftw3 -lm
 mlt3-detect: lib/legendre.o
 readdump22: lib/util.o
-dump: lib/util.o
+dump: lib/usb.o lib/util.o
 
 sinrom.vhd: sinrom
 	./sinrom > sinrom.vhd
 
 # Cancel built-in
 %: %.c
+
+-include .*.d
 
 phasedetectsim: LDFLAGS=-lfftw3 -lpthread -lm
 

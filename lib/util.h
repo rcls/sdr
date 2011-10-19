@@ -27,4 +27,11 @@ inline ssize_t checkz(ssize_t r, const char * w)
     return r;
 }
 
+void slurp_file(int file, unsigned char * * restrict b,
+                size_t * restrict offset, size_t * restrict size);
+
+// Returns number of samples...
+size_t best22(const unsigned char ** restrict buffer,
+              size_t * restrict bytes);
+
 #endif

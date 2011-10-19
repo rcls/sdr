@@ -9,7 +9,9 @@ phasedetectsim
 pllsim
 readdump
 readdump14
+readdump22
 sinrom
+.*.d
 /docs/*.pdf
 /iseconfig
 /sdr.cmd
