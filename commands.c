@@ -2,7 +2,7 @@
 
 // Hiperf mod-1: 0303, mode-2 4a01
 
-// Gain: default is 2550.
+// Gain: default is 2550, 2510 gives better linearity.
 
 #include <libusb-1.0/libusb.h>
 #include <stdio.h>

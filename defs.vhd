@@ -24,12 +24,12 @@ package defs is
 
 --subtype std_logic7 is std_logic_vector(6 downto 0);
 
-  function addmod120(x : unsigned7; y : unsigned7) return unsigned7;
+  function addmod240(x : unsigned8; y : unsigned8) return unsigned8;
 
 end defs;
 
 package body defs is
-  function addmod120(x : unsigned7; y : unsigned7) return unsigned7 is
+  function addmod240(x : unsigned8; y : unsigned8) return unsigned8 is
     variable carry : unsigned(4 downto 0);
   begin
     carry := ('0' & x(3 downto 0)) + y(3 downto 0) + 1;
