@@ -5,15 +5,19 @@ DEP=-MMD -MP -MF.$(subst /,:,$@).d
 
 CFLAGS=-O3 -flto -ffast-math -Wall -Werror -std=gnu99 -g -I. $(DEP)
 LDFLAGS=$(CFLAGS) -lm
-dump: LDFLAGS=$(CFLAGS) -lusb-1.0
-ftrans: LDFLAGS=$(CFLAGS) -lfftw3 -lm
-mlt3-detect: LDFLAGS=$(CFLAGS) -lfftw3_threads -lfftw3 -lm
+
+commands: LDLIBS=-lusb-1.0
+commands: lib/usb.o lib/util.o
+dump: LDLIBS=-lusb-1.0
+dump: lib/usb.o lib/util.o
+ftrans: LDLIBS=-lfftw3 -lm
+mlt3-detect: LDLIBS=-lfftw3_threads -lfftw3 -lm
 mlt3-detect: lib/legendre.o
 readdump14: lib/util.o
 readdump22: lib/util.o
-dump: lib/usb.o lib/util.o
-commands: lib/usb.o lib/util.o
-commands: LDFLAGS=$(CFLAGS) -lusb-1.0
+
+spectrum: LDLIBS=-lusb-1.0
+spectrum: lib/util.o lib/usb.o
 
 sinrom.vhd: sinrom
 	./sinrom > sinrom.vhd

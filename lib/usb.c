@@ -99,3 +99,12 @@ void usb_slurp(libusb_device_handle * dev, void * buffer, size_t len)
             exprintf("libusb_handle_events failed!\n");
 }
 
+
+void usb_send_bytes(libusb_device_handle * dev, const void * data, size_t len)
+{
+    int transferred;
+    if (libusb_bulk_transfer(dev, USB_OUT_EP, (void *) data, len,
+                             &transferred, 100) != 0
+        || transferred != len)
+        exprintf("libusb_bulk_transfer failed.\n");
+}

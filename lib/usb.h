@@ -15,4 +15,6 @@ void usb_close(libusb_device_handle * dev);
 
 void usb_slurp(libusb_device_handle * dev, void * buffer, size_t len);
 
+void usb_send_bytes(libusb_device_handle * dev, const void * data, size_t len);
+
 #endif

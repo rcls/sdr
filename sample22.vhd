@@ -509,10 +509,11 @@ begin
         phase <= addmod240(phase, '0' & freq);
       end if;
 
+      -- We actually use -cos(phase) + i sin(phase).
       cos <= cos_table(to_integer(table_select & phase(6 downto 0)));
       sin <= cos_table(to_integer(table_select & phase(6 downto 0)
                                   xor "0001000000"));
-      cos_neg <= phase(7) = '0';
+      cos_neg <= phase(7) = '1';
       sin_neg <= phase(7) /= phase(6);
 
       adc_r0 <= adc_data;
