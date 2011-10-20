@@ -31,7 +31,7 @@ entity sample22 is
 
        led : out unsigned8;
        clkin125 : in std_logic;
-       clkin125_en : out STD_LOGIC);
+       clkin125_en : out std_logic);
 end sample22;
 
 architecture Behavioral of sample22 is
@@ -94,13 +94,13 @@ architecture Behavioral of sample22 is
   -- Select part of trig. rom.
   signal table_select : unsigned(2 downto 0);
 
-  -- Arithmetic width minus one...
-  constant width : integer := 47;
+  -- Accumulator width minus one...
+  constant width : integer := 62;
 
   -- Type that used for arithmetic in the filter chain.
   subtype word is signed(width downto 0);
-  type word_array is array (natural range <>) of word;
-  constant zero : word := (others => '0');
+  type signed32_array is array (natural range <>) of signed32;
+  constant zero : signed32 := (others => '0');
 
   signal cos : signed18;
   signal sin : signed18;
@@ -126,13 +126,15 @@ architecture Behavioral of sample22 is
   signal acc5_r : word;
   signal acc5_i : word;
 
-  signal flt_r : word_array(0 to 5);
-  signal flt_i : word_array(0 to 5);
+  signal shift1_r : signed(38 downto 0);
+  signal shift1_i : signed(38 downto 0);
+  signal shift2_r : signed(32 downto 0);
+  signal shift2_i : signed(32 downto 0);
+  signal shift_r : signed32;
+  signal shift_i : signed32;
 
-  signal out1_r : signed(17 downto 0);
-  signal out1_i : signed(17 downto 0);
-  signal out2_r : signed(11 downto 0);
-  signal out2_i : signed(11 downto 0);
+  signal flt_r : signed32_array(0 to 5);
+  signal flt_i : signed32_array(0 to 5);
 
   signal out0 : signed(7 downto 0);
   signal out1 : signed(7 downto 0);
@@ -145,11 +147,11 @@ architecture Behavioral of sample22 is
   type opcodes_t is array (natural range <>) of opcode_t;
   signal op : opcodes_t(0 to 5);
 
-  function shift_or_add(acc : word; prev : word; adc : word;
-                        op : opcode_t; i : integer) return word is
-    variable addend1 : word;
-    variable addend2 : word;
-    variable sum : word;
+  function shift_or_add(acc : signed32; prev : signed32; adc : signed32;
+                        op : opcode_t; i : integer) return signed32 is
+    variable addend1 : signed32;
+    variable addend2 : signed32;
+    variable sum : signed32;
   begin
     if op(0) = '1' then
       addend1 := prev;
@@ -467,6 +469,10 @@ begin
   process (clk_main)
     variable div25_inc : unsigned(25 downto 0);
     variable phase_added : unsigned7;
+
+    variable shift0_r : signed(62 downto 0);
+    variable shift0_i : signed(62 downto 0);
+
   begin
     if clk_main'event and clk_main = '1' then
       div25_inc := ('0' & div25) + 1;
@@ -499,14 +505,47 @@ begin
 
       acc1_r <= acc1_r + prod_r;
       acc1_i <= acc1_i + prod_i;
-      acc2_r <= acc2_r + acc1_r(47 downto 47 - width);
-      acc2_i <= acc2_i + acc1_i(47 downto 47 - width);
+      acc2_r <= acc2_r + acc1_r;
+      acc2_i <= acc2_i + acc1_i;
       acc3_r <= acc3_r + acc2_r;
       acc3_i <= acc3_i + acc2_i;
       acc4_r <= acc4_r + acc3_r;
       acc4_i <= acc4_i + acc3_i;
       acc5_r <= acc5_r + acc4_r;
       acc5_i <= acc5_i + acc4_i;
+
+      -- Do the left shift here, leaving us with a 32 bit word into the
+      -- differencing.
+      shift0_r := (others => '0');
+      shift0_r(62 downto 62 - width) := acc5_r;
+      shift0_i := (others => '0');
+      shift0_i(62 downto 62 - width) := acc5_i;
+      case shift(4 downto 3) is
+        when "11" => shift1_r <= shift0_r(38 downto 0);
+                     shift1_i <= shift0_i(38 downto 0);
+        when "10" => shift1_r <= shift0_r(46 downto 8);
+                     shift1_i <= shift0_i(46 downto 8);
+        when "01" => shift1_r <= shift0_r(54 downto 16);
+                     shift1_i <= shift0_i(54 downto 16);
+        when others => shift1_r <= shift0_r(62 downto 24);
+                       shift1_i <= shift0_i(62 downto 24);
+      end case;
+      case shift(2 downto 1) is
+        when "11" => shift2_r <= shift1_r(32 downto 0);
+                     shift2_i <= shift1_i(32 downto 0);
+        when "10" => shift2_r <= shift1_r(34 downto 2);
+                     shift2_i <= shift1_i(34 downto 2);
+        when "01" => shift2_r <= shift1_r(36 downto 4);
+                     shift2_i <= shift1_i(36 downto 4);
+        when others => shift2_r <= shift1_r(38 downto 6);
+                       shift2_i <= shift1_i(38 downto 6);
+      end case;
+      case shift(0) is
+        when '1' => shift_r <= shift2_r(31 downto 0);
+                    shift_i <= shift2_i(31 downto 0);
+        when others => shift_r <= shift2_r(32 downto 1);
+                       shift_i <= shift2_i(32 downto 1);
+      end case;
 
       for i in 0 to 5 loop
         op(i) <= op_pass;
@@ -552,46 +591,20 @@ begin
       end case;
 
       if op(0)(1) = '1' then
-        flt_r(0) <= shift_or_add(flt_r(0), zero, acc5_r, op(0), 0);
-        flt_i(0) <= shift_or_add(flt_i(0), zero, acc5_i, op(0), 0);
+        flt_r(0) <= shift_or_add(flt_r(0), zero, shift_r, op(0), 0);
+        flt_i(0) <= shift_or_add(flt_i(0), zero, shift_i, op(0), 0);
       end if;
       for i in 1 to 5 loop
         if op(i)(1) = '1' then
-          flt_r(i) <= shift_or_add(flt_r(i), flt_r(i-1), acc5_r, op(i), i);
-          flt_i(i) <= shift_or_add(flt_i(i), flt_i(i-1), acc5_i, op(i), i);
+          flt_r(i) <= shift_or_add(flt_r(i), flt_r(i-1), shift_r, op(i), i);
+          flt_i(i) <= shift_or_add(flt_i(i), flt_i(i-1), shift_i, op(i), i);
         end if;
       end loop;
 
-      case shift(4 downto 3) is
-        when "01" => out1_r <= flt_r(5)(width- 8 downto width-25);
-                     out1_i <= flt_i(5)(width- 8 downto width-25);
-        when "10" => out1_r <= flt_r(5)(width-16 downto width-33);
-                     out1_i <= flt_i(5)(width-16 downto width-33);
-        when "11" => out1_r <= flt_r(5)(width-24 downto width-41);
-                     out1_i <= flt_i(5)(width-24 downto width-41);
-        when others => out1_r <= flt_r(5)(width downto width-17);
-                       out1_i <= flt_i(5)(width downto width-17);
-      end case;
-      case shift(2 downto 1) is
-        when "01" => out2_r <= out1_r(15 downto 4);
-                     out2_i <= out1_i(15 downto 4);
-        when "10" => out2_r <= out1_r(13 downto 2);
-                     out2_i <= out1_i(13 downto 2);
-        when "11" => out2_r <= out1_r(11 downto 0);
-                     out2_i <= out1_i(11 downto 0);
-        when others => out2_r <= out1_r(17 downto 6);
-                       out2_i <= out1_i(17 downto 6);
-      end case;
       if state = 47 then
-        if shift(0) = '0' then
-          out0 <= out2_r(11 downto 5) & (lfsr(0) and out2_i(1));
-          out1 <= out2_i(11 downto 5) & (lfsr(0) or out2_i(1));
-          out2 <= out2_r(4 downto 1) & out2_i(4 downto 2) & lfsr(0);
-        else
-          out0 <= out2_r(10 downto 4) & (lfsr(0) and out2_i(0));
-          out1 <= out2_i(10 downto 4) & (lfsr(0) or out2_i(0));
-          out2 <= out2_r(3 downto 0) & out2_i(3 downto 1) & lfsr(0);
-        end if;
+        out0 <= flt_r(5)(31 downto 25) & (lfsr(0) and flt_i(5)(21));
+        out1 <= flt_i(5)(31 downto 25) & (lfsr(0) or flt_i(5)(21));
+        out2 <= flt_r(5)(24 downto 21) & flt_i(5)(24 downto 22) & lfsr(0);
         lfsr <= lfsr(30 downto 0) & (
           lfsr(31) xor lfsr(22) xor lfsr(12) xor lfsr(5));
       end if;
@@ -626,9 +639,9 @@ begin
       usb_rd_process <= false;
       if usb_rd then
         case state mod 32 is
-          when 6|7|8|9|10|11|12 =>
+          when 8|9|10|11|12|13|14 =>
             usb_nRD <= '0';
-          when 13 =>
+          when 15 =>
             usb_nRD <= '0';
             usb_rd_process <= true;
           when others =>
