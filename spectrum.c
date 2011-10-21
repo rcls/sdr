@@ -2,18 +2,22 @@
 #include "lib/usb.h"
 
 #include <assert.h>
+#include <complex.h>
+#include <fftw3.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <math.h>
 
+#define SIZE (1<<22)
 
-typedef struct sample22_config_t {
+typedef struct sample_config_t {
     unsigned freq:7;
+    unsigned gain:8;
     unsigned table_select:3;
     unsigned shift:5;
     signed offset:18;
-} sample22_config_t;
+} sample_config_t;
 
 
 #define ADC_RESET 8
@@ -73,7 +77,7 @@ static void get_samples(libusb_device_handle * dev,
 
 
 static void sample_config(libusb_device_handle * dev,
-                          const sample22_config_t * config)
+                          const sample_config_t * config)
 {
     unsigned char bytes[8];
     bytes[0] = ADC_SEN | ADC_SCLK;
@@ -139,11 +143,11 @@ static void adc_config(libusb_device_handle * dev, ...)
 
 
 static void gain_controlled_sample(libusb_device_handle * dev,
-                                   sample22_config_t * config,
+                                   sample_config_t * config,
                                    sample_buffer_t * buffer,
                                    size_t required)
 {
-    int gain = config->shift * 4 + config->table_select;
+    int gain = config->shift * 8 + config->table_select;
     for (int i = 0; i < 10; ++i) {
         sample_config(dev, config);
         get_samples(dev, buffer, required);
@@ -175,17 +179,17 @@ static void gain_controlled_sample(libusb_device_handle * dev,
         double max_six = re_six >= im_six ? re_six : im_six;
         if (max_six < 1)
             max_six = 1;
-        int incr = floor(3 * (10 - log2(max_six)));
+        int incr = floor(7 * (10 - log2(max_six)));
         if (incr == 0) {
             fprintf(stderr, "Choosing gain %i (6sd: %g).\n", gain, max_six);
             return;
         }
         if (incr < 0 && gain <= 0)
             exprintf("Too big %g with zero gain.\n", max_six);
-        if (incr > 0 && gain >= 131)
+        if (incr > 0 && gain >= 255)
             exprintf("Too small %g with max gain.\n", max_six);
-        if (incr < -2)
-            incr = -32;
+        if (incr < -8)
+            incr = -64;
 
         fprintf(stderr, "Gain %i six sigma %g, adjustment = %i.\n",
                 gain, max_six, incr);
@@ -193,33 +197,55 @@ static void gain_controlled_sample(libusb_device_handle * dev,
         gain += incr;
         if (gain < 0)
             gain = 0;
-        if (gain > 131)
-            gain = 131;
+        if (gain > 255)
+            gain = 255;
 
-        if (gain < 4) {
-            config->table_select = gain;
-            config->shift = 0;
-        }
-        else {
-            config->table_select = 4 + (gain & 3);
-            config->shift = (gain - config->table_select) >> 2;
-        }
+        config->table_select = gain & 7;
+        config->shift = gain >> 3;
     }
+}
+
+
+static double cmodsq(complex z)
+{
+    double r = creal(z);
+    double i = cimag(z);
+    return r * r + i * i;
+}
+
+
+static void spectrum(const sample_config_t * config, const unsigned char * data)
+{
+    static complex xfrm[SIZE];
+    static fftw_plan plan;
+    static float buffer[SIZE / 2];
+    if (!plan)
+        plan = fftw_plan_dft_1d(SIZE, xfrm, xfrm, FFTW_FORWARD, FFTW_ESTIMATE);
+    for (int i = 0; i != SIZE; ++i) {
+        xfrm[i] = get_real(data) + I * get_imag(data);
+        data += 3;
+    }
+    fftw_execute(plan);
+    double scale = exp2(-config->shift * 2 - config->table_select * 0.25);
+    for (int i = 0; i != SIZE / 4; ++i)
+        buffer[i] = cmodsq(xfrm[SIZE - SIZE/4 + i]) * scale;
+    for (int i = 0; i != SIZE / 4; ++i)
+        buffer[i + SIZE/4] = cmodsq(xfrm[i]) * scale;
+    dump_file(1, buffer, sizeof(buffer));
 }
 
 
 int main(void)
 {
+    fftw_init_threads();
+    fftw_plan_with_nthreads(4);
+
     libusb_device_handle * dev = usb_open();
 
     // Reset the ADC.
     adc_bitbang(dev, ADC_RESET|ADC_SCLK|ADC_SEN, ADC_SCLK|ADC_SEN, -1);
 
-    // Reset the sample registers.  We start with max gain on the trig table,
-    // and no gain on the shifter.
-    sample22_config_t config = {
-        .freq = 50, .table_select = 7, .shift = 12, .offset = 0x2000 };
-    sample_config(dev, &config);
+    usleep(1000);
 
     // Configure the ADC.  Turn down the gain for linearity.  Turn on offset
     // correction.
@@ -232,8 +258,17 @@ int main(void)
     usleep(200000);
     adc_config(dev, 0xcf80, -1);        // Freeze offset correction.
 
+    sample_config_t config = {
+        .freq = 0, .table_select = 7, .shift = 12, .offset = 0x2000 };
+    sample_config(dev, &config);
     sample_buffer_t buffer = { NULL, 0, NULL, 0 };
-    gain_controlled_sample(dev, &config, &buffer, 1<<22);
+    for (int i = 1; i < 120; i += 2) {
+        fprintf(stderr, "Freq %3i, %g %g %g.\n", i,
+                25.0 / 24 * (i - 1), 25.0 / 24 * i, 25.0 / 24 * (i + 1));
+        config.freq = i;
+        gain_controlled_sample(dev, &config, &buffer, SIZE);
+        spectrum(&config, buffer.best);
+    }
 
     return 0;
 }

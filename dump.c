@@ -53,9 +53,7 @@ int main(int argc, char * argv[])
         outfile = checki(open(outpath, O_WRONLY|O_CREAT|O_TRUNC, 0666),
                          "opening output");
 
-    unsigned char * bufend = buffer + bufsize;
-    for (const unsigned char * p = buffer; p != bufend;)
-        p += checkz(write(outfile, p, bufend - p), "writing output");
+    dump_file(outfile, buffer, bufsize);
 
     if (outpath)
         checki(close(outfile), "closing output");
