@@ -13,7 +13,7 @@ use unisim.vcomponents.all;
 library work;
 use work.defs.all;
 
-entity sample22 is
+entity sample30 is
   port(adc_p : in unsigned7;
        adc_n : in unsigned7;
        adc_clk_p : out std_logic;
@@ -32,9 +32,9 @@ entity sample22 is
        led : out unsigned8;
        clkin125 : in std_logic;
        clkin125_en : out std_logic);
-end sample22;
+end sample30;
 
-architecture Behavioral of sample22 is
+architecture Behavioral of sample30 is
 
   alias usb_nRXF : std_logic is usb_c(0);
   alias usb_nTXE : std_logic is usb_c(1);
