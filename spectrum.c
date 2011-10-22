@@ -35,13 +35,21 @@ typedef struct sample_buffer_t {
 
 static inline int get_real(const unsigned char * p)
 {
-    return (p[0] & 0xfe) * 8 + (p[2] >> 4);
+    int a = p[0] * 128 + (p[1] >> 1);
+    if (a < 16384)
+        return a;
+    else
+        return a - 32768;
 }
 
 
 static inline int get_imag(const unsigned char * p)
 {
-    return (p[1] & 0xfe) * 8 + (p[2] & 0xe) + ((p[0] ^ p[1] ^ p[2]) & 1);
+    int a = p[2] * 128 + (p[3] >> 1);
+    if (a < 16384)
+        return a;
+    else
+        return a - 32768;
 }
 
 
@@ -159,11 +167,7 @@ static void gain_controlled_sample(libusb_device_handle * dev,
         int64_t im_sumsq = 0;
         for (int i = 0; i != required; ++i, p += 3) {
             int re = get_real(p);
-            int im = get_real(p);
-            if (re >= 1024)
-                re -= 2048;
-            if (im >= 1024)
-                im -= 2048;
+            int im = get_imag(p);
             re_sum += re;
             re_sumsq += re * re;
             im_sum += im;
@@ -222,7 +226,7 @@ static void spectrum(const sample_config_t * config, const unsigned char * data)
     if (!plan)
         plan = fftw_plan_dft_1d(SIZE, xfrm, xfrm, FFTW_FORWARD, FFTW_ESTIMATE);
     for (int i = 0; i != SIZE; ++i) {
-        xfrm[i] = get_real(data) + I * get_imag(data);
+        xfrm[i] = get_real(data) + I * get_imag(data) + 0.5 + 0.5 * I;
         data += 3;
     }
     fftw_execute(plan);
