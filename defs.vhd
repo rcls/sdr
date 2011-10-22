@@ -9,6 +9,7 @@ package defs is
   subtype unsigned18 is unsigned(17 downto 0);
   subtype unsigned16 is unsigned(15 downto 0);
   subtype unsigned14 is unsigned(13 downto 0);
+  subtype unsigned9 is unsigned(8 downto 0);
   subtype unsigned8 is unsigned(7 downto 0);
   subtype unsigned7 is unsigned(6 downto 0);
   subtype unsigned6 is unsigned(5 downto 0);
@@ -24,15 +25,22 @@ package defs is
 
 --subtype std_logic7 is std_logic_vector(6 downto 0);
 
-  function addmod240(x : unsigned8; y : unsigned8) return unsigned8;
+  function addmod320(x : unsigned9; y : unsigned9) return unsigned9;
 
 end defs;
 
 package body defs is
-  function addmod240(x : unsigned8; y : unsigned8) return unsigned8 is
-    variable carry : unsigned(4 downto 0);
+  function addmod320(x : unsigned9; y : unsigned9) return unsigned9 is
+    variable lo : unsigned(2 downto 0);
+    variable carry : unsigned(0 downto 0);
   begin
-    carry := ('0' & x(3 downto 0)) + y(3 downto 0) + 1;
-    return x + y + carry(4 downto 4);
+    if x(2 downto 0) + ('0' & y(2 downto 0)) >= x"5" then
+      lo := x(2 downto 0) + y(2 downto 0) + "011";
+      carry := "1";
+    else
+      lo := x(2 downto 0) + y(2 downto 0);
+      carry := "0";
+    end if;
+    return (x(8 downto 3) + y(8 downto 3) + carry) & lo;
   end;
 end package body defs;

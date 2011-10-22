@@ -62,6 +62,52 @@ void dump_file(int file, const void * data, size_t len)
 }
 
 
+size_t best30(const unsigned char ** restrict buffer, size_t * restrict bytes)
+{
+    uint32_t runA = 0;
+    uint32_t runB = 0;
+    uint32_t runC = 0;
+    uint32_t runD = 0;
+    const unsigned char * badA = *buffer;
+    const unsigned char * badB = *buffer;
+    const unsigned char * badC = *buffer;
+    const unsigned char * badD = *buffer;
+    const unsigned char * best = *buffer;
+    const unsigned char * end = *buffer + *bytes;
+    size_t bestsize = 0;
+    for (const unsigned char * p = *buffer; p != end; ++p) {
+        int predicted = __builtin_parity(runD & 0x80401020);
+        uint32_t runZ = runD * 2 + (*p & 1);
+        const unsigned char * badZ = badD;
+        if (runZ != runB || predicted != (runZ & 1))
+            badZ = p;
+        else if (p - badD >= bestsize) {
+            best = badD;
+            bestsize = p - badD;
+        }
+
+        badD = badA;
+        badA = badB;
+        badB = badC;
+        badC = badZ;
+        runD = runA;
+        runA = runB;
+        runB = runC;
+        runC = runZ;
+    }
+
+    if (bestsize < 64 * 4) {
+        *bytes = 0;
+        return 0;
+    }
+
+    *buffer = best + 32 * 4 - 3;
+    bestsize -= 63 * 4;
+    *bytes = bestsize;
+    return bestsize / 4;
+}
+
+
 size_t best22(const unsigned char ** restrict buffer, size_t * restrict bytes)
 {
     uint32_t runA = 0;

@@ -12,9 +12,8 @@
 #define SIZE (1<<22)
 
 typedef struct sample_config_t {
-    unsigned freq:7;
-    unsigned gain:8;
-    unsigned table_select:3;
+    unsigned freq:8;
+    unsigned table_select:2;
     unsigned shift:5;
     signed offset:18;
 } sample_config_t;
@@ -56,7 +55,7 @@ static inline int get_imag(const unsigned char * p)
 static void get_samples(libusb_device_handle * dev,
                         sample_buffer_t * buffer, size_t required)
 {
-    size_t bytes = required * 3 + USB_SLOP;
+    size_t bytes = required * 4 + USB_SLOP;
     if (buffer->data_len < bytes) {
         buffer->data = xrealloc(buffer->data, bytes);
         buffer->data_len = bytes;
@@ -70,7 +69,7 @@ static void get_samples(libusb_device_handle * dev,
         usb_slurp(dev, buffer->data, amount);
         buffer->best = buffer->data;
         size_t bytes = amount;
-        buffer->best_len = best22(&buffer->best, &bytes);
+        buffer->best_len = best30(&buffer->best, &bytes);
         if (buffer->best_len >= required) {
             if (i != 0)
                 fprintf(stderr, "\n");
@@ -89,9 +88,9 @@ static void sample_config(libusb_device_handle * dev,
 {
     unsigned char bytes[8];
     bytes[0] = ADC_SEN | ADC_SCLK;
-    unsigned freq = config->freq / 15 * 16 + config->freq % 15;
+    unsigned freq = config->freq / 5 * 8 + config->freq % 5;
     bytes[1] = 32 + (freq & 31);
-    bytes[2] = 64 + (freq >> 5) + config->table_select * 4;
+    bytes[2] = 64 + (freq >> 5) + config->table_select * 8;
     bytes[3] = 96 + config->shift;
     bytes[4] = 128 + (config->offset & 31);
     bytes[5] = 160 + ((config->offset >> 5) & 31);
@@ -155,7 +154,8 @@ static void gain_controlled_sample(libusb_device_handle * dev,
                                    sample_buffer_t * buffer,
                                    size_t required)
 {
-    int gain = config->shift * 8 + config->table_select;
+    const int max_gain = 127;
+    int gain = config->shift * 4 + config->table_select;
     for (int i = 0; i < 10; ++i) {
         sample_config(dev, config);
         get_samples(dev, buffer, required);
@@ -165,7 +165,7 @@ static void gain_controlled_sample(libusb_device_handle * dev,
         int64_t re_sumsq = 0;
         int64_t im_sum = 0;
         int64_t im_sumsq = 0;
-        for (int i = 0; i != required; ++i, p += 3) {
+        for (int i = 0; i != required; ++i, p += 4) {
             int re = get_real(p);
             int im = get_imag(p);
             re_sum += re;
@@ -183,30 +183,35 @@ static void gain_controlled_sample(libusb_device_handle * dev,
         double max_six = re_six >= im_six ? re_six : im_six;
         if (max_six < 1)
             max_six = 1;
-        int incr = floor(7 * (10 - log2(max_six)));
+        int incr = floor(3 * (14 - log2(max_six)));
         if (incr == 0) {
-            fprintf(stderr, "Choosing gain %i (6sd: %g).\n", gain, max_six);
+            fprintf(stderr, "Freq %i choosing gain %i (6sd: %g). %g %g %g\n",
+                    config->freq, gain, max_six,
+                    25.0 / 32 * (config->freq - 1),
+                    25.0 / 32 * config->freq,
+                    25.0 / 32 * (config->freq + 1));
             return;
         }
         if (incr < 0 && gain <= 0)
             exprintf("Too big %g with zero gain.\n", max_six);
-        if (incr > 0 && gain >= 255)
+        if (incr > 0 && gain >= max_gain)
             exprintf("Too small %g with max gain.\n", max_six);
-        if (incr < -8)
-            incr = -64;
+        if (incr < -3)
+            incr = -32;
 
-        fprintf(stderr, "Gain %i six sigma %g, adjustment = %i.\n",
+        fprintf(stderr, "   gain %i six sigma %g, adjustment = %i.\n",
                 gain, max_six, incr);
 
         gain += incr;
         if (gain < 0)
             gain = 0;
-        if (gain > 255)
-            gain = 255;
+        if (gain > max_gain)
+            gain = max_gain;
 
-        config->table_select = gain & 7;
-        config->shift = gain >> 3;
+        config->table_select = gain & 3;
+        config->shift = gain >> 2;
     }
+    exprintf("Failed to convirge...\n");
 }
 
 
@@ -227,7 +232,7 @@ static void spectrum(const sample_config_t * config, const unsigned char * data)
         plan = fftw_plan_dft_1d(SIZE, xfrm, xfrm, FFTW_FORWARD, FFTW_ESTIMATE);
     for (int i = 0; i != SIZE; ++i) {
         xfrm[i] = get_real(data) + I * get_imag(data) + 0.5 + 0.5 * I;
-        data += 3;
+        data += 4;
     }
     fftw_execute(plan);
     double scale = exp2(-config->shift * 2 - config->table_select * 0.25);
@@ -263,12 +268,10 @@ int main(void)
     adc_config(dev, 0xcf80, -1);        // Freeze offset correction.
 
     sample_config_t config = {
-        .freq = 0, .table_select = 7, .shift = 12, .offset = 0x2000 };
+        .freq = 0, .table_select = 3, .shift = 12, .offset = 0x2000 };
     sample_config(dev, &config);
     sample_buffer_t buffer = { NULL, 0, NULL, 0 };
-    for (int i = 1; i < 120; i += 2) {
-        fprintf(stderr, "Freq %3i, %g %g %g.\n", i,
-                25.0 / 24 * (i - 1), 25.0 / 24 * i, 25.0 / 24 * (i + 1));
+    for (int i = 1; i < 160; i += 2) {
         config.freq = i;
         gain_controlled_sample(dev, &config, &buffer, SIZE);
         spectrum(&config, buffer.best);
