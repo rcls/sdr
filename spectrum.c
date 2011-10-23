@@ -32,6 +32,9 @@ typedef struct sample_buffer_t {
 } sample_buffer_t;
 
 
+static double filter_adjust[SIZE/4 + 1];
+
+
 static inline int get_real(const unsigned char * p)
 {
     int a = p[0] * 128 + (p[1] >> 1);
@@ -235,17 +238,36 @@ static void spectrum(const sample_config_t * config, const unsigned char * data)
         data += 4;
     }
     fftw_execute(plan);
-    double scale = exp2(-config->shift * 2 - config->table_select * 0.25);
+    double scale = exp2(-config->shift * 2 - config->table_select * 0.5);
     for (int i = 0; i != SIZE / 4; ++i)
-        buffer[i] = cmodsq(xfrm[SIZE - SIZE/4 + i]) * scale;
+        buffer[i] = cmodsq(xfrm[SIZE - SIZE/4 + i]) * scale
+            * filter_adjust[SIZE/4 - i];
     for (int i = 0; i != SIZE / 4; ++i)
-        buffer[i + SIZE/4] = cmodsq(xfrm[i]) * scale;
+        buffer[i + SIZE/4] = cmodsq(xfrm[i]) * scale
+            * filter_adjust[i];
     dump_file(1, buffer, sizeof(buffer));
 }
 
 
+static inline double invsinc(double x)
+{
+    return x / sin(x);
+}
+
 int main(void)
 {
+    filter_adjust[0] = 1;
+    const double B = M_PI / 80 / SIZE;
+    for (int i = 1; i <= SIZE/4; ++i) {
+        double factor = invsinc(B * 65 * i) * invsinc(B * 74 * i)
+            * invsinc(B * 87 * i) * invsinc(B * 99 * i) * invsinc(B * 106 * i);
+        assert(fabs(factor) > 1);
+        if (fabs(factor) >= 3)
+            exprintf("%i : %g\n", i, factor);
+        assert(fabs(factor) < 3);
+        filter_adjust[i] = factor * factor;
+    }
+
     fftw_init_threads();
     fftw_plan_with_nthreads(4);
 

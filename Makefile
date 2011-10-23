@@ -18,6 +18,7 @@ readdump22: lib/util.o
 
 spectrum: LDLIBS=-lusb-1.0 -lfftw3_threads -lfftw3
 spectrum: lib/util.o lib/usb.o
+spectrum-reduce: lib/util.o
 
 sinrom.vhd: sinrom
 	./sinrom > sinrom.vhd
