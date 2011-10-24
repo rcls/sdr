@@ -26,6 +26,8 @@ entity sample30 is
        adc_sclk : out std_logic := '0';
        adc_reset : out std_logic := '1';
 
+       adc_sdout_inv : in std_logic;
+
        usb_d : inout unsigned8;
        usb_c : inout unsigned8 := "ZZZZ11ZZ";
 
@@ -86,7 +88,8 @@ architecture Behavioral of sample30 is
   attribute S of led : signal is "yes";
   attribute S of usb_c : signal is "yes";
 
-  signal div25 : unsigned(24 downto 0);
+  signal ovr25 : unsigned(24 downto 0);
+  signal adc_sdout_buf : std_logic;
 
   -- Poly is 0x100802041
   signal lfsr : std_logic_vector(31 downto 0) := x"00000001";
@@ -482,18 +485,24 @@ begin
   led_control: for i in 0 to 7 generate
     led(i) <= '0' when led_on(i) = '1' else 'Z';
   end generate;
-  led_on(2) <= div25(24);
+  --led_on(2) <= div25(24);
 
   process (clk_main)
-    variable div25_inc : unsigned(25 downto 0);
+    variable ovr25_inc : unsigned(25 downto 0);
 
     variable shift0_r : signed(62 downto 0);
     variable shift0_i : signed(62 downto 0);
 
   begin
     if clk_main'event and clk_main = '1' then
-      div25_inc := ('0' & div25) + 1;
-      div25 <= div25_inc(24 downto 0);
+      ovr25_inc := ('1' & ovr25) + 1;
+      led_on(2) <= ovr25_inc(25);
+      if adc_sdout_buf = '1' then
+        ovr25 <= (others => '0');
+      elsif ovr25_inc(25) = '1' then
+        ovr25 <= ovr25_inc(24 downto 0);
+      end if;
+      adc_sdout_buf <= not adc_sdout_inv;
 
       if state = state_max then
         state <= 0;
