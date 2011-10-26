@@ -1,0 +1,85 @@
+#!/usr/bin/python
+
+# observe (low freq) (high freq)
+
+import argparse
+import sys
+import subprocess
+
+parser = argparse.ArgumentParser(description='Display spectrum with gnuplot.')
+parser.add_argument('input', help='Input file')
+parser.add_argument('lo', type=float, help='Start or mid frequency (MHz).')
+parser.add_argument('hi', type=float, help='End or half-width frequency (MHz).')
+parser.add_argument('-b', '--base', type=float, help='Low cut-off for display.')
+parser.add_argument('-W', '--width', type=int, default=1800,
+                    help='Output width.')
+parser.add_argument('-H', '--height', type=int, default=400,
+                    help='Output height.')
+parser.add_argument('-o', '--output',
+                    help='Output PNG file instead of displaying.')
+parser.add_argument('-v', '--verbose', help='Print GNU plot commands.')
+
+args = parser.parse_args()
+
+samples = 160 * 1048576
+
+input = args.input
+f_lo = args.lo
+f_hi = args.hi
+
+if 0 < f_hi <= f_lo:
+    f_lo, f_hi = f_lo - f_hi, f_lo + f_hi
+
+# freq = 250MHz.
+# out freq = 3.125MHz
+# step = 3.125MHz / (1<<22)
+
+s_lo = int(f_lo * (1 << 22) / 3.125)
+s_hi = int(f_hi * (1 << 22) / 3.125)
+
+assert s_lo >= 0
+assert s_lo < s_hi
+assert s_hi <= samples
+
+shift = 0
+while s_hi - s_lo > 2 * args.width and shift < 16:
+    shift += 1
+    s_hi /= 2
+    s_lo /= 2
+
+assert shift <= 16
+
+dx = 3.125 / (1 << (22 - shift))
+origin = dx * (s_lo + 0.5 - 0.5 / (1<<shift))
+title = args.input
+
+if f_hi - f_lo < 0.01:
+    adjust = int((f_lo + f_hi) * 0.5 + 0.001)
+    origin = (origin - adjust) * 1000
+    f_lo = (f_lo - adjust) * 1000
+    f_hi = (f_hi - adjust) * 1000
+    dx *= 1000
+    title = "%s near %i kHz" % (args.input, adjust * 1000)
+
+if shift == 0:
+    path = args.input
+else:
+    path = "%s.%i" % (args.input, shift)
+
+gnuplot = subprocess.Popen(['gnuplot'], stdin=subprocess.PIPE)
+si = gnuplot.stdin
+
+if args.output is None:
+    si.write("set term wxt size %i,%i\n" % (args.width, args.height))
+else:
+    si.write('set term pngcairo size %i,%i font ",10"\n'
+             % (args.width, args.height))
+    si.write('set output "%s"\n' % args.output)
+
+si.write("set mxtics 10\n")
+if args.base is not None:
+    si.write("set yrange [%.17g:*]\n" % args.base)
+si.write("set xrange [%.17g:%.17g]\n" % (f_lo, f_hi))
+#si.write("set log y\n")
+si.write('plot "%s" binary array=(%i) skip=%i origin=(%.17g,0) dx=%.17g using (10*log10($1)-33) title "%s" with lines\n' % (
+        path, s_hi - s_lo, s_lo * 4, origin, dx, title))
