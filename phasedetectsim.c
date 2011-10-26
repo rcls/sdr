@@ -166,7 +166,7 @@ static void test_angles(const int * angle_updates, int tt)
     }
 
     var = var / smNUM - sum * sum / (smNUM * smNUM);
-    if (var > 1.6) {
+    if (var > 1.2) {
         //printf("Q %i %.0f\n", tt, var * 1000000);
         return;
     }
@@ -197,20 +197,21 @@ static void test_angles(const int * angle_updates, int tt)
 #define NUM_THREADS 4
 static void * exhaustive_thread(void * p)
 {
-    int angle_updates[ITERATIONS];
+    static int delta[3] = { 0, 1, -1 };
+    int angle_updates[ITERATIONS+1];
     build_angle_updates(angle_updates);
 
     for (int i = (long) p; i < 81 * 81 * 81 * 81; i += NUM_THREADS) {
         // First update the updates.
         int j = 0;
         for (int m = i; m; m /= 3)
-            angle_updates[j++] += ((m % 3) ^ 1) - 1;
+            angle_updates[j++] += delta[m % 3];
 
         test_angles(angle_updates, i);
 
         j = 0;
         for (int m = i; m; m /= 3)
-            angle_updates[j++] -= ((m % 3) ^ 1) - 1;
+            angle_updates[j++] -= delta[m % 3];
     }
 
     return NULL;

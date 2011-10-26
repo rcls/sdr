@@ -28,9 +28,11 @@ sinrom.vhd: sinrom
 # Cancel built-in
 %: %.c
 
+.PRECIOUS: %.o
+
 -include .*.d
 
-phasedetectsim: LDFLAGS=-lfftw3 -lpthread -lm
+phasedetectsim: LDLIBS=-lfftw3 -lpthread -lm
 
 W=www
 LS=Top,TopGND,TopPWR,Back,BackGND,BackPWR
