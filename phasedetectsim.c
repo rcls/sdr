@@ -28,7 +28,8 @@
 #define ITOP(v) BIT((v), IN_BITS)
 
 typedef unsigned long word_t;
-static const int offset[ITERATIONS] = { -1 };
+static const int offset[ITERATIONS + 1] = {
+    -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
 
 
 static word_t phasedetect(word_t qq, word_t ii, const int * angle_updates)
@@ -37,7 +38,7 @@ static word_t phasedetect(word_t qq, word_t ii, const int * angle_updates)
 
     word_t angle = (CTOP(ii) << (OUT_BITS - 1)) + 1;
     if (CTOP(qq ^ ii))
-        angle += MASK(OUT_BITS - 1) - 1;
+        angle += MASK(OUT_BITS - 1) - angle_updates[ITERATIONS];
 
     if (CTOP(qq))
         qq = CMASK(~qq);
@@ -90,7 +91,7 @@ static double error(word_t qq, word_t ii,
         err += 1 << OUT_BITS;
     else if (err > (1 << (OUT_BITS - 1)))
         err -= 1 << OUT_BITS;
-    return err;
+    return err / (1 << TRUNCATE_BIT);
 }
 
 
@@ -141,7 +142,7 @@ static void build_main_table(void)
     }
 }
 
-static void build_angle_updates(int * angle_updates)
+static void build_angle_updates(int angle_updates[ITERATIONS + 1])
 {
     //srand48(time(NULL));
     angle_updates[0] = MASK(ANGLE_BITS) + offset[0];
@@ -150,6 +151,7 @@ static void build_angle_updates(int * angle_updates)
             (int) round(atan2(1, 1 << i) * ((2 << ANGLE_BITS) / M_PI)));
         angle_updates[i] += offset[i];
     }
+    angle_updates[ITERATIONS] = offset[ITERATIONS];
 }
 
 static void test_angles(const int * angle_updates, int tt)
@@ -166,7 +168,7 @@ static void test_angles(const int * angle_updates, int tt)
     }
 
     var = var / smNUM - sum * sum / (smNUM * smNUM);
-    if (var > 1.2) {
+    if (var > 1.1 && tt != 0) {
         //printf("Q %i %.0f\n", tt, var * 1000000);
         return;
     }
@@ -189,8 +191,8 @@ static void test_angles(const int * angle_updates, int tt)
     }
 
     fvar = fvar / MAIN_NUM - sum * sum / (MAIN_NUM * MAIN_NUM);
-    printf("S %016lo %f %f %f\n",
-           oct, fvar, sqrt(fvar), fvar - var);
+    printf("S %0*lo %f %f % f\n",
+           ITERATIONS+1, oct, fvar, sqrt(fvar), fvar - var);
     fflush(stdout);
 }
 
@@ -201,7 +203,7 @@ static void * exhaustive_thread(void * p)
     int angle_updates[ITERATIONS+1];
     build_angle_updates(angle_updates);
 
-    for (int i = (long) p; i < 81 * 81 * 81 * 81; i += NUM_THREADS) {
+    for (int i = (long) p; i < 3 * 81 * 81 * 81 * 81; i += NUM_THREADS) {
         // First update the updates.
         int j = 0;
         for (int m = i; m; m /= 3)
@@ -248,7 +250,7 @@ static int compare_enum_double(const void * AA, const void * BB)
 }
 
 
-static void print_angle(int i, int value)
+static void print_angle(int seq, int value)
 {
     if (ANGLE_BITS % 4) {
         printf("\"");
@@ -258,21 +260,24 @@ static void print_angle(int i, int value)
     }
     printf("x\"%0*x\"", ANGLE_BITS / 4, value & (int) MASK(ANGLE_BITS & -4));
 
-    if (i == 19)
+    if (seq == 19)
         printf(");\n");
-    else if (i % 4 == 3)
+    else if (seq % 4 == 3)
         printf(",\n     ");
-    else
+    else if (seq >= 0)
         printf(", ");
 }
 
 
 static int angle_table(void)
 {
-    int angle_updates[ITERATIONS];
+    int angle_updates[ITERATIONS + 1];
     build_angle_updates(angle_updates);
 
     printf("  type angles_t is array(0 to 19) of unsigned%i;\n", ANGLE_BITS);
+    printf("  constant angle_off_90 : unsigned%i := ", ANGLE_BITS);
+    print_angle(-1, angle_updates[ITERATIONS]);
+    printf(";\n");
     printf("  constant angle_update : angles_t :=\n");
     printf("    (");
     for (int i = 0; i != ITERATIONS; ++i)
@@ -294,7 +299,7 @@ static inline double cnorm(_Complex double z)
 
 static int circle(bool print)
 {
-    int angle_updates[ITERATIONS];
+    int angle_updates[ITERATIONS + 1];
     build_angle_updates(angle_updates);
 
 #define NUM (2048)
@@ -328,10 +333,10 @@ static int circle(bool print)
     fftw_execute(plan);
 
     static enum_double power[SNUM];
-    for (int i = 0; i != SNUM; ++i)
+    for (int i = 1; i != SNUM; ++i)
         power[i] = (enum_double) { i, cnorm(spectrum[i]) };
 
-    qsort(power, SNUM, sizeof(enum_double), compare_enum_double);
+    qsort(power, SNUM - 1, sizeof(enum_double), compare_enum_double);
     fprintf(stderr, "Harmonic Amplitude   Real      Imaginary\n");
     for (int i = 0; i != 10; ++i) {
         int index = power[i].index;
@@ -360,7 +365,7 @@ static void check(word_t x, word_t y, const int * angle_updates)
 // grossly inaccurate results (presumably due to overflows).
 static int square(void)
 {
-    int angle_updates[ITERATIONS];
+    int angle_updates[ITERATIONS + 1];
     build_angle_updates(angle_updates);
 
 #define SQSIZE (1<<24)
