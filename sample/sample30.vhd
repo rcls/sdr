@@ -763,9 +763,9 @@ begin
       --CLKOUT0_PHASE        => 0.000,
       --CLKOUT0_DUTY_CYCLE   => 0.500,
       CLKOUT1_DIVIDE       => 4,
-      CLKOUT1_PHASE        => 180.000
+      CLKOUT1_PHASE        => 180.000,
       --CLKOUT1_DUTY_CYCLE   => 0.500,
-      --CLKIN_PERIOD         => 10.0,
+      CLKIN_PERIOD         => 4.0
       --REF_JITTER           => 0.001
       )
     port map(
@@ -798,9 +798,9 @@ begin
       --CLKOUT0_PHASE        => 0.000,
       --CLKOUT0_DUTY_CYCLE   => 0.500,
       CLKOUT1_DIVIDE       => 4,
-      CLKOUT1_PHASE        => 180.000
+      CLKOUT1_PHASE        => 180.000,
       --CLKOUT1_DUTY_CYCLE   => 0.500,
-      --CLKIN_PERIOD         => 8.0,
+      CLKIN_PERIOD         => 8.0
       --REF_JITTER           => 0.001
       )
     port map(
