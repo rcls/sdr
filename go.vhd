@@ -9,8 +9,8 @@ library work;
 use work.defs.all;
 
 entity go is
-  port(adc_p : in std_logic7;
-       adc_n : in std_logic7;
+  port(adc_p : in unsigned7;
+       adc_n : in unsigned7;
        adc_clk_p : out std_logic;
        adc_clk_n : out std_logic;
        adc_reclk_p : in std_logic;
@@ -44,7 +44,7 @@ architecture Behavioral of go is
   signal clkfbout     : std_logic; -- FB output from PLL.
   signal clkfbout_buf : std_logic; -- FB output from BUFG.
 
-  signal adc_diff : std_logic7;
+  signal adc_diff : unsigned7;
 --  signal data_vector : std_logic_vector(13 downto 0);
   signal data : signed14;
 
@@ -58,36 +58,19 @@ begin
 --  data <= signed(data_vector);
 
   down0: entity work.downconvert
-    port map(data => data,
-             freq => f0,
-             Clk => clk_fast,
-             qq => qq0,
-             ii => ii0);
+    port map(data => data, freq => f0, Clk => clk_fast, qq => qq0, ii => ii0);
 
   down1: entity work.downconvert
-    port map(data => data,
-             freq => f1,
-             Clk => clk_fast,
-             qq => qq1,
-             ii => ii1);
+    port map(data => data, freq => f1, Clk => clk_fast, qq => qq1, ii => ii1);
 
   qfilter: entity work.multifilter
-    port map(in0 => qq0,
-             in1 => qq1,
-             qq => qq_buf,
-             clk => clk_fast);
+    port map(in0 => qq0, in1 => qq1, qq => qq_buf, clk => clk_fast);
 
   ifilter: entity work.multifilter
-    port map(in0 => ii0,
-             in1 => ii1,
-             qq => ii_buf,
-             clk => clk_fast);
+    port map(in0 => ii0, in1 => ii1, qq => ii_buf, clk => clk_fast);
 
   ph: entity work.phasedetect
-    port map(qq=>qq_buf,
-             ii=>ii_buf,
-             phase=>phase,
-             clk=> clk250m);
+    port map(qq_in=>qq_buf, ii_in=>ii_buf, phase=>phase, clk=> clk_fast);
 
   -- Pseudo differential drive of clock to ADC.
   clk_drv_p : oddr2
