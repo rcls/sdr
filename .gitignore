@@ -8,8 +8,8 @@
 /#*#
 /bandpass
 /docs/*.pdf
-/ise
-/iseconfig
+ise/
+iseconfig/
 /phasedetectsim
 /pllsim
 /sdr.cmd
