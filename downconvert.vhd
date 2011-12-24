@@ -86,6 +86,7 @@ architecture Behavioral of downconvert is
 
   signal data_1 : signed14;
   signal data_2 : signed14;
+  signal data_3 : signed14;
   signal qq_prod : signed(31 downto 0);
   signal ii_prod : signed(31 downto 0);
 
@@ -128,6 +129,7 @@ begin
       cos_minus_2 <= cos_minus;
       sin_minus_2 <= sin_minus;
       sin_low_2 <= sin_low;
+      data_1 <= data;
 
       -- Prepare the sin and cos.
       cos_main <= packed_cos and "00" & x"3fff";
@@ -136,7 +138,7 @@ begin
       sin_offset <= resize(sinoffset(packed_sin, sin_low_2), 18);
       cos_minus_3 <= cos_minus_2;
       sin_minus_3 <= sin_minus_2;
-      data_1 <= data;
+      data_2 <= data_1;
 
       -- Buffer.
       cos_main_1 <= signed(cos_main);
@@ -149,13 +151,13 @@ begin
       -- Pre-add.
       cos <= cos_main_1 + cos_offset_1;
       sin <= sin_main_1 + sin_offset_1;
-      data_2 <= data_1;
+      data_3 <= data_2;
       cos_minus_5 <= cos_minus_4;
       sin_minus_5 <= sin_minus_4;
 
       -- Multiply
-      qq_prod <= data_2 * cos;
-      ii_prod <= data_2 * sin;
+      qq_prod <= data_3 * cos;
+      ii_prod <= data_3 * sin;
       cos_minus_6 <= cos_minus_5;
       sin_minus_6 <= sin_minus_5;
 

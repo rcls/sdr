@@ -34,79 +34,57 @@ architecture Behavioral of go is
   signal qq_buf : signed36;
   signal ii_buf : signed36;
 
-  signal clk_fast     : std_logic; -- 125MHz clock.
-  signal clk_fast_neg : std_logic;
-  signal clk62m5      : std_logic; -- 62.5MHz clock.
+  signal clkin125_buf : std_logic;
 
-  signal clkbuf125    : std_logic; -- buffered input clock.
-  signal clkgen_fast  : std_logic; -- 125MHz PLL output.
-  signal clkgen62m5   : std_logic; -- 62.5Mhz PLL output.
-  signal clkfbout     : std_logic; -- FB output from PLL.
-  signal clkfbout_buf : std_logic; -- FB output from BUFG.
+  -- Generated clock for delivery to ADC.
+  signal adc_clk : std_logic;
+  signal adc_clk_neg : std_logic;
+  signal adc_clk_u : std_logic;
+  signal adc_clk_neg_u : std_logic;
+  signal adc_clk_fb : std_logic;
 
-  signal adc_diff : unsigned7;
+  -- Received clk from ADC.
+  signal adc_reclk_b_n : std_logic;
+  signal adc_reclk : std_logic;
+
+  -- Regenerated reclk.
+  signal clk_main : std_logic;
+  signal clk_main_neg : std_logic;
+  signal clku_main : std_logic;
+  signal clku_main_neg : std_logic;
+  signal clk_main_fb : std_logic;
+
+  signal adc_ddr : unsigned7;
 --  signal data_vector : std_logic_vector(13 downto 0);
-  signal data : signed14;
+  signal adc_data : signed14;
 
   signal adc_reclk_diff : std_logic;
 
   signal clkbuf125_neg : std_logic;
 
 begin
-  clkbuf125_neg <= not clkbuf125;
-  clk_fast_neg <= not clk_fast;
 --  data <= signed(data_vector);
 
   down0: entity work.downconvert
-    port map(data => data, freq => f0, Clk => clk_fast, qq => qq0, ii => ii0);
+    port map(data => adc_data, freq => f0, Clk => clk_main,
+             qq => qq0, ii => ii0);
 
   down1: entity work.downconvert
-    port map(data => data, freq => f1, Clk => clk_fast, qq => qq1, ii => ii1);
+    port map(data => adc_data, freq => f1, Clk => clk_main,
+             qq => qq1, ii => ii1);
 
   qfilter: entity work.multifilter
-    port map(in0 => qq0, in1 => qq1, qq => qq_buf, clk => clk_fast);
+    port map(in0 => qq0, in1 => qq1, qq => qq_buf, clk => clk_main);
 
   ifilter: entity work.multifilter
-    port map(in0 => ii0, in1 => ii1, qq => ii_buf, clk => clk_fast);
+    port map(in0 => ii0, in1 => ii1, qq => ii_buf, clk => clk_main);
 
   ph: entity work.phasedetect
-    port map(qq_in=>qq_buf, ii_in=>ii_buf, phase=>phase, clk=> clk_fast);
+    port map(qq_in=>qq_buf, ii_in=>ii_buf, phase=>phase, clk=> clk_main);
 
-  -- Pseudo differential drive of clock to ADC.
-  clk_drv_p : oddr2
-    port map (D0 => '0', D1 => '1', C0 => clkbuf125_neg, C1 => clkbuf125,
-              Q => adc_clk_p);
-  clk_drv_n : oddr2
-    port map (D0 => '1', D1 => '0', C0 => clkbuf125_neg, C1 => clkbuf125,
-              Q => adc_clk_n);
-
-  -- Clk input from ADC.  FIXME - use bufio2 / bufio2fb
-  adc_reclk_in: IBUFGDS_DIFF_OUT
-    generic map (diff_term => true)
-    port map (I => adc_reclk_n, IB => adc_reclk_p,
-              O => open, OB => adc_reclk_diff);
-
-  -- DDR input from ADC.
-  adc_in: for i in 0 to 6 generate
-    -- According to the TI docs, we get the low bits on the falling clock edge
-    -- (i.e., clk_fast_neg) and then the high bits on the rising clock edge.
-    adc_in: IBUFDS_DIFF_OUT
-      generic map (diff_term => true)
-      port map (I => adc_n(i), IB => adc_p(i),
-                O => open, OB => adc_diff(i));
-    adc_ddr: IDDR2
-      generic map (ddr_alignment => "C1")
-      port map (C0 => clk_fast_neg,
-                C1 => clk_fast,
-                CE => '1',
-                D => adc_diff(i),
-                Q0 => data(i*2),
-                Q1 => data(i*2+1));
-  end generate;
-
-  process (clk_fast)
+  process (clk_main)
   begin
-    if clk_fast'event and clk_fast = '1' then
+    if clk_main'event and clk_main = '1' then
       if set_f0 = '1' then
         f0 <= freq;
       end if;
@@ -116,49 +94,113 @@ begin
     end if;
   end process;
 
-  -- Input buffering
-  --------------------------------------
-  clk125_buf : IBUFG port map (O => clkbuf125, I => clkin125);
 
-  -- PLL generating the clocks synchronous to the clock signal from the ADC.
-  -- We run the PLL oscillator at 750MHz, which for the ADC at 125MHz is
-  -- 6 times the input clock.
-  pll : PLL_BASE
+  -- DDR input from ADC.
+  adc_input: for i in 0 to 6 generate
+    adc_in: ibufds generic map (diff_term => true)
+      port map (I => adc_n(i), IB => adc_p(i), O => adc_ddr(i));
+    adc_ddr_expand: IDDR2
+      generic map (ddr_alignment => "C0")
+      port map (C0 => clk_main,
+                C1 => clk_main_neg,
+                CE => '1',
+                D => adc_ddr(i),
+                Q0 => adc_data(i*2+1),
+                Q1 => adc_data(i*2));
+  end generate;
+
+  -- Clk input from ADC.  The ADC drives the data as even on P-falling followed
+  -- by odd on P-rising.
+  adc_reclk_in: IBUFGDS
+    generic map (diff_term => true)
+    port map(I => adc_reclk_n, IB => adc_reclk_p,
+             O => adc_reclk_b_n);
+  -- Are these needed?  Do we need to tie them together?
+  adc_reclk_buf: BUFIO2 port map(
+    I => adc_reclk_b_n,
+    DIVCLK => adc_reclk, IOCLK => open, SERDESSTROBE => open);
+  adc_reclkfb: BUFIO2FB port map(I => clk_main_neg, O => clk_main_fb);
+
+  -- Pseudo differential drive of clock to ADC.
+  adc_clk_ddr_p : oddr2
+    port map (D0 => '1', D1 => '0', C0 => adc_clk, C1 => adc_clk_neg,
+              Q => adc_clk_p);
+  adc_clk_ddr_n : oddr2
+    port map (D0 => '0', D1 => '1', C0 => adc_clk, C1 => adc_clk_neg,
+              Q => adc_clk_n);
+
+  -- Regenerate the clock from the ADC.
+  -- We run the PLL oscillator at 1000MHz, i.e., 4 times the input clock.
+  main_pll : PLL_BASE
     generic map(
-      --BANDWIDTH            => "HIGH",
-      CLK_FEEDBACK         => "CLKFBOUT",
-      COMPENSATION         => "SYSTEM_SYNCHRONOUS",
+      --BANDWIDTH            => "LOW",
+      CLK_FEEDBACK         => "CLKOUT0",
+      --COMPENSATION         => "SYSTEM_SYNCHRONOUS",
       DIVCLK_DIVIDE        => 1,
-      CLKFBOUT_MULT        => 6, -- 125MHz.
+      CLKFBOUT_MULT        => 1,
       --CLKFBOUT_PHASE       => 0.000,
-      CLKOUT0_DIVIDE       => 6, -- 125MHz.
+      CLKOUT0_DIVIDE       => 4,
       --CLKOUT0_PHASE        => 0.000,
       --CLKOUT0_DUTY_CYCLE   => 0.500,
-      CLKOUT1_DIVIDE       => 12, -- 62.5Mhz
-      --CLKOUT1_PHASE        => 0.000,
+      CLKOUT1_DIVIDE       => 4,
+      CLKOUT1_PHASE        => 180.000,
       --CLKOUT1_DUTY_CYCLE   => 0.500,
-      CLKIN_PERIOD         => 8.0,
-      REF_JITTER           => 0.001)
+      CLKIN_PERIOD         => 4.0
+      --REF_JITTER           => 0.001
+      )
     port map(
       -- Output clocks
-      CLKFBOUT            => clkfbout,
-      CLKOUT0             => clkgen_fast,
-      CLKOUT1             => clkgen62m5,
-      CLKOUT2             => open,
-      CLKOUT3             => open,
-      CLKOUT4             => open,
-      CLKOUT5             => open,
-      LOCKED              => open,
-      RST                 => '0',
+      CLKFBOUT => open,
+      CLKOUT0  => clku_main_neg,
+      CLKOUT1  => clku_main,
+      CLKOUT2  => open, CLKOUT3  => open, CLKOUT4  => open,
+      CLKOUT5  => open,
+      LOCKED   => open,
+      --LOCKED   => clk_main_locked,
+      RST      => '0',
+      CLKFBIN  => clk_main_fb,
+      CLKIN    => adc_reclk);
+
+  clk_main_bufg     : BUFG port map(I => clku_main,     O => clk_main);
+  clk_main_neg_bufg : BUFG port map(I => clku_main_neg, O => clk_main_neg);
+
+  clkin125_bufg : BUFG port map(I => clkin125, O=>clkin125_buf);
+
+  -- Generate the clock to the ADC.  We run the PLL oscillator at 1000MHz, (8
+  -- times the input clock), and then generate a 250MHz output.
+  adc_gen_pll : PLL_BASE
+    generic map(
+      BANDWIDTH            => "LOW",
+      CLK_FEEDBACK         => "CLKFBOUT",
+      --COMPENSATION         => "SYSTEM_SYNCHRONOUS",
+      DIVCLK_DIVIDE        => 1,
+      CLKFBOUT_MULT        => 8,
+      --CLKFBOUT_PHASE       => 0.000,
+      CLKOUT0_DIVIDE       => 4,
+      --CLKOUT0_PHASE        => 0.000,
+      --CLKOUT0_DUTY_CYCLE   => 0.500,
+      CLKOUT1_DIVIDE       => 4,
+      CLKOUT1_PHASE        => 180.000,
+      --CLKOUT1_DUTY_CYCLE   => 0.500,
+      CLKIN_PERIOD         => 8.0
+      --REF_JITTER           => 0.001
+      )
+    port map(
+      -- Output clocks
+      CLKFBOUT   => adc_clk_fb,
+      CLKOUT0    => adc_clk_u,
+      CLKOUT1    => adc_clk_neg_u,
+      CLKOUT2    => open,
+      CLKOUT3    => open,
+      CLKOUT4    => open,
+      CLKOUT5    => open,
+      LOCKED     => open,
+      --LOCKED     => adc_clk_locked,
+      RST        => '0',
       -- Input clock control
-      CLKFBIN             => clkfbout_buf,
-      CLKIN               => adc_reclk_diff);
-
-  -- Output buffering
-  -------------------------------------
-  clk_fast_buf : BUFG port map (I => clkgen_fast, O => clk_fast);
-  clk62m5_buf : BUFG port map (I => clkgen62m5, O => clk62m5);
-
-  clkf_buf : BUFG port map (I => clkfbout, O => clkfbout_buf);
+      CLKFBIN    => adc_clk_fb,
+      CLKIN      => clkin125_buf);
+  adc_clk_bufg     : BUFG port map (I => adc_clk_u,     O => adc_clk);
+  adc_clk_neg_bufg : BUFG port map (I => adc_clk_neg_u, O => adc_clk_neg);
 
 end Behavioral;
