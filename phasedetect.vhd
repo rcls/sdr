@@ -21,12 +21,12 @@ end phasedetect;
 -- We want to reuse the first time through the pipeline:
 -- shift=0.  If no underflow, then swap qq and ii.
 -- We load every 20 (?) cycles,
--- and ship out 60 cycles latter.
+-- and ship out 60 cycles later.
 
 architecture Behavioral of phasedetect is
   signal qq1 : unsigned36; -- Real component.
+  signal ii1 : unsigned37; -- Imaginary component.
 
- signal ii1 : unsigned37; -- Imaginary component.
   signal angle1 : signed18; -- Accumulated angle.
   signal positive1 : boolean; -- Positive adjustments to angle.
 
@@ -97,10 +97,11 @@ begin
       qq1 <= qq3;
       ii1 <= ii3;
       angle1 <= angle3;
-      positive3 <= positive2;
+      positive1 <= positive3;
 
       -- First pipeline stage is the right shift.  Note that for the start
-      -- iteration, the high bit of ii is still zero.
+      -- iteration, the high bit of ii is still zero, so the high bit of
+      -- ii_shifted will always be zero.
       ii2_shifted <= ii1 srl (2 * (count mod 16));
       load2 <= (count = 19);
 
@@ -109,6 +110,8 @@ begin
       qq3_trial <= qq2 + ii2_shifted(35 downto 0);
       -- Note that ii is at most twice the 36 bit qq, so if the arithmetic does
       -- not overflow, then the result of the subtract will fit in 36 bits.
+      -- Except for round-0 (where we normalise to the first octant).  In that
+      -- case everything is 36 bits.
       ii3_trial <= ii2 - ('0' & qq2);
       angle3_update <= angle_update(iteration2(count));
 
@@ -116,23 +119,24 @@ begin
         ii3_trial(36) <= '1'; -- Make sure we don't adjust on next cycle.
         -- 'not' is cheaper than proper true negation.  And given our
         -- round-towards-negative behaviour, more accurate.
-        if qq(35) = '0' then
-          qq3 <= unsigned(qq);
+        if qq_in(35) = '0' then
+          qq3 <= unsigned(qq_in);
         else
-          qq3 <= not unsigned(qq);
+          qq3 <= not unsigned(qq_in);
         end if;
-        if ii(35) = '0' then
-          ii3 <= '0' & unsigned(ii);
+        if ii_in(35) = '0' then
+          ii3 <= '0' & unsigned(ii_in);
         else
-          ii3 <= '0' & not unsigned(ii);
+          ii3 <= '0' & not unsigned(ii_in);
         end if;
-        positive3 <= (qq >= 0) xor (ii < 0);
+        positive3 <= (qq_in >= 0) xor (ii_in < 0);
         -- Our convention is that angle zero covers the first sliver of the
         -- first quadrant etc., so bias the start angle just into the
         -- appropriate quadrant.  Yes the 0=>1 looks like a step too far,
         -- but after exhaustive testing, it gives better results, presumably
         -- because of the granularity of the result.
-        angle3 <= (17 => ii(35), 0 => '1', others => qq(35) xor ii(35));
+        angle3 <= (17 => ii_in(35), 0 => '1',
+                   others => qq_in(35) xor ii_in(35));
         phase <= angle2; -- ship out previous result.
       end if;
 
