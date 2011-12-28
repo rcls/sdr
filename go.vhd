@@ -15,24 +15,26 @@ entity go is
        adc_clk_n : out std_logic;
        adc_reclk_p : in std_logic;
        adc_reclk_n : in std_logic;
-       freq : in unsigned24;
-       set_f0 : in std_logic;
-       set_f1 : in std_logic;
-       phase : out signed18;
+
+       usb_d : inout unsigned8;
+       usb_c : inout unsigned8 := "ZZZZ11ZZ";
+
+       xmit : in boolean;
+
        clkin125 : in std_logic);
 end go;
 
 architecture Behavioral of go is
-  signal f0 : unsigned24;
-  signal f1 : unsigned24;
+  type four_unsigned24 is array(0 to 3) of unsigned24;
+  signal f : four_unsigned24;
 
-  signal qq0 : signed36;
-  signal ii0 : signed36;
-  signal qq1 : signed36;
-  signal ii1 : signed36;
+  signal qq : four_signed36;
+  signal ii : four_signed36;
 
   signal qq_buf : signed36;
   signal ii_buf : signed36;
+
+  signal phase : unsigned(23 downto 0);
 
   signal clkin125_buf : std_logic;
 
@@ -55,43 +57,45 @@ architecture Behavioral of go is
   signal clk_main_fb : std_logic;
 
   signal adc_ddr : unsigned7;
---  signal data_vector : std_logic_vector(13 downto 0);
   signal adc_data : signed14;
 
   signal adc_reclk_diff : std_logic;
 
   signal clkbuf125_neg : std_logic;
 
-begin
-  down0: entity work.downconvert
-    port map(data => adc_data, freq => f0, Clk => clk_main,
-             qq => qq0, ii => ii0);
+  -- The configuration loaded from USB.
+  signal config : unsigned(95 downto 0);
 
-  down1: entity work.downconvert
-    port map(data => adc_data, freq => f1, Clk => clk_main,
-             qq => qq1, ii => ii1);
+  signal usbd_out : unsigned8;
+  signal usb_oe : std_logic;
+
+begin
+  down: for i in 0 to 3 generate
+    f(i) <= config(i * 24 + 23 downto i * 24);
+    down0: entity work.downconvert
+      port map (data => adc_data, freq => f(i), clk => clk_main,
+                qq => qq(i), ii => ii(i));
+  end generate;
+
+  usb_d <= usbd_out when usb_oe = '1' else "ZZZZZZZZ";
 
   qfilter: entity work.multifilter
-    port map(in0 => qq0, in1 => qq1, qq => qq_buf, clk => clk_main);
+    port map(dd => qq, qq => qq_buf, clk => clk_main);
 
   ifilter: entity work.multifilter
-    port map(in0 => ii0, in1 => ii1, qq => ii_buf, clk => clk_main);
+    port map(dd => ii, qq => ii_buf, clk => clk_main);
 
   ph: entity work.phasedetect
-    port map(qq_in=>qq_buf, ii_in=>ii_buf, phase=>phase, clk=> clk_main);
+    port map(qq_in=>qq_buf, ii_in=>ii_buf, phase=>phase(17 downto 0),
+             clk=> clk_main);
 
-  process (clk_main)
-  begin
-    if clk_main'event and clk_main = '1' then
-      if set_f0 = '1' then
-        f0 <= freq;
-      end if;
-      if set_f1 = '1' then
-        f1 <= freq;
-      end if;
-    end if;
-  end process;
-
+  usb: entity work.usbio
+    generic map(config_bytes => 12)
+    port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe => usb_oe,
+             usb_nRXF => usb_c(0), usb_nTXE => usb_c(1),
+             usb_nRD => usb_c(2), usb_nWR => usb_c(3),
+             config => config,
+             data => phase, xmit => xmit, clk => clk_main);
 
   -- DDR input from ADC.
   adc_input: for i in 0 to 6 generate

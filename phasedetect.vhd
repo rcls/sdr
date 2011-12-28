@@ -8,7 +8,7 @@ use work.defs.all;
 entity phasedetect is
   port(qq_in : in signed36; -- overkill, could have reduced to 18 bits by now.
        ii_in : in signed36;
-       phase : out signed18;
+       phase : out unsigned18;
        clk : in std_logic);
 end phasedetect;
 
@@ -27,13 +27,13 @@ architecture Behavioral of phasedetect is
   signal qq1 : unsigned36; -- Real component.
   signal ii1 : unsigned37; -- Imaginary component.
 
-  signal angle1 : signed18; -- Accumulated angle.
+  signal angle1 : unsigned18; -- Accumulated angle.
   signal positive1 : boolean; -- Positive adjustments to angle.
 
   signal qq2 : unsigned36;
   signal ii2 : unsigned37;
   signal ii2_shifted : unsigned37;
-  signal angle2 : signed18;
+  signal angle2 : unsigned18;
   signal positive2 : boolean;
   signal load2 : boolean;
 
@@ -41,7 +41,7 @@ architecture Behavioral of phasedetect is
   signal ii3 : unsigned37;
   signal qq3_trial : unsigned36;
   signal ii3_trial : unsigned37;
-  signal angle3 : signed18;
+  signal angle3 : unsigned18;
   signal angle3_update : unsigned16;
   signal positive3 : boolean;
   signal start3 : boolean;
@@ -156,9 +156,9 @@ begin
         end if;
 
         if positive3 then
-          angle1 <= angle3 + ("00" & signed(angle3_update));
+          angle1 <= angle3 + ("00" & angle3_update);
         else
-          angle1 <= angle3 - ("00" & signed(angle3_update));
+          angle1 <= angle3 - ("00" & angle3_update);
         end if;
       end if;
 
