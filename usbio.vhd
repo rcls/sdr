@@ -48,14 +48,14 @@ architecture behavioural of usbio is
   signal nRXF : std_logic;
 
   -- 00/01/10 to decide which byte to output.
-  signal obyte : integer range 0 to packet_bytes - 1;
+  signal out_count : integer range 0 to packet_bytes - 1;
 begin
   process (clk)
   begin
     if clk'event and clk = '1' then
       phase <= phase + 1;
 
-      usbd_out <= out_buf(obyte * 8 + 7 downto obyte * 8);
+      usbd_out <= out_buf(out_count * 8 + 7 downto out_count * 8);
 
       usb_nWR <= '1';
       usb_nRD <= '0';
@@ -86,13 +86,13 @@ begin
           usb_nRD <= nRXF;
           if nTXE = '1' then
             tx_overrun <= '1';
-          elsif obyte = packet_bytes - 1 then
-            obyte <= 0;
+          elsif out_count = packet_bytes - 1 then
+            out_count <= 0;
             out_buf <= packet;
             xmit_buf <= xmit;
             tx_overrun <= '0';
           else
-            obyte <= obyte + 1;
+            out_count <= out_count + 1;
           end if;
         when 3 =>
           in_buf <= usbd_in & in_buf(config_bytes * 8 - 1 downto 8);
