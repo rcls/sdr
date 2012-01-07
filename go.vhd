@@ -161,18 +161,18 @@ begin
   -- We run the PLL oscillator at 1000MHz, i.e., 4 times the input clock.
   main_pll : PLL_BASE
     generic map(
-      CLK_FEEDBACK    => "CLKOUT0",
-      DIVCLK_DIVIDE   => 1, CLKFBOUT_MULT   => 1,
-      CLKOUT0_DIVIDE  => 4, CLKOUT0_PHASE   => 180.000,
-      CLKOUT1_DIVIDE  => 4,
-      CLKOUT2_DIVIDE  => 80,
-      CLKIN_PERIOD    => 4.0)
+      CLK_FEEDBACK   => "CLKOUT0",
+      DIVCLK_DIVIDE  => 1, CLKFBOUT_MULT => 1,
+      CLKOUT0_DIVIDE => 4, CLKOUT0_PHASE => 180.000,
+      CLKOUT1_DIVIDE => 4,
+      CLKOUT2_DIVIDE => 80,
+      CLKIN_PERIOD   => 4.0)
     port map(
       -- Output clocks
-      CLKFBIN  => clk_main_fb,
-      CLKOUT0  => clku_main_neg, CLKOUT1  => clku_main, CLKOUT2 => clku_12m5,
-      RST      => '0',
-      CLKIN    => adc_reclk);
+      CLKFBIN => clk_main_fb,
+      CLKOUT0 => clku_main_neg, CLKOUT1 => clku_main, CLKOUT2 => clku_12m5,
+      RST     => '0',
+      CLKIN   => adc_reclk);
 
   clk_main_bufg     : BUFG port map(I => clku_main,     O => clk_main);
   clk_main_neg_bufg : BUFG port map(I => clku_main_neg, O => clk_main_neg);

@@ -30,7 +30,6 @@ end usbio;
 
 architecture behavioural of usbio is
   -- We do 1 byte in each direction every 4 clock cycles, 3.125MB/s.
-  -- To this end, we divide the clock
   signal phase : integer range 0 to 3;
   -- Asserted for a single cycle to commit config.
   signal config_load : boolean;
@@ -43,6 +42,7 @@ architecture behavioural of usbio is
 
   -- Packet being sent to USB.
   signal out_buf : unsigned(packet_bytes * 8 - 1 downto 0);
+  signal xmit_buf : std_logic;
 
   signal nTXE : std_logic;
   signal nRXF : std_logic;
@@ -65,7 +65,7 @@ begin
       -- 2/3 read, 1 capture rxf.
       case phase is
         when 0 =>
-          if nTXE = '0' and xmit = '1' then
+          if nTXE = '0' and xmit_buf = '1' then
             usb_oe <= '1';
             usb_nWR <= '0';
           end if;
@@ -78,7 +78,7 @@ begin
             in_count <= in_count + 1;
           end if;
         when 1 =>
-          if nTXE = '0' and xmit = '1' then
+          if nTXE = '0' and xmit_buf = '1' then
             usb_oe <= '1';
           end if;
           nRXF <= usb_nRXF;
@@ -89,6 +89,7 @@ begin
           elsif obyte = packet_bytes - 1 then
             obyte <= 0;
             out_buf <= packet;
+            xmit_buf <= xmit;
             tx_overrun <= '0';
           else
             obyte <= obyte + 1;
