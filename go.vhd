@@ -17,9 +17,12 @@ entity go is
        adc_reclk_n : in std_logic;
 
        usb_d : inout unsigned8;
-       usb_c : inout unsigned8 := "ZZZZ11ZZ";
+       usb_c : inout unsigned8;
 
-       xmit : in boolean;
+       adc_sen : out std_logic := '0';
+       adc_sdata : out std_logic := '0';
+       adc_sclk : out std_logic := '0';
+       adc_reset : out std_logic := '1';
 
        clkin125 : in std_logic);
 end go;
@@ -56,6 +59,9 @@ architecture Behavioral of go is
   signal clku_main_neg : std_logic;
   signal clk_main_fb : std_logic;
 
+  signal clk_12m5 : std_logic;
+  signal clku_12m5 : std_logic;
+
   signal adc_ddr : unsigned7;
   signal adc_data : signed14;
 
@@ -64,10 +70,13 @@ architecture Behavioral of go is
   signal clkbuf125_neg : std_logic;
 
   -- The configuration loaded from USB.
-  signal config : unsigned(95 downto 0);
+  signal config : unsigned(103 downto 0) := x"08000000000000000000000000";
 
   signal usbd_out : unsigned8;
   signal usb_oe : std_logic;
+
+  attribute S : string;
+  attribute S of usb_c : signal is "yes";
 
 begin
   down: for i in 0 to 3 generate
@@ -78,6 +87,8 @@ begin
   end generate;
 
   usb_d <= usbd_out when usb_oe = '1' else "ZZZZZZZZ";
+  usb_c(4) <= '0'; -- SIWA
+  usb_c(7 downto 5) <= "ZZZ";
 
   qfilter: entity work.multifilter
     port map(dd => qq, qq => qq_buf, clk => clk_main);
@@ -89,13 +100,18 @@ begin
     port map(qq_in=>qq_buf, ii_in=>ii_buf, phase=>phase(17 downto 0),
              clk=> clk_main);
 
+  adc_sen   <= config(96);
+  adc_sdata <= config(97);
+  adc_sclk  <= config(98);
+  adc_reset <= config(99);
+
   usb: entity work.usbio
-    generic map(config_bytes => 12)
+    generic map(config_bytes => 13, packet_bytes => 3)
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe => usb_oe,
              usb_nRXF => usb_c(0), usb_nTXE => usb_c(1),
              usb_nRD => usb_c(2), usb_nWR => usb_c(3),
              config => config,
-             data => phase, xmit => xmit, clk => clk_main);
+             packet => phase, xmit => config(100), clk => clk_12m5);
 
   -- DDR input from ADC.
   adc_input: for i in 0 to 6 generate
@@ -135,18 +151,20 @@ begin
     generic map(
       CLK_FEEDBACK    => "CLKOUT0",
       DIVCLK_DIVIDE   => 1, CLKFBOUT_MULT   => 1,
-      CLKOUT0_DIVIDE  => 4,
-      CLKOUT1_DIVIDE  => 4, CLKOUT1_PHASE   => 180.000,
+      CLKOUT0_DIVIDE  => 4, CLKOUT0_PHASE   => 180.000,
+      CLKOUT1_DIVIDE  => 4,
+      CLKOUT2_DIVIDE  => 80,
       CLKIN_PERIOD    => 4.0)
     port map(
       -- Output clocks
       CLKFBIN  => clk_main_fb,
-      CLKOUT0  => clku_main_neg, CLKOUT1  => clku_main,
+      CLKOUT0  => clku_main_neg, CLKOUT1  => clku_main, CLKOUT2 => clku_12m5,
       RST      => '0',
       CLKIN    => adc_reclk);
 
   clk_main_bufg     : BUFG port map(I => clku_main,     O => clk_main);
   clk_main_neg_bufg : BUFG port map(I => clku_main_neg, O => clk_main_neg);
+  clk_12m5_bufg     : BUFG port map(I => clku_12m5,     O => clk_12m5);
 
   clkin125_bufg : BUFG port map(I => clkin125, O=>clkin125_buf);
 

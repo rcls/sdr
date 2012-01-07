@@ -6,8 +6,9 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.defs.all;
 
+-- We run off a 12.5mhz clock, transferring 1 byte every 4 cycles.
 entity usbio is
-  generic (config_bytes : integer);
+  generic (config_bytes : integer; packet_bytes : integer);
   port (usbd_in : in unsigned8;
         usbd_out : out unsigned8;
         usb_oe : out std_logic;
@@ -18,100 +19,78 @@ entity usbio is
         usb_nWR : out std_logic := '1';
 
         config : out unsigned(config_bytes * 8 - 1 downto 0);
-        send : in unsigned24;
-        xmit : in boolean;
+        packet : in unsigned(packet_bytes * 8 - 1 downto 0);
+        xmit : in std_logic;
 
         clk : in std_logic);
 end usbio;
 
 architecture behavioural of usbio is
-  -- We do 1 byte in each direction every 80 clock cycles, 3.125MB/s.
-  signal phase : unsigned(6 downto 0);
-  -- The logic drives off clock/20, this is the /20 strobe.
-  signal go : boolean;
+  -- We do 1 byte in each direction every 4 clock cycles, 3.125MB/s.
+  -- To this end, we divide the clock
+  signal phase : integer range 0 to 3;
   -- Asserted for a single cycle to commit config.
   signal config_load : boolean;
 
   -- Position in config.
-  signal conf_count : integer range 0 to config_bytes - 1;
+  signal in_count : integer range 0 to config_bytes - 1;
 
   -- Config being captured from USB.
   signal in_buf : unsigned(config_bytes * 8 - 1 downto 0);
+
+  -- Packet being sent to USB.
+  signal out_buf : unsigned(packet_bytes * 8 - 1 downto 0);
 
   signal nTXE : std_logic;
   signal nRXF : std_logic;
 
   -- 00/01/10 to decide which byte to output.
-  signal obyte : unsigned2;
+  signal obyte : integer range 0 to packet_bytes - 1;
 begin
   process (clk)
   begin
     if clk'event and clk = '1' then
-      -- We divide by 80 by counting mod 5 on the low 3 bits.
-      if phase(2) = '0' then
-        phase <= phase + 1;
-      else
-        phase <= phase + 4;
-      end if;
-      -- Asserted once every twenty cycles.
-      go <= phase(4 downto 2) = "111";
+      phase <= phase + 1;
 
-      config_load <= go and conf_count = config_bytes - 1
-                     and phase(6 downto 5) = "11";
-      if config_load then
-        config <= in_buf;
-      end if;
+      usbd_out <= out_buf(obyte * 8 + 7 downto obyte * 8);
 
-      sample_in <= obyte(1) = '1' and go and phase(6 downto 5) = "11";
-      if sample_in then
-        out_buf <= send;
-      end if;
-
-      -- We run off /20, so we have 4 periods of 80ns.
+      usb_nWR <= '1';
+      usb_nRD <= '0';
+      usb_oe <= '0';
+      -- We have 4 periods of 80ns.
       -- 0/1 write, 3 capture txe.
       -- 2/3 read, 1 capture rxf.
-      if go then
-        case obyte is
-          when "00" =>
-            usbd_out <= out_buf(7 downto 0);
-          when "01" =>
-            usbd_out <= out_buf(15 downto 8);
-          when others =>
-            usbd_out <= out_buf(23 downto 16);
-        end case;
-
-        usb_nWR <= '1';
-        usb_nRD <= '0';
-        usb_oe <= '0';
-        case phase(6 downto 5) is
-          when "00" =>
-            if nTXE = '0' and xmit then
-              usb_oe <= '1';
-              usb_nWR <= '0';
-            end if;
-            if nRXF = '1' or conf_count = config_bytes - 1 then
-              config_bytes <= 0;
-            else
-              config_bytes <= config_bytes + 1;
-            end if;
-          when "01" =>
-            if nTXE = '0' and xmit then
-              usb_oe <= '1';
-            end if;
-            nRXF <= usb_nRXF;
-          when "10" =>
-            usb_nRD <= nRXF;
-            if obyte(1) = '0' then
-              obyte <= obyte + 1;
-            else
-              obyte <= "00";
-            end if;
-          when "11" =>
-            in_buf <= in_buf(config_bytes * 8 - 9 downto 0) & usbd_in;
-            nTXE <= usb_nTXE;
-          when others =>
-        end case;
-      end if;
+      case phase is
+        when 0 =>
+          if nTXE = '0' and xmit = '1' then
+            usb_oe <= '1';
+            usb_nWR <= '0';
+          end if;
+          if nRXF = '0' and in_count = config_bytes - 1 then
+            config <= in_buf;
+          end if;
+          if nRXF = '1' or in_count = config_bytes - 1 then
+            in_count <= 0;
+          else
+            in_count <= in_count + 1;
+          end if;
+        when 1 =>
+          if nTXE = '0' and xmit = '1' then
+            usb_oe <= '1';
+          end if;
+          nRXF <= usb_nRXF;
+        when 2 =>
+          usb_nRD <= nRXF;
+          if obyte = packet_bytes - 1 then
+            obyte <= 0;
+            out_buf <= packet;
+          else
+            obyte <= obyte + 1;
+          end if;
+        when 3 =>
+          in_buf <= usbd_in & in_buf(config_bytes * 8 - 1 downto 8);
+          nTXE <= usb_nTXE;
+      end case;
     end if;
   end process;
 end behavioural;
