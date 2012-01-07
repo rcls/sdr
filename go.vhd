@@ -37,7 +37,7 @@ architecture Behavioral of go is
   signal qq_buf : signed36;
   signal ii_buf : signed36;
 
-  signal phase : unsigned(23 downto 0);
+  signal packet : unsigned(23 downto 0);
 
   signal clkin125_buf : std_logic;
 
@@ -97,7 +97,7 @@ begin
     port map(dd => ii, qq => ii_buf, clk => clk_main);
 
   ph: entity work.phasedetect
-    port map(qq_in=>qq_buf, ii_in=>ii_buf, phase=>phase(17 downto 0),
+    port map(qq_in=>qq_buf, ii_in=>ii_buf, phase => packet(17 downto 0),
              clk=> clk_main);
 
   adc_sen   <= config(96);
@@ -105,13 +105,25 @@ begin
   adc_sclk  <= config(98);
   adc_reset <= config(99);
 
+  -- Protocol: config packets, little endian:
+  -- 3 bytes freq(0)
+  -- 3 bytes freq(1)
+  -- 3 bytes freq(2)
+  -- 3 bytes freq(3)
+  -- 1 byte: low nibble ADC control pins, bit 4: data enable.
+
+  -- Data packets, little endian.
+  -- 18 bits radio phase data.
+  -- 5 bits unused.
+  -- 1 bit tx overrun indicator.
+
   usb: entity work.usbio
     generic map(config_bytes => 13, packet_bytes => 3)
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe => usb_oe,
              usb_nRXF => usb_c(0), usb_nTXE => usb_c(1),
              usb_nRD => usb_c(2), usb_nWR => usb_c(3),
-             config => config,
-             packet => phase, xmit => config(100), clk => clk_12m5);
+             config => config, tx_overrun => packet(23),
+             packet => packet, xmit => config(100), clk => clk_12m5);
 
   -- DDR input from ADC.
   adc_input: for i in 0 to 6 generate

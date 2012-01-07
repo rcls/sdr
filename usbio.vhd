@@ -6,7 +6,9 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.defs.all;
 
--- We run off a 12.5mhz clock, transferring 1 byte every 4 cycles.
+-- We run off a 12.5mhz clock, transferring 1 byte every 4 cycles.  This gives
+-- us a 3.125MB/s transfer rate, which should be comfortably within the ability
+-- of the FT2232H async I/O.
 entity usbio is
   generic (config_bytes : integer; packet_bytes : integer);
   port (usbd_in : in unsigned8;
@@ -21,6 +23,7 @@ entity usbio is
         config : out unsigned(config_bytes * 8 - 1 downto 0);
         packet : in unsigned(packet_bytes * 8 - 1 downto 0);
         xmit : in std_logic;
+        tx_overrun : out std_logic;
 
         clk : in std_logic);
 end usbio;
@@ -81,9 +84,12 @@ begin
           nRXF <= usb_nRXF;
         when 2 =>
           usb_nRD <= nRXF;
-          if obyte = packet_bytes - 1 then
+          if nTXE = '1' then
+            tx_overrun <= '1';
+          elsif obyte = packet_bytes - 1 then
             obyte <= 0;
             out_buf <= packet;
+            tx_overrun <= '0';
           else
             obyte <= obyte + 1;
           end if;
