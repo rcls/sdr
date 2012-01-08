@@ -56,7 +56,7 @@ begin
       usbd_out <= out_buf(out_count * 8 + 7 downto out_count * 8);
 
       usb_nWR <= '1';
-      usb_nRD <= '0';
+      usb_nRD <= '1';
       usb_oe_n <= '1';
       -- We have 4 periods of 80ns.
       -- 0/1 write, 3 capture txe.
@@ -65,7 +65,6 @@ begin
         when 0 =>
           if nTXE = '0' and xmit_buf = '1' then
             usb_oe_n <= '0';
-            usb_nWR <= '0';
           end if;
           if nRXF = '0' and in_count = config_bytes - 1 then
             config <= in_buf;
@@ -78,6 +77,7 @@ begin
         when 1 =>
           if nTXE = '0' and xmit_buf = '1' then
             usb_oe_n <= '0';
+            usb_nWR <= '0';
           end if;
           nRXF <= usb_nRXF;
         when 2 =>
