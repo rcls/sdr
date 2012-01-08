@@ -13,7 +13,7 @@ entity usbio is
   generic (config_bytes : integer; packet_bytes : integer);
   port (usbd_in : in unsigned8;
         usbd_out : out unsigned8;
-        usb_oe : out std_logic;
+        usb_oe_n : out std_logic := '1';
 
         usb_nRXF : in std_logic;
         usb_nTXE : in std_logic;
@@ -31,8 +31,6 @@ end usbio;
 architecture behavioural of usbio is
   -- We do 1 byte in each direction every 4 clock cycles, 3.125MB/s.
   signal phase : integer range 0 to 3;
-  -- Asserted for a single cycle to commit config.
-  signal config_load : boolean;
 
   -- Position in config.
   signal in_count : integer range 0 to config_bytes - 1;
@@ -59,14 +57,14 @@ begin
 
       usb_nWR <= '1';
       usb_nRD <= '0';
-      usb_oe <= '0';
+      usb_oe_n <= '1';
       -- We have 4 periods of 80ns.
       -- 0/1 write, 3 capture txe.
       -- 2/3 read, 1 capture rxf.
       case phase is
         when 0 =>
           if nTXE = '0' and xmit_buf = '1' then
-            usb_oe <= '1';
+            usb_oe_n <= '0';
             usb_nWR <= '0';
           end if;
           if nRXF = '0' and in_count = config_bytes - 1 then
@@ -79,7 +77,7 @@ begin
           end if;
         when 1 =>
           if nTXE = '0' and xmit_buf = '1' then
-            usb_oe <= '1';
+            usb_oe_n <= '0';
           end if;
           nRXF <= usb_nRXF;
         when 2 =>

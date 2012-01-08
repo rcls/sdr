@@ -24,7 +24,10 @@ entity go is
        adc_sclk : out std_logic := '0';
        adc_reset : out std_logic := '1';
 
-       clkin125 : in std_logic);
+       led : out unsigned8;
+
+       clkin125 : in std_logic;
+       clkin125_en : out std_logic);
 end go;
 
 architecture Behavioral of go is
@@ -72,23 +75,41 @@ architecture Behavioral of go is
   -- The configuration loaded from USB.
   signal config : unsigned(103 downto 0) := x"08000000000000000000000000";
 
+  signal led_off : unsigned8 := x"fe";
+
   signal usbd_out : unsigned8;
-  signal usb_oe : std_logic;
+  signal usb_oe_n : std_logic;
 
   attribute S : string;
   attribute S of usb_c : signal is "yes";
+  attribute S of led : signal is "yes";
+
+  alias clk_main_locked : std_logic is led_off(1);
+  alias adc_clk_locked : std_logic is led_off(2);
 
 begin
+  usb_d <= usbd_out when usb_oe_n = '0' else "ZZZZZZZZ";
+  usb_c(4) <= '0'; -- SIWA
+  usb_c(7 downto 5) <= "ZZZ";
+  clkin125_en <= '1';
+
+  adc_sen   <= config(96);
+  adc_sdata <= config(97);
+  adc_sclk  <= config(98);
+  adc_reset <= config(99);
+
+  led_control: for i in 0 to 7 generate
+    led(i) <= '0' when led_off(i) = '0' else 'Z';
+  end generate;
+
+  led_off(7 downto 4) <= config(103 downto 100);
+
   down: for i in 0 to 3 generate
     f(i) <= config(i * 24 + 23 downto i * 24);
     down0: entity work.downconvert
       port map (data => adc_data, freq => f(i), clk => clk_main,
                 qq => qq(i), ii => ii(i));
   end generate;
-
-  usb_d <= usbd_out when usb_oe = '1' else "ZZZZZZZZ";
-  usb_c(4) <= '0'; -- SIWA
-  usb_c(7 downto 5) <= "ZZZ";
 
   qfilter: entity work.multifilter
     port map(dd => qq, qq => qq_buf, clk => clk_main);
@@ -100,17 +121,12 @@ begin
     port map(qq_in=>qq_buf, ii_in=>ii_buf, phase => packet(17 downto 0),
              clk=> clk_main);
 
-  adc_sen   <= config(96);
-  adc_sdata <= config(97);
-  adc_sclk  <= config(98);
-  adc_reset <= config(99);
-
   -- Protocol: config packets, little endian:
   -- 3 bytes freq(0)
   -- 3 bytes freq(1)
   -- 3 bytes freq(2)
   -- 3 bytes freq(3)
-  -- 1 byte: low nibble ADC control pins, bit 4: data enable.
+  -- 1 byte: low nibble ADC control pins, bit 4: data enable, bits 4..7: LEDs.
 
   -- Data packets, little endian.
   -- 18 bits radio phase data.
@@ -119,9 +135,9 @@ begin
 
   usb: entity work.usbio
     generic map(config_bytes => 13, packet_bytes => 3)
-    port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe => usb_oe,
+    port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_c(0), usb_nTXE => usb_c(1),
-             usb_nRD => usb_c(2), usb_nWR => usb_c(3),
+             usb_nRD => usb_c(2),  usb_nWR => usb_c(3),
              config => config, tx_overrun => packet(23),
              packet => packet, xmit => config(100), clk => clk_12m5);
 
@@ -159,7 +175,7 @@ begin
 
   -- Regenerate the clock from the ADC.
   -- We run the PLL oscillator at 1000MHz, i.e., 4 times the input clock.
-  main_pll : PLL_BASE
+  clk_main_pll : PLL_BASE
     generic map(
       CLK_FEEDBACK   => "CLKOUT0",
       DIVCLK_DIVIDE  => 1, CLKFBOUT_MULT => 1,
@@ -171,7 +187,7 @@ begin
       -- Output clocks
       CLKFBIN => clk_main_fb,
       CLKOUT0 => clku_main_neg, CLKOUT1 => clku_main, CLKOUT2 => clku_12m5,
-      RST     => '0',
+      RST     => '0', LOCKED => clk_main_locked,
       CLKIN   => adc_reclk);
 
   clk_main_bufg     : BUFG port map(I => clku_main,     O => clk_main);
@@ -182,7 +198,7 @@ begin
 
   -- Generate the clock to the ADC.  We run the PLL oscillator at 1000MHz, (8
   -- times the input clock), and then generate a 250MHz output.
-  adc_gen_pll : PLL_BASE
+  adc_clk_pll : PLL_BASE
     generic map(
       BANDWIDTH       => "LOW",
       CLK_FEEDBACK    => "CLKFBOUT",
@@ -192,10 +208,10 @@ begin
       CLKIN_PERIOD    => 8.0)
     port map(
       -- Output clocks
-      CLKFBIN   => adc_clk_fb, CLKFBOUT  => adc_clk_fb,
-      CLKOUT0   => adc_clk_u, CLKOUT1   => adc_clk_neg_u,
-      RST       => '0',
-      CLKIN     => clkin125_buf);
+      CLKFBIN => adc_clk_fb, CLKFBOUT => adc_clk_fb,
+      CLKOUT0 => adc_clk_u,  CLKOUT1  => adc_clk_neg_u,
+      RST     => '0',        LOCKED   => adc_clk_locked,
+      CLKIN   => clkin125_buf);
   adc_clk_bufg     : BUFG port map (I => adc_clk_u,     O => adc_clk);
   adc_clk_neg_bufg : BUFG port map (I => adc_clk_neg_u, O => adc_clk_neg);
 
