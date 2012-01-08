@@ -29,7 +29,7 @@ entity multifilter is
         Clk : in std_logic);
 end;
 
-architecture Behavioral of multifilter is
+architecture behavioural of multifilter is
   constant scale : integer := 8; -- 4 for 125MHz, 8 for 250MHz.
   subtype index_t is unsigned(8 downto 0); -- 8 bits for 125MHz, 9 bits for 250.
   type ram_t is array(0 to scale * 64 - 1) of signed36;
@@ -79,4 +79,4 @@ begin
     end if;
   end process;
 
-end Behavioral;
+end behavioural;

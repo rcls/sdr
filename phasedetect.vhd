@@ -23,7 +23,7 @@ end phasedetect;
 -- We load every 20 (?) cycles,
 -- and ship out 60 cycles later.
 
-architecture Behavioral of phasedetect is
+architecture behavioural of phasedetect is
   signal qq1 : unsigned36; -- Real component.
   signal ii1 : unsigned37; -- Imaginary component.
 
@@ -165,4 +165,4 @@ begin
     end if;
   end process;
 
-end Behavioral;
+end behavioural;

@@ -30,7 +30,7 @@ entity go is
        clkin125_en : out std_logic);
 end go;
 
-architecture Behavioral of go is
+architecture behavioural of go is
   type four_unsigned24 is array(0 to 3) of unsigned24;
   signal f : four_unsigned24;
 
@@ -215,4 +215,4 @@ begin
   adc_clk_bufg     : BUFG port map (I => adc_clk_u,     O => adc_clk);
   adc_clk_neg_bufg : BUFG port map (I => adc_clk_neg_u, O => adc_clk_neg);
 
-end Behavioral;
+end behavioural;

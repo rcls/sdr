@@ -29,7 +29,7 @@ end stereo;
 -- 57kHz sin for RDS???
 -- 19kHz sin for pilot amplitude recovery (?)
 -- 19kHz sin for pilot negation?
-architecture behavioral of stereo is
+architecture behavioural of stereo is
 
   constant last_count : integer := 24;
   signal count : integer range 0 to last_count;
@@ -182,4 +182,4 @@ begin
     end if;
 
   end process;
-end behavioral;
+end behavioural;

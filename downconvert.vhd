@@ -19,7 +19,7 @@ entity downconvert is
           freq : in  unsigned24);
 end downconvert;
 
-architecture Behavioral of downconvert is
+architecture behavioural of downconvert is
 
   -- For the cosine/sine lookup, we take a 14 bit quantity.  The first two bits
   -- determine the quadrant, the middle ten the table index, and the bottom
@@ -178,4 +178,4 @@ begin
 
     end if;
   end process;
-end Behavioral;
+end behavioural;
