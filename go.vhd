@@ -42,8 +42,6 @@ architecture behavioural of go is
 
   signal packet : unsigned(23 downto 0);
 
-  signal clkin125_buf : std_logic;
-
   -- Generated clock for delivery to ADC.
   signal adc_clk : std_logic;
   signal adc_clk_neg : std_logic;
@@ -194,8 +192,6 @@ begin
   clk_main_neg_bufg : BUFG port map(I => clku_main_neg, O => clk_main_neg);
   clk_12m5_bufg     : BUFG port map(I => clku_12m5,     O => clk_12m5);
 
-  clkin125_bufg : BUFG port map(I => clkin125, O=>clkin125_buf);
-
   -- Generate the clock to the ADC.  We run the PLL oscillator at 1000MHz, (8
   -- times the input clock), and then generate a 250MHz output.
   adc_clk_pll : PLL_BASE
@@ -211,7 +207,8 @@ begin
       CLKFBIN => adc_clk_fb, CLKFBOUT => adc_clk_fb,
       CLKOUT0 => adc_clk_u,  CLKOUT1  => adc_clk_neg_u,
       RST     => '0',        LOCKED   => adc_clk_locked,
-      CLKIN   => clkin125_buf);
+      CLKIN   => clkin125);
+
   adc_clk_bufg     : BUFG port map (I => adc_clk_u,     O => adc_clk);
   adc_clk_neg_bufg : BUFG port map (I => adc_clk_neg_u, O => adc_clk_neg);
 
