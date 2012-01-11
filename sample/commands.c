@@ -100,6 +100,7 @@ int main(int argc, const char * const * argv)
     }
 
     libusb_device_handle * dev = usb_open();
+    fprintf(stderr, "%u bytes to do...\n", offset);
     int transferred;
     if (libusb_bulk_transfer(dev, USB_OUT_EP, buffer, offset,
                              &transferred, 100) != 0

@@ -110,7 +110,7 @@ static void run_regression(void)
     fprintf(stderr, "Max jump = %g\n", max_jump);
 
     // Polynomial fit.
-    const int order = 10;
+    const int order = 7;
     double coeffs[order + 1];
     l_fit(coeffs, phase + START, LEN, order);
 
@@ -218,7 +218,7 @@ int main()
     fclose(used);
 
     for (int i = 0; i != SIZE; ++i) {
-        if (scanf("%x", &x) < 1)
+        if (scanf("%d", &x) < 1)
             fprintf(stderr, "Short read...\n"), exit(1);
         assert(x >= 0 && x < 16384);
         assert(reindex[x] != 0);
