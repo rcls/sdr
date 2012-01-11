@@ -52,7 +52,7 @@ architecture behavioural of go is
   signal adc_clk_fb : std_logic;
 
   -- Received clk from ADC.
-  signal adc_reclk_b_n : std_logic;
+  signal adc_reclk_b : std_logic;
   signal adc_reclk : std_logic;
 
   -- Regenerated reclk.
@@ -155,15 +155,15 @@ begin
 
   -- Clk input from ADC.  The ADC drives the data as even on P-falling followed
   -- by odd on P-rising.
-  adc_reclk_in: IBUFGDS
+  adc_reclk_in: IBUFGDS_DIFF_OUT
     generic map (diff_term => true)
     port map(I => adc_reclk_n, IB => adc_reclk_p,
-             O => adc_reclk_b_n);
+             O=> open, OB => adc_reclk_b);
   -- Are these needed?  Do we need to tie them together?
   adc_reclk_buf: BUFIO2 port map(
-    I => adc_reclk_b_n,
+    I => adc_reclk_b,
     DIVCLK => adc_reclk, IOCLK => open, SERDESSTROBE => open);
-  adc_reclkfb: BUFIO2FB port map(I => clk_main_neg, O => clk_main_fb);
+  adc_reclkfb: BUFIO2FB port map(I => clk_main, O => clk_main_fb);
 
   -- Pseudo differential drive of clock to ADC.
   adc_clk_ddr_p : oddr2
@@ -179,14 +179,14 @@ begin
     generic map(
       CLK_FEEDBACK   => "CLKOUT0",
       DIVCLK_DIVIDE  => 1, CLKFBOUT_MULT => 1,
-      CLKOUT0_DIVIDE => 4, CLKOUT0_PHASE => 180.000,
-      CLKOUT1_DIVIDE => 4,
+      CLKOUT0_DIVIDE => 4,
+      CLKOUT1_DIVIDE => 4, CLKOUT1_PHASE => 180.0,
       CLKOUT2_DIVIDE => 80,
       CLKIN_PERIOD   => 4.0)
     port map(
       -- Output clocks
       CLKFBIN => clk_main_fb,
-      CLKOUT0 => clku_main_neg, CLKOUT1 => clku_main, CLKOUT2 => clku_12m5,
+      CLKOUT0 => clku_main, CLKOUT1 => clku_main_neg, CLKOUT2 => clku_12m5,
       RST     => '0', LOCKED => clk_main_locked,
       CLKIN   => adc_reclk);
 
