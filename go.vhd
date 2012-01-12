@@ -68,8 +68,6 @@ architecture behavioural of go is
 
   signal adc_reclk_diff : std_logic;
 
-  signal clkbuf125_neg : std_logic;
-
   -- The configuration loaded from USB.
   signal config : unsigned(103 downto 0) := x"08000000000000000000000000";
 
@@ -156,7 +154,7 @@ begin
   adc_reclk_in: IBUFGDS_DIFF_OUT
     generic map (diff_term => true)
     port map(I => adc_reclk_n, IB => adc_reclk_p,
-             O=> open, OB => adc_reclk_b);
+             O => open, OB => adc_reclk_b);
   -- Are these needed?  Do we need to tie them together?
   adc_reclk_buf: BUFIO2 port map(
     I => adc_reclk_b,
@@ -196,12 +194,12 @@ begin
   -- times the input clock), and then generate a 250MHz output.
   adc_clk_pll : PLL_BASE
     generic map(
-      BANDWIDTH       => "LOW",
-      CLK_FEEDBACK    => "CLKFBOUT",
-      DIVCLK_DIVIDE   => 1, CLKFBOUT_MULT   => 8,
-      CLKOUT0_DIVIDE  => 4,
-      CLKOUT1_DIVIDE  => 4, CLKOUT1_PHASE   => 180.000,
-      CLKIN_PERIOD    => 8.0)
+      BANDWIDTH      => "LOW",
+      CLK_FEEDBACK   => "CLKFBOUT",
+      DIVCLK_DIVIDE  => 1, CLKFBOUT_MULT => 8,
+      CLKOUT0_DIVIDE => 4,
+      CLKOUT1_DIVIDE => 4, CLKOUT1_PHASE => 180.000,
+      CLKIN_PERIOD   => 8.0)
     port map(
       -- Output clocks
       CLKFBIN => adc_clk_fb, CLKFBOUT => adc_clk_fb,
