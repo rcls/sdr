@@ -15,13 +15,13 @@ use work.defs.all;
 -- The *8 is for 250MHz; at 125MHz we do *4.
 --
 -- Phase 0: Save input x(t), start load x(t-64*8) [same loc.], output prev,
---    acc := -x(t-27*8).
--- Phase 1: acc += x(t-64*8), start load x(t).
--- Phase 2: acc += x(t),      start load x(t-37*8).
--- Phase 3: acc -= x(t-37*8), start load x(t+1-27*8).
+--    acc := -x(t-37*8).
+-- Phase 1: acc -= x(t-27*8), start load x(t).
+-- Phase 2: acc += x(t-64*8), start load x(t+1-37*8).
+-- Phase 3: acc += x(t), start load x(t+1-27*8).
 -- Phase 0, index += 0.
--- Phase 1, index -= 37*8
--- Phase 2, index += 1+10*8
+-- Phase 1, index += 1-37*8
+-- Phase 2, index += 10*8
 -- Phase 3, index += 27*8
 entity multifilter is
   port (dd : in four_signed36;
@@ -71,7 +71,7 @@ begin
         when others => -- "11"
           index <= index + 27 * scale;
       end case;
-      if phase = "01" or phase = "10" then
+      if phase = "10" or phase = "11" then
         acc <= addend1 + ramout;
       else
         acc <= addend1 - ramout;
