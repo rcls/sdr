@@ -44,6 +44,8 @@ architecture behavioural of downconvert is
   -- e.g., accumulating over 1024 samples needs 35 bits plus sign.
   -- second order accumulation needs 45 bits plus sign.  (we truncate
   -- to 35+sign by throwing away the bottom 10 bits).
+  constant width : integer := 46;
+  subtype accumulator is signed(width - 1 downto 0);
 
   signal index_acc : unsigned24;
 
@@ -85,11 +87,11 @@ architecture behavioural of downconvert is
   signal qq_prod : signed(31 downto 0);
   signal ii_prod : signed(31 downto 0);
 
-  signal qq_buf : signed(47 downto 0);
-  signal ii_buf : signed(47 downto 0);
+  signal qq_buf : accumulator;
+  signal ii_buf : accumulator;
 
-  signal qq_acc : signed(47 downto 0);
-  signal ii_acc : signed(47 downto 0);
+  signal qq_acc : accumulator;
+  signal ii_acc : accumulator;
 
   signal sintable : sinrom_t := sinrom;
 
@@ -173,8 +175,8 @@ begin
       ii_acc <= ii_acc + ii_buf;
 
       -- Output
-      qq <= qq_acc(45 downto 10);
-      ii <= ii_acc(45 downto 10);
+      qq <= qq_acc(width - 1 downto width - 36);
+      ii <= ii_acc(width - 1 downto width - 36);
 
     end if;
   end process;
