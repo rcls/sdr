@@ -42,7 +42,7 @@ void slurp_file(int file, unsigned char * * restrict buffer,
 {
     int r;
     do {
-        if (*offset == *size) {
+        if (*offset >= *size) {
             *size += (*size / 2 & -8192) + 8192;
             *buffer = xrealloc(*buffer, *size);
         }
