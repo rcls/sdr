@@ -17,13 +17,10 @@ package defs is
   subtype unsigned2 is unsigned(1 downto 0);
   type sinrom_t is array (0 to 1023) of unsigned18;
 
-  subtype signed48 is signed(47 downto 0);
   subtype signed36 is signed(35 downto 0);
   subtype signed32 is signed(31 downto 0);
   subtype signed18 is signed(17 downto 0);
   subtype signed14 is signed(13 downto 0);
-
---subtype std_logic7 is std_logic_vector(6 downto 0);
 
   function addmod320(x : unsigned9; y : unsigned9) return unsigned9;
 
