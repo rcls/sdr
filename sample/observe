@@ -3,6 +3,7 @@
 # observe (low freq) (high freq)
 
 import argparse
+import os.path
 import sys
 import subprocess
 
@@ -10,6 +11,9 @@ parser = argparse.ArgumentParser(description='Display spectrum with gnuplot.')
 parser.add_argument('input', help='Input file')
 parser.add_argument('lo', type=float, help='Start or mid frequency (MHz).')
 parser.add_argument('hi', type=float, help='End or half-width frequency (MHz).')
+# Twice bandwidth assuming zero based:
+parser.add_argument('-f', '--freq', type=float, default=250e6,
+                    help='Sample frequency.')
 parser.add_argument('-b', '--base', type=float, help='Low cut-off for display.')
 parser.add_argument('-W', '--width', type=int, default=1800,
                     help='Output width.')
@@ -21,21 +25,22 @@ parser.add_argument('-v', '--verbose', help='Print GNU plot commands.')
 
 args = parser.parse_args()
 
-samples = 160 * 1048576
-
-input = args.input
 f_lo = args.lo
 f_hi = args.hi
+
+file_size = os.path.getsize(args.input)
+assert file_size % 4 == 0
+samples = file_size / 4
 
 if 0 < f_hi <= f_lo:
     f_lo, f_hi = f_lo - f_hi, f_lo + f_hi
 
-# freq = 250MHz.
-# out freq = 3.125MHz
-# step = 3.125MHz / (1<<22)
+# Remember that we only go to half the frequency...
+samples_per_hertz = 2 * samples / args.freq
+samples_per_mhz = samples_per_hertz * 1000000
 
-s_lo = int(f_lo * (1 << 22) / 3.125)
-s_hi = int(f_hi * (1 << 22) / 3.125)
+s_lo = int(f_lo * samples_per_mhz)
+s_hi = int(f_hi * samples_per_mhz)
 
 assert s_lo >= 0
 assert s_lo < s_hi
@@ -49,7 +54,7 @@ while s_hi - s_lo > 2 * args.width and shift < 16:
 
 assert shift <= 16
 
-dx = 3.125 / (1 << (22 - shift))
+dx = (1 << shift) / samples_per_mhz
 origin = dx * (s_lo + 0.5 - 0.5 / (1<<shift))
 title = args.input
 
