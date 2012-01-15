@@ -16,6 +16,7 @@ entity downconvert is
           qq   : out signed36;
           ii   : out signed36;
           clk  : in  std_logic;
+          gain : in  unsigned8;
           freq : in  unsigned24);
 end downconvert;
 
@@ -66,29 +67,38 @@ architecture behavioural of downconvert is
   signal sin_minus_5 : std_logic;
   signal cos_minus_6 : std_logic;
   signal sin_minus_6 : std_logic;
+  signal cos_minus_7 : std_logic;
+  signal sin_minus_7 : std_logic;
 
   signal packed_cos : unsigned18;
   signal packed_sin : unsigned18;
 
   signal cos_main : unsigned18;
-  signal sin_main : unsigned18;
+  signal cos_main_4 : signed18;
+  signal cos_main_5 : signed18;
   signal cos_offset : unsigned18;
+  signal cos_offset_4 : signed18;
+  signal cos_offset_5 : signed18;
+  signal sin_main : unsigned18;
+  signal sin_main_4 : signed18;
+  signal sin_main_5 : signed18;
   signal sin_offset : unsigned18;
-  signal cos_main_1 : signed18;
-  signal sin_main_1 : signed18;
-  signal cos_offset_1 : signed18;
-  signal sin_offset_1 : signed18;
+  signal sin_offset_4 : signed18;
+  signal sin_offset_5 : signed18;
   signal sin : signed18;
   signal cos : signed18;
 
-  signal data_1 : signed14;
-  signal data_2 : signed14;
   signal data_3 : signed14;
-  signal qq_prod : signed(31 downto 0);
-  signal ii_prod : signed(31 downto 0);
+  signal data_4 : signed18;
+  signal data_5 : signed18;
+  signal data_6 : signed18;
+  signal qq_prod : signed36;
+  signal ii_prod : signed36;
 
   signal qq_buf : accumulator;
+  signal qq_buf_9 : accumulator;
   signal ii_buf : accumulator;
+  signal ii_buf_9 : accumulator;
 
   signal qq_acc : accumulator;
   signal ii_acc : accumulator;
@@ -126,7 +136,6 @@ begin
       cos_minus_2 <= cos_minus;
       sin_minus_2 <= sin_minus;
       sin_low_2 <= sin_low;
-      data_1 <= data;
 
       -- Prepare the sin and cos.
       cos_main <= packed_cos and "00" & x"3fff";
@@ -135,44 +144,68 @@ begin
       sin_offset <= resize(sinoffset(packed_sin, sin_low_2), 18);
       cos_minus_3 <= cos_minus_2;
       sin_minus_3 <= sin_minus_2;
-      data_2 <= data_1;
+      data_3 <= data;
 
-      -- Buffer.
-      cos_main_1 <= signed(cos_main);
-      sin_main_1 <= signed(sin_main);
-      cos_offset_1 <= signed(cos_offset);
-      sin_offset_1 <= signed(sin_offset);
+      -- Apply gain(1,0) to sin & cos, & gain(2) to data.
+      if gain(2) = '0' then
+        data_4 <= resize(data_3, 18);
+      else
+        data_4 <= data_3 & "0000";
+      end if;
+
+      cos_main_4 <= signed(cos_main) sll to_integer(gain(1 downto 0));
+      sin_main_4 <= signed(sin_main) sll to_integer(gain(1 downto 0));
+      cos_offset_4 <= signed(cos_offset) sll to_integer(gain(1 downto 0));
+      sin_offset_4 <= signed(sin_offset) sll to_integer(gain(1 downto 0));
       cos_minus_4 <= cos_minus_3;
       sin_minus_4 <= sin_minus_3;
 
-      -- Pre-add.
-      cos <= cos_main_1 + cos_offset_1;
-      sin <= sin_main_1 + sin_offset_1;
-      data_3 <= data_2;
+      -- Buffer.
+      cos_main_5 <= cos_main_4;
+      sin_main_5 <= sin_main_4;
+      cos_offset_5 <= cos_offset_4;
+      sin_offset_5 <= sin_offset_4;
       cos_minus_5 <= cos_minus_4;
       sin_minus_5 <= sin_minus_4;
+      data_5 <= data_4;
 
-      -- Multiply
-      qq_prod <= data_3 * cos;
-      ii_prod <= data_3 * sin;
+      -- Pre-add.
+      cos <= cos_main_5 + cos_offset_5;
+      sin <= sin_main_5 + sin_offset_5;
+      data_6 <= data_5;
       cos_minus_6 <= cos_minus_5;
       sin_minus_6 <= sin_minus_5;
 
-      -- Post add.
-      if cos_minus_6 = '1' then
+      -- Multiply
+      qq_prod <= data_6 * cos;
+      ii_prod <= data_6 * sin;
+      cos_minus_7 <= cos_minus_6;
+      sin_minus_7 <= sin_minus_6;
+
+      -- Post add (8).
+      if cos_minus_7 = '1' then
         qq_buf <= qq_buf - qq_prod;
       else
         qq_buf <= qq_buf + qq_prod;
       end if;
-      if sin_minus_6 = '1' then
+      if sin_minus_7 = '1' then
         ii_buf <= ii_buf - ii_prod;
       else
         ii_buf <= ii_buf + ii_prod;
       end if;
 
+      -- Apply gain(3).
+      if gain(3) = '0' then
+        qq_buf_9 <= qq_buf;
+        ii_buf_9 <= ii_buf;
+      else
+        qq_buf_9 <= qq_buf sll 8;
+        ii_buf_9 <= ii_buf sll 8;
+      end if;
+
       -- Second order accumulate.
-      qq_acc <= qq_acc + qq_buf;
-      ii_acc <= ii_acc + ii_buf;
+      qq_acc <= qq_acc + qq_buf_9;
+      ii_acc <= ii_acc + ii_buf_9;
 
       -- Output
       qq <= qq_acc(width - 1 downto width - 36);

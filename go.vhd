@@ -31,9 +31,6 @@ entity go is
 end go;
 
 architecture behavioural of go is
-  type four_unsigned24 is array(0 to 3) of unsigned24;
-  signal f : four_unsigned24;
-
   signal qq : four_signed36;
   signal ii : four_signed36;
 
@@ -65,11 +62,14 @@ architecture behavioural of go is
 
   signal adc_ddr : unsigned7;
   signal adc_data : signed14;
+  signal adc_data_b : signed14;
+  signal phase : unsigned18;
 
   signal adc_reclk_diff : std_logic;
 
   -- The configuration loaded from USB.
-  signal config : unsigned(103 downto 0) := x"08000000000000000000000000";
+  signal config : unsigned(135 downto 0) := x"0800000000000000000000000000000000";
+  constant configctrl : integer := 128;
 
   signal led_off : unsigned8 := x"fe";
 
@@ -89,22 +89,29 @@ begin
   usb_c(7 downto 5) <= "ZZZ";
   clkin125_en <= '1';
 
-  adc_sen   <= config(96);
-  adc_sdata <= config(97);
-  adc_sclk  <= config(98);
-  adc_reset <= config(99);
+  adc_sen   <= config(configctrl + 0);
+  adc_sdata <= config(configctrl + 1);
+  adc_sclk  <= config(configctrl + 2);
+  adc_reset <= config(configctrl + 3);
 
   led_control: for i in 0 to 7 generate
     led(i) <= '0' when led_off(i) = '0' else 'Z';
   end generate;
 
-  led_off(7 downto 4) <= config(103 downto 100);
+  led_off(7 downto 4) <= config(configctrl + 7 downto configctrl + 4);
 
   down: for i in 0 to 3 generate
-    f(i) <= config(i * 24 + 23 downto i * 24);
-    down0: entity work.downconvert
-      port map (data => adc_data, freq => f(i), clk => clk_main,
-                qq => qq(i), ii => ii(i));
+    downblock: block
+      signal freq : unsigned24;
+      signal gain : unsigned8;
+    begin
+      freq <= config(i * 32 + 23 downto i * 32);
+      gain <= config(i * 32 + 31 downto i * 32 + 24);
+      down0: entity work.downconvert
+        port map (data => adc_data_b, freq => freq, gain => gain,
+                  clk => clk_main,
+                  qq => qq(i), ii => ii(i));
+    end block;
   end generate;
 
   qfilter: entity work.multifilter
@@ -114,15 +121,34 @@ begin
     port map(dd => ii, qq => ii_buf, clk => clk_main);
 
   ph: entity work.phasedetect
-    port map(qq_in=>qq_buf, ii_in=>ii_buf, phase => packet(17 downto 0),
-             clk=> clk_main);
+    port map(qq_in => qq_buf, ii_in =>ii_buf, phase => phase, clk => clk_main);
+
+  process
+  begin
+    wait until rising_edge(clk_main);
+    adc_data_b <= adc_data xor "10000000000000";
+    if config(configctrl + 5) = '1' then
+      packet(17 downto 0) <= phase;
+    else
+      packet(13 downto 0) <= unsigned(adc_data_b);
+      packet(17 downto 14) <= x"0";
+    end if;
+    packet(22 downto 18) <= "00000";
+  end process;
 
   -- Protocol: config packets, little endian:
   -- 3 bytes freq(0)
+  -- 1 byte gain(0)
   -- 3 bytes freq(1)
+  -- 1 byte gain(1)
   -- 3 bytes freq(2)
+  -- 1 byte gain(2)
   -- 3 bytes freq(3)
-  -- 1 byte: low nibble ADC control pins, bit 4: data enable, bits 4..7: LEDs.
+  -- 1 byte gain(3)
+  -- 1 byte:
+  --  low nibble ADC control pins,
+  --  bit 4: data enable,
+  --  bits 4..7: LEDs.
 
   -- Data packets, little endian.
   -- 18 bits radio phase data.
@@ -130,12 +156,13 @@ begin
   -- 1 bit tx overrun indicator.
 
   usb: entity work.usbio
-    generic map(config_bytes => 13, packet_bytes => 3)
+    generic map(config_bytes => 17, packet_bytes => 3)
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_c(0), usb_nTXE => usb_c(1),
              usb_nRD => usb_c(2),  usb_nWR => usb_c(3),
              config => config, tx_overrun => packet(23),
-             packet => packet, xmit => config(100), clk => clk_12m5);
+             packet => packet,
+             xmit => config(configctrl + 4), clk => clk_12m5);
 
   -- DDR input from ADC.
   adc_input: for i in 0 to 6 generate
