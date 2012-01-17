@@ -91,7 +91,8 @@ int main(int argc, const char * const * argv)
             adc_cordon();
             break;
         case mode_raw:
-            for (int j = (rest - argv[i] - 2) & -2; j >= 0; j -= 2)
+            // Little endian...
+            for (int j = 0; j < rest - argv[i]; j += 2)
                 putbyte(data >> j * 4);
             break;
         default:
@@ -101,6 +102,9 @@ int main(int argc, const char * const * argv)
 
     libusb_device_handle * dev = usb_open();
     fprintf(stderr, "%u bytes to do...\n", offset);
+    for (int i = 0; i != offset; ++i)
+        fprintf(stderr, " %02x", buffer[i]);
+    fprintf(stderr, "\n");
     int transferred;
     if (libusb_bulk_transfer(dev, USB_OUT_EP, buffer, offset,
                              &transferred, 100) != 0
