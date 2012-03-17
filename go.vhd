@@ -64,6 +64,7 @@ architecture behavioural of go is
   signal adc_data : signed14;
   signal adc_data_b : signed14;
   signal phase : unsigned18;
+  signal data_ir : signed(22 downto 0);
 
   signal adc_reclk_diff : std_logic;
 
@@ -123,17 +124,21 @@ begin
   ph: entity work.phasedetect
     port map(qq_in => qq_buf, ii_in =>ii_buf, phase => phase, clk => clk_main);
 
+  irfir: entity work.irfir
+    generic map (acc_width => 36, out_width => 23)
+    port map(d => phase, q => data_ir, clk => clk_main);
+
   process
   begin
     wait until rising_edge(clk_main);
     adc_data_b <= adc_data xor "10000000000000";
     if config(configctrl + 5) = '1' then
-      packet(17 downto 0) <= phase;
+      packet(22 downto 0) <= unsigned(data_ir);
     else
       packet(13 downto 0) <= unsigned(adc_data_b);
-      packet(17 downto 14) <= x"0";
+      packet(22 downto 14) <= "0" & x"00";
     end if;
-    packet(22 downto 18) <= "00000";
+    --packet(22 downto 18) <= "00000";
   end process;
 
   -- Protocol: config packets, little endian:

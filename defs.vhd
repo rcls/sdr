@@ -9,6 +9,7 @@ package defs is
   subtype unsigned18 is unsigned(17 downto 0);
   subtype unsigned16 is unsigned(15 downto 0);
   subtype unsigned14 is unsigned(13 downto 0);
+  subtype unsigned10 is unsigned(9 downto 0);
   subtype unsigned9 is unsigned(8 downto 0);
   subtype unsigned8 is unsigned(7 downto 0);
   subtype unsigned7 is unsigned(6 downto 0);
