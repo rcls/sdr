@@ -27,7 +27,7 @@ architecture behavioural of irfir is
   subtype command_t is std_logic_vector(23 downto 0);
   type program_t is array(0 to 255) of command_t;
   signal program : program_t := (
-    x"440000", x"00000b", x"40000d", x"480014", x"40001c",
+    x"440000", x"00000b", x"48000d", x"400014", x"40001c",
     x"400025", x"40002e", x"400037", x"40003e", x"400042",
     x"400042", x"40003c", x"40002f", x"400019", x"43fff9",
     x"43ffd0", x"43ff9d", x"43ff62", x"43ff20", x"43fedb",
@@ -77,22 +77,22 @@ architecture behavioural of irfir is
     x"400025", x"60001c", x"500014", x"40000d", x"40000b",
     others => x"000000");
 
-  signal command : command_t;
+  signal command : command_t := (others => '0');
   type buff_t is array(0 to 1023) of signed18;
-  signal buff : buff_t;
+  signal buff : buff_t := (others => "00" & x"0000");
 
-  signal pc : unsigned8;
-  signal write_pointer : unsigned10;
-  signal read_pointer : unsigned10;
-  signal read_pointer_1 : unsigned10;
+  signal pc : unsigned8 := x"00";
+  signal write_pointer : unsigned10 := "0000000000";
+  signal read_pointer : unsigned10 := "0000000001";
+  signal read_pointer_1 : unsigned10 := "0000000000";
 
-  signal channel : unsigned2;
+  signal channel : unsigned2 := "00";
 
   -- Unpacked command.
   signal coef_1 : signed18;
   signal sample_strobe : std_logic;
   signal out_strobe : std_logic;
-  signal pc_reset : std_logic;
+  signal pc_reset : std_logic := '0';
   signal read_reset : std_logic;
 
   signal mac_accum : std_logic;
@@ -146,7 +146,7 @@ begin
     mac_accum_1 <= mac_accum;
 
     -- DSP
-    diff <= data_3 - data_2;
+    diff <= data_2 - data_3;
 
     product <= diff * coef_2;
 

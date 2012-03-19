@@ -18,7 +18,7 @@ bit_mac_accum     = 0x400000
 
 -- PC reset is latency around the command lookup loop via the pc_reset.
 -- The other latencys are from the unpacked command to the accumulator output.
-latency_out_strobe = 0
+latency_out_strobe = 1
 latency_mac_accum = 2
 latency_pc_reset = 3 -- latency through PC & BRAM lookup.
 -- There are two read paths through the DSP - we mean the faster.
