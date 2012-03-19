@@ -84,7 +84,7 @@ architecture behavioural of irfir is
   signal pc : unsigned8;
   signal write_pointer : unsigned10;
   signal read_pointer : unsigned10;
-
+  signal read_pointer_1 : unsigned10;
 
   signal channel : unsigned2;
 
@@ -112,6 +112,8 @@ begin
 
   process
     variable acc_addend : signed(acc_width - 1 downto 0);
+    variable rp_addend : unsigned10;
+    variable rp_increment : unsigned10;
   begin
     wait until rising_edge(clk);
 
@@ -137,12 +139,13 @@ begin
     end if;
 
     -- DSP input buffering.
-    data_1 <= buff(to_integer(read_pointer));
+    data_1 <= buff(to_integer(read_pointer_1));
     data_2 <= data_1;
     data_3 <= data_2;
     coef_2 <= coef_1;
     mac_accum_1 <= mac_accum;
 
+    -- DSP
     diff <= data_3 - data_2;
 
     product <= diff * coef_2;
@@ -160,12 +163,14 @@ begin
 
     -- buff pointer update.
     if read_reset = '1' then
-      -- FIXME we could be more aggressive about getting the most recent data
-      -- possible.
-      read_pointer <= (write_pointer(9 downto 2) & channel) + 4;
+      rp_addend := write_pointer(9 downto 2) & channel;
       channel <= channel + 1;
+      rp_increment := "00" & x"40";
     else
-      read_pointer <= read_pointer + 4;
+      rp_addend := read_pointer;
+      rp_increment := "00" & x"04";
     end if;
+    read_pointer <= rp_addend + rp_increment;
+    read_pointer_1 <= read_pointer;
   end process;
 end behavioural;
