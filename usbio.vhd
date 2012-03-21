@@ -48,54 +48,54 @@ architecture behavioural of usbio is
   -- 00/01/10 to decide which byte to output.
   signal out_count : integer range 0 to packet_bytes - 1;
 begin
-  process (clk)
+  process
   begin
-    if clk'event and clk = '1' then
-      phase <= phase + 1;
+    wait until rising_edge(clk);
 
-      usbd_out <= out_buf(out_count * 8 + 7 downto out_count * 8);
+    phase <= phase + 1;
 
-      usb_nWR <= '1';
-      usb_nRD <= '1';
-      usb_oe_n <= '1';
-      -- We have 4 periods of 80ns.
-      -- 0/1 write, 3 capture txe.
-      -- 2/3 read, 1 capture rxf.
-      case phase is
-        when 0 =>
-          if nTXE = '0' and xmit_buf = '1' then
-            usb_oe_n <= '0';
-          end if;
-          if nRXF = '0' and in_count = config_bytes - 1 then
-            config <= in_buf;
-          end if;
-          if nRXF = '1' or in_count = config_bytes - 1 then
-            in_count <= 0;
-          else
-            in_count <= in_count + 1;
-          end if;
-        when 1 =>
-          if nTXE = '0' and xmit_buf = '1' then
-            usb_oe_n <= '0';
-            usb_nWR <= '0';
-          end if;
-          nRXF <= usb_nRXF;
-        when 2 =>
-          usb_nRD <= nRXF;
-          if nTXE = '1' then
-            tx_overrun <= '1';
-          elsif out_count = packet_bytes - 1 then
-            out_count <= 0;
-            out_buf <= packet;
-            xmit_buf <= xmit;
-            tx_overrun <= '0';
-          else
-            out_count <= out_count + 1;
-          end if;
-        when 3 =>
-          in_buf <= usbd_in & in_buf(config_bytes * 8 - 1 downto 8);
-          nTXE <= usb_nTXE;
-      end case;
-    end if;
+    usbd_out <= out_buf(out_count * 8 + 7 downto out_count * 8);
+
+    usb_nWR <= '1';
+    usb_nRD <= '1';
+    usb_oe_n <= '1';
+    -- We have 4 periods of 80ns.
+    -- 0/1 write, 3 capture txe.
+    -- 2/3 read, 1 capture rxf.
+    case phase is
+      when 0 =>
+        if nTXE = '0' and xmit_buf = '1' then
+          usb_oe_n <= '0';
+        end if;
+        if nRXF = '0' and in_count = config_bytes - 1 then
+          config <= in_buf;
+        end if;
+        if nRXF = '1' or in_count = config_bytes - 1 then
+          in_count <= 0;
+        else
+          in_count <= in_count + 1;
+        end if;
+      when 1 =>
+        if nTXE = '0' and xmit_buf = '1' then
+          usb_oe_n <= '0';
+          usb_nWR <= '0';
+        end if;
+        nRXF <= usb_nRXF;
+      when 2 =>
+        usb_nRD <= nRXF;
+        if nTXE = '1' then
+          tx_overrun <= '1';
+        elsif out_count = packet_bytes - 1 then
+          out_count <= 0;
+          out_buf <= packet;
+          xmit_buf <= xmit;
+          tx_overrun <= '0';
+        else
+          out_count <= out_count + 1;
+        end if;
+      when 3 =>
+        in_buf <= usbd_in & in_buf(config_bytes * 8 - 1 downto 8);
+        nTXE <= usb_nTXE;
+    end case;
   end process;
 end behavioural;
