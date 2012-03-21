@@ -9,6 +9,10 @@ use work.defs.all;
 -- We run off a 12.5mhz clock, transferring 1 byte every 4 cycles.  This gives
 -- us a 3.125MB/s transfer rate, which should be comfortably within the ability
 -- of the FT2232H async I/O.
+-- xmit strobes data in [subject to dead time] on clocks that are a multiple
+-- of 4.
+-- tx_overrun is asserted if xmit if writes block.
+-- it is cleared when xmit takes effected.
 entity usbio is
   generic (config_bytes : integer; packet_bytes : integer);
   port (usbd_in : in unsigned8;
@@ -85,8 +89,10 @@ begin
         usb_nRD <= nRXF;
         if nTXE = '1' then
           tx_overrun <= '1';
-        elsif out_count = packet_bytes - 1 then
-          out_count <= 0;
+        elsif out_count >= packet_bytes - 1 then
+          if xmit = '1' then
+            out_count <= 0;
+          end if;
           out_buf <= packet;
           xmit_buf <= xmit;
           tx_overrun <= '0';

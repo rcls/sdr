@@ -13,6 +13,7 @@ entity irfir is
           out_width : integer := 18);
   port(d : in unsigned18;
        q : out signed(out_width - 1 downto 0);
+       q_strobe : out std_logic; -- Asserted on the first cycle with new data.
        clk : in std_logic);
 end irfir;
 
@@ -160,6 +161,7 @@ begin
     if out_strobe = '1' then
       q <= accumulator(acc_width - 1 downto acc_width - out_width);
     end if;
+    q_strobe <= out_strobe;
 
     -- buff pointer update.
     if read_reset = '1' then

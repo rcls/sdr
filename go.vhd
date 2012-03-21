@@ -19,9 +19,9 @@ entity go is
        usb_d : inout unsigned8;
        usb_c : inout unsigned8;
 
-       adc_sen : out std_logic := '0';
+       adc_sen   : out std_logic := '0';
        adc_sdata : out std_logic := '0';
-       adc_sclk : out std_logic := '0';
+       adc_sclk  : out std_logic := '0';
        adc_reset : out std_logic := '1';
 
        led : out unsigned8;
@@ -37,7 +37,7 @@ architecture behavioural of go is
   signal qq_buf : signed36;
   signal ii_buf : signed36;
 
-  signal packet : unsigned(23 downto 0);
+  signal packet : unsigned(39 downto 0);
 
   -- Generated clock for delivery to ADC.
   signal adc_clk : std_logic;
@@ -64,7 +64,11 @@ architecture behavioural of go is
   signal adc_data : signed14;
   signal adc_data_b : signed14;
   signal phase : unsigned18;
-  signal data_ir : signed(22 downto 0);
+
+  signal data_ir : signed(35 downto 0);
+  signal ir_strobe : std_logic;
+  signal ir_channel : unsigned(1 downto 0);
+  signal usb_xmit : std_logic;
 
   signal adc_reclk_diff : std_logic;
 
@@ -125,20 +129,30 @@ begin
     port map(qq_in => qq_buf, ii_in =>ii_buf, phase => phase, clk => clk_main);
 
   irfir: entity work.irfir
-    generic map (acc_width => 36, out_width => 23)
-    port map(d => phase, q => data_ir, clk => clk_main);
+    generic map (acc_width => 36, out_width => 36)
+    port map(d => phase, q => data_ir, q_strobe => ir_strobe, clk => clk_main);
 
   process
   begin
     wait until rising_edge(clk_main);
     adc_data_b <= adc_data xor "10000000000000";
-    if config(configctrl + 5) = '1' then
-      packet(22 downto 0) <= unsigned(data_ir);
-    else
-      packet(13 downto 0) <= unsigned(adc_data_b);
-      packet(22 downto 14) <= "0" & x"00";
+
+    if ir_strobe = '1' then
+      if config(configctrl + 5) = '1' then
+        packet(35 downto 0) <= unsigned(data_ir);
+        packet(38 downto 36) <= "000";
+      else
+        packet(13 downto 0) <= unsigned(adc_data_b);
+        packet(38 downto 14) <= "0" & x"000000";
+      end if;
+
+      ir_channel <= ir_channel + 1;
+      if ir_channel = "11" and config(configctrl + 4) = '1' then
+        usb_xmit <= '1';
+      else
+        usb_xmit <= '0';
+      end if;
     end if;
-    --packet(22 downto 18) <= "00000";
   end process;
 
   -- Protocol: config packets, little endian:
@@ -156,18 +170,18 @@ begin
   --  bits 4..7: LEDs.
 
   -- Data packets, little endian.
-  -- 18 bits radio phase data.
-  -- 5 bits unused.
+  -- 36 bits radio phase data.
+  -- 3 pad bits.
   -- 1 bit tx overrun indicator.
 
   usb: entity work.usbio
-    generic map(config_bytes => 17, packet_bytes => 3)
+    generic map(config_bytes => 17, packet_bytes => 5)
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_c(0), usb_nTXE => usb_c(1),
              usb_nRD => usb_c(2),  usb_nWR => usb_c(3),
-             config => config, tx_overrun => packet(23),
+             config => config, tx_overrun => packet(39),
              packet => packet,
-             xmit => config(configctrl + 4), clk => clk_12m5);
+             xmit => usb_xmit, clk => clk_12m5);
 
   -- DDR input from ADC.
   adc_input: for i in 0 to 6 generate
