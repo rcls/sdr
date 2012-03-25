@@ -43,9 +43,8 @@ architecture behavioural of downconvert is
   -- output is signed 2^28/pi^2, [just under] 25 bits plus sign.
 
   -- e.g., accumulating over 1024 samples needs 35 bits plus sign.
-  -- second order accumulation needs 45 bits plus sign.  (we truncate
-  -- to 35+sign by throwing away the bottom 10 bits).
-  constant width : integer := 46;
+  -- second order accumulation needs 45 bits plus sign.  Use all 48 bits...
+  constant width : integer := 48;
   subtype accumulator is signed(width - 1 downto 0);
 
   signal index_acc : unsigned24;
@@ -194,20 +193,19 @@ begin
         ii_buf <= ii_buf + ii_prod;
       end if;
 
-      -- Apply gain(3).
+      -- Buffer.
+      qq_buf_9 <= qq_buf;
+      ii_buf_9 <= ii_buf;
+
+      -- Second order accumulate, applying gain(3).
       if gain(3) = '0' then
-        qq_buf_9 <= qq_buf;
-        ii_buf_9 <= ii_buf;
+        qq_acc <= qq_acc + qq_buf_9;
+        ii_acc <= ii_acc + ii_buf_9;
       else
-        qq_buf_9 <= qq_buf sll 8;
-        ii_buf_9 <= ii_buf sll 8;
+        qq_acc <= qq_acc + (qq_buf_9 sll 8);
+        ii_acc <= ii_acc + (ii_buf_9 sll 8);
       end if;
 
-      -- Second order accumulate.
-      qq_acc <= qq_acc + qq_buf_9;
-      ii_acc <= ii_acc + ii_buf_9;
-
-      -- Output
       qq <= qq_acc(width - 1 downto width - 36);
       ii <= ii_acc(width - 1 downto width - 36);
 
