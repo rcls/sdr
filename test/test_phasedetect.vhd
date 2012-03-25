@@ -12,8 +12,6 @@ entity test_phasedetect is
 end test_phasedetect;
 
 architecture behavioural of test_phasedetect is
-
-   --Inputs
    signal qq_in : signed36 := (others => '0');
    signal ii_in : signed36 := (others => '0');
    signal clk : std_logic := '0';
@@ -42,7 +40,6 @@ architecture behavioural of test_phasedetect is
    signal div20 : integer := 0;
 
 begin
-  -- Instantiate the Unit Under Test (UUT)
   uut: entity phasedetect port map (qq_in => qq_in, ii_in => ii_in,
                                     phase => phase, clk => clk);
 

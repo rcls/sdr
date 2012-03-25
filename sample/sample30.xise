@@ -12,7 +12,7 @@
     <!-- Copyright (c) 1995-2011 Xilinx, Inc.  All rights reserved. -->
   </header>
 
-  <version xil_pn:ise_version="13.3" xil_pn:schema_version="2"/>
+  <version xil_pn:ise_version="13.4" xil_pn:schema_version="2"/>
 
   <files>
     <file xil_pn:name="sample30.vhd" xil_pn:type="FILE_VHDL">
@@ -32,6 +32,7 @@
   </files>
 
   <properties>
+    <property xil_pn:name="Allow Unmatched LOC Constraints" xil_pn:value="true" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Configuration Pin Program" xil_pn:value="Float" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Device" xil_pn:value="xc6slx9" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Device Family" xil_pn:value="Spartan6" xil_pn:valueState="non-default"/>

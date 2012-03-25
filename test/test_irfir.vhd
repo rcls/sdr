@@ -10,13 +10,9 @@ entity test_irfir is
 end test_irfir;
 
 architecture behavioural of test_irfir is
-
-   --Inputs
    signal d : unsigned18 := (others => '0');
    signal clk : std_logic := '0';
-
 begin
-  -- Instantiate the Unit Under Test (UUT)
   uut: entity irfir
     generic map (acc_width => 36, out_width => 36)
     port map (d => d, q => q, clk => clk);
