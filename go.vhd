@@ -129,7 +129,7 @@ begin
     port map(qq_in => qq_buf, ii_in =>ii_buf, phase => phase, clk => clk_main);
 
   irfir: entity work.irfir
-    generic map (acc_width => 36, out_width => 36)
+    generic map (acc_width => 48, out_width => 36)
     port map(d => phase, q => data_ir, q_strobe => ir_strobe, clk => clk_main);
 
   process
