@@ -1,5 +1,6 @@
 #include "lib/util.h"
 
+#include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -186,4 +187,38 @@ size_t best14(const unsigned char ** restrict buffer, size_t * restrict bytes)
     bestsize -= 63 * 2;
     *bytes = bestsize;
     return bestsize / 2;
+}
+
+
+size_t best36(const unsigned char ** restrict buffer, size_t * restrict bytes)
+{
+    const unsigned char * best = NULL;
+    size_t best_bytes = 0;
+    const unsigned char * starts[5] = { NULL, NULL, NULL, NULL, NULL };
+    int i = 0;
+    const unsigned char * end = *buffer + *bytes;
+    for (const unsigned char * p = *buffer + 4; p < end; ++p) {
+        if (*p >= 16)
+            starts[i] = NULL;
+        else if (starts[i] == NULL)
+            starts[i] = p;
+        else if (p - starts[i] > best_bytes) {
+            best = starts[i];
+            best_bytes = p - starts[i];
+        }
+
+        if (i < 4)
+            ++i;
+        else
+            i = 0;
+    }
+
+    if (best_bytes > 0) {
+        best_bytes += 5;
+        best -= 4;
+    }
+    assert (best_bytes % 5 == 0);
+    *buffer = best;
+    *bytes = best_bytes;
+    return best_bytes / 5;
 }

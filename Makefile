@@ -11,6 +11,8 @@ LDFLAGS=$(CFLAGS) -lm
 
 util/phasespect: LDLIBS=-lfftw3_threads -lfftw3
 util/phasespect: lib/util.o
+util/irspec: LDLIBS=-lfftw3_threads -lfftw3
+util/irspec: lib/util.o
 
 sample/commands: LDLIBS=-lusb-1.0
 sample/commands: lib/usb.o lib/util.o
