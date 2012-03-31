@@ -6,7 +6,46 @@ import System.Process
 import Text.Printf
 import Text.Regex.TDFA
 
-numRegex = makeRegex "-?[0-9]+" :: Regex
+data FilterRange a b c = FilterRange {
+   low :: a, high :: a, amplitude :: b, weight :: c }
+   deriving Show
+
+merge t u = easy (split t (endpoints u)) (split u (endpoints t)) where
+  split [] _ = []
+  split a [] = a
+  split (a:t) (b:u) =
+    if b <= low a then
+      split (a:t) u
+    else if high a <= b then
+      a : split t (b:u)
+    else
+      FilterRange (low a) b  (amplitude a) (weight a) :
+      FilterRange b (high a) (amplitude a) (weight a) : split t (b:u)
+  easy a [] = a
+  easy [] b = b
+  easy (a:t) (b:u) =
+    if high a <= low b then
+      a : merge t (b:u)
+    else if high b <= low a then
+      b : merge (a:t) u
+    else if low a == low b && high a == high b
+            && amplitude a == amplitude b then
+      FilterRange (low a) (high a) (amplitude a) (max (weight a) (weight b))
+        : easy t u
+    else
+      error ("Inconsistent " ++ show a ++ " " ++ show b)
+endpoints [] = []
+endpoints (a:t) = low a : high a : endpoints t
+
+compress [] = []
+compress [a] = []
+compress (a:b:t) =
+  if high a == low b && amplitude a == amplitude b && weight a == weight b
+  then compress (FilterRange (low a) (high a) (amplitude a) (weight a) : t)
+  else a : compress (b:t)
+
+remez c l = printf "remez(%i,%s,%s,%s)" (c-2)
+   (show $ endpoints l) (show $ l >>= (replicate 2 . amplitude)) (show $ map weight l)
 
 cycles = 400
 frequency_divide = 20
@@ -40,6 +79,8 @@ controls i = orIf i bit_out_strobe    (at latency_out_strobe)
            . orIf i bit_mac_accum     (not . at latency_mac_accum)
            . orIf i bit_sample_strobe ((0 ==) . (flip mod 20))
 
+numRegex = makeRegex "-?[0-9]+" :: Regex
+
 makeProgram s = let
   coeffs = 0 : [ read (match numRegex x) :: Int | x <- lines s]
   with_controls = zipWith controls [0..] $ map (0x3ffff .&.) coeffs
@@ -53,40 +94,22 @@ makeProgram s = let
   ++ padded ++
   [ "    others => x\"000000\")\n" ]
 
---edges = [0, pass/nyquist, stop/nyquist, 1]
-{-
-edges = [0] ++
-   concat [ [ fromIntegral (n-1) * central + delta,
-              fromIntegral (n+1) * central - delta ]
-      | n <- [1,3 .. frequency_divide] ] ++ [1] where
+fir =
+  [FilterRange 0 delta scale 1]
+  ++ [FilterRange (n * central - delta) (n * central + delta) 0 300
+      | n <- map fromIntegral [2,4 .. frequency_divide - 2]]
+  ++ [FilterRange (1 - delta) 1 0 300] where
   delta = pass / nyquist
   central = 1 / fromIntegral frequency_divide
--}
-
-edges = [0] ++ map edge [1 .. frequency_divide] ++ [1] where
-  edge n | odd n = fromIntegral (n-1) * central + delta
-  edge n | even n = fromIntegral n * central - delta
-  delta = pass / nyquist
-  central = 1 / fromIntegral frequency_divide
-
-
-factors = [scale,scale] ++ replicate frequency_divide 0
-weights = [1] ++ replicate (div frequency_divide 2) 300
-remez = printf "remez(%i,%s,%s,%s)" (cycles-2)
-   (show edges) (show factors) (show weights)
 
 generate = do
-  putStr $ "-- " ++ remez ++ "\n"
+  putStr $ "-- " ++ remez cycles fir ++ "\n"
   textlist <- readProcess "/usr/bin/octave" ["-q"] $
-    "disp(round(" ++ remez ++ "))"
+    "disp(round(" ++ remez cycles fir ++ "))"
   --if length textlist == cycles+2 then return () else fail "Bugger"
   putStr $ concat $ makeProgram textlist
 
-header = do
-  print (length edges)
-  print (length factors)
-  print (length weights)
-  putStr $ remez ++ "\n"
+header = putStr $ remez cycles fir ++ "\n"
 
 main = do
   args <- getArgs
