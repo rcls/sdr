@@ -1,14 +1,20 @@
 module Main where
 
-import System.Process
-import Text.Regex.TDFA
---import Numeric
-import Text.Printf
 import Data.Bits
+import System(getArgs)
+import System.Process
+import Text.Printf
+import Text.Regex.TDFA
 
 numRegex = makeRegex "-?[0-9]+" :: Regex
 
-cycles = 240
+cycles = 400
+frequency_divide = 20
+pass = 62500
+nyquist = 1562500.0
+--stop = 2 * nyquist - pass
+--scale = 1658997.0
+scale = 2766466
 
 bit_sample_strobe = 0x040000
 bit_out_strobe    = 0x080000
@@ -17,7 +23,7 @@ bit_read_reset    = 0x200000
 bit_mac_accum     = 0x400000
 
 -- PC reset is latency around the command lookup loop via the pc_reset.
--- The other latencys are from the unpacked command to the accumulator output.
+-- The other latencies are from the unpacked command to the accumulator output.
 latency_out_strobe = 1
 latency_mac_accum = 2
 latency_pc_reset = 3 -- latency through PC & BRAM lookup.
@@ -47,21 +53,41 @@ makeProgram s = let
   ++ padded ++
   [ "    others => x\"000000\")\n" ]
 
-frequency_divide = 12
-pass = 100000.0
-nyquist = 1562500.0
-stop = 2 * nyquist / fromInteger frequency_divide - pass
-scale = 1658997.0
+--edges = [0, pass/nyquist, stop/nyquist, 1]
+{-
+edges = [0] ++
+   concat [ [ fromIntegral (n-1) * central + delta,
+              fromIntegral (n+1) * central - delta ]
+      | n <- [1,3 .. frequency_divide] ] ++ [1] where
+  delta = pass / nyquist
+  central = 1 / fromIntegral frequency_divide
+-}
 
-edges = [0, pass/nyquist, stop/nyquist, 1]
-factors = [scale,scale,0,0]
-weights = [1,300]
+edges = [0] ++ map edge [1 .. frequency_divide] ++ [1] where
+  edge n | odd n = fromIntegral (n-1) * central + delta
+  edge n | even n = fromIntegral n * central - delta
+  delta = pass / nyquist
+  central = 1 / fromIntegral frequency_divide
+
+
+factors = [scale,scale] ++ replicate frequency_divide 0
+weights = [1] ++ replicate (div frequency_divide 2) 300
 remez = printf "remez(%i,%s,%s,%s)" (cycles-2)
    (show edges) (show factors) (show weights)
 
-main = do
+generate = do
   putStr $ "-- " ++ remez ++ "\n"
   textlist <- readProcess "/usr/bin/octave" ["-q"] $
     "disp(round(" ++ remez ++ "))"
   --if length textlist == cycles+2 then return () else fail "Bugger"
   putStr $ concat $ makeProgram textlist
+
+header = do
+  print (length edges)
+  print (length factors)
+  print (length weights)
+  putStr $ remez ++ "\n"
+
+main = do
+  args <- getArgs
+  case args of { [ "header" ] -> header ; _ -> generate }

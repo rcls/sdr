@@ -129,7 +129,7 @@ begin
         else
           ii3 <= '0' & not unsigned(ii_in);
         end if;
-        positive3 <= (qq_in >= 0) xor (ii_in < 0);
+        positive3 <= (qq_in(35) xor ii_in(35)) = '1';
         -- Our convention is that angle zero covers the first sliver of the
         -- first quadrant etc., so bias the start angle just into the
         -- appropriate quadrant.  Yes the 0=>1 looks like a step too far,

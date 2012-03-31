@@ -26,66 +26,102 @@ architecture behavioural of irfir is
   -- 1 bit read reset.
   -- 1 bit mac accumulate/reset control.
   subtype command_t is std_logic_vector(23 downto 0);
-  type program_t is array(0 to 255) of command_t;
+  constant order : integer := 400;
+  type program_t is array(0 to order-1) of command_t;
   signal program : program_t := (
-    x"440000", x"00000b", x"48000d", x"400014", x"40001c",
-    x"400025", x"40002e", x"400037", x"40003e", x"400042",
-    x"400042", x"40003c", x"40002f", x"400019", x"43fff9",
-    x"43ffd0", x"43ff9d", x"43ff62", x"43ff20", x"43fedb",
-    x"47fe97", x"43fe57", x"43fe21", x"43fdfa", x"43fde8",
-    x"43fdf0", x"43fe15", x"43fe5a", x"43fec1", x"43ff47",
-    x"43ffe9", x"4000a0", x"400166", x"40022d", x"4002eb",
-    x"400392", x"400413", x"400461", x"400472", x"40043b",
-    x"4403b7", x"4002e6", x"4001cc", x"400072", x"43fee7",
-    x"43fd40", x"43fb96", x"43fa03", x"43f8a5", x"43f799",
-    x"43f6fa", x"43f6df", x"43f757", x"43f86b", x"43fa18",
-    x"43fc55", x"43ff08", x"400213", x"40054a", x"40087c",
-    x"440b74", x"400df8", x"400fd5", x"4010d9", x"4010e0",
-    x"400fcf", x"400d9e", x"400a56", x"400613", x"400106",
-    x"43fb6e", x"43f59e", x"43eff1", x"43eac8", x"43e687",
-    x"43e389", x"43e21f", x"43e285", x"43e4de", x"43e933",
-    x"47ef69", x"43f746", x"40006e", x"400a67", x"40149f",
-    x"401e74", x"402739", x"402e43", x"4032f3", x"4034c3",
-    x"40334b", x"402e53", x"4025d1", x"4019f5", x"400b29",
-    x"43fa0f", x"43e77e", x"43d47b", x"43c22c", x"43b1ce",
-    x"47a4a3", x"439be3", x"4398a9", x"439be5", x"43a64d",
-    x"43b84b", x"43d1fb", x"43f31f", x"401b1f", x"40490c",
-    x"407ba7", x"40b16d", x"40e8a4", x"411f71", x"4153e8",
-    x"418426", x"41ae63", x"41d10a", x"41eac9", x"41faa4",
-    x"45ffff", x"41faa4", x"41eac9", x"41d10a", x"41ae63",
-    x"418426", x"4153e8", x"411f71", x"40e8a4", x"40b16d",
-    x"407ba7", x"40490c", x"401b1f", x"43f31f", x"43d1fb",
-    x"43b84b", x"43a64d", x"439be5", x"4398a9", x"439be3",
-    x"47a4a3", x"43b1ce", x"43c22c", x"43d47b", x"43e77e",
-    x"43fa0f", x"400b29", x"4019f5", x"4025d1", x"402e53",
-    x"40334b", x"4034c3", x"4032f3", x"402e43", x"402739",
-    x"401e74", x"40149f", x"400a67", x"40006e", x"43f746",
-    x"47ef69", x"43e933", x"43e4de", x"43e285", x"43e21f",
-    x"43e389", x"43e687", x"43eac8", x"43eff1", x"43f59e",
-    x"43fb6e", x"400106", x"400613", x"400a56", x"400d9e",
-    x"400fcf", x"4010e0", x"4010d9", x"400fd5", x"400df8",
-    x"440b74", x"40087c", x"40054a", x"400213", x"43ff08",
-    x"43fc55", x"43fa18", x"43f86b", x"43f757", x"43f6df",
-    x"43f6fa", x"43f799", x"43f8a5", x"43fa03", x"43fb96",
-    x"43fd40", x"43fee7", x"400072", x"4001cc", x"4002e6",
-    x"4403b7", x"40043b", x"400472", x"400461", x"400413",
-    x"400392", x"4002eb", x"40022d", x"400166", x"4000a0",
-    x"43ffe9", x"43ff47", x"43fec1", x"43fe5a", x"43fe15",
-    x"43fdf0", x"43fde8", x"43fdfa", x"43fe21", x"43fe57",
-    x"47fe97", x"43fedb", x"43ff20", x"43ff62", x"43ff9d",
-    x"43ffd0", x"43fff9", x"400019", x"40002f", x"40003c",
-    x"400042", x"400042", x"40003e", x"400037", x"40002e",
-    x"400025", x"60001c", x"500014", x"40000d", x"40000b",
-    others => x"000000");
+    x"440000", x"000043", x"48001f", x"400030", x"400036",
+    x"400043", x"40004d", x"40005a", x"400066", x"400072",
+    x"40007e", x"400089", x"400093", x"40009c", x"4000a3",
+    x"4000a7", x"4000aa", x"4000a7", x"4000a5", x"400095",
+    x"440093", x"40001d", x"40003f", x"400008", x"43ffe3",
+    x"43ffaa", x"43ff74", x"43ff33", x"43fef1", x"43fea9",
+    x"43fe60", x"43fe15", x"43fdc9", x"43fd7e", x"43fd34",
+    x"43fcf0", x"43fcae", x"43fc79", x"43fc42", x"43fc30",
+    x"47fbf8", x"43fc8e", x"43fc33", x"43fc72", x"43fc97",
+    x"43fce9", x"43fd3c", x"43fdab", x"43fe24", x"43feb1",
+    x"43ff48", x"43ffec", x"40009a", x"40014d", x"400206",
+    x"4002ba", x"400372", x"400416", x"4004c3", x"40052b",
+    x"4405e4", x"40055c", x"40062e", x"400617", x"400620",
+    x"4005dd", x"40058e", x"400509", x"40046b", x"4003a3",
+    x"4002bd", x"4001b7", x"400096", x"43ff62", x"43fe18",
+    x"43fccc", x"43fb6e", x"43fa2a", x"43f8cc", x"43f7e0",
+    x"47f65f", x"43f6a8", x"43f526", x"43f4e7", x"43f484",
+    x"43f497", x"43f4c6", x"43f550", x"43f60d", x"43f719",
+    x"43f860", x"43f9e7", x"43fba8", x"43fd97", x"43ffb9",
+    x"4001ed", x"40044d", x"400693", x"40090f", x"400ae5",
+    x"440dad", x"400e17", x"4010b8", x"4011ba", x"4012dd",
+    x"401357", x"401399", x"40134c", x"4012a2", x"401176",
+    x"400fdc", x"400dce", x"400b52", x"400878", x"40053b",
+    x"4001c6", x"43fdf8", x"43fa33", x"43f60b", x"43f2ba",
+    x"47edff", x"43ec31", x"43e7cb", x"43e55a", x"43e2d3",
+    x"43e12e", x"43dfee", x"43df7e", x"43dfad", x"43e0ab",
+    x"43e265", x"43e4e7", x"43e82c", x"43ec20", x"43f0cf",
+    x"43f5fd", x"43fbd6", x"4001d6", x"400889", x"400e4b",
+    x"441611", x"401a79", x"4021cb", x"4026e9", x"402c0e",
+    x"403012", x"403374", x"4035ac", x"4036e3", x"4036d6",
+    x"40358d", x"4032f2", x"402efe", x"4029c3", x"40232c",
+    x"401b81", x"401287", x"4008e4", x"43fdef", x"43f3b5",
+    x"47e698", x"43dced", x"43cff6", x"43c52f", x"43ba5b",
+    x"43b0d4", x"43a834", x"43a130", x"439bc1", x"439856",
+    x"43970b", x"439820", x"439bc3", x"43a201", x"43ab1a",
+    x"43b6dc", x"43c5aa", x"43d6e2", x"43eb62", x"4000db",
+    x"441b9a", x"4034a2", x"4052f0", x"4070ff", x"409100",
+    x"40b180", x"40d2cc", x"40f40d", x"411521", x"41356f",
+    x"4154a6", x"417254", x"418e0b", x"41a784", x"41be3b",
+    x"41d225", x"41e290", x"41efea", x"41f8f8", x"41ffff",
+    x"45fff5", x"41ffff", x"41f8f8", x"41efea", x"41e290",
+    x"41d225", x"41be3b", x"41a784", x"418e0b", x"417254",
+    x"4154a6", x"41356f", x"411521", x"40f40d", x"40d2cc",
+    x"40b180", x"409100", x"4070ff", x"4052f0", x"4034a2",
+    x"441b9a", x"4000db", x"43eb62", x"43d6e2", x"43c5aa",
+    x"43b6dc", x"43ab1a", x"43a201", x"439bc3", x"439820",
+    x"43970b", x"439856", x"439bc1", x"43a130", x"43a834",
+    x"43b0d4", x"43ba5b", x"43c52f", x"43cff6", x"43dced",
+    x"47e698", x"43f3b5", x"43fdef", x"4008e4", x"401287",
+    x"401b81", x"40232c", x"4029c3", x"402efe", x"4032f2",
+    x"40358d", x"4036d6", x"4036e3", x"4035ac", x"403374",
+    x"403012", x"402c0e", x"4026e9", x"4021cb", x"401a79",
+    x"441611", x"400e4b", x"400889", x"4001d6", x"43fbd6",
+    x"43f5fd", x"43f0cf", x"43ec20", x"43e82c", x"43e4e7",
+    x"43e265", x"43e0ab", x"43dfad", x"43df7e", x"43dfee",
+    x"43e12e", x"43e2d3", x"43e55a", x"43e7cb", x"43ec31",
+    x"47edff", x"43f2ba", x"43f60b", x"43fa33", x"43fdf8",
+    x"4001c6", x"40053b", x"400878", x"400b52", x"400dce",
+    x"400fdc", x"401176", x"4012a2", x"40134c", x"401399",
+    x"401357", x"4012dd", x"4011ba", x"4010b8", x"400e17",
+    x"440dad", x"400ae5", x"40090f", x"400693", x"40044d",
+    x"4001ed", x"43ffb9", x"43fd97", x"43fba8", x"43f9e7",
+    x"43f860", x"43f719", x"43f60d", x"43f550", x"43f4c6",
+    x"43f497", x"43f484", x"43f4e7", x"43f526", x"43f6a8",
+    x"47f65f", x"43f7e0", x"43f8cc", x"43fa2a", x"43fb6e",
+    x"43fccc", x"43fe18", x"43ff62", x"400096", x"4001b7",
+    x"4002bd", x"4003a3", x"40046b", x"400509", x"40058e",
+    x"4005dd", x"400620", x"400617", x"40062e", x"40055c",
+    x"4405e4", x"40052b", x"4004c3", x"400416", x"400372",
+    x"4002ba", x"400206", x"40014d", x"40009a", x"43ffec",
+    x"43ff48", x"43feb1", x"43fe24", x"43fdab", x"43fd3c",
+    x"43fce9", x"43fc97", x"43fc72", x"43fc33", x"43fc8e",
+    x"47fbf8", x"43fc30", x"43fc42", x"43fc79", x"43fcae",
+    x"43fcf0", x"43fd34", x"43fd7e", x"43fdc9", x"43fe15",
+    x"43fe60", x"43fea9", x"43fef1", x"43ff33", x"43ff74",
+    x"43ffaa", x"43ffe3", x"400008", x"40003f", x"40001d",
+    x"440093", x"400095", x"4000a5", x"4000a7", x"4000aa",
+    x"4000a7", x"4000a3", x"40009c", x"400093", x"400089",
+    x"40007e", x"400072", x"400066", x"40005a", x"40004d",
+    x"400043", x"600036", x"500030", x"40001f", x"400043");
 
   signal command : command_t := (others => '0');
-  type buff_t is array(0 to 1023) of signed18;
+  --type buff_t is array(0 to 1023) of signed18;
+  type buff_t is array(0 to 2047) of signed18;
   signal buff : buff_t := (others => "00" & x"0000");
 
-  signal pc : unsigned8 := x"00";
-  signal write_pointer : unsigned10 := "0000000000";
-  signal read_pointer : unsigned10 := "0000000001";
-  signal read_pointer_1 : unsigned10 := "0000000000";
+  signal pc : integer range 0 to order-1;
+
+  constant pointer_size : integer := 11;
+  subtype pointer_t is unsigned(pointer_size-1 downto 0);
+  signal write_pointer  : pointer_t := (others => '0');
+  signal read_pointer   : pointer_t := (0 => '1', others=> '0');
+  signal read_pointer_1 : pointer_t := (others => '0');
 
   signal channel : unsigned2 := "00";
 
@@ -113,14 +149,15 @@ begin
 
   process
     variable acc_addend : signed(acc_width - 1 downto 0);
-    variable rp_addend : unsigned10;
-    variable rp_increment : unsigned10;
+    variable rp_addend : pointer_t;
+    variable rp_increment : integer;
+    --variable rp_increment : pointer_t;
   begin
     wait until rising_edge(clk);
 
-    command <= program(to_integer(pc));
+    command <= program(pc);
     if pc_reset = '1' then
-      pc <= (others => '0');
+      pc <= 0;
     else
       pc <= pc + 1;
     end if;
@@ -165,12 +202,12 @@ begin
 
     -- buff pointer update.
     if read_reset = '1' then
-      rp_addend := write_pointer(9 downto 2) & channel;
+      rp_addend := write_pointer(pointer_size-1 downto 2) & channel;
       channel <= channel + 1;
-      rp_increment := "00" & x"40";
+      rp_increment := 64;
     else
       rp_addend := read_pointer;
-      rp_increment := "00" & x"04";
+      rp_increment := 4;
     end if;
     read_pointer <= rp_addend + rp_increment;
     read_pointer_1 <= read_pointer;

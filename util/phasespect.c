@@ -76,7 +76,8 @@ int main (int argc, const char ** argv)
     samples[0] = 0;                     // Not interesting.
 
     for (size_t i = 1; i < LENGTH/2; ++i)
-        samples[i] = hypot (samples[i], samples[LENGTH - i]);
+        samples[i] = samples[i] * samples[i]
+            + samples[LENGTH - i] * samples[LENGTH - i];
 
     static float output[LENGTH/2];
 
