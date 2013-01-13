@@ -5,6 +5,8 @@
 *.tsv
 *.zip
 .*.d
+*.dat
+*.dat.*
 /#*#
 /bandpass
 /docs/*.pdf
