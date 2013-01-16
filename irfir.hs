@@ -1,16 +1,18 @@
 module Main where
 
 import Data.Bits
-import System(getArgs)
+import System.Environment(getArgs)
 import System.Process
 import Text.Printf
 import Text.Regex.TDFA
 
-data FilterRange a b c = FilterRange {
-   low :: a, high :: a, amplitude :: b, weight :: c }
-   deriving Show
+data FilterRange a w e = FilterRange {
+   amplitude :: a, weight :: w, low :: e, high :: e } deriving Show
 
-merge t u = easy (split t (endpoints u)) (split u (endpoints t)) where
+-- Merge two [FilterRange]s.
+merge t u = compress $
+     easy (split t (endpoints u)) (split u (endpoints t)) where
+  -- split items of a [FilterRange] by a list of endpoints.
   split [] _ = []
   split a [] = a
   split (a:t) (b:u) =
@@ -19,8 +21,9 @@ merge t u = easy (split t (endpoints u)) (split u (endpoints t)) where
     else if high a <= b then
       a : split t (b:u)
     else
-      FilterRange (low a) b  (amplitude a) (weight a) :
-      FilterRange b (high a) (amplitude a) (weight a) : split t (b:u)
+      FilterRange (amplitude a) (weight a) (low a) b :
+      FilterRange (amplitude a) (weight a) b (high a) : split t u
+  -- The easy case of 'merge' : items do not have partial overlaps.
   easy a [] = a
   easy [] b = b
   easy (a:t) (b:u) =
@@ -30,30 +33,61 @@ merge t u = easy (split t (endpoints u)) (split u (endpoints t)) where
       b : merge (a:t) u
     else if low a == low b && high a == high b
             && amplitude a == amplitude b then
-      FilterRange (low a) (high a) (amplitude a) (max (weight a) (weight b))
+      FilterRange (amplitude a) (max (weight a) (weight b)) (low a) (high a)
         : easy t u
     else
       error ("Inconsistent " ++ show a ++ " " ++ show b)
-endpoints [] = []
-endpoints (a:t) = low a : high a : endpoints t
 
+endpoints xs = do { x <- xs ; [low x, high x] }
+
+-- Combine successive entries of a [FilterRange] where possible.
 compress [] = []
-compress [a] = []
+compress [a] = [a]
 compress (a:b:t) =
   if high a == low b && amplitude a == amplitude b && weight a == weight b
-  then compress (FilterRange (low a) (high a) (amplitude a) (weight a) : t)
+  then compress (FilterRange (amplitude a) (weight a) (low a) (high b) : t)
   else a : compress (b:t)
 
-remez c l = printf "remez(%i,%s,%s,%s)" (c-2)
-   (show $ endpoints l) (show $ l >>= (replicate 2 . amplitude)) (show $ map weight l)
+-- Filter to remove aliases.  Band is the output Nyquist, count is the
+-- oversample amount, weight is the filter weight, low..high is the range
+-- which we don't want aliases of.
+antiAlias band count weight low high = merge
+   [ FilterRange 0 weight (i * band - high) (i * band - low)
+      | i <- map fromIntegral [2, 4 .. count] ]
+   [ FilterRange 0 weight (i * band + low) (i * band + high)
+      | i <- map fromIntegral [2, 4 .. count-1] ]
+
+-- Modify a filter to remove aliases of its ranges.
+withAntiAlias band count weight f = foldl merge f
+  [ antiAlias band count weight (low x) (high x) | x <- f ]
+
+class Reduce a where
+   reduce :: a -> [a] -> (a, [a])
+instance Reduce Int where
+   reduce n l = (div n g, map (flip div g) l) where
+     g = foldl gcd n l
+instance Reduce Double where
+   reduce n l = (n, l)
+
+remez count filter nyquist = printf "remez(%i,%s/%s,%s,%s)" (count-2)
+   (show ep)
+   (show nyq)
+   (show $ filter >>= (replicate 2 . amplitude))
+   (show $ map weight filter)
+   where
+     (nyq, ep) = reduce nyquist (endpoints filter)
 
 cycles = 400
-frequency_divide = 20
+downsample = 20
 pass = 62500
-nyquist = 1562500.0
+nyquist = 1562500
+nyq_out :: Int
+nyq_out = 78125
 --stop = 2 * nyquist - pass
 --scale = 1658997.0
 scale = 2766466
+
+fir = withAntiAlias nyq_out downsample 300 [FilterRange scale 1 0 pass]
 
 bit_sample_strobe = 0x040000
 bit_out_strobe    = 0x080000
@@ -66,7 +100,8 @@ bit_mac_accum     = 0x400000
 latency_out_strobe = 1
 latency_mac_accum = 2
 latency_pc_reset = 3 -- latency through PC & BRAM lookup.
--- There are two read paths through the DSP - we mean the faster.
+-- There are two read paths through the DSP (due to the delay and difference) -
+-- we mean the faster.
 latency_read_reset = 7 -- 2 pointer, 2 BRAM lookup, 3 DSP.
 latency_fir = 3 -- the fir coefficients.
 
@@ -90,26 +125,19 @@ makeProgram s = let
  in
   [ printf "    -- Min coeff is %i\n" (minimum coeffs),
     printf "    -- Max coeff is %i\n" (maximum coeffs),
+    printf "    -- Sum of coeffs is %i\n" (sum coeffs),
     printf "    -- Number of coeffs is %i\n" (length coeffs) ]
   ++ padded ++
   [ "    others => x\"000000\")\n" ]
 
-fir =
-  [FilterRange 0 delta scale 1]
-  ++ [FilterRange (n * central - delta) (n * central + delta) 0 300
-      | n <- map fromIntegral [2,4 .. frequency_divide - 2]]
-  ++ [FilterRange (1 - delta) 1 0 300] where
-  delta = pass / nyquist
-  central = 1 / fromIntegral frequency_divide
-
 generate = do
-  putStr $ "-- " ++ remez cycles fir ++ "\n"
+  putStr $ "-- " ++ remez cycles fir nyquist ++ "\n"
   textlist <- readProcess "/usr/bin/octave" ["-q"] $
-    "disp(round(" ++ remez cycles fir ++ "))"
+    "disp(round(" ++ remez cycles fir nyquist ++ "))"
   --if length textlist == cycles+2 then return () else fail "Bugger"
   putStr $ concat $ makeProgram textlist
 
-header = putStr $ remez cycles fir ++ "\n"
+header = putStr $ remez cycles fir nyquist ++ "\n"
 
 main = do
   args <- getArgs
