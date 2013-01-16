@@ -24,6 +24,9 @@ entity go is
        adc_sclk  : out std_logic := '0';
        adc_reset : out std_logic := '1';
 
+       spartan_m0 : in std_logic;
+       spartan_m1 : in std_logic;
+
        led : out unsigned8;
 
        clkin125 : in std_logic;
@@ -85,6 +88,9 @@ architecture behavioural of go is
   attribute S of usb_c : signal is "yes";
   attribute S of led : signal is "yes";
 
+  attribute pullup : string;
+  attribute pullup of spartan_m0, spartan_m1 : signal is "TRUE";
+
   alias clk_main_locked : std_logic is led_off(1);
   alias adc_clk_locked : std_logic is led_off(2);
 
@@ -103,7 +109,10 @@ begin
     led(i) <= '0' when led_off(i) = '0' else 'Z';
   end generate;
 
-  led_off(7 downto 4) <= config(configctrl + 7 downto configctrl + 4);
+  led_off(5 downto 4) <= config(configctrl + 5 downto configctrl + 4);
+
+  led_off(6) <= spartan_m0;
+  led_off(7) <= not spartan_m1;
 
   down: for i in 0 to 3 generate
     downblock: block
