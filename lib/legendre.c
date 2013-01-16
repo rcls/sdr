@@ -5,18 +5,18 @@
 // converge ok.
 
 #include "legendre.h"
+
+#include <stdio.h>
 #include <string.h>
 
 #define M(len) (2.0 / (len))
 #define C(len) (1.0 / (len) - 1)
 
-#define L(n) (2*(n)+1.0) / ((n)+1), (n) / ((n)+1.0)
-#define LL(n) L(n), L(n+1), L(n+2), L(n+3)
-#define LLL(n) LL(n), LL(n+4), LL(n+8), LL(n+12)
-#define LLLL(n) LLL(n), LLL(n+16), LLL(n+32), LLL(n+48)
-static const double LCOEFF[] = { LLLL(0), LLLL(64), LLLL(128), LLLL(192) };
+#define L(n) (2*(n)+1.0) / ((n)+1), (n) / ((n)+1.0),
+#define K(n) L(n) L(n+1) L(n+2)  L(n+3)  L(n+4)  L(n+5)  L(n+6)  L(n+7)
+#define J(n) K(n) K(n+8) K(n+16) K(n+24) K(n+32) K(n+40) K(n+48) K(n+56)
+static const double LCOEFF[512] = { J(0) J(64) J(128) J(192) };
 
-#include <stdio.h>
 
 double l_eval(double x, const double * coeffs, unsigned int order)
 {
@@ -62,7 +62,6 @@ static void l_coeff(double * CC, unsigned int order,
         current = next;
     }
 }
-
 
 
 void l_fit(double * __restrict__ coeffs, double * __restrict__ Y,
