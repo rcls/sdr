@@ -105,9 +105,13 @@ latency_pc_reset = 3 -- latency through PC & BRAM lookup.
 latency_read_reset = 7 -- 2 pointer, 2 BRAM lookup, 3 DSP.
 latency_fir = 3 -- the fir coefficients.
 
+orIf :: t -> Int -> (t -> Bool) -> Int -> Int
 orIf i b p n = if p i then n .|. b else n
+
 at :: Int -> Int -> Bool
 at i j = (j + i) == latency_fir || (j + i) == (latency_fir + cycles)
+
+controls :: Int -> Int -> Int
 controls i = orIf i bit_out_strobe    (at latency_out_strobe)
            . orIf i bit_pc_reset      (== (cycles - latency_pc_reset))
            . orIf i bit_read_reset    (at latency_read_reset)
@@ -116,6 +120,7 @@ controls i = orIf i bit_out_strobe    (at latency_out_strobe)
 
 numRegex = makeRegex "-?[0-9]+" :: Regex
 
+makeProgram :: String -> [String]
 makeProgram s = let
   coeffs = 0 : [ read (match numRegex x) :: Int | x <- lines s]
   with_controls = zipWith controls [0..] $ map (0x3ffff .&.) coeffs

@@ -30,6 +30,9 @@ sample/spectrum: lib/util.o lib/usb.o
 sinrom.vhd: sinrom
 	./sinrom > sinrom.vhd
 
+irfir: irfir.hs
+	ghc -O2 -o irfir irfir.hs
+
 # Cancel built-in
 %: %.c
 
