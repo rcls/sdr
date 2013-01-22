@@ -1,6 +1,7 @@
 module Main where
 
 import Data.Bits
+import Data.List
 import System.Environment(getArgs)
 import System.Process
 import Text.Printf
@@ -9,26 +10,14 @@ import Text.Regex.TDFA
 data FilterRange a w e = FilterRange {
    amplitude :: a, weight :: w, low :: e, high :: e } deriving Show
 
-data Constants f a = Constants {
+data FilterDesc f a = FilterDesc {
      cycles :: Int,
+     dead_cycles :: Int,
      nyquist :: f,
 
-     bit_sample_strobe :: Int,
-     bit_out_strobe    :: Int,
-     bit_pc_reset      :: Int,
-     bit_read_reset    :: Int,
-     bit_mac_accum     :: Int,
+     latency :: Int, -- Latency of the main processing.
 
-     -- PC reset is latency around the command lookup loop via the pc_reset.
-     -- The other latencies are from the unpacked command to the accumulator
-     -- output.
-     latency_out_strobe :: Int,
-     latency_mac_accum :: Int,
-     latency_pc_reset :: Int, -- latency through PC & BRAM lookup.
-     -- There are two read paths through the DSP (due to the delay and
-     -- difference) - we mean the faster.
-     latency_read_reset :: Int, -- 2 pointer, 2 BRAM lookup, 3 DSP.
-     latency_fir :: Int, -- the fir coefficients.
+     strobes :: [(String, Int->Bool)],
 
      fir :: [FilterRange a Int f]
      }
@@ -89,7 +78,7 @@ instance Reduce Int where
 instance Reduce Double where
    reduce n l = (n, l)
 
-remez c = printf "remez(%i,%s/%s,%s,%s)" (cycles c - 2)
+remez c = printf "remez(%i,%s/%s,%s,%s)" (cycles c - dead_cycles c - 1)
    (show ep)
    (show nyq)
    (show $ fir c >>= (replicate 2 . amplitude))
@@ -97,22 +86,30 @@ remez c = printf "remez(%i,%s/%s,%s,%s)" (cycles c - 2)
    where
      (nyq, ep) = reduce (nyquist c) (endpoints $ fir c)
 
-irfir :: Constants Int Int
-irfir = Constants {
+at :: FilterDesc f a -> Int -> Int -> Bool
+at c i j = (j + i) == (latency c) || (j + i) == (latency c + cycles c)
+
+controls :: FilterDesc f a -> Int -> Int -> Int
+controls c i x = foldl (.|.) x $ map (shiftL 0x040000) $
+    findIndices (\(s,p) -> p i) $ strobes c
+
+numRegex = makeRegex "-?[0-9]+" :: Regex
+
+irfir :: FilterDesc Int Int
+irfir = FilterDesc {
    cycles = 400,
+   dead_cycles = 1,
    nyquist = nyquist,
 
-   bit_sample_strobe = 0x040000,
-   bit_out_strobe    = 0x080000,
-   bit_pc_reset      = 0x100000,
-   bit_read_reset    = 0x200000,
-   bit_mac_accum     = 0x400000,
+   latency = 3,
 
-   latency_out_strobe = 1,
-   latency_mac_accum = 2,
-   latency_pc_reset = 3,
-   latency_read_reset = 7,
-   latency_fir = 3,
+   strobes = [
+     ("sample_strobe", ((0 ==) . flip mod 20)),
+     ("out_strobe", at irfir 1),
+     ("pc_reset", (== (400 - 3))),
+     ("read_reset", at irfir 7),
+     ("mac_accum", (not . at irfir 2))
+   ],
 
    fir = withAntiAlias (div nyquist downsample) downsample 300
      [FilterRange scale 1 0 pass]
@@ -122,33 +119,22 @@ irfir = Constants {
       scale = 2766466
       nyquist = 1562500
 
-orIf :: t -> Int -> (t -> Bool) -> Int -> Int
-orIf i b p n = if p i then n .|. b else n
-
-at :: Constants f a -> Int -> Int -> Bool
-at c i j = (j + i) == (latency_fir c) || (j + i) == (latency_fir c + cycles c)
-
-controls :: Constants f a -> Int -> Int -> Int
-controls c i = orIf i (bit_out_strobe c)   (at c $ latency_out_strobe c)
-             . orIf i (bit_pc_reset c)     (== (cycles c - latency_pc_reset c))
-             . orIf i (bit_read_reset c)   (at c $ latency_read_reset c)
-             . orIf i (bit_mac_accum c)    (not . at c (latency_mac_accum c))
-             . orIf i (bit_sample_strobe c)((0 ==) . flip mod 20)
-
-numRegex = makeRegex "-?[0-9]+" :: Regex
-
 --makeProgram :: String -> [String]
 makeProgram c s = let
-  coeffs = 0 : [ read (match numRegex x) :: Int | x <- lines s]
+  coeffs = replicate (dead_cycles c) 0
+     ++ [ read (match numRegex x) :: Int | x <- lines s]
   with_controls = zipWith (controls c) [0..] $ map (0x3ffff .&.) coeffs
   as_hex = map (printf "x\"%06x\",") with_controls
   padded = zipWith (++) (cycle ["    ", " ", " ", " ", " "])
      $ zipWith (++) as_hex (cycle [ "", "", "", "", "\n" ])
  in
-  [ printf "    -- Min coeff is %i\n" (minimum coeffs),
-    printf "    -- Max coeff is %i\n" (maximum coeffs),
-    printf "    -- Sum of coeffs is %i\n" (sum coeffs),
-    printf "    -- Number of coeffs is %i\n" (length coeffs),
+  zipWith (\(s,_)-> \n -> printf "  constant index_%s : integer := %i;\n" s n)
+     (strobes c) [(18::Int)..]
+  ++ [
+    printf "  -- Min coeff is %i\n" (minimum coeffs),
+    printf "  -- Max coeff is %i\n" (maximum coeffs),
+    printf "  -- Sum of coeffs is %i\n" (sum coeffs),
+    printf "  -- Number of coeffs is %i\n" (length coeffs),
     "  signal program : program_t := (\n" ]
   ++ padded ++
   [ "    others => x\"000000\")\n" ]
