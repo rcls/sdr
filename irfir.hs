@@ -9,6 +9,31 @@ import Text.Regex.TDFA
 data FilterRange a w e = FilterRange {
    amplitude :: a, weight :: w, low :: e, high :: e } deriving Show
 
+data Constants f a = Constants {
+     cycles :: Int,
+     downsample :: Int,
+     pass :: f,
+     nyquist :: f,
+     scale :: a,
+
+     bit_sample_strobe :: Int,
+     bit_out_strobe    :: Int,
+     bit_pc_reset      :: Int,
+     bit_read_reset    :: Int,
+     bit_mac_accum     :: Int,
+
+     -- PC reset is latency around the command lookup loop via the pc_reset.
+     -- The other latencies are from the unpacked command to the accumulator
+     -- output.
+     latency_out_strobe :: Int,
+     latency_mac_accum :: Int,
+     latency_pc_reset :: Int, -- latency through PC & BRAM lookup.
+     -- There are two read paths through the DSP (due to the delay and
+     -- difference) - we mean the faster.
+     latency_read_reset :: Int, -- 2 pointer, 2 BRAM lookup, 3 DSP.
+     latency_fir :: Int -- the fir coefficients.
+     }
+
 -- Merge two [FilterRange]s.
 merge t u = compress $
      easy (split t (endpoints u)) (split u (endpoints t)) where
@@ -63,87 +88,89 @@ withAntiAlias band count weight f = foldl merge f
 
 class Reduce a where
    reduce :: a -> [a] -> (a, [a])
+   divide :: a -> Int -> a
 instance Reduce Int where
    reduce n l = (div n g, map (flip div g) l) where
      g = foldl gcd n l
+   divide n d = if mod n d == 0 then div n d else error "Modulus"
 instance Reduce Double where
    reduce n l = (n, l)
+   divide n d = n / fromIntegral d
 
-remez count filter nyquist = printf "remez(%i,%s/%s,%s,%s)" (count-2)
+remez c = printf "remez(%i,%s/%s,%s,%s)" (cycles c - 2)
    (show ep)
    (show nyq)
-   (show $ filter >>= (replicate 2 . amplitude))
-   (show $ map weight filter)
+   (show $ fir >>= (replicate 2 . amplitude))
+   (show $ map weight fir)
    where
-     (nyq, ep) = reduce nyquist (endpoints filter)
+     fir = withAntiAlias (divide (nyquist c) (downsample c)) (downsample c) 300
+        [FilterRange (scale c) 1 0 (pass c)]
+     (nyq, ep) = reduce (nyquist c) (endpoints fir)
 
-cycles = 400
-downsample = 20
-pass = 62500
-nyquist = 1562500
-nyq_out :: Int
-nyq_out = 78125
---stop = 2 * nyquist - pass
---scale = 1658997.0
-scale = 2766466
+irfirConstants :: Constants Int Int
+irfirConstants = Constants {
+   cycles = 400,
+   downsample = 20,
+   pass = 62500,
+   nyquist = 1562500,
+   scale = 2766466,
 
-fir = withAntiAlias nyq_out downsample 300 [FilterRange scale 1 0 pass]
+   bit_sample_strobe = 0x040000,
+   bit_out_strobe    = 0x080000,
+   bit_pc_reset      = 0x100000,
+   bit_read_reset    = 0x200000,
+   bit_mac_accum     = 0x400000,
 
-bit_sample_strobe = 0x040000
-bit_out_strobe    = 0x080000
-bit_pc_reset      = 0x100000
-bit_read_reset    = 0x200000
-bit_mac_accum     = 0x400000
-
--- PC reset is latency around the command lookup loop via the pc_reset.
--- The other latencies are from the unpacked command to the accumulator output.
-latency_out_strobe = 1
-latency_mac_accum = 2
-latency_pc_reset = 3 -- latency through PC & BRAM lookup.
--- There are two read paths through the DSP (due to the delay and difference) -
--- we mean the faster.
-latency_read_reset = 7 -- 2 pointer, 2 BRAM lookup, 3 DSP.
-latency_fir = 3 -- the fir coefficients.
+   latency_out_strobe = 1,
+   latency_mac_accum = 2,
+   latency_pc_reset = 3,
+   latency_read_reset = 7,
+   latency_fir = 3 }
 
 orIf :: t -> Int -> (t -> Bool) -> Int -> Int
 orIf i b p n = if p i then n .|. b else n
 
-at :: Int -> Int -> Bool
-at i j = (j + i) == latency_fir || (j + i) == (latency_fir + cycles)
+at :: Constants f a -> Int -> Int -> Bool
+at c i j = (j + i) == (latency_fir c) || (j + i) == (latency_fir c + cycles c)
 
-controls :: Int -> Int -> Int
-controls i = orIf i bit_out_strobe    (at latency_out_strobe)
-           . orIf i bit_pc_reset      (== (cycles - latency_pc_reset))
-           . orIf i bit_read_reset    (at latency_read_reset)
-           . orIf i bit_mac_accum     (not . at latency_mac_accum)
-           . orIf i bit_sample_strobe ((0 ==) . (flip mod 20))
+controls :: Constants f a -> Int -> Int -> Int
+controls c i = orIf i (bit_out_strobe c)   (at c $ latency_out_strobe c)
+             . orIf i (bit_pc_reset c)     (== (cycles c - latency_pc_reset c))
+             . orIf i (bit_read_reset c)   (at c $ latency_read_reset c)
+             . orIf i (bit_mac_accum c)    (not . at c (latency_mac_accum c))
+             . orIf i (bit_sample_strobe c)((0 ==) . flip mod 20)
 
 numRegex = makeRegex "-?[0-9]+" :: Regex
 
-makeProgram :: String -> [String]
-makeProgram s = let
+--makeProgram :: String -> [String]
+makeProgram c s = let
   coeffs = 0 : [ read (match numRegex x) :: Int | x <- lines s]
-  with_controls = zipWith controls [0..] $ map (0x3ffff .&.) coeffs
+  with_controls = zipWith (controls c) [0..] $ map (0x3ffff .&.) coeffs
   as_hex = map (printf "x\"%06x\",") with_controls
-  padded = zipWith (++) (cycle ["    ", " ", " ", " ", " "])
+  padded = zipWith (++) (cycle ["        ", " ", " ", " ", " "])
      $ zipWith (++) as_hex (cycle [ "", "", "", "", "\n" ])
  in
   [ printf "    -- Min coeff is %i\n" (minimum coeffs),
     printf "    -- Max coeff is %i\n" (maximum coeffs),
     printf "    -- Sum of coeffs is %i\n" (sum coeffs),
-    printf "    -- Number of coeffs is %i\n" (length coeffs) ]
+    printf "    -- Number of coeffs is %i\n" (length coeffs),
+    "    signal program : program_t := (\n" ]
   ++ padded ++
   [ "    others => x\"000000\")\n" ]
 
-generate = do
-  putStr $ "-- " ++ remez cycles fir nyquist ++ "\n"
-  textlist <- readProcess "/usr/bin/octave" ["-q"] $
-    "disp(round(" ++ remez cycles fir nyquist ++ "))"
-  --if length textlist == cycles+2 then return () else fail "Bugger"
-  putStr $ concat $ makeProgram textlist
+generate c = do
+     putStr $ "-- " ++ remezc ++ "\n"
+     textlist <- readProcess "/usr/bin/octave" ["-q"] $
+       "disp(round(" ++ remezc ++ "))"
+     --if length textlist == cycles+2 then return () else fail "Bugger"
+     putStr $ concat $ makeProgram c textlist
+   where
+     remezc = remez c
 
-header = putStr $ remez cycles fir nyquist ++ "\n"
+header c = putStr $ remez c ++ "\n"
 
 main = do
   args <- getArgs
-  case args of { [ "header" ] -> header ; _ -> generate }
+  case args of
+    [ "header" ] -> header irfirConstants
+    _ -> generate irfirConstants
