@@ -11,10 +11,7 @@ data FilterRange a w e = FilterRange {
 
 data Constants f a = Constants {
      cycles :: Int,
-     downsample :: Int,
-     pass :: f,
      nyquist :: f,
-     scale :: a,
 
      bit_sample_strobe :: Int,
      bit_out_strobe    :: Int,
@@ -31,7 +28,9 @@ data Constants f a = Constants {
      -- There are two read paths through the DSP (due to the delay and
      -- difference) - we mean the faster.
      latency_read_reset :: Int, -- 2 pointer, 2 BRAM lookup, 3 DSP.
-     latency_fir :: Int -- the fir coefficients.
+     latency_fir :: Int, -- the fir coefficients.
+
+     fir :: [FilterRange a Int f]
      }
 
 endpoints xs = do { x <- xs ; [low x, high x] }
@@ -84,32 +83,24 @@ withAntiAlias band count weight f = foldl merge f
 
 class Reduce a where
    reduce :: a -> [a] -> (a, [a])
-   divide :: a -> Int -> a
 instance Reduce Int where
    reduce n l = (div n g, map (flip div g) l) where
      g = foldl gcd n l
-   divide n d = if mod n d == 0 then div n d else error "Modulus"
 instance Reduce Double where
    reduce n l = (n, l)
-   divide n d = n / fromIntegral d
 
 remez c = printf "remez(%i,%s/%s,%s,%s)" (cycles c - 2)
    (show ep)
    (show nyq)
-   (show $ fir >>= (replicate 2 . amplitude))
-   (show $ map weight fir)
+   (show $ fir c >>= (replicate 2 . amplitude))
+   (show $ map weight $ fir c)
    where
-     fir = withAntiAlias (divide (nyquist c) (downsample c)) (downsample c) 300
-        [FilterRange (scale c) 1 0 (pass c)]
-     (nyq, ep) = reduce (nyquist c) (endpoints fir)
+     (nyq, ep) = reduce (nyquist c) (endpoints $ fir c)
 
-irfirConstants :: Constants Int Int
-irfirConstants = Constants {
+irfir :: Constants Int Int
+irfir = Constants {
    cycles = 400,
-   downsample = 20,
-   pass = 62500,
-   nyquist = 1562500,
-   scale = 2766466,
+   nyquist = nyquist,
 
    bit_sample_strobe = 0x040000,
    bit_out_strobe    = 0x080000,
@@ -121,7 +112,15 @@ irfirConstants = Constants {
    latency_mac_accum = 2,
    latency_pc_reset = 3,
    latency_read_reset = 7,
-   latency_fir = 3 }
+   latency_fir = 3,
+
+   fir = withAntiAlias (div nyquist downsample) downsample 300
+     [FilterRange scale 1 0 pass]
+   } where
+      downsample = 20
+      pass = 62500
+      scale = 2766466
+      nyquist = 1562500
 
 orIf :: t -> Int -> (t -> Bool) -> Int -> Int
 orIf i b p n = if p i then n .|. b else n
@@ -168,5 +167,5 @@ header c = putStr $ remez c ++ "\n"
 main = do
   args <- getArgs
   case args of
-    [ "header" ] -> header irfirConstants
-    _ -> generate irfirConstants
+    [ "header" ] -> header irfir
+    _ -> generate irfir
