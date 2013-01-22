@@ -34,20 +34,18 @@ data Constants f a = Constants {
      latency_fir :: Int -- the fir coefficients.
      }
 
+endpoints xs = do { x <- xs ; [low x, high x] }
+
 -- Merge two [FilterRange]s.
 merge t u = compress $
      easy (split t (endpoints u)) (split u (endpoints t)) where
   -- split items of a [FilterRange] by a list of endpoints.
   split [] _ = []
   split a [] = a
-  split (a:t) (b:u) =
-    if b <= low a then
-      split (a:t) u
-    else if high a <= b then
-      a : split t (b:u)
-    else
-      FilterRange (amplitude a) (weight a) (low a) b :
-      FilterRange (amplitude a) (weight a) b (high a) : split t u
+  split (a:t) (b:u) | b <= low a  = split (a:t) u
+  split (a:t) (b:u) | high a <= b  = a : split t (b:u)
+  split (FilterRange a w l h : t) (b:u) =
+      FilterRange a w l b : FilterRange a w b h : split t u
   -- The easy case of 'merge' : items do not have partial overlaps.
   easy a [] = a
   easy [] b = b
@@ -62,8 +60,6 @@ merge t u = compress $
         : easy t u
     else
       error ("Inconsistent " ++ show a ++ " " ++ show b)
-
-endpoints xs = do { x <- xs ; [low x, high x] }
 
 -- Combine successive entries of a [FilterRange] where possible.
 compress [] = []
@@ -147,14 +143,14 @@ makeProgram c s = let
   coeffs = 0 : [ read (match numRegex x) :: Int | x <- lines s]
   with_controls = zipWith (controls c) [0..] $ map (0x3ffff .&.) coeffs
   as_hex = map (printf "x\"%06x\",") with_controls
-  padded = zipWith (++) (cycle ["        ", " ", " ", " ", " "])
+  padded = zipWith (++) (cycle ["    ", " ", " ", " ", " "])
      $ zipWith (++) as_hex (cycle [ "", "", "", "", "\n" ])
  in
   [ printf "    -- Min coeff is %i\n" (minimum coeffs),
     printf "    -- Max coeff is %i\n" (maximum coeffs),
     printf "    -- Sum of coeffs is %i\n" (sum coeffs),
     printf "    -- Number of coeffs is %i\n" (length coeffs),
-    "    signal program : program_t := (\n" ]
+    "  signal program : program_t := (\n" ]
   ++ padded ++
   [ "    others => x\"000000\")\n" ]
 
