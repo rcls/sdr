@@ -131,11 +131,12 @@ makeProgram c s = let
   zipWith (\(s,_)-> \n -> printf "  constant index_%s : integer := %i;\n" s n)
      (strobes c) [(18::Int)..]
   ++ [
+    printf "  constant program_size : integer := %i;\n" (cycles c),
     printf "  -- Min coeff is %i\n" (minimum coeffs),
     printf "  -- Max coeff is %i\n" (maximum coeffs),
     printf "  -- Sum of coeffs is %i\n" (sum coeffs),
     printf "  -- Number of coeffs is %i\n" (length coeffs),
-    "  signal program : program_t := (\n" ]
+    "  signal program : program_t(0 to program_size - 1) := (\n" ]
   ++ padded ++
   [ "    others => x\"000000\")\n" ]
 

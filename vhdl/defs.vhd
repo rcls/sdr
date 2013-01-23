@@ -24,4 +24,7 @@ package defs is
   type sinrom_t is array (0 to 1023) of unsigned18;
   type four_signed36 is array (0 to 3) of signed36;
 
+  subtype command_t is std_logic_vector(23 downto 0);
+  type program_t is array(integer range <>) of command_t;
+
 end defs;
