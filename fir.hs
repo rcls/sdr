@@ -119,6 +119,20 @@ irfir = FilterDesc {
       scale = 2766466
       nyquist = 1562500
 
+outfir :: FilterDesc Int Int
+outfir = FilterDesc {
+   cycles = 400,
+   dead_cycles = 0,
+   nyquist = 78125,
+
+   latency = 3,
+
+   strobes = [ ],
+   fir = [FilterRange 593026 1     0 17000,
+          FilterRange 0     10 18500 18990,
+          FilterRange 0    250 18990 78125]
+}
+
 --makeProgram :: String -> [String]
 makeProgram c s = let
   coeffs = replicate (dead_cycles c) 0
@@ -151,8 +165,13 @@ generate c = do
 
 header c = putStr $ remez c ++ "\n"
 
+doarg "irfir" (c, started) = return (irfir, started)
+doargs "outfir" (c, started) = return (outfir, started)
+doargs "header" (c, started) = header c >> return (c, True)
+doargs "generate" (c, started) = generate c >> return (c, True)
+
 main = do
   args <- getArgs
-  case args of
-    [ "header" ] -> header irfir
-    _ -> generate irfir
+  (c, started) <- foldl (\x -> \s -> x >>= doargs s)
+       (return (irfir, False)) args
+  if started then return () else generate c
