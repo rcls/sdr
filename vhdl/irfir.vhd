@@ -11,7 +11,7 @@ use work.defs.all;
 entity irfir is
   generic(acc_width : integer := 40;
           out_width : integer := 18);
-  port(d : in unsigned18;
+  port(d : in signed18;
        q : out signed(out_width - 1 downto 0);
        q_strobe : out std_logic; -- Asserted on the first cycle with new data.
        clk : in std_logic);
@@ -29,7 +29,7 @@ architecture irfir of irfir is
   -- Max coeff is 131071
   -- Sum of coeffs is 2752049
   -- Number of coeffs is 400
-  signal program : program_t(0 to program_size - 1) := (
+  constant program : program_t(0 to program_size - 1) := (
     x"440000", x"000043", x"48001f", x"400030", x"400036",
     x"400043", x"40004d", x"40005a", x"400066", x"400072",
     x"40007e", x"400089", x"400093", x"40009c", x"4000a3",
@@ -109,12 +109,13 @@ architecture irfir of irfir is
     x"440093", x"400095", x"4000a5", x"4000a7", x"4000aa",
     x"4000a7", x"4000a3", x"40009c", x"400093", x"400089",
     x"40007e", x"400072", x"400066", x"40005a", x"40004d",
-    x"400043", x"600036", x"500030", x"40001f", x"400043");
+    x"400043", x"600036", x"500030", x"40001f", x"400043",
+    others => x"000000");
 
 begin
 
   fir : entity work.quadfir
-    generic map (acc_width, out_width,
+    generic map (acc_width, out_width, true,
                  index_sample_strobe,
                  index_out_strobe,
                  index_pc_reset,

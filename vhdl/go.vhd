@@ -16,13 +16,19 @@ entity go is
        adc_reclk_p : in std_logic;
        adc_reclk_n : in std_logic;
 
-       usb_d : inout unsigned8;
-       usb_c : inout unsigned8;
-
        adc_sen   : out std_logic := '0';
        adc_sdata : out std_logic := '0';
        adc_sclk  : out std_logic := '0';
        adc_reset : out std_logic := '1';
+
+       audio_scki : out std_logic;
+       audio_lrck : out std_logic;
+       audio_data : out std_logic;
+       audio_bck : out std_logic;
+       audio_pd_inv, audio_demp : out std_logic;
+
+       usb_d : inout unsigned8;
+       usb_c : inout unsigned8;
 
        spartan_m0 : in std_logic;
        spartan_m1 : in std_logic;
@@ -53,6 +59,8 @@ architecture behavioural of go is
   signal adc_reclk_b : std_logic;
   signal adc_reclk : std_logic;
 
+  signal adc_reclk_diff : std_logic;
+
   -- Regenerated reclk.
   signal clk_main : std_logic;
   signal clk_main_neg : std_logic;
@@ -66,18 +74,22 @@ architecture behavioural of go is
   signal adc_ddr : unsigned7;
   signal adc_data : signed14;
   signal adc_data_b : signed14;
-  signal phase : unsigned18;
+  signal phase : signed18;
 
-  signal data_ir : signed(35 downto 0);
+  signal ir_data : signed(35 downto 0);
   signal ir_strobe : std_logic;
   signal ir_channel : unsigned(1 downto 0);
   signal usb_xmit : std_logic;
 
-  signal adc_reclk_diff : std_logic;
+  signal low_data : signed32;
+  signal low_strobe : std_logic;
+
+  signal out_data : signed32;
 
   -- The configuration loaded from USB.
-  signal config : unsigned(135 downto 0) := x"0800000000000000000000000000000000";
-  constant configctrl : integer := 128;
+  signal config : unsigned(135 downto 0) :=
+    x"08" & x"00000000" & x"00000000" & x"00000000" & x"00000000";
+  alias configctrl : unsigned8 is config(135 downto 128);
 
   signal led_off : unsigned8 := x"fe";
 
@@ -100,16 +112,19 @@ begin
   usb_c(7 downto 5) <= "ZZZ";
   clkin125_en <= '1';
 
-  adc_sen   <= config(configctrl + 0);
-  adc_sdata <= config(configctrl + 1);
-  adc_sclk  <= config(configctrl + 2);
-  adc_reset <= config(configctrl + 3);
+  audio_pd_inv <= '1';
+  audio_demp <= '0';
+
+  adc_sen   <= configctrl(0);
+  adc_sdata <= configctrl(1);
+  adc_sclk  <= configctrl(2);
+  adc_reset <= configctrl(3);
 
   led_control: for i in 0 to 7 generate
     led(i) <= '0' when led_off(i) = '0' else 'Z';
   end generate;
 
-  led_off(5 downto 4) <= config(configctrl + 5 downto configctrl + 4);
+  led_off(5 downto 4) <= configctrl(5 downto 4);
 
   led_off(6) <= spartan_m0;
   led_off(7) <= not spartan_m1;
@@ -138,17 +153,28 @@ begin
     port map(qq_in => qq_buf, ii_in =>ii_buf, phase => phase, clk => clk_main);
 
   irfir: entity work.irfir
-    generic map (acc_width => 48, out_width => 36)
-    port map(d => phase, q => data_ir, q_strobe => ir_strobe, clk => clk_main);
+    generic map (acc_width => 36, out_width => 36)
+    port map(phase, ir_data, ir_strobe, clk_main);
+
+  lowfir: entity work.lowfir
+    generic map (acc_width => 37, out_width => 32)
+    port map(ir_data(35 downto 18), low_data, low_strobe, clk_main);
+
+  quaddemph: entity work.quaddemph
+    port map (low_data, low_strobe, out_data, clk_main);
+
+  audio: entity work.audio generic map (bits_per_sample => 32)
+    port map (out_data, out_data,
+              audio_scki, audio_lrck, audio_data, audio_bck, clk_main);
 
   process
   begin
     wait until rising_edge(clk_main);
-    adc_data_b <= adc_data xor "10000000000000";
+    adc_data_b <= adc_data xor "10" & x"000";
 
     if ir_strobe = '1' then
-      if config(configctrl + 5) = '1' then
-        packet(35 downto 0) <= unsigned(data_ir);
+      if configctrl(5) = '1' then
+        packet(35 downto 0) <= unsigned(ir_data);
         packet(38 downto 36) <= "000";
       else
         packet(13 downto 0) <= unsigned(adc_data_b);
@@ -156,7 +182,7 @@ begin
       end if;
 
       ir_channel <= ir_channel + 1;
-      if ir_channel = "11" and config(configctrl + 4) = '1' then
+      if ir_channel = "11" and configctrl(4) = '1' then
         usb_xmit <= '1';
       else
         usb_xmit <= '0';

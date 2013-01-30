@@ -11,6 +11,7 @@ use work.defs.all;
 entity quadfir is
   generic(acc_width : integer;
           out_width : integer;
+          differentiate : boolean;
           index_sample_strobe : integer;
           index_out_strobe : integer;
           index_pc_reset : integer;
@@ -18,7 +19,7 @@ entity quadfir is
           index_mac_accum : integer;
           program_size : integer;
           program : program_t);
-  port(d : in unsigned18;
+  port(d : in signed18;
        q : out signed(out_width - 1 downto 0);
        q_strobe : out std_logic; -- Asserted on the first cycle with new data.
        clk : in std_logic);
@@ -97,7 +98,7 @@ begin
 
     -- Input processing...
     if sample_strobe = '1' then
-      buff(to_integer(write_pointer)) <= signed(d);
+      buff(to_integer(write_pointer)) <= d;
       write_pointer <= write_pointer + 1;
     end if;
 
@@ -109,9 +110,12 @@ begin
     mac_accum_1 <= mac_accum;
 
     -- DSP
-    diff <= data_2 - data_3;
-
-    product <= diff * coef_2;
+    if differentiate then
+      diff <= data_2 - data_3;
+      product <= diff * coef_2;
+    else
+      product <= data_2 * coef_2;
+    end if;
 
     if mac_accum_1 = '0' then
       acc_addend := (others => '0');

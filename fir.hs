@@ -22,7 +22,7 @@ data FilterDesc f a = FilterDesc {
      fir :: [FilterRange a Int f]
      }
 
-endpoints xs = do { x <- xs ; [low x, high x] }
+endpoints = concatMap $ \x -> [low x, high x]
 
 -- Merge two [FilterRange]s.
 merge t u = compress $
@@ -107,7 +107,7 @@ irfir = FilterDesc {
      ("sample_strobe", ((0 ==) . flip mod 20)),
      ("out_strobe", at irfir 1),
      ("pc_reset", (== (400 - 3))),
-     ("read_reset", at irfir 7),
+     ("read_reset", (== (400 - latency irfir - 1))),
      ("mac_accum", (not . at irfir 2))
    ],
 
@@ -119,15 +119,22 @@ irfir = FilterDesc {
       scale = 2766466
       nyquist = 1562500
 
-outfir :: FilterDesc Int Int
-outfir = FilterDesc {
+lowfir :: FilterDesc Int Int
+lowfir = FilterDesc {
    cycles = 400,
    dead_cycles = 0,
    nyquist = 78125,
 
-   latency = 3,
+   latency = 2,
 
-   strobes = [ ],
+   strobes = [
+     ("sample_strobe", (0 ==)),
+     ("out_strobe", at lowfir 1),
+     ("pc_reset", (== (400 - 3))),
+     ("read_reset", (== (400 - latency lowfir - 1))),
+     ("mac_accum", (not . at lowfir 2))
+   ],
+
    fir = [FilterRange 593026 1     0 17000,
           FilterRange 0     10 18500 18990,
           FilterRange 0    250 18990 78125]
@@ -143,7 +150,7 @@ makeProgram c s = let
      $ zipWith (++) as_hex (cycle [ "", "", "", "", "\n" ])
  in
   zipWith (\(s,_)-> \n -> printf "  constant index_%s : integer := %i;\n" s n)
-     (strobes c) [(18::Int)..]
+     (strobes c) [18::Int ..]
   ++ [
     printf "  constant program_size : integer := %i;\n" (cycles c),
     printf "  -- Min coeff is %i\n" (minimum coeffs),
@@ -152,7 +159,7 @@ makeProgram c s = let
     printf "  -- Number of coeffs is %i\n" (length coeffs),
     "  signal program : program_t(0 to program_size - 1) := (\n" ]
   ++ padded ++
-  [ "    others => x\"000000\")\n" ]
+  [ "    others => x\"000000\");\n" ]
 
 generate c = do
      putStr $ "-- " ++ remezc ++ "\n"
@@ -165,8 +172,8 @@ generate c = do
 
 header c = putStr $ remez c ++ "\n"
 
-doarg "irfir" (c, started) = return (irfir, started)
-doargs "outfir" (c, started) = return (outfir, started)
+doargs "irfir" (c, started) = return (irfir, started)
+doargs "lowfir" (c, started) = return (lowfir, started)
 doargs "header" (c, started) = header c >> return (c, True)
 doargs "generate" (c, started) = generate c >> return (c, True)
 

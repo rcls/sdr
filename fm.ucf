@@ -58,13 +58,13 @@ NET "ADC_SDOUT_INV" LOC = "P137" | IOSTANDARD = "LVCMOS33";
 #NET "FLASH_SCLK" LOC = "P70" | IOSTANDARD = "LVCMOS33";
 #NET "FLASH_CS_INV" LOC = "P38" | IOSTANDARD = "LVCMOS33";
 
-NET "audio_scki" LOC = "P61" | IOSTANDARD = "LVCMOS33";
-NET "audio_lrck" LOC = "P67" | IOSTANDARD = "LVCMOS33";
-NET "audio_data" LOC = "P66" | IOSTANDARD = "LVCMOS33";
-NET "audio_bck" LOC = "P58" | IOSTANDARD = "LVCMOS33";
+NET "audio_scki" LOC = "P61" | IOSTANDARD = "LVCMOS33" | DRIVE = "2";
+NET "audio_lrck" LOC = "P67" | IOSTANDARD = "LVCMOS33" | DRIVE = "2";
+NET "audio_data" LOC = "P66" | IOSTANDARD = "LVCMOS33" | DRIVE = "2";
+NET "audio_bck" LOC = "P58" | IOSTANDARD = "LVCMOS33" | DRIVE = "2";
 
-NET "audio_pd_inv" LOC = "P62" | IOSTANDARD = "LVCMOS33";
-NET "audio_demp" LOC = "P75" | IOSTANDARD = "LVCMOS33";
+NET "audio_pd_inv" LOC = "P62" | IOSTANDARD = "LVCMOS33" | DRIVE = "2";
+NET "audio_demp" LOC = "P75" | IOSTANDARD = "LVCMOS33" | DRIVE = "2";
 
 NET "spartan_m0" LOC = "P69" | IOSTANDARD = "LVCMOS33";
 NET "spartan_m1" LOC = "P60" | IOSTANDARD = "LVCMOS33";
