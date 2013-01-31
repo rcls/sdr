@@ -34,7 +34,7 @@ begin
 
     -- In the bottom 5 bits, do /25 instead of /31...
     if divider(4 downto 3) = "11" then
-      divider <= divider + 7;
+      divider <= divider + 8;
     else
       divider <= divider + 1;
     end if;

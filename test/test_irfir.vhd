@@ -10,7 +10,7 @@ entity test_irfir is
 end test_irfir;
 
 architecture behavioural of test_irfir is
-   signal d : unsigned18 := (others => '0');
+   signal d : signed18 := (others => '0');
    signal clk : std_logic := '0';
 begin
   uut: entity irfir

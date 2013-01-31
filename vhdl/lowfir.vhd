@@ -108,7 +108,7 @@ architecture lowfir of lowfir is
     x"400054", x"400034", x"43fffd", x"43ffc8", x"43ffad",
     x"43ffb8", x"43ffe9", x"40002f", x"400075", x"4000a7",
     x"4000b9", x"4000aa", x"400084", x"400053", x"400026",
-    x"400005", x"63fff3", x"53ffef", x"43fff3", x"43fff8",
+    x"400005", x"43fff3", x"73ffef", x"43fff3", x"43fff8",
     others => x"000000");
 
 begin
