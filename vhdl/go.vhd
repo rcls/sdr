@@ -148,15 +148,19 @@ begin
   ifilter: entity work.multifilter
     port map(dd => ii, qq => ii_buf, clk => clk_main);
 
+  --gen : entity work.test_fm_sq port map (qq_buf, ii_buf, clk_main);
+
   ph: entity work.phasedetect
     port map(qq_in => qq_buf, ii_in =>ii_buf, phase => phase, clk => clk_main);
 
   irfir: entity work.irfir
+--    generic map (acc_width => 36, out_width => 36)
     generic map (acc_width => 36, out_width => 36)
     port map(phase, ir_data, ir_strobe, clk_main);
 
   lowfir: entity work.lowfir
-    generic map (acc_width => 37, out_width => 32)
+--    generic map (acc_width => 37, out_width => 32)
+    generic map (acc_width => 39, out_width => 32)
     port map(ir_data(35 downto 18), low_data, low_strobe, clk_main);
 
   quaddemph: entity work.quaddemph
