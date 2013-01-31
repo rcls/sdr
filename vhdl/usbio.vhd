@@ -13,7 +13,9 @@ use work.defs.all;
 -- tx_overrun is asserted if xmit if writes block.
 -- it is cleared when xmit takes effected.
 entity usbio is
-  generic (config_bytes : integer; packet_bytes : integer);
+  generic (config_bytes : integer;
+           packet_bytes : integer;
+           defconfig : unsigned := "0");
   port (usbd_in : in unsigned8;
         usbd_out : out unsigned8;
         usb_oe_n : out std_logic := '1';
@@ -23,7 +25,9 @@ entity usbio is
         usb_nRD : out std_logic := '1';
         usb_nWR : out std_logic := '1';
 
-        config : out unsigned(config_bytes * 8 - 1 downto 0);
+        config : out unsigned(config_bytes * 8 - 1 downto 0) := resize(
+          defconfig, config_bytes * 8);
+
         packet : in unsigned(packet_bytes * 8 - 1 downto 0);
         xmit : in std_logic;
         tx_overrun : out std_logic;
