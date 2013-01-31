@@ -12,6 +12,7 @@ entity quadfir is
   generic(acc_width : integer;
           out_width : integer;
           differentiate : boolean;
+          sat_bits : integer;
           index_sample_strobe : integer;
           index_out_strobe : integer;
           index_pc_reset : integer;
@@ -69,6 +70,7 @@ architecture behavioural of quadfir is
   signal data_3 : signed18;
   signal coef_2 : signed18;
   signal diff   : signed18;
+  signal saturate : signed18;
   signal product : signed36;
 
 begin
@@ -77,7 +79,8 @@ begin
     variable acc_addend : signed(acc_width - 1 downto 0);
     variable rp_addend : pointer_t;
     variable rp_increment : integer;
-    --variable rp_increment : pointer_t;
+
+    variable diff_out, saturate_out : signed18;
   begin
     wait until rising_edge(clk);
 
@@ -109,13 +112,26 @@ begin
     coef_2 <= coef_1;
     mac_accum_1 <= mac_accum;
 
-    -- DSP
     if differentiate then
       diff <= data_2 - data_3;
-      product <= diff * coef_2;
+      diff_out := diff;
     else
-      product <= data_2 * coef_2;
+      diff_out := data_2;
     end if;
+
+    if sat_bits /= 0 then
+      if diff_out(17 downto sat_bits) = diff_out(16 downto sat_bits - 1) then
+        saturate <= diff_out;
+      else
+        saturate <= (17 => diff_out(17), others => not diff_out(17));
+      end if;
+      saturate_out := saturate;
+    else
+      saturate_out := diff_out;
+    end if;
+
+    -- dsp
+    product <= diff_out * coef_2;
 
     if mac_accum_1 = '0' then
       acc_addend := (others => '0');

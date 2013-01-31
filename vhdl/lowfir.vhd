@@ -114,7 +114,7 @@ architecture lowfir of lowfir is
 begin
 
   fir : entity work.quadfir
-    generic map (acc_width, out_width, false,
+    generic map (acc_width, out_width, false, 0,
                  index_sample_strobe,
                  index_out_strobe,
                  index_pc_reset,
