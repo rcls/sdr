@@ -107,7 +107,7 @@ irfir = FilterDesc {
      ("sample_strobe", ((0 ==) . flip mod 20)),
      ("out_strobe", at irfir 1),
      ("pc_reset", (== (400 - 3))),
-     ("read_reset", (== (400 - latency irfir - 1))),
+     ("read_reset", (== (400 - latency irfir))),
      ("mac_accum", (not . at irfir 2))
    ],
 
@@ -131,7 +131,7 @@ lowfir = FilterDesc {
      ("sample_strobe", (0 ==)),
      ("out_strobe", at lowfir 1),
      ("pc_reset", (== (400 - 3))),
-     ("read_reset", (== (400 - latency lowfir - 1))),
+     ("read_reset", (== (400 - latency lowfir))),
      ("mac_accum", (not . at lowfir 2))
    ],
 
@@ -157,7 +157,7 @@ makeProgram c s = let
     printf "  -- Max coeff is %i\n" (maximum coeffs),
     printf "  -- Sum of coeffs is %i\n" (sum coeffs),
     printf "  -- Number of coeffs is %i\n" (length coeffs),
-    "  signal program : program_t(0 to program_size - 1) := (\n" ]
+    "  constant program : program_t(0 to program_size - 1) := (\n" ]
   ++ padded ++
   [ "    others => x\"000000\");\n" ]
 

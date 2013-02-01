@@ -48,8 +48,7 @@ architecture behavioural of quadfir is
   constant pointer_size : integer := 11;
   subtype pointer_t is unsigned(pointer_size-1 downto 0);
   signal write_pointer  : pointer_t := (others => '0');
-  signal read_pointer   : pointer_t := (0 => '1', others=> '0');
-  signal read_pointer_1 : pointer_t := (others => '0');
+  signal read_pointer   : pointer_t := (others=> '0');
 
   -- Unpacked command.
   signal coef_1 : signed18;
@@ -109,7 +108,7 @@ begin
     end if;
 
     -- DSP input buffering.
-    data_1 <= buff(to_integer(read_pointer_1));
+    data_1 <= buff(to_integer(read_pointer));
     data_2 <= data_1;
     data_3 <= data_2;
     coef_2 <= coef_1;
@@ -149,6 +148,5 @@ begin
       rp_increment := 4;
     end if;
     read_pointer <= rp_addend + rp_increment;
-    read_pointer_1 <= read_pointer;
   end process;
 end behavioural;
