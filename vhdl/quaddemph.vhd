@@ -12,7 +12,7 @@ entity quaddemph is
           out_drop : integer := 1);
   port (d : in signed(in_width - 1 downto 0);
         d_strobe : in std_logic;
-        d_strobe0 : in std_logic := '0';
+        d_strobe0 : in std_logic;
         q : out signed(out_width - 1 downto 0);
         q_strobe0 : out std_logic;
         clk : in std_logic);
@@ -21,7 +21,7 @@ end quaddemph;
 architecture quaddemph of quaddemph is
   subtype acc_t is signed(acc_width - 1 downto 0);
   signal acc_a, acc_b, acc_c, acc_d : acc_t;
-  signal strobe_a, strobe_b, strobe_c, strobe_d : std_logic;
+  signal strobe_d : std_logic;
   constant out_top : integer := acc_width - out_drop;
 begin
   process
@@ -34,9 +34,6 @@ begin
       acc_c <= acc_b - acc_b(acc_width - 1 downto 9);
       acc_d <= acc_c + d;
 
-      strobe_a <= strobe_d;
-      strobe_b <= strobe_c;
-      strobe_c <= strobe_b;
       strobe_d <= d_strobe0;
 
       drop_extend := (others => acc_d(acc_width - 1));

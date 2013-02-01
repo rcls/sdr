@@ -20,7 +20,7 @@ entity quadfir is
           program_size : integer;
           program : program_t);
   port(d : in signed18;
-       d_strobe0 : in std_logic := '0';
+       d_strobe0 : in std_logic;
        q : out signed(out_width - 1 downto 0);
        q_strobe : out std_logic; -- Asserted on the first cycle with new data.
        q_strobe0 : out std_logic; -- Asserted when output is channel 0.
@@ -50,8 +50,6 @@ architecture behavioural of quadfir is
   signal write_pointer  : pointer_t := (others => '0');
   signal read_pointer   : pointer_t := (0 => '1', others=> '0');
   signal read_pointer_1 : pointer_t := (others => '0');
-
-  signal channel : unsigned2 := "00";
 
   -- Unpacked command.
   signal coef_1 : signed18;
@@ -137,14 +135,14 @@ begin
     if out_strobe = '1' then
       q <= accumulator(acc_width - 1 downto acc_width - out_width);
       -- Channel will have already advanced on output.
-      q_strobe0 <= b2s(channel = "01");
+      q_strobe0 <= b2s(read_pointer(1 downto 0) = "01");
     end if;
     q_strobe <= out_strobe;
 
     -- buff pointer update.
     if read_reset = '1' then
-      rp_addend := write_pointer(pointer_size-1 downto 2) & channel;
-      channel <= channel + 1;
+      rp_addend := write_pointer(pointer_size-1 downto 2) &
+                   (read_pointer(1 downto 0) + 1);
       rp_increment := 64;
     else
       rp_addend := read_pointer;

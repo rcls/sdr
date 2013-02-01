@@ -12,7 +12,7 @@ entity irfir is
   generic(acc_width : integer := 40;
           out_width : integer := 18);
   port(d : in signed18;
-       d_strobe0 : in std_logic := '0';
+       d_strobe0 : in std_logic;
        q : out signed(out_width - 1 downto 0);
        q_strobe : out std_logic; -- Asserted on the first cycle with new data.
        q_strobe0 : out std_logic;

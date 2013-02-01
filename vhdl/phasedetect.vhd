@@ -9,7 +9,7 @@ entity phasedetect is
   port(qq_in : in signed36; -- overkill, could have reduced to 18 bits by now.
        ii_in : in signed36;
        phase : out signed18;
-       in_strobe : in std_logic := '0';
+       in_strobe : in std_logic;
        out_strobe : out std_logic;
        clk : in std_logic);
 end phasedetect;
