@@ -101,7 +101,7 @@ irfir = FilterDesc {
    dead_cycles = 1,
    nyquist = nyquist,
 
-   latency = 4,
+   latency = 3,
 
    strobes = [
      ("sample_strobe", ((0 ==) . flip mod 20)),

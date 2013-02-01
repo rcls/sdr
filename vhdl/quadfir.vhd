@@ -12,7 +12,6 @@ entity quadfir is
   generic(acc_width : integer;
           out_width : integer;
           differentiate : boolean;
-          sat_bits : integer;
           index_sample_strobe : integer;
           index_out_strobe : integer;
           index_pc_reset : integer;
@@ -72,7 +71,6 @@ architecture behavioural of quadfir is
   signal data_3 : signed18;
   signal coef_2 : signed18;
   signal diff   : signed18;
-  signal saturate : signed18;
   signal product : signed36;
 
 begin
@@ -83,7 +81,7 @@ begin
     variable rp_increment : integer;
 
     variable write_pointer_corrected : pointer_t;
-    variable diff_out, saturate_out : signed18;
+    variable diff_out : signed18;
   begin
     wait until rising_edge(clk);
 
@@ -124,17 +122,6 @@ begin
       diff_out := diff;
     else
       diff_out := data_2;
-    end if;
-
-    if sat_bits /= 0 then
-      if diff_out(17 downto sat_bits) = diff_out(16 downto sat_bits - 1) then
-        saturate <= diff_out;
-      else
-        saturate <= (17 => diff_out(17), others => not diff_out(17));
-      end if;
-      saturate_out := saturate;
-    else
-      saturate_out := diff_out;
     end if;
 
     -- dsp
