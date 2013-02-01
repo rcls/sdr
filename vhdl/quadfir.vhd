@@ -21,8 +21,10 @@ entity quadfir is
           program_size : integer;
           program : program_t);
   port(d : in signed18;
+       d_strobe0 : in std_logic := '0';
        q : out signed(out_width - 1 downto 0);
        q_strobe : out std_logic; -- Asserted on the first cycle with new data.
+       q_strobe0 : out std_logic; -- Asserted when output is channel 0.
        clk : in std_logic);
 end quadfir;
 
@@ -80,6 +82,7 @@ begin
     variable rp_addend : pointer_t;
     variable rp_increment : integer;
 
+    variable write_pointer_corrected : pointer_t;
     variable diff_out, saturate_out : signed18;
   begin
     wait until rising_edge(clk);
@@ -102,7 +105,11 @@ begin
     -- Input processing...
     if sample_strobe = '1' then
       buff(to_integer(write_pointer)) <= d;
-      write_pointer <= write_pointer + 1;
+      write_pointer_corrected := write_pointer;
+      if d_strobe0 = '1' then
+        write_pointer_corrected(1 downto 0) := "00";
+      end if;
+      write_pointer <= write_pointer_corrected + 1;
     end if;
 
     -- DSP input buffering.
@@ -142,6 +149,8 @@ begin
 
     if out_strobe = '1' then
       q <= accumulator(acc_width - 1 downto acc_width - out_width);
+      -- Channel will have already advanced on output.
+      q_strobe0 <= b2s(channel = "01");
     end if;
     q_strobe <= out_strobe;
 

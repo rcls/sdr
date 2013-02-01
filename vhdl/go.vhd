@@ -45,6 +45,7 @@ architecture behavioural of go is
 
   signal qq_buf : signed36;
   signal ii_buf : signed36;
+  signal qq_buf_strobe0 : std_logic;
 
   signal packet : unsigned(39 downto 0);
 
@@ -74,17 +75,21 @@ architecture behavioural of go is
   signal adc_ddr : unsigned7;
   signal adc_data : signed14;
   signal adc_data_b : signed14;
+
   signal phase : signed18;
+  signal phase_strobe0 : std_logic;
 
   signal ir_data : signed(35 downto 0);
   signal ir_strobe : std_logic;
-  signal ir_channel : unsigned(1 downto 0);
+  signal ir_strobe0 : std_logic;
   signal usb_xmit : std_logic;
 
   signal low_data : signed32;
   signal low_strobe : std_logic;
+  signal low_strobe0 : std_logic;
 
   signal out_data : signed32;
+  signal out_strobe0 : std_logic;
 
   -- The configuration loaded from USB.
   signal config : unsigned(135 downto 0);
@@ -143,31 +148,32 @@ begin
   end generate;
 
   qfilter: entity work.multifilter
-    port map(dd => qq, qq => qq_buf, clk => clk_main);
+    port map(qq, qq_buf, qq_buf_strobe0, clk_main);
 
   ifilter: entity work.multifilter
-    port map(dd => ii, qq => ii_buf, clk => clk_main);
+    port map(ii, ii_buf, open, clk_main);
 
   --gen : entity work.test_fm_sq port map (qq_buf, ii_buf, clk_main);
 
   ph: entity work.phasedetect
-    port map(qq_in => qq_buf, ii_in =>ii_buf, phase => phase, clk => clk_main);
+    port map(qq_buf, ii_buf, phase, qq_buf_strobe0, phase_strobe0, clk_main);
 
   irfir: entity work.irfir
 --    generic map (acc_width => 36, out_width => 36)
     generic map (acc_width => 36, out_width => 36)
-    port map(phase, ir_data, ir_strobe, clk_main);
+    port map(phase, phase_strobe0, ir_data, ir_strobe, ir_strobe0, clk_main);
 
   lowfir: entity work.lowfir
 --    generic map (acc_width => 37, out_width => 32)
     generic map (acc_width => 39, out_width => 32)
-    port map(ir_data(35 downto 18), low_data, low_strobe, clk_main);
+    port map(ir_data(35 downto 18), ir_strobe0,
+             low_data, low_strobe, low_strobe0, clk_main);
 
-  quaddemph: entity work.quaddemph
-    port map (low_data, low_strobe, out_data, clk_main);
+  quaddemph: entity work.quaddemph port map (low_data, low_strobe, low_strobe0,
+                                             out_data, out_strobe0, clk_main);
 
   audio: entity work.audio generic map (bits_per_sample => 32)
-    port map (out_data, out_data,
+    port map (out_data, out_data, out_strobe0,
               audio_scki, audio_lrck, audio_data, audio_bck, clk_main);
 
   process
@@ -184,12 +190,7 @@ begin
         packet(38 downto 14) <= "0" & x"000000";
       end if;
 
-      ir_channel <= ir_channel + 1;
-      if ir_channel = "11" and configctrl(4) = '1' then
-        usb_xmit <= '1';
-      else
-        usb_xmit <= '0';
-      end if;
+      usb_xmit <= configctrl(4) and ir_strobe0;
     end if;
   end process;
 

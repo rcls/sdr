@@ -16,6 +16,7 @@ entity audio is
   -- So lrck is bit/(2*lcrk_divider).
   generic (bits_per_sample : integer);
   port (left, right : in signed(bits_per_sample-1 downto 0);
+        strobe0 : in std_logic;
         scki, lrck, data, bck : out std_logic;
         clk : in std_logic);
 end audio;
@@ -32,11 +33,14 @@ begin
   begin
     wait until rising_edge(clk);
 
-    -- In the bottom 5 bits, do /25 instead of /31...
-    if divider(4 downto 3) = "11" then
-      divider <= divider + 8;
-    else
-      divider <= divider + 1;
+    -- In the bottom 5 bits, do /25 instead of /31.  We maintain phase with
+    -- strobe0 by slipping a cycle if shift/load is asserted incorrectly.
+    if not (sample_shift and sample_load and strobe0 = '0') then
+      if divider(4 downto 3) = "11" then
+        divider <= divider + 8;
+      else
+        divider <= divider + 1;
+      end if;
     end if;
 
     lrck <= divider(12);

@@ -26,4 +26,12 @@ package defs is
   subtype command_t is std_logic_vector(23 downto 0);
   type program_t is array(integer range <>) of command_t;
 
+  function b2s (x : boolean) return std_logic is
+  begin
+    if x then
+      return '1';
+    else
+      return '0';
+    end if;
+  end b2s;
 end defs;

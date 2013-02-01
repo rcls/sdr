@@ -9,6 +9,8 @@ entity phasedetect is
   port(qq_in : in signed36; -- overkill, could have reduced to 18 bits by now.
        ii_in : in signed36;
        phase : out signed18;
+       in_strobe : in std_logic := '0';
+       out_strobe : out std_logic;
        clk : in std_logic);
 end phasedetect;
 
@@ -26,6 +28,7 @@ end phasedetect;
 architecture behavioural of phasedetect is
   signal qq1 : unsigned36; -- Real component.
   signal ii1 : unsigned37; -- Imaginary component.
+  signal strobe1 : std_logic;
 
   signal angle1 : signed18; -- Accumulated angle.
   signal positive1 : boolean; -- Positive adjustments to angle.
@@ -36,6 +39,7 @@ architecture behavioural of phasedetect is
   signal angle2 : signed18;
   signal positive2 : boolean;
   signal load2 : boolean;
+  signal strobe2 : std_logic;
 
   signal qq3 : unsigned36;
   signal ii3 : unsigned37;
@@ -45,6 +49,7 @@ architecture behavioural of phasedetect is
   signal angle3_update : signed16;
   signal positive3 : boolean;
   signal start3 : boolean;
+  signal strobe3 : std_logic;
 
   signal count : integer range 0 to 19;
   type stage_t is array(0 to 19) of integer range 0 to 19;
@@ -86,6 +91,7 @@ begin
       ii2 <= ii1;
       angle2 <= angle1;
       positive2 <= positive1;
+      strobe2 <= strobe1;
 
       qq3 <= qq2;
       -- Include left shift.  If this loses a bit, then the trial will succeed
@@ -93,11 +99,13 @@ begin
       ii3 <= ii2 sll 1;
       angle3 <= angle2;
       positive3 <= positive2;
+      strobe3 <= strobe2;
 
       qq1 <= qq3;
       ii1 <= ii3;
       angle1 <= angle3;
       positive1 <= positive3;
+      strobe1 <= strobe3;
 
       -- First pipeline stage is the right shift.  Note that for the start
       -- iteration, the high bit of ii is still zero, so the high bit of
@@ -116,6 +124,7 @@ begin
       angle3_update <= angle_update(iteration2(count));
 
       if load2 then
+        strobe3 <= in_strobe;
         ii3_trial(36) <= '1'; -- Make sure we don't adjust on next cycle.
         -- 'not' is cheaper than proper true negation.  And given our
         -- round-towards-negative behaviour, more accurate.
@@ -138,6 +147,7 @@ begin
         angle3 <= (17 => ii_in(35), 0 => '1',
                    others => qq_in(35) xor ii_in(35));
         phase <= angle2; -- ship out previous result.
+        out_strobe <= strobe2;
       end if;
 
       -- Third pipeline stage is commitment.
