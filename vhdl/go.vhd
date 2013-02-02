@@ -164,13 +164,13 @@ begin
     port map(phase, phase_strobe0, ir_data, ir_strobe, ir_strobe0, clk_main);
 
   lowfir: entity work.lowfir
---    generic map (acc_width => 37, out_width => 32)
-    generic map (acc_width => 39, out_width => 32)
+    generic map (acc_width => 37, out_width => 32)
     port map(ir_data(35 downto 18), ir_strobe0,
              low_data, low_strobe, low_strobe0, clk_main);
 
-  quaddemph: entity work.quaddemph port map (low_data, low_strobe, low_strobe0,
-                                             out_data, out_strobe0, clk_main);
+  quaddemph: entity work.quaddemph generic map (32, 40, 32, 1)
+    port map (low_data, low_strobe, low_strobe0,
+              out_data, out_strobe0, clk_main);
 
   audio: entity work.audio generic map (bits_per_sample => 32)
     port map (out_data, out_data, out_strobe0,

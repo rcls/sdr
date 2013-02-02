@@ -1,6 +1,7 @@
 -- Intermediate rate FIR.
 -- Take the 4 x 3.125MHz output from the phase detector, and filter
--- down to 4 x 156.25kHz.
+-- downto 4 x 156.25kHz.
+-- The passband is 62.5kHz (80% of 78.125kHz Nyquist).
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;

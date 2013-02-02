@@ -1,6 +1,4 @@
--- Intermediate rate FIR.
--- Take the 4 x 3.125MHz output from the phase detector, and filter
--- downto 4 x 312.5kHz [hmmmm... could go down to 250kHz.]
+-- Configurable FIR operating on 4 round robin multiplexed channels.
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
