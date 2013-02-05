@@ -129,10 +129,13 @@ begin
     led(i) <= '0' when led_off(i) = '0' else 'Z';
   end generate;
 
-  led_off(5 downto 4) <= configctrl(5 downto 4);
+  led_off(5) <= '1';
 
   led_off(6) <= spartan_m0;
   led_off(7) <= not spartan_m1;
+
+  blinkoflow : entity work.blinkoflow port map(
+    adc_data_b, led_off(4), open, clk_main);
 
   down: for i in 0 to 3 generate
     downblock: block
@@ -183,7 +186,7 @@ begin
     adc_data_b <= adc_data xor "10" & x"000";
 
     if ir_strobe = '1' then
-      if configctrl(5) = '1' then
+      if configctrl(6) = '1' then
         packet(35 downto 0) <= unsigned(ir_data);
         packet(38 downto 36) <= "000";
       else
@@ -191,7 +194,7 @@ begin
         packet(38 downto 14) <= "0" & x"000000";
       end if;
 
-      usb_xmit <= configctrl(4) and ir_strobe0;
+      usb_xmit <= configctrl(7) and ir_strobe0;
     end if;
   end process;
 
