@@ -3,10 +3,11 @@
 # Frequency, kHz
 F="${1:-89400}"
 
-# Control byte
+# Gain
 V="${2:-01}"
 
 # Control byte
+C="${3:-00}"
 # bits 0..3 are ADC
 # bit 0 = sen = 1
 # bit 1 = sdata/standby = 0
@@ -39,7 +40,7 @@ RH=`printf "%08x" $R`
 echo "$N $H $R $RH"
 
 # Send using echo...
-echo "$RH" "00000000" "00000000" "00000000" f9|xxd -r -p > /dev/ttyRadio0
+#echo "$RH" "00000000" "00000000" "00000000" "$C"|xxd -r -p > /dev/ttyRadio0
 
 # Send using libusb...
-#./sample/commands raw "$H" 00000000 00000000 00000000 f0
+./sample/commands raw "$H" 00000000 00000000 00000000 "$C"
