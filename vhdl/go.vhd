@@ -69,6 +69,7 @@ architecture behavioural of go is
   signal clku_main_neg : std_logic;
   signal clk_main_fb : std_logic;
 
+  signal clkin125_b : std_logic;
   signal clk_12m5 : std_logic;
   signal clku_12m5 : std_logic;
 
@@ -237,15 +238,14 @@ begin
 
   -- Clk input from ADC.  The ADC drives the data as even on P-falling followed
   -- by odd on P-rising.
-  adc_reclk_in: IBUFGDS_DIFF_OUT
+  adc_reclk_in: IBUFGDS
     generic map (diff_term => true)
-    port map(I => adc_reclk_n, IB => adc_reclk_p,
-             O => open, OB => adc_reclk_b);
+    port map(I => adc_reclk_n, IB => adc_reclk_p, O => adc_reclk_b);
   -- Are these needed?  Do we need to tie them together?
-  adc_reclk_buf: BUFIO2 port map(
-    I => adc_reclk_b,
-    DIVCLK => adc_reclk, IOCLK => open, SERDESSTROBE => open);
-  adc_reclkfb: BUFIO2FB port map(I => clk_main, O => clk_main_fb);
+  adc_reclk_buf: BUFIO2
+    port map(I => adc_reclk_b, DIVCLK => adc_reclk,
+             IOCLK => open, SERDESSTROBE => open);
+  adc_reclkfb: BUFIO2FB port map(I => clk_main_neg, O => clk_main_fb);
 
   -- Pseudo differential drive of clock to ADC.
   adc_clk_ddr_p : oddr2
@@ -263,18 +263,20 @@ begin
       DIVCLK_DIVIDE  => 1, CLKFBOUT_MULT => 1,
       CLKOUT0_DIVIDE => 4,
       CLKOUT1_DIVIDE => 4, CLKOUT1_PHASE => 180.0,
-      CLKOUT2_DIVIDE => 80,
+      CLKOUT2_DIVIDE => 80, CLKOUT2_PHASE => 9.0,
       CLKIN_PERIOD   => 4.0)
     port map(
       -- Output clocks
       CLKFBIN => clk_main_fb,
-      CLKOUT0 => clku_main, CLKOUT1 => clku_main_neg, CLKOUT2 => clku_12m5,
+      CLKOUT0 => clku_main_neg, CLKOUT1 => clku_main, CLKOUT2 => clku_12m5,
       RST     => '0', LOCKED => clk_main_locked,
       CLKIN   => adc_reclk);
 
   clk_main_bufg     : BUFG port map(I => clku_main,     O => clk_main);
   clk_main_neg_bufg : BUFG port map(I => clku_main_neg, O => clk_main_neg);
   clk_12m5_bufg     : BUFG port map(I => clku_12m5,     O => clk_12m5);
+
+  clkin125_bufg : bufg port map(I => clkin125, O => clkin125_b);
 
   -- Generate the clock to the ADC.  We run the PLL oscillator at 1000MHz, (8
   -- times the input clock), and then generate a 250MHz output.
@@ -291,7 +293,7 @@ begin
       CLKFBIN => adc_clk_fb, CLKFBOUT => adc_clk_fb,
       CLKOUT0 => adc_clk_u,  CLKOUT1  => adc_clk_neg_u,
       RST     => '0',        LOCKED   => adc_clk_locked,
-      CLKIN   => clkin125);
+      CLKIN   => clkin125_b);
 
   adc_clk_bufg     : BUFG port map (I => adc_clk_u,     O => adc_clk);
   adc_clk_neg_bufg : BUFG port map (I => adc_clk_neg_u, O => adc_clk_neg);
