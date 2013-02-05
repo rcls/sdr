@@ -10,7 +10,7 @@ use work.defs.all;
 -- of the FT2232H async I/O.
 -- xmit strobes data in [subject to dead time] on clocks that are a multiple
 -- of 4.
--- tx_overrun is asserted if xmit if writes block.
+-- tx_overrun is asserted if xmit does not writes a block.
 -- it is cleared when xmit takes effected.
 entity usbio is
   generic (config_bytes : integer;
@@ -29,82 +29,78 @@ entity usbio is
           defconfig, config_bytes * 8);
 
         packet : in unsigned(packet_bytes * 8 - 1 downto 0);
-        xmit : in std_logic;
+        xmit : in std_logic; -- toggle to xmit.
         tx_overrun : out std_logic;
 
         clk : in std_logic);
 end usbio;
 
-architecture behavioural of usbio is
-  -- We do 1 byte in each direction every 4 clock cycles, 3.125MB/s.
-  signal phase : integer range 0 to 3;
+architecture usbio of usbio is
+  type state_t is (state_idle, state_write, state_pause);
+  signal state : state_t := state_idle;
+  signal config_strobes : std_logic_vector(31 downto 0) := (others => '0');
+  signal config_address : unsigned8;
 
-  -- Position in config.
-  signal in_count : integer range 0 to config_bytes - 1;
-
-  -- Config being captured from USB.
-  signal in_buf : unsigned(config_bytes * 8 - 1 downto 0);
-
-  -- Packet being sent to USB.
-  signal out_buf : unsigned(packet_bytes * 8 - 1 downto 0);
-  signal xmit_buf : std_logic;
-
-  signal nTXE : std_logic;
-  signal nRXF : std_logic;
-
-  -- 00/01/10 to decide which byte to output.
-  signal out_count : integer range 0 to packet_bytes - 1;
+  signal xmit_prev : std_logic;
+  signal xmit_buffer : unsigned(packet_bytes * 8 - 1 downto 0);
+  signal xmit_buffered : std_logic := '0';
+  signal xmit_queue : unsigned(packet_bytes * 8 - 1 downto 0);
+  signal to_xmit : integer range 0 to packet_bytes := 0;
 begin
   process
   begin
     wait until rising_edge(clk);
 
-    phase <= phase + 1;
-
-    usbd_out <= out_buf(out_count * 8 + 7 downto out_count * 8);
-
-    usb_nWR <= '1';
     usb_nRD <= '1';
+    usb_nWR <= '1';
     usb_oe_n <= '1';
-    -- We have 4 periods of 80ns.
-    -- 0/1 write, 3 capture txe.
-    -- 2/3 read, 1 capture rxf.
-    case phase is
-      when 0 =>
-        if nTXE = '0' and xmit_buf = '1' then
-          usb_oe_n <= '0';
-        end if;
-        if nRXF = '0' and in_count = config_bytes - 1 then
-          config <= in_buf;
-        end if;
-        if nRXF = '1' or in_count = config_bytes - 1 then
-          in_count <= 0;
-        else
-          in_count <= in_count + 1;
-        end if;
-      when 1 =>
-        if nTXE = '0' and xmit_buf = '1' then
-          usb_oe_n <= '0';
-          usb_nWR <= '0';
-        end if;
-        nRXF <= usb_nRXF;
-      when 2 =>
-        usb_nRD <= nRXF;
-        if nTXE = '1' then
-          tx_overrun <= '1';
-        elsif out_count >= packet_bytes - 1 then
-          if xmit = '1' then
-            out_count <= 0;
-          end if;
-          out_buf <= packet;
-          xmit_buf <= xmit;
-          tx_overrun <= '0';
-        else
-          out_count <= out_count + 1;
-        end if;
-      when 3 =>
-        in_buf <= usbd_in & in_buf(config_bytes * 8 - 1 downto 8);
-        nTXE <= usb_nTXE;
-    end case;
+    state <= state_idle;
+    config_strobes <= (others => '0');
+    usbd_out <= xmit_queue(7 downto 0);
+
+    for i in 0 to config_bytes - 1 loop
+      if config_strobes(i) = '1' then
+        config(i * 8 + 7 downto i * 8) <= usbd_in;
+      end if;
+    end loop;
+    if config_strobes(31) = '1' then
+      config_address <= usbd_in;
+    end if;
+
+    -- If we're in state idle, decide what to do next.  Prefer reads over
+    -- writes.
+    if state = state_idle then
+      if usb_nRXF = '0' then
+        state <= state_pause;
+        usb_nRD <= '0';
+        config_strobes(to_integer(config_address(4 downto 0))) <= '1';
+        config_address <= x"ff";
+      elsif usb_nTXE = '0' and to_xmit /= 0 then
+        state <= state_write;
+        usb_oe_n <= '0';
+      end if;
+    end if;
+
+    if state = state_write then
+      usb_oe_n <= '0';
+      state <= state_pause;
+      to_xmit <= to_xmit - 1;
+      xmit_queue(packet_bytes * 8 - 9 downto 0)
+        <= xmit_queue(packet_bytes * 8 - 1 downto 8);
+      xmit_queue(packet_bytes * 8 - 1 downto packet_bytes * 8 - 8)
+        <= "XXXXXXXX";
+    end if;
+
+    xmit_prev <= xmit;
+    if xmit /= xmit_prev then
+      tx_overrun <= xmit_buffered;
+      xmit_buffered <= '1';
+      xmit_buffer <= packet;
+    end if;
+    if xmit_buffered = '1' and to_xmit = 0 then
+      to_xmit <= 5;
+      xmit_buffered <= '0';
+      xmit_queue <= xmit_buffer;
+    end if;
   end process;
-end behavioural;
+end usbio;

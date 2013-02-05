@@ -4,10 +4,10 @@
 F="${1:-89400}"
 
 # Gain
-V="${2:-01}"
+#V="${2:-01}"
 
 # Control byte
-C="${3:-00}"
+#C="${3:-00}"
 # bits 0..3 are ADC
 # bit 0 = sen = 1
 # bit 1 = sdata/standby = 0
@@ -25,22 +25,18 @@ C="${3:-00}"
 # 101.4, National Akl
 # 89.4 - some Akl station
 
-# Control + freq, 32 bit int.
-let N='(V << 24) + (F << 24) / 250000'
+let N='(F << 24) / 250000'
 
+let B0='N % 256'
+let B1='N / 256 % 256'
+let B2='N / 65536 % 256'
 
-# Endian reversal
-let R='((N & 0xff000000) >> 24) | ((N & 0xff0000) >> 8) | ((N & 0xff00) * 256)
-      | ((N & 255) * 16777216)'
+BYTES="$(printf '00 %02x 01 %02x 02 %02x' $B0 $B1 $B2)"
 
-# Hex formatting.
-H=`printf "%08x" $N`
-RH=`printf "%08x" $R`
-
-echo "$N $H $R $RH"
+echo "$N $BYTES"
 
 # Send using echo...
-#echo "$RH" "00000000" "00000000" "00000000" "$C"|xxd -r -p > /dev/ttyRadio0
+echo $BYTES|xxd -r -p > /dev/ttyRadio0
 
 # Send using libusb...
-./sample/commands raw "$H" 00000000 00000000 00000000 "$C"
+./sample/commands direct raw $BYTES

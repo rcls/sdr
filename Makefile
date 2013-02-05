@@ -28,7 +28,7 @@ sample/spectrum: LDLIBS=-lusb-1.0 -lfftw3_threads -lfftw3
 sample/spectrum: lib/util.o lib/usb.o
 
 vhdl/sinrom.vhd: sinrom
-	./$* > $@
+	./$< > $@
 
 fir: fir.hs
 	ghc -O2 -o $@ $<

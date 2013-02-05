@@ -23,7 +23,6 @@
 static unsigned char buffer[BUFLEN];
 static int offset = 0;
 
-
 static void bulk_transfer(libusb_device_handle * dev,
                           const unsigned char * buffer, int len)
 {
@@ -35,14 +34,16 @@ static void bulk_transfer(libusb_device_handle * dev,
 }
 
 
-static void wide_transfer(libusb_device_handle * dev,
-                          const unsigned char * buffer, int len)
+static void addressed_transfer(libusb_device_handle * dev,
+                               const unsigned char * buffer, int len)
 {
+    unsigned char bytes[len * 2 + 1];
+    bytes[0] = 0xff;
     for (int i = 0; i != len; ++i) {
-        static unsigned char b[17] = { 0x88, 0xd2, 0x5e };
-        b[16] = buffer[i];
-        bulk_transfer(dev, b, 17);
+        bytes[i * 2 + 1] = 16;
+        bytes[i * 2 + 2] = buffer[i];
     }
+    bulk_transfer(dev, bytes, len * 2 + 1);
 }
 
 static void putbyte(int c)
@@ -86,11 +87,11 @@ typedef enum command_t {
 
 int main(int argc, const char * const * argv)
 {
-    bool wide = false;
+    bool direct = false;
     command_t mode = mode_unknown;
     for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "wide") == 0) {
-            wide = true;
+        if (strcmp(argv[i], "direct") == 0) {
+            direct = true;
             continue;
         }
 
@@ -136,10 +137,10 @@ int main(int argc, const char * const * argv)
     for (int i = 0; i != offset; ++i)
         fprintf(stderr, " %02x", buffer[i]);
     fprintf(stderr, "\n");
-    if (wide)
-        wide_transfer(dev, buffer, offset);
-    else
+    if (direct)
         bulk_transfer(dev, buffer, offset);
+    else
+        addressed_transfer(dev, buffer, offset);
     usb_close(dev);
 
     return EXIT_SUCCESS;

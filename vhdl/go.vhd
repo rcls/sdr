@@ -185,7 +185,7 @@ begin
     wait until rising_edge(clk_main);
     adc_data_b <= adc_data xor "10" & x"000";
 
-    if ir_strobe = '1' then
+    if ir_strobe = '1' and ir_strobe0 = '1' then
       if configctrl(6) = '1' then
         packet(35 downto 0) <= unsigned(ir_data);
         packet(38 downto 36) <= "000";
@@ -194,7 +194,7 @@ begin
         packet(38 downto 14) <= "0" & x"000000";
       end if;
 
-      usb_xmit <= configctrl(7) and ir_strobe0;
+      usb_xmit <= usb_xmit xor configctrl(7);
     end if;
   end process;
 
