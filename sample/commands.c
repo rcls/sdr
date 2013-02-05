@@ -4,7 +4,9 @@
 
 // Gain: default is 2550, 2510 gives better linearity.
 
+#include <err.h>
 #include <libusb-1.0/libusb.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,10 +23,32 @@
 static unsigned char buffer[BUFLEN];
 static int offset = 0;
 
+
+static void bulk_transfer(libusb_device_handle * dev,
+                          const unsigned char * buffer, int len)
+{
+    int transferred;
+    if (libusb_bulk_transfer(dev, USB_OUT_EP, (unsigned char *) buffer, len,
+                             &transferred, 100) != 0
+        || transferred != len)
+        errx(1, "libusb_bulk_transfer failed.\n");
+}
+
+
+static void wide_transfer(libusb_device_handle * dev,
+                          const unsigned char * buffer, int len)
+{
+    for (int i = 0; i != len; ++i) {
+        static unsigned char b[17] = { 0x88, 0xd2, 0x5e };
+        b[16] = buffer[i];
+        bulk_transfer(dev, b, 17);
+    }
+}
+
 static void putbyte(int c)
 {
     if (offset >= BUFLEN)
-        exprintf("Too long.\n");
+        errx(1, "Too long.\n");
     buffer[offset++] = c;
 }
 
@@ -59,10 +83,17 @@ typedef enum command_t {
     mode_raw
 } command_t;
 
+
 int main(int argc, const char * const * argv)
 {
+    bool wide = false;
     command_t mode = mode_unknown;
     for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "wide") == 0) {
+            wide = true;
+            continue;
+        }
+
         if (strcmp(argv[i], "adc_reset") == 0) {
             adc_reset();
             continue;
@@ -96,7 +127,7 @@ int main(int argc, const char * const * argv)
                 putbyte(data >> j * 4);
             break;
         default:
-            exprintf("Select mode.\n");
+            errx(1, "Select mode.\n");
         }
     }
 
@@ -105,11 +136,10 @@ int main(int argc, const char * const * argv)
     for (int i = 0; i != offset; ++i)
         fprintf(stderr, " %02x", buffer[i]);
     fprintf(stderr, "\n");
-    int transferred;
-    if (libusb_bulk_transfer(dev, USB_OUT_EP, buffer, offset,
-                             &transferred, 100) != 0
-        || transferred != offset)
-        exprintf("libusb_bulk_transfer failed.\n");
+    if (wide)
+        wide_transfer(dev, buffer, offset);
+    else
+        bulk_transfer(dev, buffer, offset);
     usb_close(dev);
 
     return EXIT_SUCCESS;
