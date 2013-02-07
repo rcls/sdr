@@ -30,6 +30,9 @@ entity usbio is
 
         packet : in unsigned(packet_bytes * 8 - 1 downto 0);
         xmit : in std_logic; -- toggle to xmit.
+        xmit0 : in std_logic; -- strobe for channel 0.
+        xmit_channel : in unsigned2;
+        xmit_length : in integer range 0 to packet_bytes;
         tx_overrun : out std_logic;
 
         clk : in std_logic);
@@ -44,7 +47,9 @@ architecture usbio of usbio is
   signal xmit_prev : std_logic;
   signal xmit_buffer : unsigned(packet_bytes * 8 - 1 downto 0);
   signal xmit_buffered : std_logic := '0';
+  signal xmit_buffer_length : integer range 0 to packet_bytes;
   signal xmit_queue : unsigned(packet_bytes * 8 - 1 downto 0);
+  signal xmit_channel_counter : unsigned2;
   signal to_xmit : integer range 0 to packet_bytes := 0;
 begin
   process
@@ -83,6 +88,7 @@ begin
 
     if state = state_write then
       usb_oe_n <= '0';
+      usb_nWR <= '0';
       state <= state_pause;
       to_xmit <= to_xmit - 1;
       xmit_queue(packet_bytes * 8 - 9 downto 0)
@@ -92,13 +98,22 @@ begin
     end if;
 
     xmit_prev <= xmit;
-    if xmit /= xmit_prev then
+    if xmit /= xmit_prev and xmit_channel = xmit_channel_counter
+    then
       tx_overrun <= xmit_buffered;
       xmit_buffered <= '1';
       xmit_buffer <= packet;
+      xmit_buffer_length <= xmit_length;
+    end if;
+    if xmit /= xmit_prev then
+      if xmit0 = '1' then
+        xmit_channel_counter <= "01";
+      else
+        xmit_channel_counter <= xmit_channel_counter + 1;
+      end if;
     end if;
     if xmit_buffered = '1' and to_xmit = 0 then
-      to_xmit <= 5;
+      to_xmit <= xmit_buffer_length;
       xmit_buffered <= '0';
       xmit_queue <= xmit_buffer;
     end if;

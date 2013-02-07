@@ -1,5 +1,4 @@
 
-NET "usb/config*" TIG;
 NET "ADC_RECLK_P" TNM_NET = "adc_reclk";
 TIMESPEC TS_adc_reclk = PERIOD "adc_reclk" 250 MHz;
 

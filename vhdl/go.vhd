@@ -21,14 +21,14 @@ entity go is
        adc_sclk  : out std_logic := '0';
        adc_reset : out std_logic := '1';
 
-       audio_scki : out std_logic;
-       audio_lrck : out std_logic;
-       audio_data : out std_logic;
-       audio_bck : out std_logic;
+       audio_scki, audio_lrck, audio_data, audio_bck : out std_logic;
        audio_pd_inv, audio_demp : out std_logic;
 
        usb_d : inout unsigned8;
        usb_c : inout unsigned8;
+
+       flash_cs_inv, flash_sclk, flash_si : out std_logic;
+       flash_so : in std_logic;
 
        spartan_m0 : in std_logic;
        spartan_m1 : in std_logic;
@@ -80,10 +80,14 @@ architecture behavioural of go is
   signal phase : signed18;
   signal phase_strobe0 : std_logic;
 
-  signal ir_data : signed(35 downto 0);
+  signal ir_data : signed36;
   signal ir_strobe : std_logic;
   signal ir_strobe0 : std_logic;
-  signal usb_xmit : std_logic;
+
+  signal usb_xmit, usb_xmit0 : std_logic;
+  signal usb_xmit_channel : unsigned2;
+  signal usb_xmit_length : integer range 0 to 5;
+  signal usb_xmit_overrun : std_logic;
 
   signal low_data : signed32;
   signal low_strobe : std_logic;
@@ -93,8 +97,11 @@ architecture behavioural of go is
   signal out_strobe0 : std_logic;
 
   -- The configuration loaded from USB.
-  signal config : unsigned(135 downto 0);
-  alias configctrl : unsigned8 is config(135 downto 128);
+  signal config : unsigned(151 downto 0);
+  alias adc_control : unsigned8 is config(135 downto 128);
+  alias xmit_control : unsigned8 is config(143 downto 136);
+  alias xmit_channel : unsigned2 is xmit_control(1 downto 0);
+  alias flash_control : unsigned8 is config(151 downto 144);
 
   signal led_off : unsigned8 := x"fe";
 
@@ -120,10 +127,14 @@ begin
   audio_pd_inv <= '1';
   audio_demp <= '0';
 
-  adc_sen   <= configctrl(0);
-  adc_sdata <= configctrl(1);
-  adc_sclk  <= configctrl(2);
-  adc_reset <= configctrl(3);
+  adc_sen   <= adc_control(0);
+  adc_sdata <= adc_control(1);
+  adc_sclk  <= adc_control(2);
+  adc_reset <= adc_control(3);
+
+  flash_cs_inv <= flash_control(0);
+  flash_si <= flash_control(1);
+  flash_sclk <= flash_control(2);
 
   led_control: for i in 0 to 7 generate
     led(i) <= '0' when led_off(i) = '0' else 'Z';
@@ -184,18 +195,34 @@ begin
   begin
     wait until rising_edge(clk_main);
     adc_data_b <= adc_data xor "10" & x"000";
+    packet <= (others => 'X');
 
-    if ir_strobe = '1' and ir_strobe0 = '1' then
-      if configctrl(6) = '1' then
+    case xmit_control(3 downto 2) is
+      when "00" =>
         packet(35 downto 0) <= unsigned(ir_data);
         packet(38 downto 36) <= "000";
-      else
+        packet(39) <= usb_xmit_overrun;
+        usb_xmit <= usb_xmit xor ir_strobe;
+        usb_xmit0 <= ir_strobe0;
+        usb_xmit_length <= 5;
+      when "01" =>
         packet(13 downto 0) <= unsigned(adc_data_b);
-        packet(38 downto 14) <= "0" & x"000000";
-      end if;
-
-      usb_xmit <= usb_xmit xor configctrl(7);
-    end if;
+        packet(14) <= usb_xmit_overrun;
+        usb_xmit <= usb_xmit xor ir_strobe;
+        usb_xmit0 <= '1';
+        usb_xmit_length <= 2;
+      when "10" =>
+        packet(2 downto 0) <= flash_control(2 downto 0);
+        packet(3) <= flash_so;
+        packet(6 downto 4) <= "000";
+        packet(7) <= usb_xmit_overrun;
+        usb_xmit <= flash_control(3);
+        usb_xmit0 <= '1';
+        usb_xmit_length <= 1;
+      when others =>
+        usb_xmit_length <= 0;
+        usb_xmit0 <= 'X';
+    end case;
   end process;
 
   -- Protocol: config packets, little endian:
@@ -219,13 +246,17 @@ begin
 
   usb: entity work.usbio
     generic map(
-      17, 5, x"f9" & x"00000000" & x"00000000" & x"00000000" & x"005ed288")
+      19, 5,
+      x"0f" & x"00" & x"09"
+      & x"00000000" & x"00000000" & x"00000000" & x"005ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_c(0), usb_nTXE => usb_c(1),
              usb_nRD => usb_c(2),  usb_nWR => usb_c(3),
-             config => config, tx_overrun => packet(39),
+             config => config, tx_overrun => usb_xmit_overrun,
              packet => packet,
-             xmit => usb_xmit, clk => clk_12m5);
+             xmit => usb_xmit, xmit0 => usb_xmit0,
+             xmit_channel => usb_xmit_channel, xmit_length => usb_xmit_length,
+             clk => clk_12m5);
 
   -- DDR input from ADC.
   adc_input: for i in 0 to 6 generate
