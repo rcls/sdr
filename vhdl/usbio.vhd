@@ -24,6 +24,7 @@ entity usbio is
         usb_nTXE : in std_logic;
         usb_nRD : out std_logic := '1';
         usb_nWR : out std_logic := '1';
+        usb_SIWA : out std_logic := '1';
 
         config : out unsigned(config_bytes * 8 - 1 downto 0) := resize(
           defconfig, config_bytes * 8);
@@ -51,6 +52,7 @@ architecture usbio of usbio is
   signal xmit_queue : unsigned(packet_bytes * 8 - 1 downto 0);
   signal xmit_channel_counter : unsigned2;
   signal to_xmit : integer range 0 to packet_bytes := 0;
+  signal prefer_tx : boolean := true;
 begin
   process
   begin
@@ -59,6 +61,7 @@ begin
     usb_nRD <= '1';
     usb_nWR <= '1';
     usb_oe_n <= '1';
+    usb_SIWA <= '1';
     state <= state_idle;
     config_strobes <= (others => '0');
     usbd_out <= xmit_queue(7 downto 0);
@@ -75,18 +78,20 @@ begin
     -- If we're in state idle, decide what to do next.  Prefer reads over
     -- writes.
     if state = state_idle then
-      if usb_nRXF = '0' then
+      if usb_nTXE = '0' and to_xmit /= 0 and (usb_nRXF = '1' or prefer_tx) then
+        state <= state_write;
+        usb_oe_n <= '0';
+      elsif usb_nRXF = '0' then
+        prefer_tx <= true;
         state <= state_pause;
         usb_nRD <= '0';
         config_strobes(to_integer(config_address(4 downto 0))) <= '1';
         config_address <= x"ff";
-      elsif usb_nTXE = '0' and to_xmit /= 0 then
-        state <= state_write;
-        usb_oe_n <= '0';
       end if;
     end if;
 
     if state = state_write then
+      prefer_tx <= false;
       usb_oe_n <= '0';
       usb_nWR <= '0';
       state <= state_pause;
@@ -95,6 +100,10 @@ begin
         <= xmit_queue(packet_bytes * 8 - 1 downto 8);
       xmit_queue(packet_bytes * 8 - 1 downto packet_bytes * 8 - 8)
         <= "XXXXXXXX";
+    end if;
+
+    if state = state_pause then
+      usb_SIWA <= '0';
     end if;
 
     xmit_prev <= xmit;

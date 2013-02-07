@@ -120,8 +120,10 @@ architecture behavioural of go is
 
 begin
   usb_d <= usbd_out when usb_oe_n = '0' else "ZZZZZZZZ";
-  usb_c(4) <= '0'; -- SIWA
   usb_c(7 downto 5) <= "ZZZ";
+  usb_c(0) <= 'Z'; -- nRXF.
+  usb_c(1) <= 'Z'; -- nTXE.
+
   clkin125_en <= '1';
 
   audio_pd_inv <= '1';
@@ -140,7 +142,7 @@ begin
     led(i) <= '0' when led_off(i) = '0' else 'Z';
   end generate;
 
-  led_off(5) <= '1';
+  led_off(5) <= not usb_xmit_overrun;
 
   led_off(6) <= spartan_m0;
   led_off(7) <= not spartan_m1;
@@ -168,13 +170,10 @@ begin
   ifilter: entity work.multifilter
     port map(ii, ii_buf, open, clk_main);
 
-  --gen : entity work.test_fm_sq port map (qq_buf, ii_buf, clk_main);
-
   ph: entity work.phasedetect
     port map(qq_buf, ii_buf, phase, qq_buf_strobe0, phase_strobe0, clk_main);
 
   irfir: entity work.irfir
---    generic map (acc_width => 36, out_width => 36)
     generic map (acc_width => 36, out_width => 36)
     port map(phase, phase_strobe0, ir_data, ir_strobe, ir_strobe0, clk_main);
 
@@ -244,7 +243,7 @@ begin
   -- 3 pad bits.
   -- 1 bit tx overrun indicator.
 
-  usb: entity work.usbio
+  usbio: entity work.usbio
     generic map(
       19, 5,
       x"0f" & x"00" & x"09"
@@ -252,6 +251,7 @@ begin
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_c(0), usb_nTXE => usb_c(1),
              usb_nRD => usb_c(2),  usb_nWR => usb_c(3),
+             usb_SIWA => usb_c(4),
              config => config, tx_overrun => usb_xmit_overrun,
              packet => packet,
              xmit => usb_xmit, xmit0 => usb_xmit0,
