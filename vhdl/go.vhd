@@ -90,6 +90,8 @@ architecture behavioural of go is
   signal usb_xmit_overrun : std_logic;
   signal usb_nRXFb, usb_nTXEb : std_logic := '0';
   signal usb_nRXF, usb_nTXE : std_logic := '0';
+  attribute keep : string;
+  attribute keep of usb_nRXFb, usb_nTXEb : signal is "true";
 
   signal low_data : signed32;
   signal low_strobe : std_logic;
@@ -149,8 +151,7 @@ begin
   led_off(6) <= spartan_m0;
   led_off(7) <= not spartan_m1;
 
-  blinky : entity blinkoflow port map(
-    adc_data_b, led_off(4), open, clk_main);
+  blinky : entity blinkoflow port map(adc_data_b, led_off(4), open, clk_main);
 
   down: for i in 0 to 3 generate
     downblock: block
@@ -166,11 +167,8 @@ begin
     end block;
   end generate;
 
-  qfilter: entity multifilter
-    port map(qq, qq_buf, qq_buf_strobe0, clk_main);
-
-  ifilter: entity multifilter
-    port map(ii, ii_buf, open, clk_main);
+  qfilter: entity multifilter port map(qq, qq_buf, qq_buf_strobe0, clk_main);
+  ifilter: entity multifilter port map(ii, ii_buf, open, clk_main);
 
   ph: entity phasedetect
     port map(qq_buf, ii_buf, phase, qq_buf_strobe0, phase_strobe0, clk_main);
