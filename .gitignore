@@ -1,6 +1,7 @@
 *-gerber
 *.dump
 *.gnumeric
+*.jpg
 *.png
 *.tsv
 *.zip
@@ -19,3 +20,8 @@ iseconfig/
 /sinrom
 PCB*.save
 spect/
+/util/spiflash
+/util/irspec
+/util/phasespect
+/fir
+/fir.hi
