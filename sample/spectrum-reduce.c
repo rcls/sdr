@@ -37,7 +37,7 @@ int main(int argc, const char * const * argv)
 
     int order = strtol(argv[1], NULL, 0);
     if (order < 1 || order > 20)
-        exprintf("Order should be between 1 and 20.\n");
+        errx(1, "Order should be between 1 and 20.");
 
     size_t stride = 1 << order;
 

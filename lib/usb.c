@@ -11,19 +11,19 @@
 libusb_device_handle * usb_open(void)
 {
     if (libusb_init(NULL) < 0)
-        exprintf("libusb_init failed\n");
+        errx(1, "libusb_init failed\n");
 
     libusb_device_handle * dev = libusb_open_device_with_vid_pid(
         NULL, 0x0403, 0x6010);
     if (dev == NULL)
-        exprintf("libusb_open_device failed\n");
+        errx(1, "libusb_open_device failed\n");
 
     int r = libusb_detach_kernel_driver(dev, INTF);
     if (r != 0 && r != LIBUSB_ERROR_NOT_FOUND)
-        exprintf("libusb_detach_kernel_driver failed\n");
+        errx(1, "libusb_detach_kernel_driver failed\n");
 
     if (libusb_claim_interface(dev, INTF) != 0)
-        exprintf("libusb_claim_interface failed\n");
+        errx(1, "libusb_claim_interface failed\n");
 
     return dev;
 }
@@ -31,11 +31,11 @@ libusb_device_handle * usb_open(void)
 void usb_close(libusb_device_handle * dev)
 {
     if (libusb_release_interface(dev, INTF) != 0)
-        exprintf("libusb_release_interface failed\n");
+        errx(1, "libusb_release_interface failed\n");
 
     int r = libusb_attach_kernel_driver(dev, INTF);
     if (r != 0)
-        exprintf("libusb_attach_kernel_driver failed %d!\n", r);
+        errx(1, "libusb_attach_kernel_driver failed %d!\n", r);
 
     libusb_close(dev);
 }
@@ -51,10 +51,10 @@ typedef struct buffer_ptr {
 static void finish(struct libusb_transfer * u)
 {
     if (u->status != LIBUSB_TRANSFER_COMPLETED)
-        exprintf("usb transfer failed\n");
+        errx(1, "usb transfer failed\n");
 
     if (u->actual_length < 2)
-        exprintf("huh? short packet\n");
+        errx(1, "huh? short packet\n");
 
     buffer_ptr * p = u->user_data;
     int l = u->actual_length - 2;
@@ -68,7 +68,7 @@ static void finish(struct libusb_transfer * u)
         --p->outstanding;
     }
     else if (libusb_submit_transfer(u) != 0)
-        exprintf("libusb_submit_transfer failed\n");
+        errx(1, "libusb_submit_transfer failed\n");
 }
 
 
@@ -90,13 +90,13 @@ void usb_slurp(libusb_device_handle * dev, void * buffer, size_t len)
         u->buffer = bounce;
         u->num_iso_packets = 0;
         if (libusb_submit_transfer(u) != 0)
-            exprintf("libusb_submit_transfer failed\n");
+            errx(1, "libusb_submit_transfer failed\n");
         ++ptr.outstanding;
     }
 
     while (ptr.outstanding > 0)
         if (libusb_handle_events(NULL) != 0)
-            exprintf("libusb_handle_events failed!\n");
+            errx(1, "libusb_handle_events failed!\n");
 }
 
 
@@ -106,5 +106,5 @@ void usb_send_bytes(libusb_device_handle * dev, const void * data, size_t len)
     if (libusb_bulk_transfer(dev, USB_OUT_EP, (void *) data, len,
                              &transferred, 100) != 0
         || transferred != len)
-        exprintf("libusb_bulk_transfer failed.\n");
+        errx(1, "libusb_bulk_transfer failed.\n");
 }

@@ -81,8 +81,8 @@ static void get_samples(libusb_device_handle * dev,
         fprintf(stderr, ".");
     }
 
-    exprintf("\nFailed to get good data (last = %zi, required = %zi).\n",
-             buffer->best_len, required);
+    errx(1, "\nFailed to get good data (last = %zi, required = %zi).\n",
+         buffer->best_len, required);
 }
 
 
@@ -117,7 +117,7 @@ static void adc_bitbang(libusb_device_handle * dev, ...)
         if (b < 0)
             break;
         if (len >= 512)
-            exprintf("adc_bitbang: too many args.\n");
+            errx(1, "adc_bitbang: too many args.\n");
         buffer[len++] = b;
     }
     va_end(args);
@@ -138,7 +138,7 @@ static void adc_config(libusb_device_handle * dev, ...)
         if (w < 0)
             break;
         if (len > 512 - 34)
-            exprintf("adc_config: too many args.\n");
+            errx(1, "adc_config: too many args.\n");
         for (int i = 0; i < 16; ++i) {
             int b = (w << i) & 32768 ? ADC_SDATA : 0;
             buffer[len++] = b | ADC_SCLK;
@@ -196,9 +196,9 @@ static void gain_controlled_sample(libusb_device_handle * dev,
             return;
         }
         if (incr < 0 && gain <= 0)
-            exprintf("Too big %g with zero gain.\n", max_six);
+            errx(1, "Too big %g with zero gain.\n", max_six);
         if (incr > 0 && gain >= max_gain)
-            exprintf("Too small %g with max gain.\n", max_six);
+            errx(1, "Too small %g with max gain.\n", max_six);
         if (incr < -3)
             incr = -32;
 
@@ -214,7 +214,7 @@ static void gain_controlled_sample(libusb_device_handle * dev,
         config->table_select = gain & 3;
         config->shift = gain >> 2;
     }
-    exprintf("Failed to convirge...\n");
+    errx(1, "Failed to convirge...\n");
 }
 
 
@@ -263,7 +263,7 @@ int main(void)
             * invsinc(B * 87 * i) * invsinc(B * 99 * i) * invsinc(B * 106 * i);
         assert(fabs(factor) > 1);
         if (fabs(factor) >= 3)
-            exprintf("%i : %g\n", i, factor);
+            errx(1, "%i : %g\n", i, factor);
         assert(fabs(factor) < 3);
         filter_adjust[i] = factor * factor;
     }

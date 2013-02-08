@@ -17,12 +17,12 @@ static void parse_opts(int argc, char * argv[])
         switch (getopt(argc, argv, "o:")) {
         case 'o':
             if (outpath)
-                exprintf("Multiple -o options.\n");
+                errx(1, "Multiple -o options.\n");
             outpath = optarg;
         case -1:
             return;
         default:
-            exprintf("Bad option.\n");
+            errx(1, "Bad option.\n");
         }
     }
 }

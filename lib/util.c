@@ -1,31 +1,17 @@
 #include "lib/util.h"
 
 #include <assert.h>
+#include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 
-void exprintf(const char * f, ...)
-{
-    va_list args;
-    va_start(args, f);
-    vfprintf(stderr, f, args);
-    va_end(args);
-    exit(EXIT_FAILURE);
-}
-
-void experror(const char * m)
-{
-    perror(m);
-    exit(EXIT_FAILURE);
-}
-
 void * xmalloc(size_t size)
 {
     void * res = malloc(size);
     if (!res)
-        experror("malloc");
+        err(1, "malloc");
     return res;
 }
 
@@ -33,7 +19,7 @@ void * xrealloc(void * ptr, size_t size)
 {
     void * res = realloc(ptr, size);
     if (!res)
-        experror("realloc");
+        err(1, "realloc");
     return res;
 }
 
