@@ -31,7 +31,7 @@ let B0='N % 256'
 let B1='N / 256 % 256'
 let B2='N / 65536 % 256'
 
-BYTES="$(printf '00 %02x 01 %02x 02 %02x' $B0 $B1 $B2)"
+BYTES="$(printf 'ff 1e b5 00 %02x 01 %02x 02 %02x' $B0 $B1 $B2)"
 
 echo "$N $BYTES"
 
@@ -39,4 +39,4 @@ echo "$N $BYTES"
 echo $BYTES|xxd -r -p > /dev/ttyRadio0
 
 # Send using libusb...
-./sample/commands direct raw $BYTES
+#./sample/commands direct raw $BYTES

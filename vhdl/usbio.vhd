@@ -43,6 +43,7 @@ architecture usbio of usbio is
   type state_t is (state_idle, state_write, state_pause);
   signal state : state_t := state_idle;
   signal config_strobes : std_logic_vector(31 downto 0) := (others => '0');
+  signal config_magic : unsigned8;
   signal config_address : unsigned8;
 
   signal xmit_prev : std_logic;
@@ -73,6 +74,9 @@ begin
     end loop;
     if config_strobes(31) = '1' then
       config_address <= usbd_in;
+    end if;
+    if config_strobes(30) = '1' then
+      config_magic <= usbd_in;
     end if;
 
     -- If we're in state idle, decide what to do next.  Prefer reads over
@@ -126,5 +130,12 @@ begin
       xmit_buffered <= '0';
       xmit_queue <= xmit_buffer;
     end if;
+
+    -- If the config magic is not correct, then do not allow programming any
+    -- other registers.
+    if config_magic /= x"b5" then
+      config_strobes(29 downto 0) <= (others => '0');
+    end if;
+
   end process;
 end usbio;
