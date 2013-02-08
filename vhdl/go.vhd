@@ -71,8 +71,8 @@ architecture behavioural of go is
   signal clk_main_fb : std_logic;
 
   signal clkin125_b : std_logic;
-  signal clk_12m5 : std_logic;
-  signal clku_12m5 : std_logic;
+  signal clk_25m : std_logic;
+  signal clku_25m : std_logic;
 
   signal adc_ddr : unsigned7;
   signal adc_data : signed14;
@@ -88,6 +88,8 @@ architecture behavioural of go is
   signal usb_xmit, usb_xmit0 : std_logic;
   signal usb_xmit_length : integer range 0 to 5;
   signal usb_xmit_overrun : std_logic;
+  signal usb_nRXFb, usb_nTXEb : std_logic := '0';
+  signal usb_nRXF, usb_nTXE : std_logic := '0';
 
   signal low_data : signed32;
   signal low_strobe : std_logic;
@@ -194,8 +196,12 @@ begin
   begin
     wait until rising_edge(clk_main);
     adc_data_b <= adc_data xor "10" & x"000";
-    packet <= (others => 'X');
 
+    packet <= (others => 'X');
+    usb_nRXFb <= usb_c(0);
+    usb_nTXEb <= usb_c(1);
+    usb_nRXF <= usb_nRXFb;
+    usb_nTXE <= usb_nTXEb;
     case xmit_control(3 downto 2) is
       when "00" =>
         packet(35 downto 0) <= unsigned(ir_data);
@@ -249,14 +255,14 @@ begin
       x"0f" & x"ff" & x"09"
       & x"00000000" & x"00000000" & x"00000000" & x"005ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
-             usb_nRXF => usb_c(0), usb_nTXE => usb_c(1),
+             usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,
              usb_nRD => usb_c(2),  usb_nWR => usb_c(3),
              usb_SIWA => usb_c(4),
              config => config, tx_overrun => usb_xmit_overrun,
              packet => packet,
              xmit => usb_xmit, xmit0 => usb_xmit0,
              xmit_channel => xmit_channel, xmit_length => usb_xmit_length,
-             clk => clk_12m5);
+             clk => clk_25m);
 
   -- DDR input from ADC.
   adc_input: for i in 0 to 6 generate
@@ -297,18 +303,18 @@ begin
       DIVCLK_DIVIDE  => 1, CLKFBOUT_MULT => 1,
       CLKOUT0_DIVIDE => 4,
       CLKOUT1_DIVIDE => 4, CLKOUT1_PHASE => 180.0,
-      CLKOUT2_DIVIDE => 80, CLKOUT2_PHASE => 9.0,
+      CLKOUT2_DIVIDE => 40, CLKOUT2_PHASE => 18.0,
       CLKIN_PERIOD   => 4.0)
     port map(
       -- Output clocks
       CLKFBIN => clk_main_fb,
-      CLKOUT0 => clku_main_neg, CLKOUT1 => clku_main, CLKOUT2 => clku_12m5,
+      CLKOUT0 => clku_main_neg, CLKOUT1 => clku_main, CLKOUT2 => clku_25m,
       RST     => '0', LOCKED => clk_main_locked,
       CLKIN   => adc_reclk);
 
   clk_main_bufg     : BUFG port map(I => clku_main,     O => clk_main);
   clk_main_neg_bufg : BUFG port map(I => clku_main_neg, O => clk_main_neg);
-  clk_12m5_bufg     : BUFG port map(I => clku_12m5,     O => clk_12m5);
+  clk_25m_bufg      : BUFG port map(I => clku_25m,      O => clk_25m);
 
   clkin125_bufg : bufg port map(I => clkin125, O => clkin125_b);
 
