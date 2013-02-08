@@ -85,7 +85,6 @@ architecture behavioural of go is
   signal ir_strobe0 : std_logic;
 
   signal usb_xmit, usb_xmit0 : std_logic;
-  signal usb_xmit_channel : unsigned2;
   signal usb_xmit_length : integer range 0 to 5;
   signal usb_xmit_overrun : std_logic;
 
@@ -220,7 +219,7 @@ begin
         usb_xmit_length <= 1;
       when others =>
         usb_xmit_length <= 0;
-        usb_xmit0 <= 'X';
+        usb_xmit0 <= '1';
     end case;
   end process;
 
@@ -255,7 +254,7 @@ begin
              config => config, tx_overrun => usb_xmit_overrun,
              packet => packet,
              xmit => usb_xmit, xmit0 => usb_xmit0,
-             xmit_channel => usb_xmit_channel, xmit_length => usb_xmit_length,
+             xmit_channel => xmit_channel, xmit_length => usb_xmit_length,
              clk => clk_12m5);
 
   -- DDR input from ADC.
