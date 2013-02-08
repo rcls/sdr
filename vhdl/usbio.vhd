@@ -50,7 +50,7 @@ architecture usbio of usbio is
   signal xmit_buffered : std_logic := '0';
   signal xmit_buffer_length : integer range 0 to packet_bytes;
   signal xmit_queue : unsigned(packet_bytes * 8 - 1 downto 0);
-  signal xmit_channel_counter : unsigned2;
+  signal xmit_channel_counter : unsigned2 := "00";
   signal to_xmit : integer range 0 to packet_bytes := 0;
   signal prefer_tx : boolean := true;
 begin

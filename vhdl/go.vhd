@@ -6,6 +6,7 @@ library unisim;
 use unisim.vcomponents.all;
 
 library work;
+use work.all;
 use work.defs.all;
 
 entity go is
@@ -146,7 +147,7 @@ begin
   led_off(6) <= spartan_m0;
   led_off(7) <= not spartan_m1;
 
-  blinkoflow : entity work.blinkoflow port map(
+  blinky : entity blinkoflow port map(
     adc_data_b, led_off(4), open, clk_main);
 
   down: for i in 0 to 3 generate
@@ -156,36 +157,36 @@ begin
     begin
       freq <= config(i * 32 + 23 downto i * 32);
       gain <= config(i * 32 + 31 downto i * 32 + 24);
-      down0: entity work.downconvert
+      down0: entity downconvert
         port map (data => adc_data_b, freq => freq, gain => gain,
                   clk => clk_main,
                   qq => qq(i), ii => ii(i));
     end block;
   end generate;
 
-  qfilter: entity work.multifilter
+  qfilter: entity multifilter
     port map(qq, qq_buf, qq_buf_strobe0, clk_main);
 
-  ifilter: entity work.multifilter
+  ifilter: entity multifilter
     port map(ii, ii_buf, open, clk_main);
 
-  ph: entity work.phasedetect
+  ph: entity phasedetect
     port map(qq_buf, ii_buf, phase, qq_buf_strobe0, phase_strobe0, clk_main);
 
-  irfir: entity work.irfir
+  irf: entity irfir
     generic map (acc_width => 36, out_width => 36)
     port map(phase, phase_strobe0, ir_data, ir_strobe, ir_strobe0, clk_main);
 
-  lowfir: entity work.lowfir
+  lf: entity lowfir
     generic map (acc_width => 37, out_width => 32)
     port map(ir_data(35 downto 18), ir_strobe0,
              low_data, low_strobe, low_strobe0, clk_main);
 
-  quaddemph: entity work.quaddemph generic map (32, 40, 32, 1)
+  demph: entity quaddemph generic map (32, 40, 32, 1)
     port map (low_data, low_strobe, low_strobe0,
               out_data, out_strobe0, clk_main);
 
-  audio: entity work.audio generic map (bits_per_sample => 32)
+  au: entity audio generic map (bits_per_sample => 32)
     port map (out_data, out_data, out_strobe0,
               audio_scki, audio_lrck, audio_data, audio_bck, clk_main);
 
@@ -242,10 +243,10 @@ begin
   -- 3 pad bits.
   -- 1 bit tx overrun indicator.
 
-  usbio: entity work.usbio
+  usb: entity usbio
     generic map(
       19, 5,
-      x"0f" & x"00" & x"09"
+      x"0f" & x"ff" & x"09"
       & x"00000000" & x"00000000" & x"00000000" & x"005ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_c(0), usb_nTXE => usb_c(1),

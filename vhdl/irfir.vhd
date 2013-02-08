@@ -7,6 +7,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library work;
+use work.all;
 use work.defs.all;
 
 entity irfir is
@@ -117,7 +118,7 @@ architecture irfir of irfir is
 
 begin
 
-  fir : entity work.quadfir
+  fir : entity quadfir
     generic map (acc_width, out_width, true,
                  index_sample_strobe,
                  index_out_strobe,
