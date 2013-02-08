@@ -23,6 +23,8 @@ inline ssize_t checkz(ssize_t r, const char * w)
     return r;
 }
 
+void slurp_path(const char * path, unsigned char * * restrict b,
+                size_t * restrict offset, size_t * restrict size);
 void slurp_file(int file, unsigned char * * restrict b,
                 size_t * restrict offset, size_t * restrict size);
 

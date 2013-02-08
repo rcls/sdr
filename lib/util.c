@@ -40,6 +40,15 @@ void slurp_file(int file, unsigned char * * restrict buffer,
 }
 
 
+void slurp_path(const char * path, unsigned char * * restrict buffer,
+                size_t * restrict offset, size_t * restrict size)
+{
+    int file = checki(open(path, O_RDONLY), "open");
+    slurp_file(file, buffer, offset, size);
+    checki(close(file), "close");
+}
+
+
 void dump_file(int file, const void * data, size_t len)
 {
     const unsigned char * start = data;
