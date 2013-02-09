@@ -113,7 +113,7 @@ begin
     xmit_prev <= xmit;
     if xmit /= xmit_prev and xmit_channel = xmit_channel_counter
     then
-      tx_overrun <= xmit_buffered;
+      tx_overrun <= xmit_buffered and b2s(to_xmit /= 0);
       xmit_buffered <= '1';
       xmit_buffer <= packet;
       xmit_buffer_length <= xmit_length;
