@@ -101,7 +101,6 @@
     <property xil_pn:name="Device Family" xil_pn:value="Spartan6" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Enable Multi-Threading" xil_pn:value="2" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Extra Effort (Highest PAR level only)" xil_pn:value="Normal" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="FPGA Start-Up Clock" xil_pn:value="JTAG Clock" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Generate Asynchronous Delay Report" xil_pn:value="true" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Generate Clock Region Report" xil_pn:value="true" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Generate Detailed MAP Report" xil_pn:value="true" xil_pn:valueState="non-default"/>
@@ -111,7 +110,7 @@
     <property xil_pn:name="Last Applied Strategy" xil_pn:value="Xilinx Default (unlocked);/home/ralph/dev/Xilinx/ISE/data/default.xds" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Optimization Effort spartan6" xil_pn:value="High" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Pack I/O Registers/Latches into IOBs" xil_pn:value="For Inputs and Outputs" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Package" xil_pn:value="tqg144" xil_pn:valueState="default"/>
+    <property xil_pn:name="Package" xil_pn:value="tqg144" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Placer Extra Effort Map" xil_pn:value="Normal" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Preferred Language" xil_pn:value="VHDL" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Property Specification in Project File" xil_pn:value="Store non-default values only" xil_pn:valueState="non-default"/>
@@ -124,7 +123,7 @@
     <property xil_pn:name="Top-Level Source Type" xil_pn:value="HDL" xil_pn:valueState="default"/>
     <property xil_pn:name="Unused IOB Pins" xil_pn:value="Float" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Use Custom Waveform Configuration File Behav" xil_pn:value="true" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="User Browsed Strategy Files" xil_pn:value="/home/ralph/fpga/fm/ise/smartxplorer_results/run4/currentprojectnavigatorsettingsct4.xds" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="User Browsed Strategy Files" xil_pn:value="/home/ralph/fpga/fm/vhdl/ise/smartxplorer_results/run7/power7.xds" xil_pn:valueState="non-default"/>
     <property xil_pn:name="VHDL Source Analysis Standard" xil_pn:value="VHDL-200X" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Working Directory" xil_pn:value="ise" xil_pn:valueState="non-default"/>
     <!--                                                                                  -->
