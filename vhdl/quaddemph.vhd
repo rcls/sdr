@@ -12,9 +12,9 @@ entity quaddemph is
           out_drop : integer := 1);
   port (d : in signed(in_width - 1 downto 0);
         d_strobe : in std_logic;
-        d_strobe0 : in std_logic;
+        d_last : in std_logic;
         q : out signed(out_width - 1 downto 0);
-        q_strobe0 : out std_logic;
+        q_last : out std_logic;
         clk : in std_logic);
 end quaddemph;
 
@@ -34,7 +34,7 @@ begin
       acc_c <= acc_b - acc_b(acc_width - 1 downto 9);
       acc_d <= acc_c + d;
 
-      strobe_d <= d_strobe0;
+      strobe_d <= d_last;
 
       drop_extend := (others => acc_d(acc_width - 1));
       if acc_d(acc_width - 1 downto out_top - 1) = drop_extend then
@@ -43,7 +43,7 @@ begin
         q <= (out_width - 1 => acc_d(acc_width - 1),
               others => not acc_d(acc_width - 1));
       end if;
-      q_strobe0 <= strobe_d;
+      q_last <= strobe_d;
     end if;
   end process;
 end quaddemph;

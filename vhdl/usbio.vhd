@@ -31,7 +31,7 @@ entity usbio is
 
         packet : in unsigned(packet_bytes * 8 - 1 downto 0);
         xmit : in std_logic; -- toggle to xmit.
-        xmit0 : in std_logic; -- strobe for channel 0.
+        last : in std_logic; -- strobe for channel 0.
         xmit_channel : in unsigned2;
         xmit_length : in integer range 0 to packet_bytes;
         tx_overrun : out std_logic;
@@ -119,8 +119,8 @@ begin
       xmit_buffer_length <= xmit_length;
     end if;
     if xmit /= xmit_prev then
-      if xmit0 = '1' then
-        xmit_channel_counter <= "01";
+      if last = '1' then
+        xmit_channel_counter <= "00";
       else
         xmit_channel_counter <= xmit_channel_counter + 1;
       end if;

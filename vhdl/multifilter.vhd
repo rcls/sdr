@@ -26,7 +26,7 @@ use work.defs.all;
 entity multifilter is
   port (dd : in four_signed36;
         qq : out signed36;
-        qq0_strobe : out std_logic;
+        qq_last : out std_logic;
         Clk : in std_logic);
 end;
 
@@ -63,7 +63,9 @@ begin
       case phase is
         when "00" =>
           qq <= acc;
-          qq0_strobe <= b2s((index mod 4) = 1);
+          -- The index has already advanced, so we are outputing the last
+          -- channel (3) when the index is on channel 0.
+          qq_last <= b2s((index mod 4) = 0);
           addend1 := x"000000000";
           ram(to_integer(index)) <= data;
         when "01" =>

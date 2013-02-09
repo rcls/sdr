@@ -18,10 +18,10 @@ entity quadfir is
           program_size : integer;
           program : program_t);
   port(d : in signed18;
-       d_strobe0 : in std_logic;
+       d_last : in std_logic;
        q : out signed(out_width - 1 downto 0);
        q_strobe : out std_logic; -- Asserted on the first cycle with new data.
-       q_strobe0 : out std_logic; -- Asserted when output is channel 0.
+       q_last : out std_logic; -- Asserted when output is last channel (3).
        clk : in std_logic);
 end quadfir;
 
@@ -99,8 +99,8 @@ begin
     if sample_strobe = '1' then
       buff(to_integer(write_pointer)) <= d;
       write_pointer_corrected := write_pointer;
-      if d_strobe0 = '1' then
-        write_pointer_corrected(1 downto 0) := "00";
+      if d_last = '1' then
+        write_pointer_corrected(1 downto 0) := "11";
       end if;
       write_pointer <= write_pointer_corrected + 1;
     end if;
@@ -132,7 +132,7 @@ begin
     if out_strobe = '1' then
       q <= accumulator(acc_width - 1 downto acc_width - out_width);
       -- Channel will have already advanced on output.
-      q_strobe0 <= b2s(read_pointer(1 downto 0) = "01");
+      q_last <= b2s(read_pointer(1 downto 0) = "00");
     end if;
     q_strobe <= out_strobe;
 

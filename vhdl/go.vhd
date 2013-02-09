@@ -46,7 +46,7 @@ architecture behavioural of go is
 
   signal qq_buf : signed36;
   signal ii_buf : signed36;
-  signal qq_buf_strobe0 : std_logic;
+  signal qq_buf_last : std_logic;
 
   signal packet : unsigned(39 downto 0);
 
@@ -81,13 +81,13 @@ architecture behavioural of go is
   signal adc_data_b : signed14;
 
   signal phase : signed18;
-  signal phase_strobe0 : std_logic;
+  signal phase_last : std_logic;
 
   signal ir_data : signed36;
   signal ir_strobe : std_logic;
-  signal ir_strobe0 : std_logic;
+  signal ir_last : std_logic;
 
-  signal usb_xmit, usb_xmit0 : std_logic;
+  signal usb_xmit, usb_last : std_logic;
   signal usb_xmit_length : integer range 0 to 5;
   signal usb_xmit_overrun : std_logic;
   signal usb_nRXFb, usb_nTXEb : std_logic := '0';
@@ -97,10 +97,10 @@ architecture behavioural of go is
 
   signal low_data : signed32;
   signal low_strobe : std_logic;
-  signal low_strobe0 : std_logic;
+  signal low_last : std_logic;
 
   signal out_data : signed32;
-  signal out_strobe0 : std_logic;
+  signal out_last : std_logic;
 
   -- The configuration loaded from USB.
   signal config : unsigned(151 downto 0);
@@ -170,27 +170,27 @@ begin
     end block;
   end generate;
 
-  qfilter: entity multifilter port map(qq, qq_buf, qq_buf_strobe0, clk_main);
+  qfilter: entity multifilter port map(qq, qq_buf, qq_buf_last, clk_main);
   ifilter: entity multifilter port map(ii, ii_buf, open, clk_main);
 
   ph: entity phasedetect
-    port map(qq_buf, ii_buf, phase, qq_buf_strobe0, phase_strobe0, clk_main);
+    port map(qq_buf, ii_buf, phase, qq_buf_last, phase_last, clk_main);
 
   irf: entity irfir
     generic map (acc_width => 36, out_width => 36)
-    port map(phase, phase_strobe0, ir_data, ir_strobe, ir_strobe0, clk_main);
+    port map(phase, phase_last, ir_data, ir_strobe, ir_last, clk_main);
 
   lf: entity lowfir
     generic map (acc_width => 37, out_width => 32)
-    port map(ir_data(35 downto 18), ir_strobe0,
-             low_data, low_strobe, low_strobe0, clk_main);
+    port map(ir_data(35 downto 18), ir_last,
+             low_data, low_strobe, low_last, clk_main);
 
   demph: entity quaddemph generic map (32, 40, 32, 1)
-    port map (low_data, low_strobe, low_strobe0,
-              out_data, out_strobe0, clk_main);
+    port map (low_data, low_strobe, low_last,
+              out_data, out_last, clk_main);
 
   au: entity audio generic map (bits_per_sample => 32)
-    port map (out_data, out_data, out_strobe0,
+    port map (out_data, out_data, out_last,
               audio_scki, audio_lrck, audio_data, audio_bck, clk_main);
 
   process
@@ -209,13 +209,13 @@ begin
         packet(38 downto 36) <= "000";
         packet(39) <= usb_xmit_overrun;
         usb_xmit <= usb_xmit xor ir_strobe;
-        usb_xmit0 <= ir_strobe0;
+        usb_last <= ir_last;
         usb_xmit_length <= 5;
       when "01" =>
         packet(13 downto 0) <= unsigned(adc_data_b);
         packet(14) <= usb_xmit_overrun;
         usb_xmit <= usb_xmit xor ir_strobe;
-        usb_xmit0 <= '1';
+        usb_last <= '1';
         usb_xmit_length <= 2;
       when "10" =>
         packet(2 downto 0) <= flash_control(2 downto 0);
@@ -223,11 +223,11 @@ begin
         packet(6 downto 4) <= "000";
         packet(7) <= usb_xmit_overrun;
         usb_xmit <= flash_control(3);
-        usb_xmit0 <= '1';
+        usb_last <= '1';
         usb_xmit_length <= 1;
       when others =>
         usb_xmit_length <= 0;
-        usb_xmit0 <= '1';
+        usb_last <= '1';
     end case;
   end process;
 
@@ -261,7 +261,7 @@ begin
              usb_SIWA => usb_c(4),
              config => config, tx_overrun => usb_xmit_overrun,
              packet => packet,
-             xmit => usb_xmit, xmit0 => usb_xmit0,
+             xmit => usb_xmit, last => usb_last,
              xmit_channel => xmit_channel, xmit_length => usb_xmit_length,
              clk => clk_25m);
 

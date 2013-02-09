@@ -14,10 +14,10 @@ entity irfir is
   generic(acc_width : integer := 40;
           out_width : integer := 18);
   port(d : in signed18;
-       d_strobe0 : in std_logic;
+       d_last : in std_logic;
        q : out signed(out_width - 1 downto 0);
        q_strobe : out std_logic; -- Asserted on the first cycle with new data.
-       q_strobe0 : out std_logic;
+       q_last : out std_logic;
        clk : in std_logic);
 end irfir;
 
@@ -127,6 +127,6 @@ begin
                  index_mac_accum,
                  program_size,
                  program)
-    port map (d, d_strobe0, q, q_strobe, q_strobe0, clk);
+    port map (d, d_last, q, q_strobe, q_last, clk);
 
 end irfir;

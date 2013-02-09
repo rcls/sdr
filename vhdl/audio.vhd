@@ -16,7 +16,7 @@ entity audio is
   -- So lrck is bit/(2*lcrk_divider).
   generic (bits_per_sample : integer);
   port (left, right : in signed(bits_per_sample-1 downto 0);
-        strobe0 : in std_logic;
+        last : in std_logic;
         scki, lrck, data, bck : out std_logic;
         clk : in std_logic);
 end audio;
@@ -26,6 +26,7 @@ architecture audio of audio is
   signal shift_reg : signed(63 downto 0);
   signal sample_shift : boolean;
   signal sample_load : boolean;
+  signal prev_last : std_logic;
   constant repeat_end : integer := 2 * bits_per_sample - 32;
 begin
   data <= shift_reg(63);
@@ -33,9 +34,11 @@ begin
   begin
     wait until rising_edge(clk);
 
+    prev_last <= last;
     -- In the bottom 5 bits, do /25 instead of /31.  We maintain phase with
-    -- strobe0 by slipping a cycle if shift/load is asserted incorrectly.
-    if not (sample_shift and sample_load and strobe0 = '0') then
+    -- last by slipping a cycle if shift/load is asserted incorrectly.
+    if sample_shift and sample_load and not (prev_last='1' and last='0') then
+    else
       if divider(4 downto 3) = "11" then
         divider <= divider + 8;
       else

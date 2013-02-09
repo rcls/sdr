@@ -332,7 +332,7 @@ int main(int argc, char * argv[])
     // Select SPI readback.
     // Make sure CS, SI are high.
     static const unsigned char init[] = {
-        0xff, 0x1e, 0xb5, REG_XMIT, 9,
+        0xff, 0x1e, 0xb5, REG_XMIT, 8,
         REG_FLASH, FLASH_CS | FLASH_DATA,
         REG_FLASH, FLASH_CS | FLASH_DATA | FLASH_XMIT,
         REG_FLASH, FLASH_CS | FLASH_DATA,
