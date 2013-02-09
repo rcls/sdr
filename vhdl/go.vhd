@@ -53,8 +53,10 @@ architecture behavioural of go is
   -- Generated clock for delivery to ADC.
   signal adc_clk : std_logic;
   signal adc_clk_neg : std_logic;
-  signal adc_clk_u : std_logic;
-  signal adc_clk_neg_u : std_logic;
+  signal adc_clk_250 : std_logic;
+  signal adc_clk_neg_250 : std_logic;
+  signal adc_clk_200 : std_logic;
+  signal adc_clk_neg_200 : std_logic;
   signal adc_clk_fb : std_logic;
 
   -- Received clk from ADC.
@@ -106,6 +108,7 @@ architecture behavioural of go is
   alias xmit_control : unsigned8 is config(143 downto 136);
   alias xmit_channel : unsigned2 is xmit_control(1 downto 0);
   alias flash_control : unsigned8 is config(151 downto 144);
+  alias adc_clock_select : std_logic is adc_control(7);
 
   signal led_off : unsigned8 := x"fe";
 
@@ -325,15 +328,21 @@ begin
       DIVCLK_DIVIDE  => 1, CLKFBOUT_MULT => 8,
       CLKOUT0_DIVIDE => 4,
       CLKOUT1_DIVIDE => 4, CLKOUT1_PHASE => 180.000,
+      CLKOUT2_DIVIDE => 5,
+      CLKOUT3_DIVIDE => 5, CLKOUT3_PHASE => 180.000,
       CLKIN_PERIOD   => 8.0)
     port map(
       -- Output clocks
       CLKFBIN => adc_clk_fb, CLKFBOUT => adc_clk_fb,
-      CLKOUT0 => adc_clk_u,  CLKOUT1  => adc_clk_neg_u,
+      CLKOUT0 => adc_clk_250,CLKOUT1  => adc_clk_neg_250,
+      CLKOUT2 => adc_clk_200,CLKOUT3  => adc_clk_neg_200,
       RST     => '0',        LOCKED   => adc_clk_locked,
       CLKIN   => clkin125_b);
 
-  adc_clk_bufg     : BUFG port map (I => adc_clk_u,     O => adc_clk);
-  adc_clk_neg_bufg : BUFG port map (I => adc_clk_neg_u, O => adc_clk_neg);
+  adc_clk_bufg     : BUFGMUX port map (
+    I0 => adc_clk_250, I1 => adc_clk_200, S => adc_clock_select, O => adc_clk);
+  adc_clk_neg_bufg : BUFGMUX port map (
+    I0 => adc_clk_neg_250, I1 => adc_clk_neg_200,
+    S => adc_clock_select, O => adc_clk_neg);
 
 end behavioural;

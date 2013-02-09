@@ -1,1 +1,2 @@
 *.gnumeric      filter=gzipped
+*.xise          filter=xilinx-sucks
