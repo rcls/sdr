@@ -62,7 +62,8 @@ int main(int argc, const char * const * argv)
     for (size_t i = 0; i != count; ++i)
         output[i] = sum(input + i * stride, order) / stride;
 
-    int out = checki(open(argv[2], O_WRONLY), "open output");
+    int out = checki(open(argv[2], O_WRONLY|O_CREAT|O_TRUNC, 0666),
+                     "open output");
     dump_file(out, output, count * sizeof(float));
     checki(close(out), "close output");
     return 0;

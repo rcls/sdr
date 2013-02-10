@@ -1,108 +1,112 @@
 // Analyse a (250MHz / 240) dump of the phase detector output.
 
-#include <assert.h>
-#include <fftw3.h>
-#include <math.h>
-#include <stdlib.h>
-//#include <unistd.h>
 #include <fcntl.h>
+#include <fftw3.h>
+#include <stdlib.h>
+#include <unistd.h>
 
+#include "lib/usb.h"
 #include "lib/util.h"
 
 #define LENGTH (1<<22)
+#define FULL_LENGTH (LENGTH + 65536)
+#define BUFFER_SIZE (FULL_LENGTH * 2)
 
-static inline unsigned get24(const unsigned char * p)
+static inline unsigned get16(const unsigned char * p)
 {
-    return p[0] + p[1] * 256 + p[2] * 65536;
+    return p[0] + p[1] * 256;
 }
 
-static void load_samples(double * samples)
+static void load_samples(const unsigned char * buffer, double * samples)
 {
-    unsigned char * buffer = NULL;
-    size_t length = 0;
-    size_t max_size = 0;
-    slurp_file (0, &buffer, &length, &max_size);
-
-    size_t best_l = 0;
-    size_t best_o = 0;
-    for (size_t i = 0; i != 3; ++i) {
-        ssize_t good = -1;
-        for (size_t j = i; j + 3 <= length; j += 3) {
-            if (buffer[j + 2] >= 4) {
-                good = -1;
-                continue;
-            }
-            if (good < 0)
-                good = j;
-            size_t l = j - good + 3;
-            if (l > best_l) {
-                best_o = good;
-                best_l = l;
-            }
+    int best = 0;
+    for (int i = 0; i != FULL_LENGTH; ++i)
+        if (buffer[2*i + 1] & 128) {
+            fprintf(stderr, "Overrun at %i\n", i);
+            best = i;
         }
+
+    if (FULL_LENGTH - best < LENGTH + 1)
+        errx(1, "Only got %i, wanted %i\n", FULL_LENGTH - best, LENGTH + 1);
+
+    const unsigned char * p = buffer + 2 * best;
+    int last = get16(p);
+
+    for (int i = 0; i != LENGTH; ++i) {
+        p += 2;
+        int this = get16(p);
+        int delta = (this - last) & 32767;
+        last = this;
+        if (delta >= 16384)
+            delta -= 32768;
+        if (delta >= 12288 || delta <= -12288)
+            fprintf(stderr, "Delta = %i at %i\n", delta, i);
+        samples[i] = delta;
     }
-
-    assert (best_l % 3 == 0);
-    const unsigned char * array = buffer + best_o;
-    length = best_l / 3;
-
-    fprintf (stderr, "Best block is length %zu (%zu bytes) at offset %zu\n",
-             length, best_l, best_o);
-    assert (best_l >= 3 * LENGTH + 3);
-
-    for (unsigned i = 0; i < LENGTH; ++i) {
-        int diff = get24(array + i*3 + 3) - get24(array + i*3);
-        diff &= 0x3ffff;
-        if (diff > 0x20000)
-            diff -= 0x40000;
-        samples[i] = diff;
-    }
-
-    free (buffer);
 }
 
 
 int main (int argc, const char ** argv)
 {
+    if (argc != 3)
+        errx(1, "Usage: <freq> <filename>.");
+
+    unsigned long long freq = strtoull(argv[1], NULL, 0);
+    freq = freq * 16777216 / 250000;
+
+    libusb_device_handle * dev = usb_open();
+
+    // First turn off output & select channel...
+    static unsigned char off[] = {
+        0xff, 0xfe, 0xb5, 0x11, 0x08, 0x04, 0xff, 0x05, 0xff, 0x06, 0xff };
+    off[sizeof off - 1] = freq >> 16;
+    off[sizeof off - 3] = freq >> 8;
+    off[sizeof off - 5] = freq;
+
+    usb_send_bytes(dev, off, sizeof off);
+    // Flush usb...
+    usb_flush(dev);
+    // Turn on phase data, channel 1.
+    static const unsigned char on[] = { 0xff, 0x11, 0x0d };
+    usb_send_bytes(dev, on, sizeof on);
+
+    // Slurp a truckload of data.
+    static unsigned char buffer[BUFFER_SIZE];
+    usb_slurp(dev, buffer, sizeof buffer);
+
+    // Turn off data.
+    usb_send_bytes(dev, off, sizeof off);
+    // Flush usb...
+    usb_flush(dev);
+    // Grab a couple of bytes.
+    static const unsigned char flip[] = { 0xff, 0x12, 0x0f, 0x12, 0x07 };
+    usb_send_bytes(dev, flip, sizeof flip);
+    // Flush usb...
+    usb_flush(dev);
+
+    usb_close(dev);
+
     static double samples[LENGTH];
 
-    load_samples (samples);
+    load_samples(buffer, samples);
 
+    fftw_plan_with_nthreads(4);
     fftw_plan plan = fftw_plan_r2r_1d(
         LENGTH, samples, samples, FFTW_R2HC, FFTW_ESTIMATE);
     fftw_execute(plan);
     fftw_destroy_plan(plan);
 
-    samples[0] = 0;                     // Not interesting.
-
-    for (size_t i = 1; i < LENGTH/2; ++i)
-        samples[i] = samples[i] * samples[i]
-            + samples[LENGTH - i] * samples[LENGTH - i];
-
     static float output[LENGTH/2];
 
-    int shift = 0;
-    for (size_t len = LENGTH/2; len >= 2048; len /= 2) {
-        for (size_t i = 0; i < len; ++i)
-            output[i] = samples[i];
+    output[0] = 0;                      // Not interesting.
+    for (size_t i = 1; i < LENGTH/2; ++i)
+        output[i] = samples[i] * samples[i]
+            + samples[LENGTH - i] * samples[LENGTH - i];
 
-        char outpath[20];
-        if (shift == 0)
-            snprintf(outpath, sizeof(outpath), "util/sfm.dat");
-        else
-            snprintf(outpath, sizeof(outpath), "util/sfm.dat.%i", shift);
-
-        int outfile = checki(open(outpath, O_WRONLY|O_CREAT|O_TRUNC, 0666),
-                             "opening output");
-        dump_file(outfile, output, len * sizeof(float));
-        checki(close(outfile), "closing output");
-
-        assert ((len & 1) == 0);
-        size_t div = len / 2;
-        for (size_t i = 0; i != div; ++i)
-            samples[i] = 0.5 * (samples[2*i] + samples[2*i + 1]);
-        ++shift;
-      }
+    int outfile = checki(open(argv[2], O_WRONLY|O_CREAT|O_TRUNC, 0666),
+                         "opening output");
+    dump_file(outfile, output, LENGTH / 2 * sizeof(float));
+    checki(close(outfile), "closing output");
 
     return 0;
 }

@@ -108,3 +108,27 @@ void usb_send_bytes(libusb_device_handle * dev, const void * data, size_t len)
         || transferred != len)
         errx(1, "libusb_bulk_transfer failed.\n");
 }
+
+
+static void usb_flush1(libusb_device_handle * dev)
+{
+    for (int i = 0; i != 256; ++i) {
+        int transferred;
+        unsigned char buffer[512];
+        int r = libusb_bulk_transfer(dev, USB_IN_EP, buffer, sizeof buffer,
+                                     &transferred, 100);
+        if (r == LIBUSB_ERROR_TIMEOUT || (r == 0 && transferred <= 2))
+            return;
+        if (r != 0)
+            errx(1, "libusb_bulk_transfer failed.\n");
+    }
+    errx(1, "failed to empty pipeline");
+}
+
+
+void usb_flush(libusb_device_handle * dev)
+{
+    usb_flush1(dev);
+    usleep(100000);                     // Fucking FTDI.
+    usb_flush1(dev);
+}

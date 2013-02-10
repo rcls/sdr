@@ -75,7 +75,7 @@ else:
             sr = __file__[0:__file__.rindex('/')] + "/spectrum-reduce"
         except:
             sr = "./spectrum-reduce"
-        subprocess.check_call([sr, args.input, path, shift])
+        subprocess.check_call([sr, args.input, path, str(shift)])
 
 gnuplot = subprocess.Popen(['gnuplot'], stdin=subprocess.PIPE)
 si = gnuplot.stdin
