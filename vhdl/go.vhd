@@ -271,7 +271,7 @@ begin
              packet => packet,
              xmit => usb_xmit, last => usb_last,
              xmit_channel => xmit_channel, xmit_length => usb_xmit_length,
-             clk => clk_25m);
+             low_latency => xmit_control(7), clk => clk_25m);
 
   -- DDR input from ADC.
   adc_input: for i in 0 to 6 generate

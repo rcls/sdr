@@ -34,6 +34,7 @@ entity usbio is
         last : in std_logic; -- strobe for channel 0.
         xmit_channel : in unsigned2;
         xmit_length : in integer range 0 to packet_bytes;
+        low_latency : in std_logic;
         tx_overrun : out std_logic;
 
         clk : in std_logic);
@@ -106,9 +107,10 @@ begin
         <= "XXXXXXXX";
     end if;
 
-    --if state = state_pause then
-    --  usb_SIWA <= '0';
-    --end if;
+    if state = state_pause and to_xmit = 0 and xmit_buffered = '0'
+      and low_latency = '1' then
+      usb_SIWA <= '0';
+    end if;
 
     xmit_prev <= xmit;
     if xmit /= xmit_prev and xmit_channel = xmit_channel_counter
