@@ -13,7 +13,7 @@ use work.defs.all;
 entity irfir is
   generic(acc_width : integer := 40;
           out_width : integer := 18);
-  port(d : in signed18;
+  port(d : in unsigned18;
        d_last : in std_logic;
        q : out signed(out_width - 1 downto 0);
        q_strobe : out std_logic; -- Asserted on the first cycle with new data.
@@ -127,6 +127,6 @@ begin
                  index_mac_accum,
                  program_size,
                  program)
-    port map (d, d_last, q, q_strobe, q_last, clk);
+    port map (signed(d), d_last, q, q_strobe, q_last, clk);
 
 end irfir;

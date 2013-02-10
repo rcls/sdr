@@ -106,9 +106,9 @@ begin
         <= "XXXXXXXX";
     end if;
 
-    if state = state_pause then
-      usb_SIWA <= '0';
-    end if;
+    --if state = state_pause then
+    --  usb_SIWA <= '0';
+    --end if;
 
     xmit_prev <= xmit;
     if xmit /= xmit_prev and xmit_channel = xmit_channel_counter

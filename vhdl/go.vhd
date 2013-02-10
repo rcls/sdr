@@ -80,8 +80,8 @@ architecture behavioural of go is
   signal adc_data : signed14;
   signal adc_data_b : signed14;
 
-  signal phase : signed18;
-  signal phase_last : std_logic;
+  signal phase : unsigned18;
+  signal phase_strobe, phase_last : std_logic;
 
   signal ir_data : signed36;
   signal ir_strobe : std_logic;
@@ -174,7 +174,8 @@ begin
   ifilter: entity multifilter port map(ii, ii_buf, open, clk_main);
 
   ph: entity phasedetect
-    port map(qq_buf, ii_buf, phase, qq_buf_last, phase_last, clk_main);
+    port map(qq_buf, ii_buf, qq_buf_last,
+             phase, phase_strobe, phase_last, clk_main);
 
   irf: entity irfir
     generic map (acc_width => 36, out_width => 36)
@@ -213,7 +214,8 @@ begin
         usb_xmit_length <= 5;
       when "01" =>
         packet(13 downto 0) <= unsigned(adc_data_b);
-        packet(14) <= usb_xmit_overrun;
+        packet(14) <= '0';
+        packet(15) <= usb_xmit_overrun;
         usb_xmit <= usb_xmit xor ir_strobe;
         usb_last <= '1';
         usb_xmit_length <= 2;
@@ -225,6 +227,12 @@ begin
         usb_xmit <= flash_control(3);
         usb_last <= '1';
         usb_xmit_length <= 1;
+      when "11" =>
+        packet(14 downto 0) <= phase(14 downto 0);
+        packet(15) <= usb_xmit_overrun;
+        usb_xmit <= usb_xmit xor phase_strobe;
+        usb_last <= phase_last;
+        usb_xmit_length <= 2;
       when others =>
         usb_xmit_length <= 0;
         usb_last <= '1';
@@ -253,7 +261,7 @@ begin
   usb: entity usbio
     generic map(
       19, 5,
-      x"0f" & x"ff" & x"09"
+      x"0f" & x"0b" & x"09"
       & x"00000000" & x"00000000" & x"00000000" & x"005ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,
