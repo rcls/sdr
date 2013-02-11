@@ -131,7 +131,7 @@ static void gain_controlled_sample(libusb_device_handle * dev,
                                    sample_buffer_t * buffer,
                                    size_t required)
 {
-    const int max_gain = 127;
+    const int max_gain = 63;
     for (int i = 0; i < 10; ++i) {
         sample_config(dev, freq, *gain);
         get_samples(dev, buffer, required);
@@ -247,7 +247,8 @@ int main(void)
 
     // Reset the ADC.
     static const unsigned char adc_reset[] = {
-        REG_ADDRESS, REG_XMIT, XMIT_SOURCE(2),
+        REG_ADDRESS,
+        REG_MAGIC, MAGIC_MAGIC, REG_XMIT, XMIT_SOURCE(2),
         REG_ADC, ADC_RESET|ADC_SCLK|ADC_SEN,
         REG_ADC, ADC_SCLK|ADC_SEN };
     usb_send_bytes(dev, adc_reset, sizeof adc_reset);
@@ -270,7 +271,7 @@ int main(void)
     usleep(200000);
     adc_config(dev, 0xcf80, -1);        // Freeze offset correction.
 
-    int gain = 51;
+    int gain = 48;
     sample_buffer_t buffer = { NULL, 0, NULL, 0 };
     for (int i = 1; i < 160; i += 2) {
         gain_controlled_sample(dev, i, &gain, &buffer, SIZE);

@@ -24,18 +24,21 @@ architecture sample30 of sample30 is
   signal state : integer range 0 to state_max;
 
   signal phase : unsigned9 := "0" & x"00";
-  alias shift : unsigned(4 downto 0) is gain(6 downto 2);
+  alias shift : unsigned(3 downto 0) is gain(5 downto 2);
 
   -- Select part of trig. rom.
   alias table_select : unsigned2 is gain(1 downto 0);
 
-  -- Accumulator width minus one...
-  constant width : integer := 62;
+  -- Accumulator widths minus one...
+  constant width1 : integer := 62;
+  constant width2 : integer := 55;
+  constant width3 : integer := 48;
+  constant width4 : integer := 41;
+  constant width5 : integer := 34;
+
   -- Differencer width minus one...
   constant diffw : integer := 14;
 
-  -- Type used for arithmetic in the integrators.
-  subtype word is signed(width downto 0);
   -- Type used for arithmetic in the differencers.
   subtype wordd is signed(diffw downto 0);
   type wordd_array is array (natural range <>) of wordd;
@@ -55,37 +58,34 @@ architecture sample30 of sample30 is
   signal cos_neg_3 : boolean;
   signal sin_neg_3 : boolean;
 
-  signal adc_r0 : signed14;
-  signal adc_i0 : signed14;
+  signal adc_r0 : signed18;
+  signal adc_i0 : signed18;
 
-  signal prod_r : signed32;
-  signal prod_i : signed32;
-  signal prod1_r : signed32;
-  signal prod1_i : signed32;
+  signal prod_r : signed36;
+  signal prod_i : signed36;
+  signal prod1_r : signed36;
+  signal prod1_i : signed36;
 
   -- The multiplier can absorb two levels of registers; but we want to keep
   -- the second level in fabric to be as close as possible to the big adders.
-  attribute keep : string;
   attribute keep of prod_r : signal is "true";
   attribute keep of prod_i : signal is "true";
 
-  signal acc1_r : word;
-  signal acc1_i : word;
-  signal acc2_r : word;
-  signal acc2_i : word;
-  signal acc3_r : word;
-  signal acc3_i : word;
-  signal acc4_r : word;
-  signal acc4_i : word;
-  signal acc5_r : word;
-  signal acc5_i : word;
+  signal acc1_r : signed(width1 downto 0);
+  signal acc1_i : signed(width1 downto 0);
+  signal acc2_r : signed(width2 downto 0);
+  signal acc2_i : signed(width2 downto 0);
+  signal acc3_r : signed(width3 downto 0);
+  signal acc3_i : signed(width3 downto 0);
+  signal acc4_r : signed(width4 downto 0);
+  signal acc4_i : signed(width4 downto 0);
+  signal acc5_r : signed(width5 downto 0);
+  signal acc5_i : signed(width5 downto 0);
 
-  signal shift1_r : signed(diffw + 7 downto 0);
-  signal shift1_i : signed(diffw + 7 downto 0);
-  signal shift2_r : signed(diffw + 1 downto 0);
-  signal shift2_i : signed(diffw + 1 downto 0);
-  signal shift_r : wordd;
-  signal shift_i : wordd;
+  signal shift1_r : signed(diffw + 3 downto 0);
+  signal shift1_i : signed(diffw + 3 downto 0);
+  signal shift2_r : signed(diffw downto 0);
+  signal shift2_i : signed(diffw downto 0);
 
   signal flt_r : wordd_array(0 to 5);
   signal flt_i : wordd_array(0 to 5);
@@ -388,8 +388,8 @@ architecture sample30 of sample30 is
 
 begin
   process
-    variable shift0_r : signed(diffw + 31 downto 0);
-    variable shift0_i : signed(diffw + 31 downto 0);
+    variable shift0_r : signed(diffw + 11 downto 0);
+    variable shift0_i : signed(diffw + 11 downto 0);
   begin
     wait until rising_edge(clk);
 
@@ -408,8 +408,16 @@ begin
     cos_neg <= phase(8) = '1';
     sin_neg <= phase(8) /= phase(7);
 
-    adc_r0 <= adc_data;
-    adc_i0 <= adc_data;
+    if shift(2) = '1' then
+      adc_r0 <= adc_data & "0000";
+      adc_i0 <= adc_data & "0000";
+    else
+      adc_r0 <= (others => adc_data(13));
+      adc_i0 <= (others => adc_data(13));
+      adc_r0(13 downto 0) <= adc_data;
+      adc_i0(13 downto 0) <= adc_data;
+    end if;
+
     cos_1 <= cos;
     sin_1 <= sin;
     cos_neg_1 <= cos_neg;
@@ -435,46 +443,35 @@ begin
     else
       acc1_i <= acc1_i + prod1_i;
     end if;
-    acc2_r <= acc2_r + acc1_r;
-    acc2_i <= acc2_i + acc1_i;
-    acc3_r <= acc3_r + acc2_r;
-    acc3_i <= acc3_i + acc2_i;
-    acc4_r <= acc4_r + acc3_r;
-    acc4_i <= acc4_i + acc3_i;
-    acc5_r <= acc5_r + acc4_r;
-    acc5_i <= acc5_i + acc4_i;
+    acc2_r <= acc2_r + acc1_r(width1 downto width1 - width2);
+    acc2_i <= acc2_i + acc1_i(width1 downto width1 - width2);
+    acc3_r <= acc3_r + acc2_r(width2 downto width2 - width3);
+    acc3_i <= acc3_i + acc2_i(width2 downto width2 - width3);
+    acc4_r <= acc4_r + acc3_r(width3 downto width3 - width4);
+    acc4_i <= acc4_i + acc3_i(width3 downto width3 - width4);
+    acc5_r <= acc5_r + acc4_r(width4 downto width4 - width5);
+    acc5_i <= acc5_i + acc4_i(width4 downto width4 - width5);
 
     -- Do the left shift here, leaving us with a 32 bit word into the
     -- differencing.
-    --shift0_r := (others => '0');
-    shift0_r(diffw + 31 downto 0) := acc5_r(width downto width - diffw - 31);
-    --shift0_i := (others => '0');
-    shift0_i(diffw + 31 downto 0) := acc5_i(width downto width - diffw - 31);
-    case shift(4 downto 3) is
-      when "11" => shift1_r <= shift0_r(diffw + 7 downto 0);
-                   shift1_i <= shift0_i(diffw + 7 downto 0);
-      when "10" => shift1_r <= shift0_r(diffw + 15 downto 8);
-                   shift1_i <= shift0_i(diffw + 15 downto 8);
-      when "01" => shift1_r <= shift0_r(diffw + 23 downto 16);
-                   shift1_i <= shift0_i(diffw + 23 downto 16);
-      when others => shift1_r <= shift0_r(diffw + 31 downto 24);
-                     shift1_i <= shift0_i(diffw + 31 downto 24);
-    end case;
-    case shift(2 downto 1) is
-      when "11" => shift2_r <= shift1_r(diffw + 1 downto 0);
-                   shift2_i <= shift1_i(diffw + 1 downto 0);
-      when "10" => shift2_r <= shift1_r(diffw + 3 downto 2);
-                   shift2_i <= shift1_i(diffw + 3 downto 2);
-      when "01" => shift2_r <= shift1_r(diffw + 5 downto 4);
-                   shift2_i <= shift1_i(diffw + 5 downto 4);
-      when others => shift2_r <= shift1_r(diffw + 7 downto 6);
-                     shift2_i <= shift1_i(diffw + 7 downto 6);
-    end case;
-    case shift(0) is
-      when '1' => shift_r <= shift2_r(diffw downto 0);
-                  shift_i <= shift2_i(diffw downto 0);
-      when others => shift_r <= shift2_r(diffw + 1 downto 1);
-                     shift_i <= shift2_i(diffw + 1 downto 1);
+    shift0_r(diffw + 11 downto 0) := acc5_r(width5 downto width5 - diffw - 11);
+    shift0_i(diffw + 11 downto 0) := acc5_i(width5 downto width5 - diffw - 11);
+    if shift(3) = '1' then
+      shift1_r <= shift0_r(diffw + 3 downto 0);
+      shift1_i <= shift0_i(diffw + 3 downto 0);
+    else
+      shift1_r <= shift0_r(diffw + 11 downto 8);
+      shift1_i <= shift0_i(diffw + 11 downto 8);
+    end if;
+    case shift(1 downto 0) is
+      when "11" => shift2_r <= shift1_r(diffw downto 0);
+                   shift2_i <= shift1_i(diffw downto 0);
+      when "10" => shift2_r <= shift1_r(diffw + 1 downto 1);
+                   shift2_i <= shift1_i(diffw + 1 downto 1);
+      when "01" => shift2_r <= shift1_r(diffw + 2 downto 2);
+                   shift2_i <= shift1_i(diffw + 2 downto 2);
+      when others => shift2_r <= shift1_r(diffw + 3 downto 3);
+                     shift2_i <= shift1_i(diffw + 3 downto 3);
     end case;
 
     for i in 0 to 5 loop
@@ -523,13 +520,13 @@ begin
     op1 <= op;
 
     if op1(0)(1) = '1' then
-      flt_r(0) <= shift_or_add(flt_r(0), zero, shift_r, op1(0), 0);
-      flt_i(0) <= shift_or_add(flt_i(0), zero, shift_i, op1(0), 0);
+      flt_r(0) <= shift_or_add(flt_r(0), zero, shift2_r, op1(0), 0);
+      flt_i(0) <= shift_or_add(flt_i(0), zero, shift2_i, op1(0), 0);
     end if;
     for i in 1 to 5 loop
       if op1(i)(1) = '1' then
-        flt_r(i) <= shift_or_add(flt_r(i), flt_r(i-1), shift_r, op1(i), i);
-        flt_i(i) <= shift_or_add(flt_i(i), flt_i(i-1), shift_i, op1(i), i);
+        flt_r(i) <= shift_or_add(flt_r(i), flt_r(i-1), shift2_r, op1(i), i);
+        flt_i(i) <= shift_or_add(flt_i(i), flt_i(i-1), shift2_i, op1(i), i);
       end if;
     end loop;
 
