@@ -1,7 +1,5 @@
 -- Filter given by a fifth order polynomial:
--- plot 10 * log ((sin(x*pi*39/48) * sin(x*pi*45/48) * sin(x*pi*53/48) * sin(x*pi*60/48) * sin(x*pi*64/48) * 48 * 48 * 48 * 48 * 48 / 39 / 45 / 53 / 60 / 64 / pi / pi / pi / pi / pi / x / x / x / x / x)**2) /log(10)
-
---  39,45,53,50,54
+-- plot 10 * log ((sin(x*pi*65/80) * sin(x*pi*74/80) * sin(x*pi*87/80) * sin(x*pi*99/80) * sin(x*pi*106/80) * 80 * 80 * 80 * 80 * 80 / 65 / 74 / 87 / 99 / 106 / pi / pi / pi / pi / pi / x / x / x / x / x)**2) /log(10)
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -30,11 +28,11 @@ architecture sample30 of sample30 is
   alias table_select : unsigned2 is gain(1 downto 0);
 
   -- Accumulator widths minus one...
-  constant width1 : integer := 62;
-  constant width2 : integer := 55;
-  constant width3 : integer := 48;
-  constant width4 : integer := 41;
-  constant width5 : integer := 34;
+  constant width1 : integer := 54;
+  constant width2 : integer := 39;
+  constant width3 : integer := 30;
+  constant width4 : integer := 22;
+  constant width5 : integer := 14;
 
   -- Differencer width minus one...
   constant diffw : integer := 14;
@@ -388,6 +386,7 @@ architecture sample30 of sample30 is
 
 begin
   process
+    variable sprod_r, sprod_i : signed(35 downto 0);
     variable shift0_r : signed(diffw + 11 downto 0);
     variable shift0_i : signed(diffw + 11 downto 0);
   begin
@@ -433,46 +432,38 @@ begin
     cos_neg_3 <= cos_neg_2;
     sin_neg_3 <= sin_neg_2;
 
-    if cos_neg_3 then
-      acc1_r <= acc1_r - prod1_r;
+    if shift(3) = '1' then
+      sprod_r := prod1_r;
+      sprod_i := prod1_i;
     else
-      acc1_r <= acc1_r + prod1_r;
+      sprod_r := (others => prod1_r(35));
+      sprod_i := (others => prod1_i(35));
+      sprod_r(27 downto 0) := prod1_r(35 downto 8);
+      sprod_i(27 downto 0) := prod1_i(35 downto 8);
+    end if;
+
+    if cos_neg_3 then
+      acc1_r <= acc1_r - sprod_r;
+    else
+      acc1_r <= acc1_r + sprod_r;
     end if;
     if sin_neg_3 then
-      acc1_i <= acc1_i - prod1_i;
+      acc1_i <= acc1_i - sprod_i;
     else
-      acc1_i <= acc1_i + prod1_i;
+      acc1_i <= acc1_i + sprod_i;
     end if;
-    acc2_r <= acc2_r + acc1_r(width1 downto width1 - width2);
-    acc2_i <= acc2_i + acc1_i(width1 downto width1 - width2);
-    acc3_r <= acc3_r + acc2_r(width2 downto width2 - width3);
-    acc3_i <= acc3_i + acc2_i(width2 downto width2 - width3);
+    acc2_r <= acc2_r + take(acc1_r(width1 downto width1 - width2 - 2),
+                            2, shift and x"2");
+    acc2_i <= acc2_i + take(acc1_i(width1 downto width1 - width2 - 2),
+                            2, shift and x"2");
+    acc3_r <= acc3_r + take(acc2_r(width2 downto width2 - width3 - 1),
+                            1, shift and x"1");
+    acc3_i <= acc3_i + take(acc2_i(width2 downto width2 - width3 - 1),
+                            1, shift and x"1");
     acc4_r <= acc4_r + acc3_r(width3 downto width3 - width4);
     acc4_i <= acc4_i + acc3_i(width3 downto width3 - width4);
     acc5_r <= acc5_r + acc4_r(width4 downto width4 - width5);
     acc5_i <= acc5_i + acc4_i(width4 downto width4 - width5);
-
-    -- Do the left shift here, leaving us with a 32 bit word into the
-    -- differencing.
-    shift0_r(diffw + 11 downto 0) := acc5_r(width5 downto width5 - diffw - 11);
-    shift0_i(diffw + 11 downto 0) := acc5_i(width5 downto width5 - diffw - 11);
-    if shift(3) = '1' then
-      shift1_r <= shift0_r(diffw + 3 downto 0);
-      shift1_i <= shift0_i(diffw + 3 downto 0);
-    else
-      shift1_r <= shift0_r(diffw + 11 downto 8);
-      shift1_i <= shift0_i(diffw + 11 downto 8);
-    end if;
-    case shift(1 downto 0) is
-      when "11" => shift2_r <= shift1_r(diffw downto 0);
-                   shift2_i <= shift1_i(diffw downto 0);
-      when "10" => shift2_r <= shift1_r(diffw + 1 downto 1);
-                   shift2_i <= shift1_i(diffw + 1 downto 1);
-      when "01" => shift2_r <= shift1_r(diffw + 2 downto 2);
-                   shift2_i <= shift1_i(diffw + 2 downto 2);
-      when others => shift2_r <= shift1_r(diffw + 3 downto 3);
-                     shift2_i <= shift1_i(diffw + 3 downto 3);
-    end case;
 
     for i in 0 to 5 loop
       op(i) <= op_pass;
@@ -520,13 +511,13 @@ begin
     op1 <= op;
 
     if op1(0)(1) = '1' then
-      flt_r(0) <= shift_or_add(flt_r(0), zero, shift2_r, op1(0), 0);
-      flt_i(0) <= shift_or_add(flt_i(0), zero, shift2_i, op1(0), 0);
+      flt_r(0) <= shift_or_add(flt_r(0), zero, acc5_r, op1(0), 0);
+      flt_i(0) <= shift_or_add(flt_i(0), zero, acc5_i, op1(0), 0);
     end if;
     for i in 1 to 5 loop
       if op1(i)(1) = '1' then
-        flt_r(i) <= shift_or_add(flt_r(i), flt_r(i-1), shift2_r, op1(i), i);
-        flt_i(i) <= shift_or_add(flt_i(i), flt_i(i-1), shift2_i, op1(i), i);
+        flt_r(i) <= shift_or_add(flt_r(i), flt_r(i-1), acc5_r, op1(i), i);
+        flt_i(i) <= shift_or_add(flt_i(i), flt_i(i-1), acc5_i, op1(i), i);
       end if;
     end loop;
 

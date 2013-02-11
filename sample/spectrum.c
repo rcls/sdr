@@ -175,7 +175,7 @@ static void gain_controlled_sample(libusb_device_handle * dev,
         if (incr > 0 && *gain >= max_gain)
             errx(1, "Too small %g with max gain.\n", max_six);
         if (incr < -3)
-            incr = -32;
+            incr = -16;
 
         fprintf(stderr, "   gain %i six sigma %g, adjustment = %i.\n",
                 *gain, max_six, incr);
@@ -277,6 +277,8 @@ int main(void)
         gain_controlled_sample(dev, i, &gain, &buffer, SIZE);
         spectrum(gain, buffer.best);
     }
+
+    usb_close(dev);
 
     return 0;
 }

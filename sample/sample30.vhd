@@ -1,11 +1,9 @@
 -- Filter given by a fifth order polynomial:
--- plot 10 * log ((sin(x*pi*39/48) * sin(x*pi*45/48) * sin(x*pi*53/48) * sin(x*pi*60/48) * sin(x*pi*64/48) * 48 * 48 * 48 * 48 * 48 / 39 / 45 / 53 / 60 / 64 / pi / pi / pi / pi / pi / x / x / x / x / x)**2) /log(10)
+-- plot 10 * log ((sin(x*pi*65/80) * sin(x*pi*74/80) * sin(x*pi*87/80) * sin(x*pi*99/80) * sin(x*pi*106/80) * 80 * 80 * 80 * 80 * 80 / 65 / 74 / 87 / 99 / 106 / pi / pi / pi / pi / pi / x / x / x / x / x)**2) /log(10)
 
---  39,45,53,50,54
-
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 library unisim;
 use unisim.vcomponents.all;

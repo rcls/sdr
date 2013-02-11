@@ -51,4 +51,14 @@ package defs is
     end if;
     return (x(8 downto 3) + y(8 downto 3) + carry) & lo;
   end;
+
+  -- Extend by n bits; the shift parameter selects which of upper and lower
+  -- bits to take the shift from.
+  function take(x : signed; reduce : integer; shift : unsigned)
+    return signed is
+    variable shifted : signed(x'high downto x'low);
+  begin
+    shifted := x sll to_integer(shift);
+    return shifted(shifted'high downto x'low + reduce);
+  end;
 end defs;
