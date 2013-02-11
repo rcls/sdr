@@ -34,14 +34,15 @@ entity usbio is
         last : in std_logic; -- strobe for channel 0.
         xmit_channel : in unsigned2;
         xmit_length : in integer range 0 to packet_bytes;
-        low_latency : in std_logic;
+        low_latency, turbo : in std_logic;
         tx_overrun : out std_logic;
 
         clk : in std_logic);
 end usbio;
 
 architecture usbio of usbio is
-  type state_t is (state_idle, state_write, state_pause);
+  type state_t is (state_idle, state_write, state_write2, state_read,
+                   state_pause);
   signal state : state_t := state_idle;
   signal config_strobes : std_logic_vector(31 downto 0) := (others => '0');
   signal config_magic : unsigned8;
@@ -55,6 +56,11 @@ architecture usbio of usbio is
   signal xmit_channel_counter : unsigned2 := "00";
   signal to_xmit : integer range 0 to packet_bytes := 0;
   signal prefer_tx : boolean := true;
+
+  -- In turbo mode the overrun flags get replaced by an LFSR generated
+  -- pattern.  Poly is 0x100802041.
+  signal lfsr : std_logic_vector(31 downto 0) := x"00000001";
+
 begin
   process
   begin
@@ -83,15 +89,13 @@ begin
     -- If we're in state idle, decide what to do next.  Prefer reads over
     -- writes.
     if state = state_idle then
-      if usb_nTXE = '0' and to_xmit /= 0 and (usb_nRXF = '1' or prefer_tx) then
+      if (usb_nTXE = '0' or turbo = '1') and to_xmit /= 0
+        and (usb_nRXF = '1' or prefer_tx) then
         state <= state_write;
         usb_oe_n <= '0';
       elsif usb_nRXF = '0' then
-        prefer_tx <= true;
-        state <= state_pause;
+        state <= state_read;
         usb_nRD <= '0';
-        config_strobes(to_integer(config_address(4 downto 0))) <= '1';
-        config_address <= x"ff";
       end if;
     end if;
 
@@ -99,12 +103,25 @@ begin
       prefer_tx <= false;
       usb_oe_n <= '0';
       usb_nWR <= '0';
-      state <= state_pause;
-      to_xmit <= to_xmit - 1;
+      state <= state_write2;
+     to_xmit <= to_xmit - 1;
       xmit_queue(packet_bytes * 8 - 9 downto 0)
         <= xmit_queue(packet_bytes * 8 - 1 downto 8);
       xmit_queue(packet_bytes * 8 - 1 downto packet_bytes * 8 - 8)
         <= "XXXXXXXX";
+    end if;
+
+    if state = state_write2 then
+      usb_nWR <= '0';
+      state <= state_pause;
+    end if;
+
+    if state = state_read then
+      prefer_tx <= true;
+      usb_nRD <= '0';
+      config_strobes(to_integer(config_address(4 downto 0))) <= '1';
+      config_address <= x"ff";
+      state <= state_pause;
     end if;
 
     if state = state_pause and to_xmit = 0 and xmit_buffered = '0'
@@ -115,10 +132,16 @@ begin
     xmit_prev <= xmit;
     if xmit /= xmit_prev and xmit_channel = xmit_channel_counter
     then
-      tx_overrun <= xmit_buffered and b2s(to_xmit /= 0);
       xmit_buffered <= '1';
       xmit_buffer <= packet;
       xmit_buffer_length <= xmit_length;
+      lfsr <= lfsr(30 downto 0) & (
+        lfsr(31) xor lfsr(22) xor lfsr(12) xor lfsr(5));
+      if turbo = '1' then
+        tx_overrun <= lfsr(0);
+      else
+        tx_overrun <= xmit_buffered and b2s(to_xmit /= 0);
+      end if;
     end if;
     if xmit /= xmit_prev then
       if last = '1' then

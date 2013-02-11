@@ -73,12 +73,12 @@ architecture behavioural of go is
   signal clk_main_fb : std_logic;
 
   signal clkin125_b : std_logic;
-  signal clk_25m : std_logic;
-  signal clku_25m : std_logic;
+  signal clk_50m : std_logic;
+  signal clku_50m : std_logic;
 
   signal adc_ddr : unsigned7;
-  signal adc_data : signed14;
-  signal adc_data_b : signed14;
+  signal adc_data, adc_data_c, adc_data_b : signed14;
+  attribute keep of adc_data_c : signal is "true";
 
   signal phase : unsigned18;
   signal phase_strobe, phase_last : std_logic;
@@ -106,7 +106,15 @@ architecture behavioural of go is
   signal config : unsigned(151 downto 0);
   alias adc_control : unsigned8 is config(135 downto 128);
   alias xmit_control : unsigned8 is config(143 downto 136);
+
+  -- Channel to select from time-multiplexed data.
   alias xmit_channel : unsigned2 is xmit_control(1 downto 0);
+  -- Data source.
+  alias xmit_source : unsigned3 is xmit_control(4 downto 2);
+  -- Strobe SIWA to push data through to host.
+  alias xmit_low_latency : std_logic is xmit_control(7);
+  -- Ignore the TX handshake and shovel data at 12.5 MB/s.
+  alias xmit_turbo : std_logic is xmit_control(6);
   alias flash_control : unsigned8 is config(151 downto 144);
   alias adc_clock_select : std_logic is adc_control(7);
 
@@ -149,7 +157,7 @@ begin
     led(i) <= '0' when led_off(i) = '0' else 'Z';
   end generate;
 
-  led_off(5) <= not usb_xmit_overrun;
+  led_off(5) <= not usb_xmit_overrun or xmit_turbo;
 
   led_off(6) <= spartan_m0;
   led_off(7) <= not spartan_m1;
@@ -271,7 +279,8 @@ begin
              packet => packet,
              xmit => usb_xmit, last => usb_last,
              xmit_channel => xmit_channel, xmit_length => usb_xmit_length,
-             low_latency => xmit_control(7), clk => clk_25m);
+             low_latency => xmit_low_latency, turbo => xmit_turbo,
+             clk => clk_50m);
 
   -- DDR input from ADC.
   adc_input: for i in 0 to 6 generate
@@ -312,18 +321,18 @@ begin
       DIVCLK_DIVIDE  => 1, CLKFBOUT_MULT => 1,
       CLKOUT0_DIVIDE => 4,
       CLKOUT1_DIVIDE => 4, CLKOUT1_PHASE => 180.0,
-      CLKOUT2_DIVIDE => 40, CLKOUT2_PHASE => 18.0,
+      CLKOUT2_DIVIDE => 20, CLKOUT2_PHASE => 36.0,
       CLKIN_PERIOD   => 4.0)
     port map(
       -- Output clocks
       CLKFBIN => clk_main_fb,
-      CLKOUT0 => clku_main_neg, CLKOUT1 => clku_main, CLKOUT2 => clku_25m,
+      CLKOUT0 => clku_main_neg, CLKOUT1 => clku_main, CLKOUT2 => clku_50m,
       RST     => '0', LOCKED => clk_main_locked,
       CLKIN   => adc_reclk);
 
   clk_main_bufg     : BUFG port map(I => clku_main,     O => clk_main);
   clk_main_neg_bufg : BUFG port map(I => clku_main_neg, O => clk_main_neg);
-  clk_25m_bufg      : BUFG port map(I => clku_25m,      O => clk_25m);
+  clk_50m_bufg      : BUFG port map(I => clku_50m,      O => clk_50m);
 
   clkin125_bufg : bufg port map(I => clkin125, O => clkin125_b);
 
