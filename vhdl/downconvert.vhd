@@ -20,7 +20,7 @@ entity downconvert is
           freq : in  unsigned24);
 end downconvert;
 
-architecture behavioural of downconvert is
+architecture downconvert of downconvert is
 
   -- For the cosine/sine lookup, we take a 14 bit quantity.  The first two bits
   -- determine the quadrant, the middle ten the table index, and the bottom
@@ -102,11 +102,16 @@ architecture behavioural of downconvert is
   signal qq_acc : accumulator;
   signal ii_acc : accumulator;
 
+  signal gain_b : unsigned8;
+
   signal sintable : sinrom_t := sinrom;
 
   attribute use_dsp48 : string;
   attribute use_dsp48 of qq_acc : signal is "no";
   attribute use_dsp48 of ii_acc : signal is "no";
+
+  attribute keep_hierarchy : string;
+  attribute keep_hierarchy of downconvert : architecture is "soft";
 
 begin
   process (Clk)
@@ -146,16 +151,16 @@ begin
       data_3 <= data;
 
       -- Apply gain(1,0) to sin & cos, & gain(2) to data.
-      if gain(2) = '0' then
+      if gain_b(2) = '0' then
         data_4 <= resize(data_3, 18);
       else
         data_4 <= data_3 & "0000";
       end if;
 
-      cos_main_4 <= signed(cos_main) sll to_integer(gain(1 downto 0));
-      sin_main_4 <= signed(sin_main) sll to_integer(gain(1 downto 0));
-      cos_offset_4 <= signed(cos_offset) sll to_integer(gain(1 downto 0));
-      sin_offset_4 <= signed(sin_offset) sll to_integer(gain(1 downto 0));
+      cos_main_4 <= signed(cos_main) sll to_integer(gain_b(1 downto 0));
+      sin_main_4 <= signed(sin_main) sll to_integer(gain_b(1 downto 0));
+      cos_offset_4 <= signed(cos_offset) sll to_integer(gain_b(1 downto 0));
+      sin_offset_4 <= signed(sin_offset) sll to_integer(gain_b(1 downto 0));
       cos_minus_4 <= cos_minus_3;
       sin_minus_4 <= sin_minus_3;
 
@@ -197,8 +202,8 @@ begin
       qq_buf_9 <= qq_buf;
       ii_buf_9 <= ii_buf;
 
-      -- Second order accumulate, applying gain(3).
-      if gain(3) = '0' then
+      -- Second order accumulate, applying gain_b(3).
+      if gain_b(3) = '0' then
         qq_acc <= qq_acc + qq_buf_9;
         ii_acc <= ii_acc + ii_buf_9;
       else
@@ -209,6 +214,7 @@ begin
       qq <= qq_acc(width - 1 downto width - 36);
       ii <= ii_acc(width - 1 downto width - 36);
 
+      gain_b <= gain; -- Buffer.
     end if;
   end process;
-end behavioural;
+end downconvert;

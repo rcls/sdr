@@ -1,5 +1,6 @@
 #include "lib/util.h"
 #include "lib/usb.h"
+#include "lib/registers.h"
 
 #include <assert.h>
 #include <complex.h>
@@ -10,14 +11,6 @@
 #include <math.h>
 
 #define SIZE (1<<22)
-
-typedef struct sample_config_t {
-    unsigned freq:8;
-    unsigned table_select:2;
-    unsigned shift:5;
-    signed offset:18;
-} sample_config_t;
-
 
 #define ADC_RESET 8
 #define ADC_SCLK 4
@@ -37,7 +30,7 @@ static double filter_adjust[SIZE/4 + 1];
 
 static inline int get_real(const unsigned char * p)
 {
-    int a = p[0] * 128 + (p[1] >> 1);
+    int a = (p[1] & 127) * 256 + p[0];
     if (a < 16384)
         return a;
     else
@@ -47,7 +40,7 @@ static inline int get_real(const unsigned char * p)
 
 static inline int get_imag(const unsigned char * p)
 {
-    int a = p[2] * 128 + (p[3] >> 1);
+    int a = (p[3] & 127) * 256 + p[2];
     if (a < 16384)
         return a;
     else
@@ -86,42 +79,15 @@ static void get_samples(libusb_device_handle * dev,
 }
 
 
-static void sample_config(libusb_device_handle * dev,
-                          const sample_config_t * config)
+static void sample_config(libusb_device_handle * dev, int freq, int gain)
 {
-    unsigned char bytes[8];
-    bytes[0] = ADC_SEN | ADC_SCLK;
-    unsigned freq = config->freq / 5 * 8 + config->freq % 5;
-    bytes[1] = 32 + (freq & 31);
-    bytes[2] = 64 + (freq >> 5) + config->table_select * 8;
-    bytes[3] = 96 + config->shift;
-    bytes[4] = 128 + (config->offset & 31);
-    bytes[5] = 160 + ((config->offset >> 5) & 31);
-    bytes[6] = 192 + ((config->offset >> 10) & 31);
-    bytes[7] = 224 + ((config->offset >> 15) & 31);
-    // for (int i = 0; i != 8; ++i)
-    //     printf(" %02x", bytes[i]);
-    // printf("\n");
-    usb_send_bytes(dev, bytes, 8);
-}
-
-
-static void adc_bitbang(libusb_device_handle * dev, ...)
-{
-    va_list args;
-    va_start(args, dev);
-    unsigned char buffer[512];
-    int len = 0;
-    while (1) {
-        int b = va_arg(args, int);
-        if (b < 0)
-            break;
-        if (len >= 512)
-            errx(1, "adc_bitbang: too many args.\n");
-        buffer[len++] = b;
-    }
-    va_end(args);
-    usb_send_bytes(dev, buffer, len);
+    unsigned char bytes[5];
+    bytes[0] = REG_ADDRESS;
+    bytes[1] = REG_SAMPLE_FREQ;
+    bytes[2] = freq / 5 * 8 + freq % 5;
+    bytes[3] = REG_SAMPLE_GAIN;
+    bytes[4] = gain;
+    usb_send_bytes(dev, bytes, 5);
 }
 
 
@@ -131,36 +97,43 @@ static void adc_config(libusb_device_handle * dev, ...)
     va_start(args, dev);
     unsigned char buffer[512];
     int len = 0;
+    buffer[len++] = REG_ADDRESS;
+    buffer[len++] = REG_ADC;
     buffer[len++] = ADC_SEN | ADC_SCLK;
+    buffer[len++] = REG_ADC;
     buffer[len++] = ADC_SEN;
     while (1) {
         int w = va_arg(args, int);
         if (w < 0)
             break;
-        if (len > 512 - 34)
+        if (len > sizeof(buffer) - 100)
             errx(1, "adc_config: too many args.\n");
         for (int i = 0; i < 16; ++i) {
             int b = (w << i) & 32768 ? ADC_SDATA : 0;
+            buffer[len++] = REG_ADC;
             buffer[len++] = b | ADC_SCLK;
+            buffer[len++] = REG_ADC;
             buffer[len++] = b;
         }
+        buffer[len++] = REG_ADC;
         buffer[len++] = ADC_SEN | ADC_SCLK;
+        buffer[len++] = REG_ADC;
         buffer[len++] = ADC_SEN;
     }
     va_end(args);
     usb_send_bytes(dev, buffer, len);
+    usleep(100000);
 }
 
 
 static void gain_controlled_sample(libusb_device_handle * dev,
-                                   sample_config_t * config,
+                                   int freq, int * gain,
                                    sample_buffer_t * buffer,
                                    size_t required)
 {
     const int max_gain = 127;
-    int gain = config->shift * 4 + config->table_select;
     for (int i = 0; i < 10; ++i) {
-        sample_config(dev, config);
+        sample_config(dev, freq, *gain);
         get_samples(dev, buffer, required);
 
         const unsigned char * p = buffer->best;
@@ -187,34 +160,33 @@ static void gain_controlled_sample(libusb_device_handle * dev,
         if (max_six < 1)
             max_six = 1;
         int incr = floor(3 * (14 - log2(max_six)));
-        if (incr == 0) {
+        if (incr == 0 || (incr >= -1 && incr <= 1 && i >= 8) ||
+            (*gain == 0 && incr < 0)) {
             fprintf(stderr, "Freq %i choosing gain %i (6sd: %g). %g %g %g\n",
-                    config->freq, gain, max_six,
-                    25.0 / 32 * (config->freq - 1),
-                    25.0 / 32 * config->freq,
-                    25.0 / 32 * (config->freq + 1));
+                    freq, *gain, max_six,
+                    25.0 / 32 * (freq - 1),
+                    25.0 / 32 * freq,
+                    25.0 / 32 * (freq + 1));
             return;
         }
-        if (incr < 0 && gain <= 0)
-            errx(1, "Too big %g with zero gain.\n", max_six);
-        if (incr > 0 && gain >= max_gain)
+        if (incr < 0 && *gain <= 0)
+            errx(1, "Too big %g (means %g,%g  sd %g,%g) with zero gain.\n",
+                 max_six, re_mean, im_mean, re_sd, im_sd);
+        if (incr > 0 && *gain >= max_gain)
             errx(1, "Too small %g with max gain.\n", max_six);
         if (incr < -3)
             incr = -32;
 
         fprintf(stderr, "   gain %i six sigma %g, adjustment = %i.\n",
-                gain, max_six, incr);
+                *gain, max_six, incr);
 
-        gain += incr;
-        if (gain < 0)
-            gain = 0;
-        if (gain > max_gain)
-            gain = max_gain;
-
-        config->table_select = gain & 3;
-        config->shift = gain >> 2;
+        *gain += incr;
+        if (*gain < 0)
+            *gain = 0;
+        if (*gain > max_gain)
+            *gain = max_gain;
     }
-    errx(1, "Failed to convirge...\n");
+    errx(1, "Failed to converge...\n");
 }
 
 
@@ -226,7 +198,7 @@ static double cmodsq(complex z)
 }
 
 
-static void spectrum(const sample_config_t * config, const unsigned char * data)
+static void spectrum(int gain, const unsigned char * data)
 {
     static complex xfrm[SIZE];
     static fftw_plan plan;
@@ -238,7 +210,7 @@ static void spectrum(const sample_config_t * config, const unsigned char * data)
         data += 4;
     }
     fftw_execute(plan);
-    double scale = exp2(-config->shift * 2 - config->table_select * 0.5);
+    double scale = exp2(gain * -0.5);
     for (int i = 0; i != SIZE / 4; ++i)
         buffer[i] = cmodsq(xfrm[SIZE - SIZE/4 + i]) * scale
             * filter_adjust[SIZE/4 - i];
@@ -274,9 +246,18 @@ int main(void)
     libusb_device_handle * dev = usb_open();
 
     // Reset the ADC.
-    adc_bitbang(dev, ADC_RESET|ADC_SCLK|ADC_SEN, ADC_SCLK|ADC_SEN, -1);
+    static const unsigned char adc_reset[] = {
+        REG_ADDRESS, REG_XMIT, XMIT_SOURCE(2),
+        REG_ADC, ADC_RESET|ADC_SCLK|ADC_SEN,
+        REG_ADC, ADC_SCLK|ADC_SEN };
+    usb_send_bytes(dev, adc_reset, sizeof adc_reset);
 
-    usleep(1000);
+    usb_flush(dev);
+
+    // Start the sample output.
+    static const unsigned char start[] = {
+        REG_ADDRESS, REG_XMIT, XMIT_TURBO|XMIT_SOURCE(4) };
+    usb_send_bytes(dev, start, sizeof start);
 
     // Configure the ADC.  Turn down the gain for linearity.  Turn on offset
     // correction.
@@ -289,14 +270,11 @@ int main(void)
     usleep(200000);
     adc_config(dev, 0xcf80, -1);        // Freeze offset correction.
 
-    sample_config_t config = {
-        .freq = 0, .table_select = 3, .shift = 12, .offset = 0x2000 };
-    sample_config(dev, &config);
+    int gain = 51;
     sample_buffer_t buffer = { NULL, 0, NULL, 0 };
     for (int i = 1; i < 160; i += 2) {
-        config.freq = i;
-        gain_controlled_sample(dev, &config, &buffer, SIZE);
-        spectrum(&config, buffer.best);
+        gain_controlled_sample(dev, i, &gain, &buffer, SIZE);
+        spectrum(gain, buffer.best);
     }
 
     return 0;

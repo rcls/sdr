@@ -7,6 +7,7 @@
 
 #include "lib/usb.h"
 #include "lib/util.h"
+#include "lib/registers.h"
 
 #define LENGTH (1<<22)
 #define FULL_LENGTH (LENGTH + 65536)
@@ -58,16 +59,21 @@ int main (int argc, const char ** argv)
 
     // First turn off output & select channel...
     static unsigned char off[] = {
-        0xff, 0xfe, 0xb5, 0x11, 0x08, 0x04, 0xff, 0x05, 0xff, 0x06, 0xff };
-    off[sizeof off - 1] = freq >> 16;
-    off[sizeof off - 3] = freq >> 8;
-    off[sizeof off - 5] = freq;
+        REG_ADDRESS, REG_MAGIC, MAGIC_MAGIC,
+        REG_XMIT, 0x08,
+        REG_RADIO_FREQ(1) + 0, 0xff,
+        REG_RADIO_FREQ(1) + 1, 0xff,
+        REG_RADIO_FREQ(1) + 2, 0xff,
+        REG_RADIO_GAIN(1), 0 };
+    off[sizeof off - 3] = freq >> 16;
+    off[sizeof off - 5] = freq >> 8;
+    off[sizeof off - 7] = freq;
 
     usb_send_bytes(dev, off, sizeof off);
     // Flush usb...
     usb_flush(dev);
     // Turn on phase data, channel 1.
-    static const unsigned char on[] = { 0xff, 0x11, 0x0d };
+    static const unsigned char on[] = { REG_ADDRESS, REG_XMIT, 0x0d };
     usb_send_bytes(dev, on, sizeof on);
 
     // Slurp a truckload of data.
@@ -78,8 +84,9 @@ int main (int argc, const char ** argv)
     usb_send_bytes(dev, off, sizeof off);
     // Flush usb...
     usb_flush(dev);
-    // Grab a couple of bytes.
-    static const unsigned char flip[] = { 0xff, 0x12, 0x0f, 0x12, 0x07 };
+    // Grab a couple of bytes to reset the overrun flag.
+    static const unsigned char flip[] = {
+        REG_ADDRESS, REG_FLASH, 0x0f, REG_FLASH, 0x07 };
     usb_send_bytes(dev, flip, sizeof flip);
     // Flush usb...
     usb_flush(dev);

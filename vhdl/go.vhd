@@ -92,7 +92,6 @@ architecture behavioural of go is
   signal usb_xmit_overrun : std_logic;
   signal usb_nRXFb, usb_nTXEb : std_logic := '0';
   signal usb_nRXF, usb_nTXE : std_logic := '0';
-  attribute keep : string;
   attribute keep of usb_nRXFb, usb_nTXEb : signal is "true";
 
   signal low_data : signed32;
@@ -103,8 +102,9 @@ architecture behavioural of go is
   signal out_last : std_logic;
 
   -- The configuration loaded from USB.
-  signal config : unsigned(151 downto 0);
+  signal config : unsigned(167 downto 0);
   alias adc_control : unsigned8 is config(135 downto 128);
+  -- Control for data in to USB host.
   alias xmit_control : unsigned8 is config(143 downto 136);
 
   -- Channel to select from time-multiplexed data.
@@ -118,10 +118,16 @@ architecture behavioural of go is
   alias flash_control : unsigned8 is config(151 downto 144);
   alias adc_clock_select : std_logic is adc_control(7);
 
+  alias sample_freq : unsigned8 is config(159 downto 152);
+  alias sample_gain : unsigned8 is config(167 downto 160);
+
   signal led_off : unsigned8 := x"fe";
 
   signal usbd_out : unsigned8;
   signal usb_oe_n : std_logic;
+
+  signal sample_strobe : std_logic := '0';
+  signal sample_r, sample_i : signed15;
 
   attribute S : string;
   attribute S of usb_c : signal is "yes";
@@ -202,32 +208,37 @@ begin
     port map (out_data, out_data, out_last,
               audio_scki, audio_lrck, audio_data, audio_bck, clk_main);
 
+  s30 : entity sample30 port map (
+    adc_data_b, sample_freq, sample_gain,
+    sample_r, sample_i, sample_strobe, clk_main);
+
   process
   begin
     wait until rising_edge(clk_main);
-    adc_data_b <= adc_data xor "10" & x"000";
+    adc_data_c <= adc_data xor "10" & x"000";
+    adc_data_b <= adc_data_c;
 
     packet <= (others => 'X');
     usb_nRXFb <= usb_c(0);
     usb_nTXEb <= usb_c(1);
     usb_nRXF <= usb_nRXFb;
     usb_nTXE <= usb_nTXEb;
-    case xmit_control(3 downto 2) is
-      when "00" =>
+    case xmit_source is
+      when "000" =>
         packet(35 downto 0) <= unsigned(ir_data);
         packet(38 downto 36) <= "000";
         packet(39) <= usb_xmit_overrun;
         usb_xmit <= usb_xmit xor ir_strobe;
         usb_last <= ir_last;
         usb_xmit_length <= 5;
-      when "01" =>
+      when "001" =>
         packet(13 downto 0) <= unsigned(adc_data_b);
         packet(14) <= '0';
         packet(15) <= usb_xmit_overrun;
         usb_xmit <= usb_xmit xor ir_strobe;
         usb_last <= '1';
         usb_xmit_length <= 2;
-      when "10" =>
+      when "010" =>
         packet(2 downto 0) <= flash_control(2 downto 0);
         packet(3) <= flash_so;
         packet(6 downto 4) <= "000";
@@ -235,12 +246,20 @@ begin
         usb_xmit <= flash_control(3);
         usb_last <= '1';
         usb_xmit_length <= 1;
-      when "11" =>
+      when "011" =>
         packet(14 downto 0) <= phase(14 downto 0);
         packet(15) <= usb_xmit_overrun;
         usb_xmit <= usb_xmit xor phase_strobe;
         usb_last <= phase_last;
         usb_xmit_length <= 2;
+      when "100" =>
+        packet(14 downto 0) <= unsigned(sample_r);
+        packet(15) <= usb_xmit_overrun;
+        packet(30 downto 16) <= unsigned(sample_i);
+        packet(31) <= usb_xmit_overrun;
+        usb_xmit_length <= 4;
+        usb_xmit <= usb_xmit xor sample_strobe;
+        usb_last <= '1';
       when others =>
         usb_xmit_length <= 0;
         usb_last <= '1';
@@ -268,8 +287,8 @@ begin
 
   usb: entity usbio
     generic map(
-      19, 5,
-      x"0f" & x"0b" & x"09"
+      21, 5,
+      x"0000" & x"0f" & x"0b" & x"09"
       & x"00000000" & x"00000000" & x"00000000" & x"005ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,

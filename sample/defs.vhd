@@ -22,6 +22,7 @@ package defs is
   subtype signed18 is signed(17 downto 0);
   subtype signed14 is signed(13 downto 0);
 
+  -- The bottom 3 bits are added mod 5, so the overall effect is adding mod320.
   function addmod320(x : unsigned9; y : unsigned9) return unsigned9;
 
 end defs;
