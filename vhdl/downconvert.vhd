@@ -102,8 +102,6 @@ architecture downconvert of downconvert is
   signal qq_acc : accumulator;
   signal ii_acc : accumulator;
 
-  signal gain_b : unsigned8;
-
   signal sintable : sinrom_t := sinrom;
 
   attribute use_dsp48 : string;
@@ -151,16 +149,16 @@ begin
       data_3 <= data;
 
       -- Apply gain(1,0) to sin & cos, & gain(2) to data.
-      if gain_b(2) = '0' then
+      if gain(2) = '0' then
         data_4 <= resize(data_3, 18);
       else
         data_4 <= data_3 & "0000";
       end if;
 
-      cos_main_4 <= signed(cos_main) sll to_integer(gain_b(1 downto 0));
-      sin_main_4 <= signed(sin_main) sll to_integer(gain_b(1 downto 0));
-      cos_offset_4 <= signed(cos_offset) sll to_integer(gain_b(1 downto 0));
-      sin_offset_4 <= signed(sin_offset) sll to_integer(gain_b(1 downto 0));
+      cos_main_4 <= signed(cos_main) sll to_integer(gain(1 downto 0));
+      sin_main_4 <= signed(sin_main) sll to_integer(gain(1 downto 0));
+      cos_offset_4 <= signed(cos_offset) sll to_integer(gain(1 downto 0));
+      sin_offset_4 <= signed(sin_offset) sll to_integer(gain(1 downto 0));
       cos_minus_4 <= cos_minus_3;
       sin_minus_4 <= sin_minus_3;
 
@@ -202,8 +200,8 @@ begin
       qq_buf_9 <= qq_buf;
       ii_buf_9 <= ii_buf;
 
-      -- Second order accumulate, applying gain_b(3).
-      if gain_b(3) = '0' then
+      -- Second order accumulate, applying gain(3).
+      if gain(3) = '0' then
         qq_acc <= qq_acc + qq_buf_9;
         ii_acc <= ii_acc + ii_buf_9;
       else
@@ -213,8 +211,6 @@ begin
 
       qq <= qq_acc(width - 1 downto width - 36);
       ii <= ii_acc(width - 1 downto width - 36);
-
-      gain_b <= gain; -- Buffer.
     end if;
   end process;
 end downconvert;
