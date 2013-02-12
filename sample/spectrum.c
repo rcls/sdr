@@ -242,7 +242,7 @@ int main(void)
     // Reset the ADC.
     static const unsigned char adc_reset[] = {
         REG_ADDRESS,
-        REG_MAGIC, MAGIC_MAGIC, REG_XMIT, XMIT_SOURCE(2),
+        REG_MAGIC, MAGIC_MAGIC, REG_XMIT, XMIT_FLASH,
         REG_ADC, ADC_RESET|ADC_SCLK|ADC_SEN,
         REG_ADC, ADC_SCLK|ADC_SEN };
     usb_send_bytes(dev, adc_reset, sizeof adc_reset);
@@ -251,7 +251,7 @@ int main(void)
 
     // Start the sample output.
     static const unsigned char start[] = {
-        REG_ADDRESS, REG_XMIT, XMIT_TURBO|XMIT_SOURCE(4) };
+        REG_ADDRESS, REG_XMIT, XMIT_TURBO|XMIT_SAMPLE30 };
     usb_send_bytes(dev, start, sizeof start);
 
     // Configure the ADC.  Turn down the gain for linearity.  Turn on offset

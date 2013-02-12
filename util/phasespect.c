@@ -62,7 +62,7 @@ int main (int argc, const char ** argv)
     // First turn off output & select channel...
     static unsigned char off[] = {
         REG_ADDRESS, REG_MAGIC, MAGIC_MAGIC,
-        REG_XMIT, 0x08,
+        REG_XMIT, XMIT_FLASH,
         REG_RADIO_FREQ(1) + 0, 0xff,
         REG_RADIO_FREQ(1) + 1, 0xff,
         REG_RADIO_FREQ(1) + 2, 0xff,
@@ -75,7 +75,7 @@ int main (int argc, const char ** argv)
     // Flush usb...
     usb_flush(dev);
     // Turn on phase data, channel 1.
-    static const unsigned char on[] = { REG_ADDRESS, REG_XMIT, 0x0d };
+    static const unsigned char on[] = { REG_ADDRESS, REG_XMIT, XMIT_PHASE|1 };
     usb_send_bytes(dev, on, sizeof on);
 
     // Slurp a truckload of data.

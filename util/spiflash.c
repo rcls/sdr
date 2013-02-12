@@ -9,22 +9,10 @@
 #include <unistd.h>
 
 #include "lib/util.h"
+#include "lib/registers.h"
 
 #define PAGE_LEN 264
 
-enum {
-    FLASH_CS = 1,
-    FLASH_DATA = 2,
-    FLASH_CLK = 4,
-    FLASH_RECV = 8,
-    FLASH_XMIT = 8,
-    FLASH_OVERRUN = 128,
-
-    FLASH_ID = 0x9f,
-
-    REG_XMIT = 17,
-    REG_FLASH = 18
-};
 
 static unsigned char buffer[131072];
 
@@ -332,7 +320,7 @@ int main(int argc, char * argv[])
     // Select SPI readback.
     // Make sure CS, SI are high.
     static const unsigned char init[] = {
-        0xff, 0x1e, 0xb5, REG_XMIT, 8,
+        REG_ADDRESS, REG_MAGIC, MAGIC_MAGIC, REG_XMIT, XMIT_FLASH,
         REG_FLASH, FLASH_CS | FLASH_DATA,
         REG_FLASH, FLASH_CS | FLASH_DATA | FLASH_XMIT,
         REG_FLASH, FLASH_CS | FLASH_DATA,
