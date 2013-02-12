@@ -17,6 +17,7 @@ package defs is
   subtype signed36 is signed(35 downto 0);
   subtype signed32 is signed(31 downto 0);
   subtype signed18 is signed(17 downto 0);
+  subtype signed16 is signed(15 downto 0);
   subtype signed15 is signed(14 downto 0);
   subtype signed14 is signed(13 downto 0);
 
