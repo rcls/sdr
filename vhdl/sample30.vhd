@@ -27,6 +27,8 @@ architecture sample30 of sample30 is
   -- Select part of trig. rom.
   alias table_select : unsigned2 is gain(1 downto 0);
 
+  alias enable : std_logic is gain(7);
+
   -- Accumulator widths minus one...
   constant width1 : integer := 52;
   constant width2 : integer := 39;
@@ -257,18 +259,28 @@ architecture sample30 of sample30 is
     );
 
 begin
+
+  process
+  begin
+    -- A little bit of logic outside the enable: reseting the state counter
+    -- and the output strobe.  This makes sure the strobe does not get stuck
+    -- high while we're disabled.
+    wait until rising_edge(clk);
+    strobe <= '0';
+    if state = state_max then
+      state <= 0;
+      strobe <= '1';
+    elsif enable = '1' then
+      state <= state + 1;
+    end if;
+  end process;
+
   process
     variable sprod_r, sprod_i : signed(wprod downto 0);
     variable shift0_r : signed(diffw + 11 downto 0);
     variable shift0_i : signed(diffw + 11 downto 0);
   begin
-    wait until rising_edge(clk);
-
-    if state = state_max then
-      state <= 0;
-    else
-      state <= state + 1;
-    end if;
+    wait until rising_edge(clk) and enable = '1';
 
     phase <= addmod320(phase, '0' & freq);
 
@@ -398,9 +410,7 @@ begin
       end if;
     end loop;
 
-    strobe <= '0';
-    if state = 79 then
-      strobe <= '1';
+    if state = state_max then
       out_r <= flt_r(5)(diffw downto diffw - 14);
       out_i <= flt_i(5)(diffw downto diffw - 14);
     end if;

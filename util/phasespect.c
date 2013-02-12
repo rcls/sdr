@@ -20,6 +20,8 @@ static inline unsigned get16(const unsigned char * p)
 
 static void load_samples(const unsigned char * buffer, double * samples)
 {
+    // Check for overrun flags.  Also chuck at least 4096 samples to let the
+    // filters settle.
     int best = 0;
     for (int i = 0; i != FULL_LENGTH; ++i)
         if (buffer[2*i + 1] & 128) {
@@ -27,10 +29,10 @@ static void load_samples(const unsigned char * buffer, double * samples)
             best = i;
         }
 
-    if (FULL_LENGTH - best < LENGTH + 1)
-        errx(1, "Only got %i, wanted %i\n", FULL_LENGTH - best, LENGTH + 1);
+    if (FULL_LENGTH - best < LENGTH + 4096)
+        errx(1, "Only got %i, wanted %i\n", FULL_LENGTH - best, LENGTH + 4096);
 
-    const unsigned char * p = buffer + 2 * best;
+    const unsigned char * p = buffer + 2 * (best - 4096);
     int last = get16(p);
 
     for (int i = 0; i != LENGTH; ++i) {
@@ -64,7 +66,7 @@ int main (int argc, const char ** argv)
         REG_RADIO_FREQ(1) + 0, 0xff,
         REG_RADIO_FREQ(1) + 1, 0xff,
         REG_RADIO_FREQ(1) + 2, 0xff,
-        REG_RADIO_GAIN(1), 0 };
+        REG_RADIO_GAIN(1), 0x80 };
     off[sizeof off - 3] = freq >> 16;
     off[sizeof off - 5] = freq >> 8;
     off[sizeof off - 7] = freq;
@@ -80,7 +82,8 @@ int main (int argc, const char ** argv)
     static unsigned char buffer[BUFFER_SIZE];
     usb_slurp(dev, buffer, sizeof buffer);
 
-    // Turn off data.
+    // Turn off data.  Turn off the channel.
+    off[sizeof off - 1] = 0;
     usb_send_bytes(dev, off, sizeof off);
     // Flush usb...
     usb_flush(dev);

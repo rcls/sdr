@@ -289,7 +289,7 @@ begin
     generic map(
       21, 5,
       x"0000" & x"0f" & x"0b" & x"09"
-      & x"00000000" & x"00000000" & x"00000000" & x"005ed288")
+      & x"00000000" & x"00000000" & x"00000000" & x"805ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,
              usb_nRD => usb_c(2),  usb_nWR => usb_c(3),

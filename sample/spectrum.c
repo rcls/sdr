@@ -127,7 +127,7 @@ static void gain_controlled_sample(libusb_device_handle * dev,
 {
     const int max_gain = 63;
     for (int i = 0; i < 10; ++i) {
-        sample_config(dev, freq, *gain);
+        sample_config(dev, freq, *gain | 0x80);
         get_samples(dev, buffer, required);
 
         const unsigned char * p = buffer->best;
@@ -271,6 +271,9 @@ int main(void)
         gain_controlled_sample(dev, i, &gain, &buffer, SIZE);
         spectrum(gain, buffer.best);
     }
+
+    // Turn off the sampler unit.
+    sample_config(dev, 0, 0);
 
     usb_close(dev);
 

@@ -104,6 +104,8 @@ architecture downconvert of downconvert is
 
   signal sintable : sinrom_t := sinrom;
 
+  alias enable : std_logic is gain(7);
+
   attribute use_dsp48 : string;
   attribute use_dsp48 of qq_acc : signal is "no";
   attribute use_dsp48 of ii_acc : signal is "no";
@@ -112,9 +114,10 @@ architecture downconvert of downconvert is
   attribute keep_hierarchy of downconvert : architecture is "soft";
 
 begin
-  process (Clk)
+  process
   begin
-    if Clk'event and Clk = '1' then
+    wait until rising_edge(clk);
+    if enable = '1' then
       index_acc <= index_acc + freq;
 
       -- Unpack the accumulator to the indexes and signs.
