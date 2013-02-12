@@ -3,3 +3,31 @@ NET "ADC_RECLK_P" TNM_NET = "adc_reclk";
 TIMESPEC TS_adc_reclk = PERIOD "adc_reclk" 250 MHz;
 
 INST "adc_reclk_buf" LOC = BUFIO2_X0Y22;
+
+# freq & gain is 0 to 127
+NET "usb/config<?>" TIG;
+NET "usb/config<??>" TIG;
+NET "usb/config<10?>" TIG;
+NET "usb/config<11?>" TIG;
+
+# adc control is 128 to 135
+# xmit control is 136 to 143
+NET "usb/config<12?>" TIG;
+NET "usb/config<13?>" TIG;
+NET "usb/config<140>" TIG;
+#NET "usb/config<141>" TIG;
+NET "usb/config<142>" TIG;
+NET "usb/config<143>" TIG;
+
+# flash control is 144 to 151 - keep.
+
+# sample freq/gain is 152 to 167
+NET "usb/config<152>" TIG;
+NET "usb/config<153>" TIG;
+NET "usb/config<154>" TIG;
+NET "usb/config<155>" TIG;
+NET "usb/config<156>" TIG;
+NET "usb/config<157>" TIG;
+NET "usb/config<158>" TIG;
+NET "usb/config<159>" TIG;
+NET "usb/config<16?>" TIG;

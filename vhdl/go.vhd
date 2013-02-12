@@ -104,6 +104,7 @@ architecture behavioural of go is
   -- The configuration loaded from USB.
   signal config : unsigned(167 downto 0);
   alias adc_control : unsigned8 is config(135 downto 128);
+  alias adc_clock_select : std_logic is adc_control(7);
   -- Control for data in to USB host.
   alias xmit_control : unsigned8 is config(143 downto 136);
 
@@ -116,7 +117,6 @@ architecture behavioural of go is
   -- Ignore the TX handshake and shovel data at 12.5 MB/s.
   alias xmit_turbo : std_logic is xmit_control(6);
   alias flash_control : unsigned8 is config(151 downto 144);
-  alias adc_clock_select : std_logic is adc_control(7);
 
   alias sample_freq : unsigned8 is config(159 downto 152);
   alias sample_gain : unsigned8 is config(167 downto 160);
