@@ -47,7 +47,7 @@ architecture downconvert of downconvert is
   constant width : integer := 48;
   subtype accumulator is signed(width - 1 downto 0);
 
-  signal index_acc : unsigned24;
+  signal index_acc : unsigned24 := x"000000";
 
   signal cos_index : unsigned(9 downto 0);
   signal sin_index : unsigned(9 downto 0);

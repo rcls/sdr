@@ -45,8 +45,8 @@ architecture usbio of usbio is
                    state_pause);
   signal state : state_t := state_idle;
   signal config_strobes : std_logic_vector(31 downto 0) := (others => '0');
-  signal config_magic : unsigned8;
-  signal config_address : unsigned8;
+  signal config_magic : unsigned8 := x"00";
+  signal config_address : unsigned8 := x"ff";
 
   signal xmit_prev : std_logic;
   signal xmit_buffer : unsigned(packet_bytes * 8 - 1 downto 0);

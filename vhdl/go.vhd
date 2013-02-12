@@ -90,8 +90,8 @@ architecture behavioural of go is
   signal usb_xmit, usb_last : std_logic;
   signal usb_xmit_length : integer range 0 to 5;
   signal usb_xmit_overrun : std_logic;
-  signal usb_nRXFb, usb_nTXEb : std_logic := '0';
-  signal usb_nRXF, usb_nTXE : std_logic := '0';
+  signal usb_nRXFb, usb_nTXEb : std_logic := '1';
+  signal usb_nRXF, usb_nTXE : std_logic := '1';
   attribute keep of usb_nRXFb, usb_nTXEb : signal is "true";
 
   signal low_data : signed32;
