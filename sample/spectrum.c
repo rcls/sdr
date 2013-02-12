@@ -12,11 +12,6 @@
 
 #define SIZE (1<<22)
 
-#define ADC_RESET 8
-#define ADC_SCLK 4
-#define ADC_SDATA 2
-#define ADC_SEN 1
-
 typedef struct sample_buffer_t {
     unsigned char * data;
     size_t data_len;
@@ -63,8 +58,8 @@ static void get_samples(libusb_device_handle * dev,
 
     for (int i = 0; i < 10; ++i) {
         usb_slurp(dev, buffer->data, amount);
-        buffer->best = buffer->data;
-        size_t bytes = amount;
+        buffer->best = buffer->data + 8192;
+        size_t bytes = amount - 8192;
         buffer->best_len = best30(&buffer->best, &bytes);
         if (buffer->best_len >= required) {
             if (i != 0)
@@ -122,7 +117,6 @@ static void adc_config(libusb_device_handle * dev, ...)
     }
     va_end(args);
     usb_send_bytes(dev, buffer, len);
-    usleep(100000);
 }
 
 
