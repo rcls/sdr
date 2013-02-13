@@ -102,7 +102,7 @@ architecture behavioural of go is
   signal out_last : std_logic;
 
   -- The configuration loaded from USB.
-  signal config : unsigned(167 downto 0);
+  signal config : unsigned(175 downto 0);
   alias adc_control : unsigned8 is config(135 downto 128);
   alias adc_clock_select : std_logic is adc_control(7);
   -- Control for data in to USB host.
@@ -121,6 +121,8 @@ architecture behavioural of go is
   alias sample_freq : unsigned8 is config(159 downto 152);
   alias sample_gain : unsigned8 is config(167 downto 160);
 
+  alias raw_rate : unsigned8 is config(175 downto 168);
+
   signal led_off : unsigned8 := x"fe";
 
   signal usbd_out : unsigned8;
@@ -128,6 +130,8 @@ architecture behavioural of go is
 
   signal sample_strobe : std_logic := '0';
   signal sample_r, sample_i : signed15;
+
+  signal raw_divide : unsigned9;
 
   attribute S : string;
   attribute S of usb_c : signal is "yes";
@@ -234,7 +238,7 @@ begin
         packet(13 downto 0) <= unsigned(adc_data_b);
         packet(14) <= '0';
         packet(15) <= usb_xmit_overrun;
-        usb_xmit <= usb_xmit xor ir_strobe;
+        usb_xmit <= usb_xmit xor raw_divide(8);
         usb_last <= '1';
         usb_xmit_length <= 2;
       when "010" =>
@@ -263,6 +267,12 @@ begin
         usb_xmit_length <= 0;
         usb_last <= '1';
     end case;
+
+    if raw_divide(8) = '1' then
+      raw_divide <= ('0' & raw_rate) - 1;
+    else
+      raw_divide <= raw_divide - 1;
+    end if;
   end process;
 
   -- Protocol: config packets, little endian:
@@ -286,8 +296,8 @@ begin
 
   usb: entity usbio
     generic map(
-      21, 4,
-      x"0000" & x"0f" & x"0b" & x"09"
+      22, 4,
+      x"00" & x"0000" & x"0f" & x"0b" & x"09"
       & x"00000000" & x"00000000" & x"00000000" & x"805ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,

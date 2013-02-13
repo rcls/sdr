@@ -9,6 +9,7 @@
 #define REG_FLASH 18
 #define REG_SAMPLE_FREQ 19
 #define REG_SAMPLE_GAIN 20
+#define REG_ADC_SAMPLE 21
 #define REG_MAGIC 0xfe
 #define REG_ADDRESS 0xff
 
@@ -20,7 +21,7 @@
 
 #define XMIT_SOURCE(x) ((x) << 2)
 #define XMIT_IR 0
-#define XMIT_ADC 4
+#define XMIT_ADC_SAMPLE 4
 #define XMIT_FLASH 8
 #define XMIT_PHASE 12
 #define XMIT_SAMPLE30 16

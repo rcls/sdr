@@ -31,3 +31,4 @@ NET "usb/config<157>" TIG;
 NET "usb/config<158>" TIG;
 NET "usb/config<159>" TIG;
 NET "usb/config<16?>" TIG;
+NET "usb/config<17?>" TIG;
