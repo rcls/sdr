@@ -192,7 +192,7 @@ static double cmodsq(complex z)
 }
 
 
-static void spectrum(int gain, const unsigned char * data)
+static void get_spectrum(int gain, const unsigned char * data)
 {
     static complex xfrm[SIZE];
     static fftw_plan plan;
@@ -200,7 +200,8 @@ static void spectrum(int gain, const unsigned char * data)
     if (!plan)
         plan = fftw_plan_dft_1d(SIZE, xfrm, xfrm, FFTW_FORWARD, FFTW_ESTIMATE);
     for (int i = 0; i != SIZE; ++i) {
-        xfrm[i] = get_real(data) + I * get_imag(data) + 0.5 + 0.5 * I;
+        xfrm[i] = (get_real(data) + I * get_imag(data) + 0.5 + 0.5 * I)
+            * (1 - cos (2 * M_PI * i / SIZE));
         data += 4;
     }
     fftw_execute(plan);
@@ -269,7 +270,7 @@ int main(void)
     sample_buffer_t buffer = { NULL, 0, NULL, 0 };
     for (int i = 1; i < 160; i += 2) {
         gain_controlled_sample(dev, i, &gain, &buffer, SIZE);
-        spectrum(gain, buffer.best);
+        get_spectrum(gain, buffer.best);
     }
 
     // Turn off the sampler unit.
