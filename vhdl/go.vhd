@@ -48,7 +48,7 @@ architecture behavioural of go is
   signal ii_buf : signed36;
   signal qq_buf_last : std_logic;
 
-  signal packet : unsigned(39 downto 0);
+  signal packet : unsigned(31 downto 0);
 
   -- Generated clock for delivery to ADC.
   signal adc_clk : std_logic;
@@ -83,7 +83,7 @@ architecture behavioural of go is
   signal phase : unsigned18;
   signal phase_strobe, phase_last : std_logic;
 
-  signal ir_data : signed36;
+  signal ir_data : signed18;
   signal ir_strobe : std_logic;
   signal ir_last : std_logic;
 
@@ -192,13 +192,12 @@ begin
              phase, phase_strobe, phase_last, clk_main);
 
   irf: entity irfir
-    generic map (acc_width => 36, out_width => 36)
+    generic map (acc_width => 36, out_width => 18)
     port map(phase, phase_last, ir_data, ir_strobe, ir_last, clk_main);
 
   lf: entity lowfir
     generic map (acc_width => 37, out_width => 32)
-    port map(ir_data(35 downto 18), ir_last,
-             low_data, low_strobe, low_last, clk_main);
+    port map(ir_data, ir_last, low_data, low_strobe, low_last, clk_main);
 
   demph: entity quaddemph generic map (32, 40, 32, 1)
     port map (low_data, low_strobe, low_last,
@@ -225,12 +224,12 @@ begin
     usb_nTXE <= usb_nTXEb;
     case xmit_source is
       when "000" =>
-        packet(35 downto 0) <= unsigned(ir_data);
-        packet(38 downto 36) <= "000";
-        packet(39) <= usb_xmit_overrun;
+        packet(17 downto 0) <= unsigned(ir_data);
+        packet(22 downto 18) <= "00000";
+        packet(24) <= usb_xmit_overrun;
         usb_xmit <= usb_xmit xor ir_strobe;
         usb_last <= ir_last;
-        usb_xmit_length <= 5;
+        usb_xmit_length <= 3;
       when "001" =>
         packet(13 downto 0) <= unsigned(adc_data_b);
         packet(14) <= '0';
@@ -287,7 +286,7 @@ begin
 
   usb: entity usbio
     generic map(
-      21, 5,
+      21, 4,
       x"0000" & x"0f" & x"0b" & x"09"
       & x"00000000" & x"00000000" & x"00000000" & x"805ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
