@@ -19,6 +19,8 @@
 #define ADC_CLOCK_SELECT 128
 
 #define XMIT_SOURCE(x) ((x) << 2)
+#define XMIT_IR 0
+#define XMIT_ADC 4
 #define XMIT_FLASH 8
 #define XMIT_PHASE 12
 #define XMIT_SAMPLE30 16

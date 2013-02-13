@@ -2,6 +2,8 @@
 
 #include <assert.h>
 #include <fcntl.h>
+#include <fftw3.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -55,6 +57,15 @@ void dump_file(int file, const void * data, size_t len)
     const unsigned char * end = start + len;
     for (const unsigned char * p = start; p != end;)
         p += checkz(write(file, p, end - p), "writing output");
+}
+
+
+void dump_path(const char * path, const void * data, size_t len)
+{
+    int outfile = checki(open(path, O_WRONLY|O_CREAT|O_TRUNC, 0666),
+                         "opening output");
+    dump_file(outfile, data, len);
+    checki(close(outfile), "closing output");
 }
 
 
@@ -216,4 +227,30 @@ size_t best36(const unsigned char ** restrict buffer, size_t * restrict bytes)
     *buffer = best;
     *bytes = best_bytes;
     return best_bytes / 5;
+}
+
+
+float * spectrum(const double * samples, size_t length)
+{
+    double * fft = xmalloc(length * sizeof(double));
+
+    // Apply a window.
+    for (size_t i = 0; i != length; ++i)
+        fft[i] = samples[i] * (1 - cos(2 * M_PI * i / length));
+
+    fftw_plan_with_nthreads(4);
+    fftw_plan plan = fftw_plan_r2r_1d(
+        length, fft, fft, FFTW_R2HC, FFTW_ESTIMATE);
+    fftw_execute(plan);
+    fftw_destroy_plan(plan);
+
+    float * output = xmalloc(length / 2 * sizeof(float));
+    output[0] = 0;                      // Not interesting.
+    for (size_t i = 1; i * 2 < length; ++i)
+        output[i] = fft[i] * fft[i] + fft[length - i] * fft[length - i];
+    if (length % 2 == 0)
+        output[length / 2] = fft[length / 2] * fft[length / 2];
+
+    free(fft);
+    return output;
 }

@@ -3,6 +3,7 @@
 
 #include "lib/usb.h"
 #include "lib/util.h"
+#include "lib/registers.h"
 
 #define INTF 0
 #define NUM_URBS 256
@@ -131,4 +132,49 @@ void usb_flush(libusb_device_handle * dev)
     usb_flush1(dev);
     usleep(100000);                     // Fucking FTDI.
     usb_flush1(dev);
+}
+
+
+unsigned char * usb_slurp_channel(size_t length,
+                                  unsigned freq, int gain, int source)
+{
+    libusb_device_handle * dev = usb_open();
+
+    // First turn off output & select channel...
+    int channel = source & 3;
+    freq = freq * 16777216ull / 250000;
+    unsigned char off[] = {
+        REG_ADDRESS, REG_MAGIC, MAGIC_MAGIC,
+        REG_XMIT, XMIT_FLASH,
+        REG_RADIO_FREQ(channel) + 0, freq,
+        REG_RADIO_FREQ(channel) + 1, freq >> 8,
+        REG_RADIO_FREQ(channel) + 2, freq >> 16,
+        REG_RADIO_GAIN(channel), 0x80|gain };
+
+    usb_send_bytes(dev, off, sizeof off);
+    // Flush usb...
+    usb_flush(dev);
+    // Turn on the data channel.
+    unsigned char on[] = { REG_ADDRESS, REG_XMIT, source };
+    usb_send_bytes(dev, on, sizeof on);
+
+    // Slurp a truckload of data.
+    unsigned char * buffer = xmalloc(length);
+    usb_slurp(dev, buffer, length);
+
+    // Turn off data.  Turn off the channel.
+    off[sizeof off - 1] = 0;
+    usb_send_bytes(dev, off, sizeof off);
+    // Flush usb...
+    usb_flush(dev);
+    // Grab a couple of bytes to reset the overrun flag.
+    static const unsigned char flip[] = {
+        REG_ADDRESS, REG_FLASH, 0x0f, REG_FLASH, 0x07 };
+    usb_send_bytes(dev, flip, sizeof flip);
+    // Flush usb...
+    usb_flush(dev);
+
+    usb_close(dev);
+
+    return buffer;
 }

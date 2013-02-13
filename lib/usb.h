@@ -19,4 +19,7 @@ void usb_send_bytes(libusb_device_handle * dev, const void * data, size_t len);
 
 void usb_flush(libusb_device_handle * dev);
 
+unsigned char * usb_slurp_channel(size_t length,
+                                  unsigned freq, int gain, int source);
+
 #endif

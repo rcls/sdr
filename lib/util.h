@@ -29,6 +29,7 @@ void slurp_file(int file, unsigned char * * restrict b,
                 size_t * restrict offset, size_t * restrict size);
 
 void dump_file(int file, const void * data, size_t len);
+void dump_path(const char * path, const void * data, size_t len);
 
 // Returns number of samples, update pointer and size.
 size_t best30(const unsigned char ** restrict buffer,
@@ -39,5 +40,7 @@ size_t best14(const unsigned char ** restrict buffer,
               size_t * restrict bytes);
 size_t best36(const unsigned char ** restrict buffer,
               size_t * restrict bytes);
+
+float * spectrum(const double * samples, size_t length);
 
 #endif
