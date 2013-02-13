@@ -27,6 +27,7 @@
 #define XMIT_SAMPLE30 16
 #define XMIT_TURBO 64
 #define XMIT_LOW_LATENCY 128
+#define XMIT_PUSH 192
 
 #define FLASH_CS 1
 #define FLASH_DATA 2

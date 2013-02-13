@@ -69,7 +69,6 @@ begin
     usb_nRD <= '1';
     usb_nWR <= '1';
     usb_oe_n <= '1';
-    usb_SIWA <= '1';
     state <= state_idle;
     config_strobes <= (others => '0');
     usbd_out <= xmit_queue(7 downto 0);
@@ -84,6 +83,10 @@ begin
     end if;
     if config_strobes(30) = '1' then
       config_magic <= usbd_in;
+    end if;
+
+    if state /= state_pause then
+      usb_SIWA <= '1';
     end if;
 
     -- If we're in state idle, decide what to do next.  Prefer reads over
@@ -104,7 +107,7 @@ begin
       usb_oe_n <= '0';
       usb_nWR <= '0';
       state <= state_write2;
-     to_xmit <= to_xmit - 1;
+      to_xmit <= to_xmit - 1;
       xmit_queue(packet_bytes * 8 - 9 downto 0)
         <= xmit_queue(packet_bytes * 8 - 1 downto 8);
       xmit_queue(packet_bytes * 8 - 1 downto packet_bytes * 8 - 8)
@@ -114,6 +117,9 @@ begin
     if state = state_write2 then
       usb_nWR <= '0';
       state <= state_pause;
+      if to_xmit = 0 and xmit_buffered = '0' and low_latency = '1' then
+        usb_SIWA <= '0';
+      end if;
     end if;
 
     if state = state_read then
@@ -122,11 +128,6 @@ begin
       config_strobes(to_integer(config_address(4 downto 0))) <= '1';
       config_address <= x"ff";
       state <= state_pause;
-    end if;
-
-    if state = state_pause and to_xmit = 0 and xmit_buffered = '0'
-      and low_latency = '1' then
-      usb_SIWA <= '0';
     end if;
 
     xmit_prev <= xmit;

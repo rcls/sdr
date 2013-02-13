@@ -129,8 +129,11 @@ static void usb_flush1(libusb_device_handle * dev)
 
 void usb_flush(libusb_device_handle * dev)
 {
+    // FTDI makes this hard.  Manually pulse siwa, then get two empty transfers.
+    static const unsigned char push[] = {
+        0xff, REG_XMIT, XMIT_PUSH|XMIT_FLASH, REG_XMIT, XMIT_FLASH };
+    usb_send_bytes(dev, push, sizeof push);
     usb_flush1(dev);
-    usleep(100000);                     // Fucking FTDI.
     usb_flush1(dev);
 }
 
