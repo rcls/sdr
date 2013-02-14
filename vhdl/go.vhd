@@ -122,17 +122,16 @@ architecture behavioural of go is
   alias bandpass_freq : unsigned8 is config(159 downto 152);
   alias bandpass_gain : unsigned8 is config(167 downto 160);
 
+  signal bandpass_strobe : std_logic := '0';
+  signal bandpass_r, bandpass_i : signed15;
+
   alias raw_rate : unsigned8 is config(175 downto 168);
+  signal raw_divide : unsigned9;
 
   signal led_off : unsigned8 := x"fe";
 
   signal usbd_out : unsigned8;
   signal usb_oe_n : std_logic;
-
-  signal bandpass_strobe : std_logic := '0';
-  signal bandpass_r, bandpass_i : signed15;
-
-  signal raw_divide : unsigned9;
 
   attribute S : string;
   attribute S of usb_c : signal is "yes";
