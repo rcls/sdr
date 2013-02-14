@@ -38,15 +38,7 @@ static void close_port (void)
 
 static void write_exact (const unsigned char * start, unsigned len)
 {
-    while (len) {
-        int done = 0;
-        int r = libusb_bulk_transfer (
-            dev, USB_OUT_EP, (unsigned char *) start, len, &done, 1000);
-        if (r < 0)
-            errx(1, "write: %i %i", r, done);
-        start += done;
-        len -= done;
-    }
+    usb_send_bytes(dev, start, len);
 }
 
 
