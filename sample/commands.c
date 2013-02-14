@@ -13,37 +13,22 @@
 
 #include "lib/usb.h"
 #include "lib/util.h"
-
-#define ADC_RESET 8
-#define ADC_SCLK 4
-#define ADC_SDATA 2
-#define ADC_SEN 1
+#include "lib/registers.h"
 
 #define BUFLEN 512
 static unsigned char buffer[BUFLEN];
 static int offset = 0;
 
-static void bulk_transfer(libusb_device_handle * dev,
-                          const unsigned char * buffer, int len)
-{
-    int transferred;
-    if (libusb_bulk_transfer(dev, USB_OUT_EP, (unsigned char *) buffer, len,
-                             &transferred, 100) != 0
-        || transferred != len)
-        errx(1, "libusb_bulk_transfer failed.\n");
-}
-
-
 static void addressed_transfer(libusb_device_handle * dev,
                                const unsigned char * buffer, int len)
 {
     unsigned char bytes[len * 2 + 1];
-    bytes[0] = 0xff;
+    bytes[0] = REG_ADDRESS;
     for (int i = 0; i != len; ++i) {
-        bytes[i * 2 + 1] = 16;
+        bytes[i * 2 + 1] = REG_ADC;
         bytes[i * 2 + 2] = buffer[i];
     }
-    bulk_transfer(dev, bytes, len * 2 + 1);
+    usb_send_bytes(dev, bytes, len * 2 + 1);
 }
 
 static void putbyte(int c)
@@ -138,7 +123,7 @@ int main(int argc, const char * const * argv)
         fprintf(stderr, " %02x", buffer[i]);
     fprintf(stderr, "\n");
     if (direct)
-        bulk_transfer(dev, buffer, offset);
+        usb_send_bytes(dev, buffer, offset);
     else
         addressed_transfer(dev, buffer, offset);
     usb_close(dev);
