@@ -17,9 +17,12 @@ void usb_slurp(libusb_device_handle * dev, void * buffer, size_t len);
 
 void usb_send_bytes(libusb_device_handle * dev, const void * data, size_t len);
 
+// Make sure data gets pushed to us; writes registers to pulse SIWA.
 void usb_flush(libusb_device_handle * dev);
 
-unsigned char * usb_slurp_channel(size_t length, int source,
+// If dev is NULL auto open/close.
+unsigned char * usb_slurp_channel(libusb_device_handle * dev,
+                                  size_t length, int source,
                                   int freq, int gain);
 
 #endif

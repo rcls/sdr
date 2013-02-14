@@ -138,10 +138,13 @@ void usb_flush(libusb_device_handle * dev)
 }
 
 
-unsigned char * usb_slurp_channel(size_t length, int source,
+unsigned char * usb_slurp_channel(libusb_device_handle * devo,
+                                  size_t length, int source,
                                   int freq, int gain)
 {
-    libusb_device_handle * dev = usb_open();
+    libusb_device_handle * dev = devo;
+    if (dev == NULL)
+        usb_open();
 
     // First turn off output & select channel...
     int channel = source & 3;
@@ -190,7 +193,8 @@ unsigned char * usb_slurp_channel(size_t length, int source,
     // Flush usb...
     usb_flush(dev);
 
-    usb_close(dev);
+    if (devo == NULL)
+        usb_close(dev);
 
     return buffer;
 }

@@ -1,7 +1,7 @@
 
 SAMPBIN=dump readdump readdump14 readdump22 spectrum spectrum-reduce commands \
 	mlt3-detect ftrans
-UTILBIN=phasespect irspec spiflash
+UTILBIN=phasespect irspec burstspec spiflash
 
 all: vhdl/sinrom.vhd phasedetectsim pllsim $(SAMPBIN:%=sample/%) \
 	$(UTILBIN:%=util/%)
@@ -16,6 +16,7 @@ util/phasespect: lib/usb.o lib/util.o
 util/irspec: LDLIBS=-lfftw3_threads -lfftw3 -lusb-1.0
 util/irspec: lib/util.o lib/usb.o
 util/spiflash: lib/util.o lib/usb.o -lusb-1.0
+util/burstspec: lib/usb.o lib/util.o -lfftw3_threads -lfftw3 -lusb-1.0
 
 sample/commands: LDLIBS=-lusb-1.0
 sample/commands: lib/usb.o lib/util.o
