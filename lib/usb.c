@@ -138,8 +138,8 @@ void usb_flush(libusb_device_handle * dev)
 }
 
 
-unsigned char * usb_slurp_channel(size_t length,
-                                  unsigned freq, int gain, int source)
+unsigned char * usb_slurp_channel(size_t length, int source,
+                                  int freq, int gain)
 {
     libusb_device_handle * dev = usb_open();
 
