@@ -8,17 +8,30 @@
 
 #include "lib/usb.h"
 #include "lib/util.h"
+#include "lib/registers.h"
 
 static const char * outpath;
+
+static int freq = -1;
+static int gain = 0;
+static int source = XMIT_ADC_SAMPLE|XMIT_TURBO;
 
 static void parse_opts(int argc, char * argv[])
 {
     while (1) {
-        switch (getopt(argc, argv, "o:")) {
+        switch (getopt(argc, argv, "o:f:g:s:")) {
         case 'o':
-            if (outpath)
-                errx(1, "Multiple -o options.\n");
             outpath = optarg;
+            break;
+        case 'f':
+            freq = strtol(optarg, NULL, 0);
+            break;
+        case 'g':
+            gain = strtol(optarg, NULL, 0);
+            break;
+        case 's':
+            source = strtol(optarg, NULL, 0);
+            break;
         case -1:
             return;
         default:
@@ -39,24 +52,12 @@ int main(int argc, char * argv[])
         bufsize = 1 << 24;
 
     bufsize += USB_SLOP;
-    unsigned char * buffer = xmalloc(bufsize);
 
     mlockall(MCL_CURRENT | MCL_FUTURE);
-    memset(buffer, 0xff, bufsize);
 
-    libusb_device_handle * dev = usb_open();
-    usb_slurp(dev, buffer, bufsize);
-    usb_close(dev);
+    unsigned char * buffer = usb_slurp_channel(bufsize, source, freq, gain);
 
-    int outfile = 1;
-    if (outpath)
-        outfile = checki(open(outpath, O_WRONLY|O_CREAT|O_TRUNC, 0666),
-                         "opening output");
-
-    dump_file(outfile, buffer, bufsize);
-
-    if (outpath)
-        checki(close(outfile), "closing output");
+    dump_path(outpath, buffer, bufsize);
 
     exit(EXIT_SUCCESS);
 }

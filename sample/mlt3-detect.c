@@ -52,7 +52,7 @@ static void run_regression(void)
     }
 
     // Doing a full size fft & then the regression on full time resolution is
-    // a bit silly...  CPU cycles are cheap.
+    // a bit silly...  But CPU cycles are cheap.
     fprintf(stderr, "Construct filter...\n");
     static fftw_plan plan;
     static complex filtered[SIZE];

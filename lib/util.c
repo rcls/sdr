@@ -62,6 +62,10 @@ void dump_file(int file, const void * data, size_t len)
 
 void dump_path(const char * path, const void * data, size_t len)
 {
+    if (path == NULL) {
+        dump_file(1, data, len);        // Assume stdout.
+        return;
+    }
     int outfile = checki(open(path, O_WRONLY|O_CREAT|O_TRUNC, 0666),
                          "opening output");
     dump_file(outfile, data, len);

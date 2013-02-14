@@ -154,7 +154,19 @@ unsigned char * usb_slurp_channel(size_t length, int source,
         REG_RADIO_FREQ(channel) + 2, freq >> 16,
         REG_RADIO_GAIN(channel), 0x80|gain };
 
-    usb_send_bytes(dev, off, sizeof off);
+    int offlen;
+    if (freq < 0)
+        offlen = 5;
+    else if ((source & 0x1c) == XMIT_ADC_SAMPLE) {
+        off[5] = REG_ADC_SAMPLE;
+        off[6] = freq;
+        offlen = 7;
+    }
+    else
+        offlen = sizeof off;
+
+    usb_send_bytes(dev, off, offlen);
+
     // Flush usb...
     usb_flush(dev);
     // Turn on the data channel.
@@ -163,11 +175,12 @@ unsigned char * usb_slurp_channel(size_t length, int source,
 
     // Slurp a truckload of data.
     unsigned char * buffer = xmalloc(length);
+    memset(buffer, 0xff, length);       // Try to get us in RAM.
     usb_slurp(dev, buffer, length);
 
     // Turn off data.  Turn off the channel.
     off[sizeof off - 1] = 0;
-    usb_send_bytes(dev, off, sizeof off);
+    usb_send_bytes(dev, off, offlen);
     // Flush usb...
     usb_flush(dev);
     // Grab a couple of bytes to reset the overrun flag.
