@@ -128,6 +128,9 @@ architecture behavioural of go is
   alias raw_rate : unsigned8 is config(175 downto 168);
   signal raw_divide : unsigned9;
 
+  signal burst_data : signed15;
+  signal burst_strobe : std_logic;
+
   signal led_off : unsigned8 := x"fe";
 
   signal usbd_out : unsigned8;
@@ -218,6 +221,9 @@ begin
     adc_data_b, bandpass_freq, bandpass_gain,
     bandpass_r, bandpass_i, bandpass_strobe, clk_main);
 
+  brst : entity burst port map (
+    adc_data_b, flash_control(7), burst_data, burst_strobe, clk_main);
+
   process
   begin
     wait until rising_edge(clk_main);
@@ -266,6 +272,11 @@ begin
         usb_xmit_length <= 4;
         usb_xmit <= usb_xmit xor bandpass_strobe;
         usb_last <= '1';
+      when "101" =>
+        packet(14 downto 0) <= unsigned(burst_data);
+        packet(15) <= usb_xmit_overrun;
+        usb_xmit_length <= 2;
+        usb_xmit <= burst_strobe;
       when others =>
         usb_xmit_length <= 0;
         usb_last <= '1';
