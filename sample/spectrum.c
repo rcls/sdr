@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-static size_t size = 1 << 22;
+static size_t size = 65536;
 
 typedef struct sample_buffer_t {
     unsigned char * data;
@@ -194,32 +194,54 @@ static double cmodsq(complex z)
 }
 
 
- void get_spectrum(int gain, const unsigned char * data)
+static void peak_remove(complex * p)
+{
+    double total = 0;
+    for (int i = 1; i != 16; ++i)
+        total += cmodsq(p[i]) + cmodsq(p[-i]);
+    if (total < cmodsq(*p))
+        *p = 0;
+}
+
+
+static void get_spectrum(int gain, const unsigned char * data)
 {
     static complex * xfrm;              // size complex coefficients.
     static fftw_plan plan;
     static float * buffer;              // size/2 real coefficients.
     if (!xfrm) {
-        xfrm = xmalloc (size * sizeof * xfrm);
+        xfrm = fftw_malloc (size * sizeof * xfrm);
         plan = fftw_plan_dft_1d(size, xfrm, xfrm, FFTW_FORWARD, FFTW_ESTIMATE);
         buffer = xmalloc (size / 2 * sizeof * buffer);
     }
-    for (int i = 0; i != size; ++i) {
-        xfrm[i] = (get_real(data) + I * get_imag(data))
-            * (1 - cos (2 * M_PI * i / size));
+    // We frequency shift by nyquist.  This puts the data that we are interested
+    // in in the middle of the transform, saving us from bothering about
+    // wrap-around.
+    for (int i = 0; i != size/2; ++i) {
+        xfrm[2*i] = get_real(data) + I * get_imag(data);
+        data += 4;
+        xfrm[2*i+1] = - get_real(data) - I * get_imag(data);
         data += 4;
     }
     fftw_execute(plan);
+    // Knock out isolated peaks near 0 or +/- size/4.  We get these apparently
+    // as subharmonics of the clock.
+    peak_remove(xfrm + size/4);
+    peak_remove(xfrm + size/2);
+    peak_remove(xfrm + 3*size/4);
+    // Now compute the powers, applying jaggedification corresponding to a
+    // raised cosine window.
     double scale = exp2(gain * -0.5);
-    for (int i = 0; i != size / 4; ++i)
-        buffer[i] = cmodsq(xfrm[size - size/4 + i]) * scale
-            * filter_adjust[size/4 - i];
-    for (int i = 0; i != size / 4; ++i)
-        buffer[i + size/4] = cmodsq(xfrm[i]) * scale
-            * filter_adjust[i];
-    fprintf(stderr, "Endpoints: %g %g\n",
-           cmodsq(xfrm[size - size/4]) * scale,
-           cmodsq(xfrm[size/4]) * scale);
+    for (int i = 0; i != size / 4; ++i) {
+        int j = size/4 + i;
+        buffer[i] = cmodsq(xfrm[j] - 0.5 * (xfrm[j-1] + xfrm[j+1]))
+            * scale * filter_adjust[size/4 - i];
+    }
+    for (int i = 0; i != size / 4; ++i) {
+        int j = size/2 + i;
+        buffer[i + size/4] = cmodsq(xfrm[j] - 0.5 * (xfrm[j-1] + xfrm[j+1]))
+            * scale * filter_adjust[i];
+    }
     dump_file(1, buffer, size / 2 * sizeof * buffer);
 }
 
@@ -234,8 +256,10 @@ int main(int argc, const char ** argv)
 {
     if (argc >= 2)
         size = strtoul(argv[1], NULL, 0);
-    if (size <= 20)
-        size = 1024 << size;
+    if (size <= 25)
+        size = 1 << size;
+    if (size <= 100)
+        size *= 1024;
     fprintf(stderr, "Size = %zd\n", size);
     if (size & 3)
         errx(1, "Size must be a multiple of 4");

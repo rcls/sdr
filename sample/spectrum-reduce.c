@@ -50,15 +50,6 @@ int main(int argc, const char * const * argv)
     size_t count = bytes / sizeof(float) / stride;
     float * output = xmalloc(count * sizeof(float));
 
-    // Knock out isolated peaks near powers of two...
-    for (size_t i = 1<<20; i < bytes / sizeof(float); i += 1<<20) {
-        double below = max(input + i - 16, 16);
-        double above = max(input + i + 1, 16);
-        double big = above > below ? above : below;
-        if (input[i] > big * 10)
-            input[i] = big;
-    }
-
     for (size_t i = 0; i != count; ++i)
         output[i] = sum(input + i * stride, order) / stride;
 
