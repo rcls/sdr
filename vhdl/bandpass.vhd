@@ -8,15 +8,15 @@ use ieee.numeric_std.all;
 library work;
 use work.defs.all;
 
-entity sample30 is
+entity bandpass is
   port(adc_data : in signed14;
        freq, gain : in unsigned8;
        out_r, out_i : out signed15;
        strobe : out std_logic;
        clk : in std_logic);
-end sample30;
+end bandpass;
 
-architecture sample30 of sample30 is
+architecture bandpass of bandpass is
 
   constant state_max : integer := 79;
   signal state : integer range 0 to state_max;
@@ -416,4 +416,4 @@ begin
     end if;
   end process;
 
-end sample30;
+end bandpass;

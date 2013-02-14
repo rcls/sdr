@@ -119,8 +119,8 @@ architecture behavioural of go is
   alias xmit_turbo : std_logic is xmit_control(6);
   alias flash_control : unsigned8 is config(151 downto 144);
 
-  alias sample_freq : unsigned8 is config(159 downto 152);
-  alias sample_gain : unsigned8 is config(167 downto 160);
+  alias bandpass_freq : unsigned8 is config(159 downto 152);
+  alias bandpass_gain : unsigned8 is config(167 downto 160);
 
   alias raw_rate : unsigned8 is config(175 downto 168);
 
@@ -129,8 +129,8 @@ architecture behavioural of go is
   signal usbd_out : unsigned8;
   signal usb_oe_n : std_logic;
 
-  signal sample_strobe : std_logic := '0';
-  signal sample_r, sample_i : signed15;
+  signal bandpass_strobe : std_logic := '0';
+  signal bandpass_r, bandpass_i : signed15;
 
   signal raw_divide : unsigned9;
 
@@ -215,9 +215,9 @@ begin
     port map (out_data, out_data, out_last,
               audio_scki, audio_lrck, audio_data, audio_bck, clk_main);
 
-  s30 : entity sample30 port map (
-    adc_data_b, sample_freq, sample_gain,
-    sample_r, sample_i, sample_strobe, clk_main);
+  bp : entity bandpass port map (
+    adc_data_b, bandpass_freq, bandpass_gain,
+    bandpass_r, bandpass_i, bandpass_strobe, clk_main);
 
   process
   begin
@@ -260,12 +260,12 @@ begin
         usb_last <= phase_last;
         usb_xmit_length <= 2;
       when "100" =>
-        packet(14 downto 0) <= unsigned(sample_r);
+        packet(14 downto 0) <= unsigned(bandpass_r);
         packet(15) <= usb_xmit_overrun;
-        packet(30 downto 16) <= unsigned(sample_i);
+        packet(30 downto 16) <= unsigned(bandpass_i);
         packet(31) <= usb_xmit_overrun;
         usb_xmit_length <= 4;
-        usb_xmit <= usb_xmit xor sample_strobe;
+        usb_xmit <= usb_xmit xor bandpass_strobe;
         usb_last <= '1';
       when others =>
         usb_xmit_length <= 0;

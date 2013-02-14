@@ -272,7 +272,7 @@ int main(int argc, const char ** argv)
 
     // Start the sample output.
     static const unsigned char start[] = {
-        REG_ADDRESS, REG_XMIT, XMIT_TURBO|XMIT_SAMPLE30 };
+        REG_ADDRESS, REG_XMIT, XMIT_TURBO|XMIT_BANDPASS };
     usb_send_bytes(dev, start, sizeof start);
 
     // Configure the ADC.  Turn down the gain for linearity.  Turn on offset

@@ -24,7 +24,7 @@
 #define XMIT_ADC_SAMPLE 4
 #define XMIT_FLASH 8
 #define XMIT_PHASE 12
-#define XMIT_SAMPLE30 16
+#define XMIT_BANDPASS 16
 #define XMIT_TURBO 64
 #define XMIT_LOW_LATENCY 128
 #define XMIT_PUSH 192
