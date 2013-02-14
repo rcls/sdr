@@ -8,9 +8,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <math.h>
 
-#define SIZE (1<<22)
+static size_t size = 1 << 22;
 
 typedef struct sample_buffer_t {
     unsigned char * data;
@@ -20,7 +21,8 @@ typedef struct sample_buffer_t {
 } sample_buffer_t;
 
 
-static double filter_adjust[SIZE/4 + 1];
+// size/4+1 coefficients for adjusting the spectrum for the frequency response.
+static double * filter_adjust;
 
 
 static inline int get_real(const unsigned char * p)
@@ -192,27 +194,33 @@ static double cmodsq(complex z)
 }
 
 
-static void get_spectrum(int gain, const unsigned char * data)
+ void get_spectrum(int gain, const unsigned char * data)
 {
-    static complex xfrm[SIZE];
+    static complex * xfrm;              // size complex coefficients.
     static fftw_plan plan;
-    static float buffer[SIZE / 2];
-    if (!plan)
-        plan = fftw_plan_dft_1d(SIZE, xfrm, xfrm, FFTW_FORWARD, FFTW_ESTIMATE);
-    for (int i = 0; i != SIZE; ++i) {
-        xfrm[i] = (get_real(data) + I * get_imag(data) + 0.5 + 0.5 * I)
-            * (1 - cos (2 * M_PI * i / SIZE));
+    static float * buffer;              // size/2 real coefficients.
+    if (!xfrm) {
+        xfrm = xmalloc (size * sizeof * xfrm);
+        plan = fftw_plan_dft_1d(size, xfrm, xfrm, FFTW_FORWARD, FFTW_ESTIMATE);
+        buffer = xmalloc (size / 2 * sizeof * buffer);
+    }
+    for (int i = 0; i != size; ++i) {
+        xfrm[i] = (get_real(data) + I * get_imag(data))
+            * (1 - cos (2 * M_PI * i / size));
         data += 4;
     }
     fftw_execute(plan);
     double scale = exp2(gain * -0.5);
-    for (int i = 0; i != SIZE / 4; ++i)
-        buffer[i] = cmodsq(xfrm[SIZE - SIZE/4 + i]) * scale
-            * filter_adjust[SIZE/4 - i];
-    for (int i = 0; i != SIZE / 4; ++i)
-        buffer[i + SIZE/4] = cmodsq(xfrm[i]) * scale
+    for (int i = 0; i != size / 4; ++i)
+        buffer[i] = cmodsq(xfrm[size - size/4 + i]) * scale
+            * filter_adjust[size/4 - i];
+    for (int i = 0; i != size / 4; ++i)
+        buffer[i + size/4] = cmodsq(xfrm[i]) * scale
             * filter_adjust[i];
-    dump_file(1, buffer, sizeof(buffer));
+    fprintf(stderr, "Endpoints: %g %g\n",
+           cmodsq(xfrm[size - size/4]) * scale,
+           cmodsq(xfrm[size/4]) * scale);
+    dump_file(1, buffer, size / 2 * sizeof * buffer);
 }
 
 
@@ -221,11 +229,23 @@ static inline double invsinc(double x)
     return x / sin(x);
 }
 
-int main(void)
+
+int main(int argc, const char ** argv)
 {
+    if (argc >= 2)
+        size = strtoul(argv[1], NULL, 0);
+    if (size <= 20)
+        size = 1024 << size;
+    fprintf(stderr, "Size = %zd\n", size);
+    if (size & 3)
+        errx(1, "Size must be a multiple of 4");
+
+    // Build the coefficients to adjust for the frequency response of the
+    // sampler bandpass filter.
+    filter_adjust = xmalloc (size * sizeof * filter_adjust);
     filter_adjust[0] = 1;
-    const double B = M_PI / 80 / SIZE;
-    for (int i = 1; i <= SIZE/4; ++i) {
+    const double B = M_PI / 80 / size;
+    for (int i = 1; i <= size/4; ++i) {
         double factor = invsinc(B * 65 * i) * invsinc(B * 74 * i)
             * invsinc(B * 87 * i) * invsinc(B * 99 * i) * invsinc(B * 106 * i);
         assert(fabs(factor) > 1);
@@ -269,7 +289,7 @@ int main(void)
     int gain = 48;
     sample_buffer_t buffer = { NULL, 0, NULL, 0 };
     for (int i = 1; i < 160; i += 2) {
-        gain_controlled_sample(dev, i, &gain, &buffer, SIZE);
+        gain_controlled_sample(dev, i, &gain, &buffer, size);
         get_spectrum(gain, buffer.best);
     }
 
