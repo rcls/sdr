@@ -66,16 +66,24 @@ if f_hi - f_lo < 0.01:
     dx *= 1000
     title = "%s near %i kHz" % (args.input, adjust * 1000)
 
+def make_reduced(base,path,order):
+    try:
+        if os.path.getmtime(path) > os.path.getmtime(base):
+            return
+    except OSError, e:
+        print e
+    try:
+        sr = __file__[0:__file__.rindex('/')] + "/spectrum-reduce"
+    except:
+        sr = "./spectrum-reduce"
+    subprocess.check_call([sr, args.input, path, str(shift)])
+
+
 if shift == 0:
     path = args.input
 else:
     path = "%s.%i" % (args.input, shift)
-    if not os.path.isfile(path):
-        try:
-            sr = __file__[0:__file__.rindex('/')] + "/spectrum-reduce"
-        except:
-            sr = "./spectrum-reduce"
-        subprocess.check_call([sr, args.input, path, str(shift)])
+    make_reduced(args.input, path, shift)
 
 gnuplot = subprocess.Popen(['gnuplot'], stdin=subprocess.PIPE)
 si = gnuplot.stdin
