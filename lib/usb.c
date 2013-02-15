@@ -144,7 +144,7 @@ unsigned char * usb_slurp_channel(libusb_device_handle * devo,
 {
     libusb_device_handle * dev = devo;
     if (dev == NULL)
-        usb_open();
+        dev = usb_open();
 
     // First turn off output & select channel...
     int channel = source & 3;
