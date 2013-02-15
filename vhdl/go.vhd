@@ -127,6 +127,8 @@ architecture behavioural of go is
 
   alias raw_rate : unsigned8 is config(175 downto 168);
   signal raw_divide : unsigned9;
+  signal raw_data : signed14;
+  signal raw_strobe : std_logic;
 
   signal burst_data : signed15;
   signal burst_strobe : std_logic;
@@ -244,10 +246,10 @@ begin
         usb_last <= ir_last;
         usb_xmit_length <= 3;
       when "001" =>
-        packet(13 downto 0) <= unsigned(adc_data_b);
+        packet(13 downto 0) <= unsigned(raw_data);
         packet(14) <= '0';
         packet(15) <= usb_xmit_overrun;
-        usb_xmit <= usb_xmit xor raw_divide(8);
+        usb_xmit <= usb_xmit xor raw_strobe;
         usb_last <= '1';
         usb_xmit_length <= 2;
       when "010" =>
@@ -282,8 +284,10 @@ begin
         usb_last <= '1';
     end case;
 
+    raw_strobe <= raw_divide(8);
     if raw_divide(8) = '1' then
       raw_divide <= ('0' & raw_rate) - 1;
+      raw_data <= adc_data_b;
     else
       raw_divide <= raw_divide - 1;
     end if;
