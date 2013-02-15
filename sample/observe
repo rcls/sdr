@@ -47,12 +47,10 @@ assert s_lo < s_hi
 assert s_hi <= samples
 
 shift = 0
-while s_hi - s_lo > 2 * args.width and shift < 16:
+while s_hi - s_lo > 2 * args.width:
     shift += 1
     s_hi /= 2
     s_lo /= 2
-
-assert shift <= 16
 
 dx = (1 << shift) / samples_per_mhz
 origin = dx * (s_lo + 0.5 - 0.5 / (1<<shift))

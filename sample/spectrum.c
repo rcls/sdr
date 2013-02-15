@@ -156,8 +156,9 @@ static void gain_controlled_sample(libusb_device_handle * dev,
         if (max_six < 1)
             max_six = 1;
         int incr = floor(3 * (14 - log2(max_six)));
-        if (incr == 0 || (incr >= -1 && incr <= 1 && i >= 8) ||
-            (*gain == 0 && incr < 0)) {
+        if (incr == 0
+            || (*gain == 0 && incr < 0)
+            || (*gain == max_gain && incr > 0)) {
             fprintf(stderr, "Freq %i choosing gain %i (6sd: %g). %g %g %g\n",
                     freq, *gain, max_six,
                     25.0 / 32 * (freq - 1),
