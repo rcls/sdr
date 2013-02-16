@@ -16,9 +16,7 @@
 
 #define FREQ (1e9 / period)
 
-#define SIZE (1<<23)
-#define HALF (SIZE/2)
-#define HALFp1 (HALF + 1)
+static size_t SIZE = 1<<23;
 
 // Time domain length of filter.
 #define FILTER_WIDTH 16384
@@ -45,6 +43,7 @@ static void run_regression(FILE * outfile)
 {
     double max_power = 0;
     int peak_index = 0;
+    const size_t HALF = SIZE / 2;
     for (int i = 1; i < HALF; ++i) {
         double power = out[i] * out[i] + out[SIZE-i] * out[SIZE-i];
         if (power > max_power) {
@@ -69,31 +68,31 @@ static void run_regression(FILE * outfile)
                                       FFTW_BACKWARD, FFTW_ESTIMATE);
     // First generate the filter spectrum.  Full complex instead of real
     // symmetric FFT.  Again, waste waste waste.
-    for (unsigned int i = 0; i < SIZE; ++i)
+    for (size_t i = 0; i < SIZE; ++i)
         filtered[i] = 0;
     filtered[0] = M_PI / FILTER_WIDTH;
-    for (unsigned int i = 1; i < FILTER_WIDTH; ++i)
+    for (size_t i = 1; i < FILTER_WIDTH; ++i)
         filtered[i] = filtered[SIZE - i] = sin(i * (M_PI / FILTER_WIDTH)) / i;
-    for (unsigned int i = FILTER_WIDTH; i < SIZE - FILTER_WIDTH; ++i)
+    for (size_t i = FILTER_WIDTH; i < SIZE - FILTER_WIDTH; ++i)
         filtered[i] = 0;
     fftw_execute(plan);
 
     // Do the filtering in frequency domain.
     fprintf(stderr, "Filtering...\n");
-    for (int i = 1; i < peak_index; ++i)
+    for (size_t i = 1; i < peak_index; ++i)
         filtered[SIZE - peak_index + i] *= out[i] + I * out[SIZE - i];
-    for (int i = peak_index; i < HALF; ++i)
+    for (size_t i = peak_index; i < HALF; ++i)
         filtered[i - peak_index] *= out[i] + I * out[SIZE - i];
-    for (int i = HALF - peak_index; i <= SIZE - peak_index; ++i)
+    for (size_t i = HALF - peak_index; i <= SIZE - peak_index; ++i)
         filtered[i] = 0;
 
     // Back to time domain.
     fftw_execute(plan);
     fftw_destroy_plan(plan);
 
-    const int START = FILTER_WIDTH;
-    const int END = SIZE - FILTER_WIDTH;
-    const int LEN = END - START;
+    const size_t START = FILTER_WIDTH;
+    const size_t END = SIZE - FILTER_WIDTH;
+    const size_t LEN = END - START;
 
     double * phase = xmalloc(SIZE * sizeof * phase);
     int last_phase_loops = 0;
@@ -104,7 +103,7 @@ static void run_regression(FILE * outfile)
     phase[START] = last_phase;
 
     // Run phase detection...
-    for (int i = START + 1; i != END; ++i) {
+    for (size_t i = START + 1; i != END; ++i) {
         double this_phase = carg(filtered[i]);
         double jump = this_phase - last_phase;
         if (this_phase > last_phase + M_PI) {
@@ -249,7 +248,7 @@ static unsigned char * capture(size_t len)
 static void parse_opts(int argc, char ** argv)
 {
     while (1)
-        switch (getopt(argc, argv, "i:j:o:d:p:O:")) {
+        switch (getopt(argc, argv, "i:j:o:d:p:O:n:")) {
         case 'i':
             inpath = optarg;
             break;
@@ -263,6 +262,11 @@ static void parse_opts(int argc, char ** argv)
             poly_order = strtoul(optarg, NULL, 0);
             if (poly_order < 1 || poly_order > 1000)
                 errx(1, "Polynomial order must be between 1 and 1000.");
+            break;
+        case 'n':
+            SIZE = strtoul(optarg, NULL, 0);
+            if (SIZE < 1048576 || (SIZE * 32) / 32 != SIZE || (SIZE & 1))
+                errx(1, "Number of samples invalid");
             break;
         case 'j':
             jitterpath = optarg;
@@ -366,7 +370,7 @@ int main(int argc, char ** argv)
 
     fprintf(stderr, "Quartiles : %f %f %f\n", quart1, middle, quart3);
 
-    out = fftw_malloc((SIZE + 1) * sizeof * out);
+    out = fftw_malloc(SIZE * sizeof * out);
     for (int i = 0; i != SIZE; ++i) {
         int d = in[i];
         if (d < middle)
@@ -383,7 +387,6 @@ int main(int argc, char ** argv)
     fftw_plan plan = fftw_plan_r2r_1d(SIZE, out, out, FFTW_R2HC, FFTW_ESTIMATE);
     fftw_execute(plan);
     out[0] = 0;                         // Not interesting...
-    out[SIZE] = 0;
 
     FILE * outfile = stdout;
     if (outpath != NULL) {
@@ -393,6 +396,7 @@ int main(int argc, char ** argv)
     }
 
     run_regression(outfile);
+    fftw_free(out);
 
     fflush(outfile);
     if (ferror(outfile))
