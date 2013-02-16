@@ -204,31 +204,6 @@ static void run_regression(FILE * outfile)
 }
 
 
-static void print_table(FILE * outfile)
-{
-    for (int i = 0; i != ROWS; ++i) {
-        const char * sep = "";
-        for (int mult = 1; mult * ROWS <= HALF; mult *= 2) {
-            int low = i * mult;
-            int high = (i + 1) * mult;
-            double power = 0;
-            double re = 0;
-            double im = 0;
-            for (int k = low; k != high; ++k) {
-                power += out[k] * out[k] + out[SIZE - k] * out[SIZE - k];
-                re += out[k];
-                im += out[SIZE - k];
-            }
-            double freq = (low + high - 1) * (0.5e9 / period / SIZE);
-            fprintf(outfile, "%s%f\t%g", sep, freq, power);
-            fprintf(outfile, "\t%f", atan2(im, re));
-            sep = "\t";
-        }
-        fprintf(outfile, "\n");
-    }
-}
-
-
 static unsigned char * capture(size_t len)
 {
     int clock;
@@ -419,11 +394,7 @@ int main(int argc, char ** argv)
             err(1, "Cannot open output %s", outpath);
     }
 
-    if (1)
-        run_regression(outfile);
-
-    if (0)
-        print_table(outfile);
+    run_regression(outfile);
 
     fflush(outfile);
     if (ferror(outfile))
