@@ -29,9 +29,6 @@
 // Height of image
 #define I_HEIGHT 1000
 
-//#define ROWS 4096
-#define ROWS HALF
-
 static const char * inpath;
 static const char * dumppath;
 static const char * outpath;
@@ -39,29 +36,27 @@ static const char * jitterpath;
 static int poly_order = 10;
 static int period = 205;
 
-static int in[SIZE];
-static double out[SIZE + 1];
-
-static double mapped[SIZE];
+static unsigned short * in;
+static double * out;
 
 static int sample_limit;
 
 static void run_regression(FILE * outfile)
 {
     double max_power = 0;
-    int max_index = 0;
+    int peak_index = 0;
     for (int i = 1; i < HALF; ++i) {
         double power = out[i] * out[i] + out[SIZE-i] * out[SIZE-i];
         if (power > max_power) {
             max_power = power;
-            max_index = i;
+            peak_index = i;
         }
     }
 
     fprintf(stderr, "Peak at %i, %f Hz\n",
-            max_index, max_index * 1e9 / period / SIZE);
-    if (max_index <= SIZE / FILTER_WIDTH
-        || max_index >= HALF - SIZE / FILTER_WIDTH) {
+            peak_index, peak_index * 1e9 / period / SIZE);
+    if (peak_index <= SIZE / FILTER_WIDTH
+        || peak_index >= HALF - SIZE / FILTER_WIDTH) {
         fprintf(stderr, "Too close to end.\n");
         exit(EXIT_FAILURE);
     }
@@ -69,11 +64,9 @@ static void run_regression(FILE * outfile)
     // Doing a full size fft & then the regression on full time resolution is
     // a bit silly...  But CPU cycles are cheap.
     fprintf(stderr, "Construct filter...\n");
-    static fftw_plan plan;
-    static complex filtered[SIZE];
-    if (!plan)
-        plan = fftw_plan_dft_1d(SIZE, filtered, filtered,
-                                FFTW_BACKWARD, FFTW_ESTIMATE);
+    complex * filtered = fftw_malloc (SIZE * sizeof * filtered);
+    fftw_plan plan = fftw_plan_dft_1d(SIZE, filtered, filtered,
+                                      FFTW_BACKWARD, FFTW_ESTIMATE);
     // First generate the filter spectrum.  Full complex instead of real
     // symmetric FFT.  Again, waste waste waste.
     for (unsigned int i = 0; i < SIZE; ++i)
@@ -86,21 +79,23 @@ static void run_regression(FILE * outfile)
     fftw_execute(plan);
 
     // Do the filtering in frequency domain.
-    for (int i = 1; i < max_index; ++i)
-        filtered[SIZE - max_index + i] *= out[i] + I * out[SIZE - i];
-    for (int i = max_index; i < HALF; ++i)
-        filtered[i - max_index] *= out[i] + I * out[SIZE - i];
-    for (int i = HALF - max_index; i <= SIZE - max_index; ++i)
+    fprintf(stderr, "Filtering...\n");
+    for (int i = 1; i < peak_index; ++i)
+        filtered[SIZE - peak_index + i] *= out[i] + I * out[SIZE - i];
+    for (int i = peak_index; i < HALF; ++i)
+        filtered[i - peak_index] *= out[i] + I * out[SIZE - i];
+    for (int i = HALF - peak_index; i <= SIZE - peak_index; ++i)
         filtered[i] = 0;
 
+    // Back to time domain.
     fftw_execute(plan);
+    fftw_destroy_plan(plan);
 
-    fprintf(stderr, "Filtering...\n");
     const int START = FILTER_WIDTH;
     const int END = SIZE - FILTER_WIDTH;
     const int LEN = END - START;
 
-    static double phase[SIZE];
+    double * phase = xmalloc(SIZE * sizeof * phase);
     int last_phase_loops = 0;
     int max_loops = 0;
     int min_loops = 0;
@@ -130,6 +125,8 @@ static void run_regression(FILE * outfile)
             max_jump = fabs(jump);
     }
 
+    fftw_free(filtered);
+
     fprintf(stderr, "Max jump = %g, loop range %i..%i, finish %i\n",
             max_jump, min_loops, max_loops, last_phase_loops);
 
@@ -152,14 +149,14 @@ static void run_regression(FILE * outfile)
         if (fabs(phase[i]) > mres)
             mres = fabs(phase[i]);
     }
+    free(phase);
 
     fprintf(stderr, "RMS & max phase residual: %g & %g radians.\n",
             sqrt(sum / LEN), mres);
     fprintf(stderr, "Normalised coeffs:");
     for (int i = 0; i <= poly_order; ++i)
         fprintf(stderr, " %g", coeffs[i]);
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Mean frequency offset: %g Hz\n",
+    fprintf(stderr, "\nMean frequency offset: %g Hz\n",
             coeffs[1] * (1e9 / period / LEN / M_PI));
     if (poly_order > 1)
         fprintf(stderr, "End-end frequency drift: %g Hz\n",
@@ -169,7 +166,7 @@ static void run_regression(FILE * outfile)
     memset(counts, 0, sizeof(counts));
     for (int i = START; i < END; ++i) {
         int position
-            = (i * (unsigned long long) max_index) % SIZE; // (mod size).
+            = (i * (unsigned long long) peak_index) % SIZE; // (mod size).
         double angle = l_eval(l_x(i, LEN), coeffs, poly_order); // mod 2pi
         double coord = position * (I_WIDTH / (double) SIZE)
             + angle * (I_WIDTH / 2 / M_PI);
@@ -313,6 +310,7 @@ int main(int argc, char ** argv)
         errx(1, "Did not get sufficient contiguous data.");
 
     // Read in the data and find the used codes.
+    in = xmalloc(SIZE * sizeof * in);
     bool used[16384];
     memset(used, 0, sizeof used);
     for (int i = 0; i != SIZE; ++i) {
@@ -368,12 +366,13 @@ int main(int argc, char ** argv)
 
     fprintf(stderr, "Quartiles : %f %f %f\n", quart1, middle, quart3);
 
+    out = fftw_malloc((SIZE + 1) * sizeof * out);
     for (int i = 0; i != SIZE; ++i) {
         int d = in[i];
         if (d < middle)
-            mapped[i] = fabs(quart1 - d);
+            out[i] = fabs(quart1 - d);
         else
-            mapped[i] = fabs(d - quart3);
+            out[i] = fabs(d - quart3);
     }
 
     fprintf(stderr, "Got data...\n");
@@ -381,8 +380,7 @@ int main(int argc, char ** argv)
     fftw_init_threads();
     fftw_plan_with_nthreads(4);
 
-    fftw_plan plan = fftw_plan_r2r_1d(
-        SIZE, mapped, out, FFTW_R2HC, FFTW_ESTIMATE);
+    fftw_plan plan = fftw_plan_r2r_1d(SIZE, out, out, FFTW_R2HC, FFTW_ESTIMATE);
     fftw_execute(plan);
     out[0] = 0;                         // Not interesting...
     out[SIZE] = 0;
