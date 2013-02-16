@@ -18,7 +18,7 @@ static int source = XMIT_ADC_SAMPLE|XMIT_TURBO;
 
 static void parse_opts(int argc, char * argv[])
 {
-    while (1) {
+    while (1)
         switch (getopt(argc, argv, "o:f:g:s:")) {
         case 'o':
             outpath = optarg;
@@ -37,7 +37,6 @@ static void parse_opts(int argc, char * argv[])
         default:
             errx(1, "Bad option.\n");
         }
-    }
 }
 
 

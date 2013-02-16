@@ -25,4 +25,6 @@ unsigned char * usb_slurp_channel(libusb_device_handle * dev,
                                   size_t length, int source,
                                   int freq, int gain);
 
+void adc_config(libusb_device_handle * dev, int clock, ...);
+
 #endif

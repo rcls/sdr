@@ -175,7 +175,7 @@ size_t best14(const unsigned char ** restrict buffer, size_t * restrict bytes)
         int got = !!(*p & 128);
         uint32_t runNext = runB * 2 + got;
         const unsigned char * badNext = badB;
-        if (runA != runNext || predicted != got)
+        if (predicted != got)
             badNext = p;
         else if (p - badB >= bestsize) {
             best = badB;

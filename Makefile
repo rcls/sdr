@@ -8,7 +8,7 @@ all: vhdl/sinrom.vhd phasedetectsim pllsim $(SAMPBIN:%=sample/%) \
 
 DEP=-MMD -MP -MF.$(subst /,:,$@).d
 
-CFLAGS=-O3 -flto -ffast-math -Wall -Werror -std=gnu99 -g -I. $(DEP)
+CFLAGS=-O3 -flto -ffast-math -msse2 -Wall -Werror -std=gnu99 -g -I. $(DEP)
 LDFLAGS=$(CFLAGS) -lm
 
 util/phasespect: LDLIBS=-lfftw3_threads -lfftw3 -lusb-1.0
@@ -23,8 +23,8 @@ sample/commands: lib/usb.o lib/util.o
 sample/dump: LDLIBS=-lusb-1.0
 sample/dump: lib/usb.o lib/util.o
 sample/ftrans: LDLIBS=-lfftw3 -lm
-sample/mlt3-detect: LDLIBS=-lfftw3_threads -lfftw3 -lm
-sample/mlt3-detect: lib/legendre.o
+sample/mlt3-detect: LDLIBS=-lfftw3_threads -lfftw3 -lusb-1.0
+sample/mlt3-detect: lib/legendre.o lib/util.o lib/usb.o
 sample/readdump14: lib/util.o
 sample/readdump22: lib/util.o
 sample/spectrum-reduce: lib/util.o

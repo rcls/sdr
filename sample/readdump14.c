@@ -21,7 +21,7 @@ int main()
             bestsize, best - buffer, samples);
 
     for (int i = 0; i < bestsize; i += 2)
-        printf("%4i\n", (best[i] & 0x7f) * 128 + (best[i+1] & 0x7f));
+        printf("%4i\n", best[i] + (best[i+1] & 0x3f) * 256);
 
     return 0;
 }

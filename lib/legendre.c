@@ -64,7 +64,7 @@ static void l_coeff(double * CC, unsigned int order,
 }
 
 
-void l_fit(double * __restrict__ coeffs, double * __restrict__ Y,
+void l_fit(double * restrict coeffs, double * restrict Y,
            unsigned int len, unsigned int order)
 {
     if (order == 0) {
@@ -143,7 +143,7 @@ void l_fit(double * __restrict__ coeffs, double * __restrict__ Y,
             this_norm += y * y;
         }
     }
-    while (this_norm * 1e20 > first_norm && ++count < 10);
+    while (++count < 10 && this_norm * 1e20 > first_norm);
     fprintf(stderr, "Iterations = %i\n", count);
 }
 

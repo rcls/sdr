@@ -1,4 +1,5 @@
 #include <libusb-1.0/libusb.h>
+#include <stdarg.h>
 #include <string.h>
 
 #include "lib/usb.h"
@@ -197,4 +198,39 @@ unsigned char * usb_slurp_channel(libusb_device_handle * devo,
         usb_close(dev);
 
     return buffer;
+}
+
+
+void adc_config(libusb_device_handle * dev, int clock, ...)
+{
+    clock = clock ? ADC_CLOCK_SELECT : 0;
+    va_list args;
+    va_start(args, clock);
+    unsigned char buffer[512];
+    int len = 0;
+    buffer[len++] = REG_ADDRESS;
+    buffer[len++] = REG_ADC;
+    buffer[len++] = clock | ADC_SEN | ADC_SCLK;
+    buffer[len++] = REG_ADC;
+    buffer[len++] = clock | ADC_SEN;
+    while (1) {
+        int w = va_arg(args, int);
+        if (w < 0)
+            break;
+        if (len > sizeof(buffer) - 100)
+            errx(1, "adc_config: too many args.\n");
+        for (int i = 0; i < 16; ++i) {
+            int b = (w << i) & 32768 ? ADC_SDATA : 0;
+            buffer[len++] = REG_ADC;
+            buffer[len++] = clock | b | ADC_SCLK;
+            buffer[len++] = REG_ADC;
+            buffer[len++] = clock | b;
+        }
+        buffer[len++] = REG_ADC;
+        buffer[len++] = clock | ADC_SEN | ADC_SCLK;
+        buffer[len++] = REG_ADC;
+        buffer[len++] = clock | ADC_SEN;
+    }
+    va_end(args);
+    usb_send_bytes(dev, buffer, len);
 }

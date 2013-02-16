@@ -3,7 +3,7 @@
 
 
 // Leaves residuals in Y.
-void l_fit(double * __restrict__ coeffs, double * __restrict__ Y,
+void l_fit(double * restrict coeffs, double * restrict Y,
            unsigned int len, unsigned int order);
 
 // Transform the poly coefficients from the Legendre to monic basis.

@@ -78,47 +78,10 @@ static void get_samples(libusb_device_handle * dev,
 
 static void sample_config(libusb_device_handle * dev, int freq, int gain)
 {
-    unsigned char bytes[5];
-    bytes[0] = REG_ADDRESS;
-    bytes[1] = REG_SAMPLE_FREQ;
-    bytes[2] = freq / 5 * 8 + freq % 5;
-    bytes[3] = REG_SAMPLE_GAIN;
-    bytes[4] = gain;
-    usb_send_bytes(dev, bytes, 5);
-}
-
-
-static void adc_config(libusb_device_handle * dev, ...)
-{
-    va_list args;
-    va_start(args, dev);
-    unsigned char buffer[512];
-    int len = 0;
-    buffer[len++] = REG_ADDRESS;
-    buffer[len++] = REG_ADC;
-    buffer[len++] = ADC_SEN | ADC_SCLK;
-    buffer[len++] = REG_ADC;
-    buffer[len++] = ADC_SEN;
-    while (1) {
-        int w = va_arg(args, int);
-        if (w < 0)
-            break;
-        if (len > sizeof(buffer) - 100)
-            errx(1, "adc_config: too many args.\n");
-        for (int i = 0; i < 16; ++i) {
-            int b = (w << i) & 32768 ? ADC_SDATA : 0;
-            buffer[len++] = REG_ADC;
-            buffer[len++] = b | ADC_SCLK;
-            buffer[len++] = REG_ADC;
-            buffer[len++] = b;
-        }
-        buffer[len++] = REG_ADC;
-        buffer[len++] = ADC_SEN | ADC_SCLK;
-        buffer[len++] = REG_ADC;
-        buffer[len++] = ADC_SEN;
-    }
-    va_end(args);
-    usb_send_bytes(dev, buffer, len);
+    unsigned char bytes[5] = {
+        REG_ADDRESS, REG_SAMPLE_FREQ, freq / 5 * 8 + freq % 5,
+        REG_SAMPLE_GAIN, gain };
+    usb_send_bytes(dev, bytes, sizeof bytes);
 }
 
 
@@ -302,7 +265,7 @@ int main(int argc, const char ** argv)
 
     // Configure the ADC.  Turn down the gain for linearity.  Turn on offset
     // correction.
-    adc_config(dev,
+    adc_config(dev, 0,
                0x2510, // Gain.
                0x0303, 0x4a01, // Hi perf modes.
                0xcf00, 0x3de0, -1); // Offset correction as quick as possible.
