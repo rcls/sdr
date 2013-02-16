@@ -230,7 +230,7 @@ static unsigned char * capture(size_t len)
     usleep(100000);
 
     // Now set up ADC:  Low gain, hi perf modes.
-    adc_config(dev, 0x2510, 0x0303, 0x4a01, -1);
+    adc_config(dev, clock, 0x2510, 0x0303, 0x4a01, -1);
 
     // Slurp the sampler in turbo mode.
     unsigned char * result = usb_slurp_channel(
