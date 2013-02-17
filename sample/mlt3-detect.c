@@ -135,18 +135,22 @@ static void run_regression(FILE * outfile)
         free(js);
     }
 
-    static unsigned int counts[I_HEIGHT][I_WIDTH];
-    memset(counts, 0, sizeof(counts));
-    for (int i = START; i < END; ++i) {
-        int position
-            = (i * (unsigned long long) peak_index) % SIZE; // (mod size).
+    static double counts[I_HEIGHT + 1][I_WIDTH];
+    memset(counts, 0, sizeof counts);
+    for (size_t i = START; i < END; ++i) {
+        int position = (i * (unsigned long long) peak_index) % SIZE;
         double angle = phase[i];
         double coord = position * (I_WIDTH / (double) SIZE)
             + angle * (I_WIDTH / 2 / M_PI);
         coord = fmod(-coord, I_WIDTH);
         if (coord < 0)
             coord += I_WIDTH;
-        ++counts[in[i] * I_HEIGHT / sample_limit][(int) coord];
+        int x = coord;
+        double vert = in[i] * I_HEIGHT / (double) sample_limit;
+        int y = vert;
+        double part = vert - y;
+        counts[y][x] += 1 - part;
+        counts[y + 1][x] += part;
     }
     fprintf(outfile, "unset xtics\n");
     fprintf(outfile, "unset ytics\n");
@@ -164,11 +168,11 @@ static void run_regression(FILE * outfile)
     fprintf(outfile, "set cbrange [0:%li]\n", 16ul * SIZE / I_WIDTH / I_HEIGHT);
     fprintf(outfile, "plot '-' matrix with image");
     for (int i = 0; i < I_HEIGHT; ++i) {
-        fprintf(outfile, "\n%i", counts[i][0]);
+        fprintf(outfile, "\n%g", counts[i][0]);
         for (int j = 1; j < I_WIDTH; ++j)
-            fprintf(outfile, " %i", counts[i][j]);
+            fprintf(outfile, " %g", counts[i][j]);
         for (int j = 0; j < I_WIDTH; ++j)
-            fprintf(outfile, " %i", counts[i][j]);
+            fprintf(outfile, " %g", counts[i][j]);
     }
     fprintf(outfile, "\ne\ne\n");
 }
