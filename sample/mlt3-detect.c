@@ -92,7 +92,6 @@ static void run_regression(FILE * outfile)
 
     const size_t START = FILTER_WIDTH;
     const size_t END = SIZE - FILTER_WIDTH;
-    const size_t LEN = END - START;
 
     double * phase = xmalloc(SIZE * sizeof * phase);
     int last_phase_loops = 0;
@@ -136,37 +135,12 @@ static void run_regression(FILE * outfile)
         free(js);
     }
 
-    // Polynomial fit.
-    double coeffs[poly_order + 1];
-    l_fit(coeffs, phase + START, LEN, poly_order);
-
-    // Find the RMS residual.
-    double sum = 0;
-    double mres = 0;
-    for (int i = START; i != END; ++i) {
-        sum += phase[i] * phase[i];
-        if (fabs(phase[i]) > mres)
-            mres = fabs(phase[i]);
-    }
-    free(phase);
-
-    fprintf(stderr, "RMS & max phase residual: %g & %g radians.\n",
-            sqrt(sum / LEN), mres);
-    fprintf(stderr, "Normalised coeffs:");
-    for (int i = 0; i <= poly_order; ++i)
-        fprintf(stderr, " %g", coeffs[i]);
-    fprintf(stderr, "\nMean frequency offset: %g Hz\n",
-            coeffs[1] * (1e9 / period / LEN / M_PI));
-    if (poly_order > 1)
-        fprintf(stderr, "End-end frequency drift: %g Hz\n",
-                6 * coeffs[2] * (1e9 / period / LEN / M_PI));
-
     static unsigned int counts[I_HEIGHT][I_WIDTH];
     memset(counts, 0, sizeof(counts));
     for (int i = START; i < END; ++i) {
         int position
             = (i * (unsigned long long) peak_index) % SIZE; // (mod size).
-        double angle = l_eval(l_x(i, LEN), coeffs, poly_order); // mod 2pi
+        double angle = phase[i];
         double coord = position * (I_WIDTH / (double) SIZE)
             + angle * (I_WIDTH / 2 / M_PI);
         coord = fmod(-coord, I_WIDTH);
