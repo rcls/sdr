@@ -7,24 +7,20 @@ all: vhdl/sinrom.vhd phasedetectsim pllsim $(SAMPBIN:%=sample/%) \
 
 DEP=-MMD -MP -MF.$(subst /,:,$@).d
 
-CFLAGS=-O3 -flto -ffast-math -msse2 -Wall -Werror -std=gnu99 -g -I. $(DEP)
-LDFLAGS=$(CFLAGS) -lm
+CFLAGS=-O3 -flto -ffast-math -msse2 -Wall -Werror -std=gnu99 -g -I. $(DEP) -fweb -fopenmp
+LDFLAGS=$(CFLAGS) -fwhole-program
 
-util/phasespect: LDLIBS=-lfftw3_threads -lfftw3 -lusb-1.0
+LDLIBS=-lfftw3_threads -lfftw3 -lfftw3f_threads -lfftw3f -lusb-1.0 -lm
+
 util/phasespect: lib/usb.o lib/util.o
-util/irspec: LDLIBS=-lfftw3_threads -lfftw3 -lusb-1.0
 util/irspec: lib/util.o lib/usb.o
-util/spiflash: lib/util.o lib/usb.o -lusb-1.0
-util/burstspec: lib/usb.o lib/util.o -lfftw3_threads -lfftw3 -lusb-1.0
+util/spiflash: lib/util.o lib/usb.o
+util/burstspec: lib/usb.o lib/util.o
 
-sample/commands: LDLIBS=-lusb-1.0
 sample/commands: lib/usb.o lib/util.o
-sample/dump: LDLIBS=-lusb-1.0
 sample/dump: lib/usb.o lib/util.o
-sample/mlt3-detect: LDLIBS=-lfftw3_threads -lfftw3 -lfftw3f_threads -lfftw3f -lusb-1.0
-sample/mlt3-detect: lib/legendre.o lib/util.o lib/usb.o
+sample/mlt3-detect: lib/util.o lib/usb.o
 sample/spectrum-reduce: lib/util.o
-sample/spectrum: LDLIBS=-lusb-1.0 -lfftw3_threads -lfftw3
 sample/spectrum: lib/util.o lib/usb.o
 
 vhdl/sinrom.vhd: sinrom
@@ -32,6 +28,10 @@ vhdl/sinrom.vhd: sinrom
 
 fir: fir.hs
 	ghc -O2 -o $@ $<
+
+.PHONY: clean all
+clean:
+	rm -f *.o */*.o  $(SAMPBIN:%=sample/%) $(UTILBIN:%=util/%)
 
 # Cancel built-in
 %: %.c

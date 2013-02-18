@@ -25,6 +25,8 @@ static size_t SIZE = 1<<23;
 // Height of image
 #define I_HEIGHT 1000
 
+#define UNLIKELY(b) __builtin_expect(b, 0)
+
 static const char * inpath;
 static const char * dumppath;
 static const char * outpath;
@@ -49,11 +51,16 @@ static void run_regression(FILE * outfile)
     double max_power = 0;
     int peak_index = 0;
     const size_t HALF = SIZE / 2;
+#pragma omp parallel for
     for (int i = 1; i < HALF; ++i) {
         double power = out[i] * out[i] + out[SIZE-i] * out[SIZE-i];
-        if (power > max_power) {
-            max_power = power;
-            peak_index = i;
+        if (power > max_power)
+#pragma omp critical(max_power)
+        {
+            if (power > max_power) {
+                max_power = power;
+                peak_index = i;
+            }
         }
     }
 
@@ -73,67 +80,112 @@ static void run_regression(FILE * outfile)
                                         FFTW_BACKWARD, FFTW_ESTIMATE);
     // First generate the filter spectrum.  Full complex instead of real
     // symmetric FFT.  Again, waste waste waste.
-    for (size_t i = 0; i < SIZE; ++i)
-        filtered[i] = 0;
     filtered[0] = M_PI / FILTER_WIDTH;
     for (size_t i = 1; i < FILTER_WIDTH; ++i)
         filtered[i] = filtered[SIZE - i] = sin(i * (M_PI / FILTER_WIDTH)) / i;
     for (size_t i = FILTER_WIDTH; i < SIZE - FILTER_WIDTH; ++i)
         filtered[i] = 0;
+    fprintf(stderr, "Filter gen...");
     fftwf_execute(plan);
 
     // Do the filtering in frequency domain.
-    fprintf(stderr, "Filtering...\n");
+    fprintf(stderr, "\nFiltering...");
+#pragma omp parallel for
     for (size_t i = 1; i < peak_index; ++i)
         filtered[SIZE - peak_index + i] *= out[i] + I * out[SIZE - i];
+#pragma omp parallel for
     for (size_t i = peak_index; i < HALF; ++i)
         filtered[i - peak_index] *= out[i] + I * out[SIZE - i];
+#pragma omp parallel for
     for (size_t i = HALF - peak_index; i <= SIZE - peak_index; ++i)
         filtered[i] = 0;
 
     // Back to time domain.
+    fprintf(stderr, "\nBack to time...");
     fftwf_execute(plan);
     fftwf_destroy_plan(plan);
+    fprintf(stderr, "\n");
 
     const size_t START = FILTER_WIDTH;
     const size_t END = SIZE - FILTER_WIDTH;
+    const size_t LEN = END - START;
 
     float * phase = xmalloc(SIZE * sizeof * phase);
-    int last_phase_loops = 0;
-    int max_loops = 0;
-    int min_loops = 0;
-    double max_jump = 0;
-    double last_phase = carg(filtered[START]);
-    phase[START] = last_phase;
 
     // Run phase detection...
-    for (size_t i = START + 1; i != END; ++i) {
-        double this_phase = carg(filtered[i]);
-        double jump = this_phase - last_phase;
-        if (this_phase > last_phase + M_PI) {
-            --last_phase_loops;
-            if (last_phase_loops < min_loops)
-                min_loops = last_phase_loops;
-            jump -= 2 * M_PI;
-        }
-        else if (this_phase < last_phase - M_PI) {
-            ++last_phase_loops;
-            if (last_phase_loops > max_loops)
-                max_loops = last_phase_loops;
-            jump += 2 * M_PI;
-        }
-        last_phase = this_phase;
-        phase[i] = this_phase + 2 * M_PI * last_phase_loops;
-        if (fabs(jump) > max_jump)
-            max_jump = fabs(jump);
-    }
+#pragma omp parallel for
+    for (size_t i = START; i < END; ++i)
+        phase[i] = carg(filtered[i]);
 
     fftw_free(filtered);
 
-    fprintf(stderr, "Max jump = %g, loop range %i..%i, finish %i\n",
-            max_jump, min_loops, max_loops, last_phase_loops);
+    // See how big the steps in phase are.  This determines the stride for
+    // doing coarse grained loop detection.
+    double max_jump = 0;
+#pragma omp parallel for reduction(max:max_jump)
+    for (size_t i = START + 1; i < END; ++i) {
+        double jump = fabs(phase[i] - phase[i-1]);
+        if (UNLIKELY(jump > max_jump)) {
+            if (jump > M_PI)
+                jump = 2 * M_PI - jump;
+            if (jump > max_jump)
+                max_jump = jump;
+        }
+    }
+
+    // Work out the block size for doing coarse grained loop detection.
+    size_t blocks;
+    if (max_jump < 8 * M_PI / LEN)
+        blocks = 8;                     // Split up for parallelism.
+    else if (max_jump > M_PI / 1024)
+        blocks = 1;                     // Yurrgghhh... do it all as one block.
+    else
+        blocks = 1 + (size_t) (LEN * max_jump / M_PI);
+
+    fprintf(stderr, "Max jump = %g, blocks = %zi\n", max_jump, blocks);
+
+    int loops[blocks];
+    double start[blocks];
+#pragma omp parallel for
+    for (size_t i = 0; i < blocks; ++i) {
+        size_t bstart = (LEN - 1) * i / blocks + START + 1;
+        size_t bend = (LEN - 1) * (i + 1) / blocks + START + 1;
+        start[i] = phase[bstart - 1];
+        int l = 0;
+        for (size_t j = bstart; j != bend; ++j)
+            if (UNLIKELY(phase[i] > phase[i-1] + M_PI))
+                --l;
+            else if (UNLIKELY(phase[i] < phase[i-1] - M_PI))
+                ++l;
+        loops[i] = l;
+    }
+    int sum = 0;
+    for (size_t i = 0; i < blocks; ++i) {
+        int next_sum = sum + loops[i];
+        loops[i] = sum;
+        sum = next_sum;
+    }
+
+    fprintf(stderr, "Coarse loops done, now final adjust.\n");
+
+    // Now the final phase adjustment.
+#pragma omp parallel for
+    for (size_t i = 0; i < blocks; ++i) {
+        size_t bstart = (LEN - 1) * i / blocks + START + 1;
+        size_t bend = (LEN - 1) * (i + 1) / blocks + START + 1;
+        int l = loops[i];
+        double last_phase = start[i];
+        for (size_t i = bstart; i < bend; ++i) {
+            if (UNLIKELY(phase[i] > last_phase + M_PI))
+                --l;
+            else if (UNLIKELY(phase[i] < last_phase - M_PI))
+                ++l;
+            phase[i] += 2 * M_PI * l;
+        }
+    }
 
     if (jitterpath != NULL) {
+        fprintf(stderr, "Jitter spectrum.\n");
         int len = END - START;
         float * js = spectrumf(phase + START, len);
         dump_path(jitterpath, js, len / 2 * sizeof(float));
@@ -143,6 +195,7 @@ static void run_regression(FILE * outfile)
     double (*counts)[I_WIDTH] = fftw_malloc(
         sizeof(double) * sample_limit * I_WIDTH);
     memset(counts, 0, sizeof(double) * sample_limit * I_WIDTH);
+#pragma omp parallel for
     for (size_t i = START; i < END; ++i) {
         int position = (i * (unsigned long long) peak_index) % SIZE;
         double angle = phase[i];
@@ -151,6 +204,7 @@ static void run_regression(FILE * outfile)
         coord = fmod(-coord, I_WIDTH);
         if (coord < 0)
             coord += I_WIDTH;
+#pragma omp atomic
         ++counts[in[i]][(int) coord];
     }
 
@@ -160,14 +214,17 @@ static void run_regression(FILE * outfile)
     fft_once(fftw_plan_dft_r2c_2d(sample_limit, I_WIDTH,
                                   *counts, *freqc, FFTW_ESTIMATE));
 
-    for (size_t i = 0; i != sample_limit; ++i)
+    // Kill vertical high frequency noise.
+    for (int i = I_HEIGHT / 4 + 1; i != sample_limit - I_HEIGHT / 4 - 1; ++i)
+        for (size_t j = 0; j != I_WIDTH / 2 + 1; ++j)
+            freqc[i][j] = 0;
+    for (int i = (I_HEIGHT + 7) / 8; i != I_HEIGHT / 4; ++i) {
+        double factor = (i - I_HEIGHT / 8) / (I_HEIGHT / 8);
         for (size_t j = 0; j != I_WIDTH / 2 + 1; ++j) {
-            // Kill vertical high frequency noise.
-            if (i * 8 == I_HEIGHT || i * 8 == 4 * sample_limit - I_HEIGHT * 7)
-                freqc[i][j] *= 0.5;
-            else if (i > I_HEIGHT / 8 && i < sample_limit - 7 * I_HEIGHT / 8)
-                freqc[i][j] = 0;
+            freqc[i][j] *= factor;
+            freqc[sample_limit - i][j] *= factor;
         }
+    }
 
     fft_once(fftw_plan_dft_c2r_2d(sample_limit, I_WIDTH,
                                   *freqc, *counts, FFTW_ESTIMATE));
@@ -316,7 +373,8 @@ int main(int argc, char ** argv)
     in = xmalloc(SIZE * sizeof * in);
     bool used[16384];
     memset(used, 0, sizeof used);
-    for (int i = 0; i != SIZE; ++i) {
+#pragma omp parallel for
+    for (int i = 0; i < SIZE; ++i) {
         int x = buffer[i * 2] + 256 * (buffer[i * 2 + 1] & 0x3f);
         x ^= 1 << 13;
         assert(x >= 0 && x < 16384);
@@ -370,7 +428,8 @@ int main(int argc, char ** argv)
     fprintf(stderr, "Quartiles : %f %f %f\n", quart1, middle, quart3);
 
     out = fftw_malloc(SIZE * sizeof * out);
-    for (int i = 0; i != SIZE; ++i) {
+#pragma omp parallel for
+    for (int i = 0; i < SIZE; ++i) {
         int d = in[i];
         if (d < middle)
             out[i] = fabs(quart1 - d);
@@ -378,7 +437,7 @@ int main(int argc, char ** argv)
             out[i] = fabs(d - quart3);
     }
 
-    fprintf(stderr, "Got data...\n");
+    fprintf(stderr, "Running phase detect fft...");
 
     fftwf_init_threads();
     fftwf_plan_with_nthreads(4);
@@ -387,6 +446,7 @@ int main(int argc, char ** argv)
                                         FFTW_R2HC, FFTW_ESTIMATE);
     fftwf_execute(plan);
     fftwf_destroy_plan(plan);
+    fprintf(stderr, "\n");
     out[0] = 0;                         // Not interesting...
 
     FILE * outfile = stdout;
