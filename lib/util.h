@@ -42,5 +42,6 @@ size_t best36(const unsigned char ** restrict buffer,
               size_t * restrict bytes);
 
 float * spectrum(const double * samples, size_t length);
+float * spectrumf(const float * samples, size_t length);
 
 #endif

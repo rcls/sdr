@@ -14,8 +14,6 @@
 #include "lib/util.h"
 #include "lib/registers.h"
 
-#define FREQ (1e9 / period)
-
 static size_t SIZE = 1<<23;
 
 // Time domain length of filter.
@@ -70,9 +68,9 @@ static void run_regression(FILE * outfile)
     // Doing a full size fft & then the regression on full time resolution is
     // a bit silly...  But CPU cycles are cheap.
     fprintf(stderr, "Construct filter...\n");
-    complex * filtered = fftw_malloc (SIZE * sizeof * filtered);
-    fftw_plan plan = fftw_plan_dft_1d(SIZE, filtered, filtered,
-                                      FFTW_BACKWARD, FFTW_ESTIMATE);
+    complex float * filtered = fftw_malloc (SIZE * sizeof * filtered);
+    fftwf_plan plan = fftwf_plan_dft_1d(SIZE, filtered, filtered,
+                                        FFTW_BACKWARD, FFTW_ESTIMATE);
     // First generate the filter spectrum.  Full complex instead of real
     // symmetric FFT.  Again, waste waste waste.
     for (size_t i = 0; i < SIZE; ++i)
@@ -82,7 +80,7 @@ static void run_regression(FILE * outfile)
         filtered[i] = filtered[SIZE - i] = sin(i * (M_PI / FILTER_WIDTH)) / i;
     for (size_t i = FILTER_WIDTH; i < SIZE - FILTER_WIDTH; ++i)
         filtered[i] = 0;
-    fftw_execute(plan);
+    fftwf_execute(plan);
 
     // Do the filtering in frequency domain.
     fprintf(stderr, "Filtering...\n");
@@ -94,13 +92,13 @@ static void run_regression(FILE * outfile)
         filtered[i] = 0;
 
     // Back to time domain.
-    fftw_execute(plan);
-    fftw_destroy_plan(plan);
+    fftwf_execute(plan);
+    fftwf_destroy_plan(plan);
 
     const size_t START = FILTER_WIDTH;
     const size_t END = SIZE - FILTER_WIDTH;
 
-    double * phase = xmalloc(SIZE * sizeof * phase);
+    float * phase = xmalloc(SIZE * sizeof * phase);
     int last_phase_loops = 0;
     int max_loops = 0;
     int min_loops = 0;
@@ -137,7 +135,7 @@ static void run_regression(FILE * outfile)
 
     if (jitterpath != NULL) {
         int len = END - START;
-        float * js = spectrum(phase + START, len);
+        float * js = spectrumf(phase + START, len);
         dump_path(jitterpath, js, len / 2 * sizeof(float));
         free(js);
     }
@@ -382,11 +380,13 @@ int main(int argc, char ** argv)
 
     fprintf(stderr, "Got data...\n");
 
-    fftw_init_threads();
-    fftw_plan_with_nthreads(4);
+    fftwf_init_threads();
+    fftwf_plan_with_nthreads(4);
 
-    fftw_plan plan = fftw_plan_r2r_1d(SIZE, out, out, FFTW_R2HC, FFTW_ESTIMATE);
-    fftw_execute(plan);
+    fftwf_plan plan = fftwf_plan_r2r_1d(SIZE, out, out,
+                                        FFTW_R2HC, FFTW_ESTIMATE);
+    fftwf_execute(plan);
+    fftwf_destroy_plan(plan);
     out[0] = 0;                         // Not interesting...
 
     FILE * outfile = stdout;

@@ -236,7 +236,7 @@ size_t best36(const unsigned char ** restrict buffer, size_t * restrict bytes)
 
 float * spectrum(const double * samples, size_t length)
 {
-    double * fft = xmalloc(length * sizeof(double));
+    double * fft = fftw_malloc(length * sizeof * fft);
 
     // Apply a window.
     for (size_t i = 0; i != length; ++i)
@@ -255,6 +255,32 @@ float * spectrum(const double * samples, size_t length)
     if (length % 2 == 0)
         output[length / 2] = fft[length / 2] * fft[length / 2];
 
-    free(fft);
+    fftw_free(fft);
+    return output;
+}
+
+
+float * spectrumf(const float * samples, size_t length)
+{
+    float * fft = fftwf_malloc(length * sizeof * fft);
+
+    // Apply a window.
+    for (size_t i = 0; i != length; ++i)
+        fft[i] = samples[i] * (1 - cos(2 * M_PI * i / length));
+
+    fftwf_plan_with_nthreads(4);
+    fftwf_plan plan = fftwf_plan_r2r_1d(
+        length, fft, fft, FFTW_R2HC, FFTW_ESTIMATE);
+    fftwf_execute(plan);
+    fftwf_destroy_plan(plan);
+
+    float * output = xmalloc(length / 2 * sizeof(float));
+    output[0] = 0;                      // Not interesting.
+    for (size_t i = 1; i * 2 < length; ++i)
+        output[i] = fft[i] * fft[i] + fft[length - i] * fft[length - i];
+    if (length % 2 == 0)
+        output[length / 2] = fft[length / 2] * fft[length / 2];
+
+    fftwf_free(fft);
     return output;
 }
