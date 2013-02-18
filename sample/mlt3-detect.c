@@ -35,9 +35,16 @@ static int poly_order = 10;
 static int period = 205;
 
 static unsigned short * in;
-static double * out;
+static float * out;
 
 static int sample_limit;
+
+static void fft_once(fftw_plan plan)
+{
+    fftw_execute(plan);
+    fftw_destroy_plan(plan);
+}
+
 
 static void run_regression(FILE * outfile)
 {
@@ -135,8 +142,9 @@ static void run_regression(FILE * outfile)
         free(js);
     }
 
-    static double counts[I_HEIGHT + 1][I_WIDTH];
-    memset(counts, 0, sizeof counts);
+    double (*counts)[I_WIDTH] = fftw_malloc(
+        sizeof(double) * sample_limit * I_WIDTH);
+    memset(counts, 0, sizeof(double) * sample_limit * I_WIDTH);
     for (size_t i = START; i < END; ++i) {
         int position = (i * (unsigned long long) peak_index) % SIZE;
         double angle = phase[i];
@@ -145,13 +153,27 @@ static void run_regression(FILE * outfile)
         coord = fmod(-coord, I_WIDTH);
         if (coord < 0)
             coord += I_WIDTH;
-        int x = coord;
-        double vert = in[i] * I_HEIGHT / (double) sample_limit;
-        int y = vert;
-        double part = vert - y;
-        counts[y][x] += 1 - part;
-        counts[y + 1][x] += part;
+        ++counts[in[i]][(int) coord];
     }
+
+    // Now transform for filtering...
+    complex (*freqc)[I_WIDTH / 2 + 1] = fftw_malloc(
+        sizeof(complex) * sample_limit * (I_WIDTH / 2 + 1));
+    fft_once(fftw_plan_dft_r2c_2d(sample_limit, I_WIDTH,
+                                  *counts, *freqc, FFTW_ESTIMATE));
+
+    for (size_t i = 0; i != sample_limit; ++i)
+        for (size_t j = 0; j != I_WIDTH / 2 + 1; ++j) {
+            // Kill vertical high frequency noise.
+            if (i * 8 == I_HEIGHT || i * 8 == 4 * sample_limit - I_HEIGHT * 7)
+                freqc[i][j] *= 0.5;
+            else if (i > I_HEIGHT / 8 && i < sample_limit - 7 * I_HEIGHT / 8)
+                freqc[i][j] = 0;
+        }
+
+    fft_once(fftw_plan_dft_c2r_2d(sample_limit, I_WIDTH,
+                                  *freqc, *counts, FFTW_ESTIMATE));
+
     fprintf(outfile, "unset xtics\n");
     fprintf(outfile, "unset ytics\n");
     fprintf(outfile, "unset cbtics\n");
@@ -165,9 +187,10 @@ static void run_regression(FILE * outfile)
     fprintf(outfile, "set bmargin 0\n");
     fprintf(outfile, "set xrange [0:%i]\n", 2 * I_WIDTH);
     fprintf(outfile, "set yrange [%i:%i]\n", 0, I_HEIGHT);
-    fprintf(outfile, "set cbrange [0:%li]\n", 16ul * SIZE / I_WIDTH / I_HEIGHT);
+    fprintf(outfile, "set cbrange [0:%li]\n", 16ul * SIZE);
     fprintf(outfile, "plot '-' matrix with image");
-    for (int i = 0; i < I_HEIGHT; ++i) {
+    for (int ii = 0; ii < I_HEIGHT; ++ii) {
+        int i = ii * sample_limit / I_HEIGHT;
         fprintf(outfile, "\n%g", counts[i][0]);
         for (int j = 1; j < I_WIDTH; ++j)
             fprintf(outfile, " %g", counts[i][j]);
