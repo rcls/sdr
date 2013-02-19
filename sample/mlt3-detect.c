@@ -224,6 +224,48 @@ static void run_regression(FILE * outfile)
         free(js);
     }
 
+    // Now do a narrow band filter of the phase residual.
+    // The filter width we want is just under 100Hz.  Let's take 64k samples.
+    // Doing a full size fft & then the regression on full time resolution is
+    // a bit silly...  But CPU cycles are cheap.
+    fprintf(stderr, "Construct filter 2...\n");
+    filtered = fftw_malloc (SIZE * sizeof * filtered);
+    // First generate the filter spectrum.  Full complex instead of real
+    // symmetric FFT.  Again, waste waste waste.
+    filtered[0] = M_PI / 65536;
+    for (long i = 1; i < 65536; ++i)
+        filtered[i] = filtered[SIZE - i] = sin(i * (M_PI / 65536)) / i;
+
+    for (long i = 65536; i < SIZE - 65536; ++i)
+        filtered[i] = 0;
+    fprintf(stderr, "Filter gen...");
+    plan = fftwf_plan_dft_1d(SIZE, filtered, filtered,
+                             FFTW_BACKWARD, FFTW_ESTIMATE);
+    fftwf_execute(plan);
+    fftwf_destroy_plan(plan);
+
+    // Normalise.
+    double factor = 1 / creal(filtered[0]) / SIZE;
+
+    // Simply minded extension of the phase data...
+    for (long i = 0; i < START; ++i)
+        phase[i] = phase[START];
+    for (long i = END + 1; i < SIZE; ++i)
+        phase[i] = phase[END];
+
+    plan = fftwf_plan_r2r_1d(SIZE, phase, phase,
+                             FFTW_FORWARD, FFTW_ESTIMATE);
+    fftwf_execute(plan);
+    fftwf_destroy_plan(plan);
+    for (int i = 0; i <= HALF; ++i)
+        phase[i] *= creal(filtered[i]) * factor;
+    for (int i = 1; i < HALF; ++i)
+        phase[SIZE - i] *= creal(filtered[i]) * factor;
+    plan = fftwf_plan_r2r_1d(SIZE, phase, phase,
+                             FFTW_BACKWARD, FFTW_ESTIMATE);
+    fftwf_execute(plan);
+    fftwf_destroy_plan(plan);
+
     double (*counts)[I_WIDTH] = fftw_malloc(
         sizeof(double) * sample_limit * I_WIDTH);
     memset(counts, 0, sizeof(double) * sample_limit * I_WIDTH);
