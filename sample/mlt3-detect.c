@@ -35,12 +35,6 @@ static int period = 205;
 
 static int sample_limit;
 
-static void fft_once(fftw_plan plan)
-{
-    fftw_execute(plan);
-    fftw_destroy_plan(plan);
-}
-
 static void fftf_once(fftwf_plan plan)
 {
     fftwf_execute(plan);
@@ -138,7 +132,7 @@ static void phase_recover(float * restrict out, size_t SIZE, size_t peak_index)
     // Doing a full size fft & then the regression on full time resolution is
     // a bit silly...  But CPU cycles are cheap.
     fprintf(stderr, "Construct filter...\n");
-    complex float * filtered = fftw_malloc (SIZE * sizeof * filtered);
+    complex float * filtered = fftwf_malloc (SIZE * sizeof * filtered);
     fftwf_plan plan = fftwf_plan_dft_1d(SIZE, filtered, filtered,
                                         FFTW_BACKWARD, FFTW_ESTIMATE);
     // First generate the filter spectrum.  Full complex instead of real
@@ -174,7 +168,7 @@ static void phase_recover(float * restrict out, size_t SIZE, size_t peak_index)
     for (size_t i = START; i < END; ++i)
         out[i] = carg(filtered[i]);
 
-    fftw_free(filtered);
+    fftwf_free(filtered);
 }
 
 
@@ -189,9 +183,9 @@ static void create_image(FILE * outfile,
 
     fprintf(stderr, "Phase detection done, create image.\n");
 
-    double (*counts)[I_WIDTH] = fftw_malloc(
-        sizeof(double) * sample_limit * I_WIDTH);
-    memset(counts, 0, sizeof(double) * sample_limit * I_WIDTH);
+    float (*counts)[I_WIDTH] = fftwf_malloc(
+        sizeof(float) * sample_limit * I_WIDTH);
+    memset(counts, 0, sizeof(float) * sample_limit * I_WIDTH);
 #pragma omp parallel for
     for (size_t i = START; i < END; ++i) {
         int position = (i * (unsigned long long) peak_index) % SIZE;
@@ -206,10 +200,10 @@ static void create_image(FILE * outfile,
     }
 
     // Now transform for filtering...
-    complex (*freqc)[I_WIDTH / 2 + 1] = fftw_malloc(
-        sizeof(complex) * sample_limit * (I_WIDTH / 2 + 1));
-    fft_once(fftw_plan_dft_r2c_2d(sample_limit, I_WIDTH,
-                                  *counts, *freqc, FFTW_ESTIMATE));
+    complex float (*freqc)[I_WIDTH / 2 + 1] = fftwf_malloc(
+        sizeof(complex float) * sample_limit * (I_WIDTH / 2 + 1));
+    fftf_once(fftwf_plan_dft_r2c_2d(sample_limit, I_WIDTH,
+                                    *counts, *freqc, FFTW_ESTIMATE));
 
     // Kill vertical high frequency noise.
     for (int i = I_HEIGHT / 4 + 1; i != sample_limit - I_HEIGHT / 4 - 1; ++i)
@@ -223,9 +217,9 @@ static void create_image(FILE * outfile,
         }
     }
 
-    fft_once(fftw_plan_dft_c2r_2d(sample_limit, I_WIDTH,
-                                  *freqc, *counts, FFTW_ESTIMATE));
-    fftw_free(freqc);
+    fftf_once(fftwf_plan_dft_c2r_2d(sample_limit, I_WIDTH,
+                                    *freqc, *counts, FFTW_ESTIMATE));
+    fftwf_free(freqc);
 
     fprintf(outfile, "unset xtics\n");
     fprintf(outfile, "unset ytics\n");
@@ -251,7 +245,7 @@ static void create_image(FILE * outfile,
             fprintf(outfile, " %g", counts[i][j]);
     }
     fprintf(outfile, "\ne\ne\n");
-    fftw_free(counts);
+    fftwf_free(counts);
 }
 
 
@@ -339,9 +333,7 @@ int main(int argc, char ** argv)
 {
     parse_opts(argc, argv);
 
-    fftw_init_threads();
     fftwf_init_threads();
-    fftw_plan_with_nthreads(4);
     fftwf_plan_with_nthreads(4);
 
     /* freq_domain_filter_width =  */
@@ -419,7 +411,7 @@ int main(int argc, char ** argv)
 
     create_image(outfile, in, out, SIZE, peak_index);
     free(in);
-    fftw_free(out);
+    fftwf_free(out);
 
     fflush(outfile);
     if (ferror(outfile))
