@@ -108,7 +108,6 @@ static void run_regression(FILE * outfile)
 
     const size_t START = FILTER_WIDTH;
     const size_t END = SIZE - FILTER_WIDTH;
-    const size_t LEN = END - START;
 
     float * phase = xmalloc(SIZE * sizeof * phase);
 
@@ -119,78 +118,7 @@ static void run_regression(FILE * outfile)
 
     fftw_free(filtered);
 
-    // See how big the steps in phase are.  This determines the stride for
-    // doing coarse grained loop detection.
-    double max_jump = 0;
-#pragma omp parallel for reduction(max:max_jump)
-    for (size_t i = START + 1; i < END; ++i) {
-        double jump = fabs(phase[i] - phase[i-1]);
-        if (UNLIKELY(jump > max_jump)) {
-            if (jump > M_PI)
-                jump = 2 * M_PI - jump;
-            if (jump > max_jump)
-                max_jump = jump;
-        }
-    }
-
-    // Work out the block size for doing coarse grained loop detection.
-    size_t blocks;
-    if (max_jump < 8 * M_PI / LEN)
-        blocks = 8;                     // Split up for parallelism.
-    else if (max_jump > M_PI / 1024)
-        blocks = 1;                     // Yurrgghhh... do it all as one block.
-    else
-        blocks = 1 + (size_t) (LEN * max_jump / M_PI);
-
-    fprintf(stderr, "Max jump = %g, blocks = %zi\n", max_jump, blocks);
-
-    int loops[blocks];
-    double start[blocks];
-#pragma omp parallel for
-    for (size_t i = 0; i < blocks; ++i) {
-        size_t bstart = (LEN - 1) * i / blocks + START + 1;
-        size_t bend = (LEN - 1) * (i + 1) / blocks + START + 1;
-        start[i] = phase[bstart - 1];
-        int l = 0;
-        for (size_t j = bstart; j != bend; ++j)
-            if (UNLIKELY(phase[i] > phase[i-1] + M_PI))
-                --l;
-            else if (UNLIKELY(phase[i] < phase[i-1] - M_PI))
-                ++l;
-        loops[i] = l;
-    }
-    int sum = 0;
-    for (size_t i = 0; i < blocks; ++i) {
-        int next_sum = sum + loops[i];
-        loops[i] = sum;
-        sum = next_sum;
-    }
-
-    fprintf(stderr, "Coarse loops done, now final adjust.\n");
-
-    // Now the final phase adjustment.
-#pragma omp parallel for
-    for (size_t i = 0; i < blocks; ++i) {
-        size_t bstart = (LEN - 1) * i / blocks + START + 1;
-        size_t bend = (LEN - 1) * (i + 1) / blocks + START + 1;
-        int l = loops[i];
-        double last_phase = start[i];
-        for (size_t i = bstart; i < bend; ++i) {
-            if (UNLIKELY(phase[i] > last_phase + M_PI))
-                --l;
-            else if (UNLIKELY(phase[i] < last_phase - M_PI))
-                ++l;
-            phase[i] += 2 * M_PI * l;
-        }
-    }
-
-    if (jitterpath != NULL) {
-        fprintf(stderr, "Jitter spectrum.\n");
-        int len = END - START;
-        float * js = spectrumf(phase + START, len);
-        dump_path(jitterpath, js, len / 2 * sizeof(float));
-        free(js);
-    }
+    fprintf(stderr, "Phase detection done, create image.\n");
 
     double (*counts)[I_WIDTH] = fftw_malloc(
         sizeof(double) * sample_limit * I_WIDTH);
