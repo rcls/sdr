@@ -36,6 +36,9 @@ clean:
 # Cancel built-in
 %: %.c
 
+%.s: %.c
+	$(COMPILE.c) -S -o $@ $<
+
 .PRECIOUS: %.o
 
 -include .*.d

@@ -12,14 +12,14 @@ void * xrealloc(void * ptr, size_t size)
 inline int checki(int r, const char * w)
 {
     if (r < 0)
-        errx(1, "%s", w);
+        err(1, "%s", w);
     return r;
 }
 
 inline ssize_t checkz(ssize_t r, const char * w)
 {
     if (r < 0)
-        errx(1, "%s", w);
+        err(1, "%s", w);
     return r;
 }
 

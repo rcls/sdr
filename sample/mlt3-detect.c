@@ -31,11 +31,7 @@ static const char * inpath;
 static const char * dumppath;
 static const char * outpath;
 static const char * jitterpath;
-static int poly_order = 10;
 static int period = 205;
-
-static unsigned short * in;
-static float * out;
 
 static int sample_limit;
 
@@ -45,16 +41,70 @@ static void fft_once(fftw_plan plan)
     fftw_destroy_plan(plan);
 }
 
-
-static void run_regression(FILE * outfile)
+static void fftf_once(fftwf_plan plan)
 {
+    fftwf_execute(plan);
+    fftwf_destroy_plan(plan);
+}
+
+
+// Produce a non-linear transformation for clock recovery.  We use a W shaped
+// function based on the quartiles.
+static float * rectify(const unsigned short * restrict in, size_t SIZE)
+{
+    int counts[16384];
+    memset(counts, 0, sizeof(counts));
+#pragma omp parallel for
+    for (int i = 0; i < SIZE; ++i)
+#pragma omp atomic
+        counts[in[i]]++;
+
+    int x = 0;
+    double quart1 = 0;
+    double middle = 0;
+    double quart3 = 0;
+    for (int i = 0; i != 16384; ++i) {
+        int xx = x + counts[i];
+        if (x < SIZE / 4 && xx >= SIZE / 4)
+            quart1 = i - (xx - SIZE * 0.25) / (xx - x);
+        if (x < SIZE / 2 && xx >= SIZE / 2)
+            middle = i - (xx - SIZE * 0.5) / (xx - x);
+        if (x < 3 * SIZE / 4 && xx >= 3 * SIZE / 4)
+            quart3 = i - (xx - SIZE * 0.75) / (xx - x);
+        x = xx;
+    }
+
+    fprintf(stderr, "Quartiles : %f %f %f\n", quart1, middle, quart3);
+
+    float * out = fftwf_malloc(SIZE * sizeof * out);
+#pragma omp parallel for
+    for (int i = 0; i < SIZE; ++i) {
+        int d = in[i];
+        if (d < middle)
+            out[i] = fabs(quart1 - d);
+        else
+            out[i] = fabs(d - quart3);
+    }
+
+    return out;
+}
+
+
+// Given the rectified data, find the peak power.  Transforms out.
+static size_t peak_power(float * restrict out, size_t SIZE)
+{
+    fprintf(stderr, "Running phase detect fft...");
+
+    fftf_once(fftwf_plan_r2r_1d(SIZE, out, out, FFTW_R2HC, FFTW_ESTIMATE));
+    fprintf(stderr, "\n");
+
     double max_power = 0;
-    int peak_index = 0;
+    size_t peak_index = 0;
     const size_t HALF = SIZE / 2;
 #pragma omp parallel for
-    for (int i = 1; i < HALF; ++i) {
+    for (size_t i = 1; i < HALF; ++i) {
         double power = out[i] * out[i] + out[SIZE-i] * out[SIZE-i];
-        if (power > max_power)
+        if (UNLIKELY(power > max_power))
 #pragma omp critical(max_power)
         {
             if (power > max_power) {
@@ -64,8 +114,21 @@ static void run_regression(FILE * outfile)
         }
     }
 
-    fprintf(stderr, "Peak at %i, %f Hz\n",
+    fprintf(stderr, "Peak at %zi, %f Hz\n",
             peak_index, peak_index * 1e9 / period / SIZE);
+
+    return peak_index;
+}
+
+
+// out should be the frequency domain data.  We apply a filter and map to
+// phases.
+static void phase_recover(float * restrict out, size_t SIZE, size_t peak_index)
+{
+    const size_t HALF = SIZE / 2;
+    const size_t START = FILTER_WIDTH;
+    const size_t END = SIZE - FILTER_WIDTH;
+
     if (peak_index <= SIZE / FILTER_WIDTH
         || peak_index >= HALF - SIZE / FILTER_WIDTH) {
         fprintf(stderr, "Too close to end.\n");
@@ -106,17 +169,23 @@ static void run_regression(FILE * outfile)
     fftwf_destroy_plan(plan);
     fprintf(stderr, "\n");
 
-    const size_t START = FILTER_WIDTH;
-    const size_t END = SIZE - FILTER_WIDTH;
-
-    float * phase = xmalloc(SIZE * sizeof * phase);
-
-    // Run phase detection...
+    // Transform to phases...
 #pragma omp parallel for
     for (size_t i = START; i < END; ++i)
-        phase[i] = carg(filtered[i]);
+        out[i] = carg(filtered[i]);
 
     fftw_free(filtered);
+}
+
+
+static void create_image(FILE * outfile,
+                         const unsigned short * restrict in,
+                         const float * restrict phase,
+                         size_t SIZE, size_t peak_index)
+{
+    //const size_t HALF = SIZE / 2;
+    const size_t START = FILTER_WIDTH;
+    const size_t END = SIZE - FILTER_WIDTH;
 
     fprintf(stderr, "Phase detection done, create image.\n");
 
@@ -156,6 +225,7 @@ static void run_regression(FILE * outfile)
 
     fft_once(fftw_plan_dft_c2r_2d(sample_limit, I_WIDTH,
                                   *freqc, *counts, FFTW_ESTIMATE));
+    fftw_free(freqc);
 
     fprintf(outfile, "unset xtics\n");
     fprintf(outfile, "unset ytics\n");
@@ -181,6 +251,7 @@ static void run_regression(FILE * outfile)
             fprintf(outfile, " %g", counts[i][j]);
     }
     fprintf(outfile, "\ne\ne\n");
+    fftw_free(counts);
 }
 
 
@@ -232,7 +303,7 @@ static unsigned char * capture(size_t len)
 static void parse_opts(int argc, char ** argv)
 {
     while (1)
-        switch (getopt(argc, argv, "i:j:o:d:p:O:n:")) {
+        switch (getopt(argc, argv, "i:j:o:d:p:n:")) {
         case 'i':
             inpath = optarg;
             break;
@@ -241,11 +312,6 @@ static void parse_opts(int argc, char ** argv)
         /*     break; */
         case 'o':
             outpath = optarg;
-            break;
-        case 'O':
-            poly_order = strtoul(optarg, NULL, 0);
-            if (poly_order < 1 || poly_order > 1000)
-                errx(1, "Polynomial order must be between 1 and 1000.");
             break;
         case 'n':
             SIZE = strtoul(optarg, NULL, 0);
@@ -273,6 +339,11 @@ int main(int argc, char ** argv)
 {
     parse_opts(argc, argv);
 
+    fftw_init_threads();
+    fftwf_init_threads();
+    fftw_plan_with_nthreads(4);
+    fftwf_plan_with_nthreads(4);
+
     /* freq_domain_filter_width =  */
 
     const unsigned char * buffer = NULL;
@@ -294,21 +365,24 @@ int main(int argc, char ** argv)
             return EXIT_SUCCESS;
     }
 
-    if (best14 (&buffer, &bufsize) < SIZE)
+    const unsigned char * data = buffer;
+    if (best14 (&data, &bufsize) < SIZE)
         errx(1, "Did not get sufficient contiguous data.");
 
     // Read in the data and find the used codes.
-    in = xmalloc(SIZE * sizeof * in);
+    unsigned short * in = xmalloc(SIZE * sizeof * in);
     bool used[16384];
     memset(used, 0, sizeof used);
 #pragma omp parallel for
     for (int i = 0; i < SIZE; ++i) {
-        int x = buffer[i * 2] + 256 * (buffer[i * 2 + 1] & 0x3f);
+        int x = data[i * 2] + 256 * (data[i * 2 + 1] & 0x3f);
         x ^= 1 << 13;
         assert(x >= 0 && x < 16384);
         in[i] = x;
+#pragma omp atomic write
         used[x] = true;
     }
+    free((void*)buffer);
 
     // Map the used codes to a gapless sequence.
     int reindex_limit = 0;
@@ -328,54 +402,13 @@ int main(int argc, char ** argv)
     sample_limit = reindex_limit;
 
     // Map the data to the gapless sequence.
-    for (int i = 0; i != SIZE; ++i)
+#pragma omp parallel for
+    for (int i = 0; i < SIZE; ++i)
         in[i] = reindex[in[i]];
 
-    // Do a nonlinear transformation for clock recovery.  We use a W shaped
-    // function based on the quartiles.
-    int counts[16384];
-    memset(counts, 0, sizeof(counts));
-    for (int i = 0; i != SIZE; ++i)
-        counts[in[i]]++;
-
-    int x = 0;
-    double quart1 = 0;
-    double middle = 0;
-    double quart3 = 0;
-    for (int i = 0; i != 16384; ++i) {
-        int xx = x + counts[i];
-        if (x < SIZE / 4 && xx >= SIZE / 4)
-            quart1 = i - (xx - SIZE * 0.25) / (xx - x);
-        if (x < SIZE / 2 && xx >= SIZE / 2)
-            middle = i - (xx - SIZE * 0.5) / (xx - x);
-        if (x < 3 * SIZE / 4 && xx >= 3 * SIZE / 4)
-            quart3 = i - (xx - SIZE * 0.75) / (xx - x);
-        x = xx;
-    }
-
-    fprintf(stderr, "Quartiles : %f %f %f\n", quart1, middle, quart3);
-
-    out = fftw_malloc(SIZE * sizeof * out);
-#pragma omp parallel for
-    for (int i = 0; i < SIZE; ++i) {
-        int d = in[i];
-        if (d < middle)
-            out[i] = fabs(quart1 - d);
-        else
-            out[i] = fabs(d - quart3);
-    }
-
-    fprintf(stderr, "Running phase detect fft...");
-
-    fftwf_init_threads();
-    fftwf_plan_with_nthreads(4);
-
-    fftwf_plan plan = fftwf_plan_r2r_1d(SIZE, out, out,
-                                        FFTW_R2HC, FFTW_ESTIMATE);
-    fftwf_execute(plan);
-    fftwf_destroy_plan(plan);
-    fprintf(stderr, "\n");
-    out[0] = 0;                         // Not interesting...
+    float * out = rectify(in, SIZE);
+    size_t peak_index = peak_power(out, SIZE);
+    phase_recover(out, SIZE, peak_index);
 
     FILE * outfile = stdout;
     if (outpath != NULL) {
@@ -384,7 +417,8 @@ int main(int argc, char ** argv)
             err(1, "Cannot open output %s", outpath);
     }
 
-    run_regression(outfile);
+    create_image(outfile, in, out, SIZE, peak_index);
+    free(in);
     fftw_free(out);
 
     fflush(outfile);
