@@ -33,8 +33,6 @@ static const char * outpath;
 static const char * jitterpath;
 static int period = 205;
 
-static int sample_limit;
-
 static void fftf_once(fftwf_plan plan)
 {
     fftwf_execute(plan);
@@ -44,12 +42,12 @@ static void fftf_once(fftwf_plan plan)
 
 // Produce a non-linear transformation for clock recovery.  We use a W shaped
 // function based on the quartiles.
-static float * rectify(const unsigned short * restrict in, size_t SIZE)
+static float * rectify(const unsigned short * restrict in, size_t size)
 {
     int counts[16384];
     memset(counts, 0, sizeof(counts));
 #pragma omp parallel for
-    for (int i = 0; i < SIZE; ++i)
+    for (int i = 0; i < size; ++i)
 #pragma omp atomic
         counts[in[i]]++;
 
@@ -59,20 +57,20 @@ static float * rectify(const unsigned short * restrict in, size_t SIZE)
     double quart3 = 0;
     for (int i = 0; i != 16384; ++i) {
         int xx = x + counts[i];
-        if (x < SIZE / 4 && xx >= SIZE / 4)
-            quart1 = i - (xx - SIZE * 0.25) / (xx - x);
-        if (x < SIZE / 2 && xx >= SIZE / 2)
-            middle = i - (xx - SIZE * 0.5) / (xx - x);
-        if (x < 3 * SIZE / 4 && xx >= 3 * SIZE / 4)
-            quart3 = i - (xx - SIZE * 0.75) / (xx - x);
+        if (x < size / 4 && xx >= size / 4)
+            quart1 = i - (xx - size * 0.25) / (xx - x);
+        if (x < size / 2 && xx >= size / 2)
+            middle = i - (xx - size * 0.5) / (xx - x);
+        if (x < 3 * size / 4 && xx >= 3 * size / 4)
+            quart3 = i - (xx - size * 0.75) / (xx - x);
         x = xx;
     }
 
     fprintf(stderr, "Quartiles : %f %f %f\n", quart1, middle, quart3);
 
-    float * out = fftwf_malloc(SIZE * sizeof * out);
+    float * out = fftwf_malloc(size * sizeof * out);
 #pragma omp parallel for
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = 0; i < size; ++i) {
         int d = in[i];
         if (d < middle)
             out[i] = fabs(quart1 - d);
@@ -85,19 +83,19 @@ static float * rectify(const unsigned short * restrict in, size_t SIZE)
 
 
 // Given the rectified data, find the peak power.  Transforms out.
-static size_t peak_power(float * restrict out, size_t SIZE)
+static size_t peak_power(float * restrict out, size_t size)
 {
     fprintf(stderr, "Running phase detect fft...");
 
-    fftf_once(fftwf_plan_r2r_1d(SIZE, out, out, FFTW_R2HC, FFTW_ESTIMATE));
+    fftf_once(fftwf_plan_r2r_1d(size, out, out, FFTW_R2HC, FFTW_ESTIMATE));
     fprintf(stderr, "\n");
 
     double max_power = 0;
     size_t peak_index = 0;
-    const size_t HALF = SIZE / 2;
+    const size_t HALF = size / 2;
 #pragma omp parallel for
     for (size_t i = 1; i < HALF; ++i) {
-        double power = out[i] * out[i] + out[SIZE-i] * out[SIZE-i];
+        double power = out[i] * out[i] + out[size-i] * out[size-i];
         if (UNLIKELY(power > max_power))
 #pragma omp critical(max_power)
         {
@@ -109,22 +107,22 @@ static size_t peak_power(float * restrict out, size_t SIZE)
     }
 
     fprintf(stderr, "Peak at %zi, %f Hz\n",
-            peak_index, peak_index * 1e9 / period / SIZE);
+            peak_index, peak_index * 1e9 / period / size);
 
     return peak_index;
 }
 
 
-// out should be the frequency domain data.  We apply a filter and map to
+// data should be the frequency domain data.  We apply a filter and map to
 // phases.
-static void phase_recover(float * restrict out, size_t SIZE, size_t peak_index)
+static void phase_recover(float * restrict data, size_t size, size_t peak_index)
 {
-    const size_t HALF = SIZE / 2;
+    const size_t HALF = size / 2;
     const size_t START = FILTER_WIDTH;
-    const size_t END = SIZE - FILTER_WIDTH;
+    const size_t END = size - FILTER_WIDTH;
 
-    if (peak_index <= SIZE / FILTER_WIDTH
-        || peak_index >= HALF - SIZE / FILTER_WIDTH) {
+    if (peak_index <= size / FILTER_WIDTH
+        || peak_index >= HALF - size / FILTER_WIDTH) {
         fprintf(stderr, "Too close to end.\n");
         exit(EXIT_FAILURE);
     }
@@ -132,15 +130,15 @@ static void phase_recover(float * restrict out, size_t SIZE, size_t peak_index)
     // Doing a full size fft & then the regression on full time resolution is
     // a bit silly...  But CPU cycles are cheap.
     fprintf(stderr, "Construct filter...\n");
-    complex float * filtered = fftwf_malloc (SIZE * sizeof * filtered);
-    fftwf_plan plan = fftwf_plan_dft_1d(SIZE, filtered, filtered,
+    complex float * filtered = fftwf_malloc (size * sizeof * filtered);
+    fftwf_plan plan = fftwf_plan_dft_1d(size, filtered, filtered,
                                         FFTW_BACKWARD, FFTW_ESTIMATE);
     // First generate the filter spectrum.  Full complex instead of real
     // symmetric FFT.  Again, waste waste waste.
     filtered[0] = M_PI / FILTER_WIDTH;
     for (size_t i = 1; i < FILTER_WIDTH; ++i)
-        filtered[i] = filtered[SIZE - i] = sin(i * (M_PI / FILTER_WIDTH)) / i;
-    for (size_t i = FILTER_WIDTH; i < SIZE - FILTER_WIDTH; ++i)
+        filtered[i] = filtered[size - i] = sin(i * (M_PI / FILTER_WIDTH)) / i;
+    for (size_t i = FILTER_WIDTH; i < size - FILTER_WIDTH; ++i)
         filtered[i] = 0;
     fprintf(stderr, "Filter gen...");
     fftwf_execute(plan);
@@ -149,12 +147,12 @@ static void phase_recover(float * restrict out, size_t SIZE, size_t peak_index)
     fprintf(stderr, "\nFiltering...");
 #pragma omp parallel for
     for (size_t i = 1; i < peak_index; ++i)
-        filtered[SIZE - peak_index + i] *= out[i] + I * out[SIZE - i];
+        filtered[size - peak_index + i] *= data[i] + I * data[size - i];
 #pragma omp parallel for
     for (size_t i = peak_index; i < HALF; ++i)
-        filtered[i - peak_index] *= out[i] + I * out[SIZE - i];
+        filtered[i - peak_index] *= data[i] + I * data[size - i];
 #pragma omp parallel for
-    for (size_t i = HALF - peak_index; i <= SIZE - peak_index; ++i)
+    for (size_t i = HALF - peak_index; i <= size - peak_index; ++i)
         filtered[i] = 0;
 
     // Back to time domain.
@@ -166,7 +164,7 @@ static void phase_recover(float * restrict out, size_t SIZE, size_t peak_index)
     // Transform to phases...
 #pragma omp parallel for
     for (size_t i = START; i < END; ++i)
-        out[i] = carg(filtered[i]);
+        data[i] = carg(filtered[i]);
 
     fftwf_free(filtered);
 }
@@ -175,11 +173,11 @@ static void phase_recover(float * restrict out, size_t SIZE, size_t peak_index)
 static void create_image(FILE * outfile,
                          const unsigned short * restrict in,
                          const float * restrict phase,
-                         size_t SIZE, size_t peak_index)
+                         size_t size, size_t peak_index, int sample_limit)
 {
-    //const size_t HALF = SIZE / 2;
+    //const size_t HALF = size / 2;
     const size_t START = FILTER_WIDTH;
-    const size_t END = SIZE - FILTER_WIDTH;
+    const size_t END = size - FILTER_WIDTH;
 
     fprintf(stderr, "Phase detection done, create image.\n");
 
@@ -188,9 +186,9 @@ static void create_image(FILE * outfile,
     memset(counts, 0, sizeof(float) * sample_limit * I_WIDTH);
 #pragma omp parallel for
     for (size_t i = START; i < END; ++i) {
-        int position = (i * (unsigned long long) peak_index) % SIZE;
+        int position = (i * (unsigned long long) peak_index) % size;
         double angle = phase[i];
-        double coord = position * (I_WIDTH / (double) SIZE)
+        double coord = position * (I_WIDTH / (double) size)
             + angle * (I_WIDTH / 2 / M_PI);
         coord = fmod(-coord, I_WIDTH);
         if (coord < 0)
@@ -234,7 +232,7 @@ static void create_image(FILE * outfile,
     fprintf(outfile, "set bmargin 0\n");
     fprintf(outfile, "set xrange [0:%i]\n", 2 * I_WIDTH);
     fprintf(outfile, "set yrange [%i:%i]\n", 0, I_HEIGHT);
-    fprintf(outfile, "set cbrange [0:%li]\n", 16ul * SIZE);
+    fprintf(outfile, "set cbrange [0:%li]\n", 16ul * size);
     fprintf(outfile, "plot '-' matrix with image");
     for (int ii = 0; ii < I_HEIGHT; ++ii) {
         int i = ii * sample_limit / I_HEIGHT;
@@ -357,8 +355,8 @@ int main(int argc, char ** argv)
             return EXIT_SUCCESS;
     }
 
-    const unsigned char * data = buffer;
-    if (best14 (&data, &bufsize) < SIZE)
+    const unsigned char * good = buffer;
+    if (best14 (&good, &bufsize) < SIZE)
         errx(1, "Did not get sufficient contiguous data.");
 
     // Read in the data and find the used codes.
@@ -367,7 +365,7 @@ int main(int argc, char ** argv)
     memset(used, 0, sizeof used);
 #pragma omp parallel for
     for (int i = 0; i < SIZE; ++i) {
-        int x = data[i * 2] + 256 * (data[i * 2 + 1] & 0x3f);
+        int x = good[i * 2] + 256 * (good[i * 2 + 1] & 0x3f);
         x ^= 1 << 13;
         assert(x >= 0 && x < 16384);
         in[i] = x;
@@ -391,16 +389,15 @@ int main(int argc, char ** argv)
 
     fprintf(stderr, "Low %i high %i used %i missing %i\n",
             low, top, reindex_limit, top - low + 1 - reindex_limit);
-    sample_limit = reindex_limit;
 
     // Map the data to the gapless sequence.
 #pragma omp parallel for
     for (int i = 0; i < SIZE; ++i)
         in[i] = reindex[in[i]];
 
-    float * out = rectify(in, SIZE);
-    size_t peak_index = peak_power(out, SIZE);
-    phase_recover(out, SIZE, peak_index);
+    float * data = rectify(in, SIZE);
+    size_t peak_index = peak_power(data, SIZE);
+    phase_recover(data, SIZE, peak_index);
 
     FILE * outfile = stdout;
     if (outpath != NULL) {
@@ -409,9 +406,9 @@ int main(int argc, char ** argv)
             err(1, "Cannot open output %s", outpath);
     }
 
-    create_image(outfile, in, out, SIZE, peak_index);
+    create_image(outfile, in, data, SIZE, peak_index, reindex_limit);
     free(in);
-    fftwf_free(out);
+    fftwf_free(data);
 
     fflush(outfile);
     if (ferror(outfile))
