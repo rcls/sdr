@@ -208,7 +208,7 @@ static void create_image(FILE * outfile,
         for (size_t j = 0; j != I_WIDTH / 2 + 1; ++j)
             freqc[i][j] = 0;
     for (int i = (I_HEIGHT + 7) / 8; i != I_HEIGHT / 4; ++i) {
-        double factor = (i - I_HEIGHT / 8) / (I_HEIGHT / 8);
+        double factor = 2 - i * 8.0 / I_HEIGHT;
         for (size_t j = 0; j != I_WIDTH / 2 + 1; ++j) {
             freqc[i][j] *= factor;
             freqc[sample_limit - i][j] *= factor;
