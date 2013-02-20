@@ -256,7 +256,7 @@ static void create_image(FILE * outfile,
     fprintf(outfile, "set bmargin 0\n");
     fprintf(outfile, "set xrange [0:%i]\n", 2 * I_WIDTH);
     fprintf(outfile, "set yrange [%i:%i]\n", 0, I_HEIGHT);
-    fprintf(outfile, "set cbrange [0:%li]\n", 16ul * size);
+    fprintf(outfile, "set cbrange [0:%li]\n", 12 * size);
     fprintf(outfile, "plot '-' matrix with image");
     for (int ii = 0; ii < I_HEIGHT; ++ii) {
         int i = ii * sample_limit / I_HEIGHT;
