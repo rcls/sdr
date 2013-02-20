@@ -323,9 +323,6 @@ static void parse_opts(int argc, char ** argv)
         case 'i':
             inpath = optarg;
             break;
-        /* case 'b': */
-        /*     bandwidth = strtod(optarg, NULL); */
-        /*     break; */
         case 'o':
             outpath = optarg;
             break;
