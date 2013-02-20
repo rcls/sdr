@@ -40,6 +40,12 @@ static void fftf_once(fftwf_plan plan)
 }
 
 
+static inline double square(double x)
+{
+    return x * x;
+}
+
+
 // Produce a non-linear transformation for clock recovery.  We use a W shaped
 // function based on the quartiles.
 static float * rectify(const unsigned short * restrict in, size_t size)
@@ -212,6 +218,24 @@ static void create_image(FILE * outfile,
         for (size_t j = 0; j != I_WIDTH / 2 + 1; ++j) {
             freqc[i][j] *= factor;
             freqc[sample_limit - i][j] *= factor;
+        }
+    }
+    for (int i = 0; i != sample_limit; ++i) {
+        int ii = i;
+        if (i > sample_limit / 2)
+            ii = sample_limit - i;
+        for (int j = 0; j != I_WIDTH / 2 + 1; ++j) {
+            double s = sqrt(square(j / (double) I_WIDTH)
+                            + square(ii / (double) I_HEIGHT));
+            // Between 1/8 and 1/16 we ramp up to 2.
+            // Between 1/16 and 1/64 we maintain as 2.
+            // Between 1/64 and 1/128 we ramp down to 2.
+            if (s <= 1.0/8 && s >= 1.0/16)
+                freqc[i][j] *= 3 - (s * 16);
+            else if (s <= 1.0/16 && s >= 1.0/64)
+                freqc[i][j] *= 2;
+            else if (s <= 1.0/64 && s >= 1.0/128)
+                freqc[i][j] *= s * 128;
         }
     }
 
