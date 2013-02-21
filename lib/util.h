@@ -2,7 +2,9 @@
 #define FM_UTIL_H_
 
 #include <err.h>
+#include <stdbool.h>
 #include <unistd.h>
+
 
 void * xmalloc(size_t size) __attribute__((__malloc__, __warn_unused_result__));
 
@@ -41,6 +43,6 @@ size_t best14(const unsigned char ** restrict buffer,
 size_t best36(const unsigned char ** restrict buffer,
               size_t * restrict bytes);
 
-float * spectrum(const float * samples, size_t length);
+void spectrum(const char * path, float * samples, size_t length, bool preserve);
 
 #endif

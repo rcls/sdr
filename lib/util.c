@@ -234,35 +234,32 @@ size_t best36(const unsigned char ** restrict buffer, size_t * restrict bytes)
 }
 
 
-static float * do_spectrum(float * data, size_t length)
+void spectrum(const char * path, float * samples, size_t length, bool preserve)
 {
-    fftwf_plan_with_nthreads(4);
-    fftwf_plan plan = fftwf_plan_r2r_1d(
-        length, data, data, FFTW_R2HC, FFTW_ESTIMATE);
-    fftwf_execute(plan);
-    fftwf_destroy_plan(plan);
-
-    float * output = xmalloc((length + 2) / 2 * sizeof(float));
-    output[0] = 0;                      // Not interesting.
-#pragma omp parallel for
-    for (size_t i = 1; i < (length + 1) / 2; ++i)
-        output[i] = data[i] * data[i] + data[length - i] * data[length - i];
-    if (length % 2 == 0)
-        output[length / 2] = data[length / 2] * data[length / 2];
-
-    fftwf_free(data);
-    return output;
-}
-
-
-float * spectrum(const float * samples, size_t length)
-{
-    float * data = fftwf_malloc(length * sizeof * data);
+    float * data = samples;
+    if (preserve)
+        data = fftwf_malloc(length * sizeof * data);
 
     // Apply a window.
 #pragma omp parallel for
     for (size_t i = 0; i < length; ++i)
         data[i] = samples[i] * (1 - cos(2 * M_PI * i / length));
 
-    return do_spectrum(data, length);   // Frees data.
+    fftwf_plan_with_nthreads(4);
+    fftwf_plan plan = fftwf_plan_r2r_1d(
+        length, data, data, FFTW_R2HC, FFTW_ESTIMATE);
+    fftwf_execute(plan);
+    fftwf_destroy_plan(plan);
+
+    data[0] = 0;                        // Not interesting.
+#pragma omp parallel for
+    for (size_t i = 1; i < (length + 1) / 2; ++i)
+        data[i] = data[i] * data[i] + data[length - i] * data[length - i];
+    if (length % 2 == 0)
+        data[length / 2] = data[length / 2] * data[length / 2];
+
+    dump_path(path, data, (length / 2) * sizeof (float));
+
+    if (preserve)
+        fftwf_free(data);
 }

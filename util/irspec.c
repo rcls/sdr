@@ -52,11 +52,8 @@ int main (int argc, const char ** argv)
     load_samples(buffer, samples);
     free(buffer);
 
-    float * output = spectrum(samples, LENGTH);
+    spectrum(argv[2], samples, LENGTH, false);
     free(samples);
-
-    dump_path(argv[2], output, LENGTH / 2 * sizeof(float));
-    free(output);
 
     return 0;
 }

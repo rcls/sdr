@@ -64,11 +64,8 @@ int main (int argc, const char ** argv)
     load_samples(buffer, samples);
     free(buffer);
 
-    float * output = spectrum(samples, BURST_SIZE);
+    spectrum(argv[1], samples, BURST_SIZE, false);
     free(samples);
-
-    dump_path(argv[1], output, BURST_SIZE / 2 * sizeof(float));
-    free(output);
 
     return 0;
 }
