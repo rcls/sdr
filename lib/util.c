@@ -237,35 +237,29 @@ size_t best36(const unsigned char ** restrict buffer, size_t * restrict bytes)
 
 // A high pass filter x(t) - 0.5*(x(t-1)+x(t+1) that in the frequency domain
 // corresponds to a raised cosine window in the time domain.
-// Both gbefore replaces data[gstart-1], gafter replaces data[gend].
-static void hp_range(float * data, size_t start, size_t end,
-                     float before, float after)
-{
-    if (start >= end)
-        return;
-    end -= 1;
-    double prev = before;
-    for (size_t i = start; i < end; ++i) {
-        double this = data[i];
-        data[i] = this - 0.5 * (prev + data[i+1]);
-    }
-    data[end] = data[end] - 0.5 * (prev + after);
-}
-
-
-static void hp_range_omp(float * data, size_t startG, size_t endG,
-                         float beforeG, float afterG)
+// before replaces data[start-1], after replaces data[end].
+static void hp_range(float * data, size_t startG, size_t endG,
+                     float beforeG, float afterG)
 {
 #pragma omp parallel
     {
         size_t num = omp_get_thread_num();
         size_t threads = omp_get_num_threads();
-        size_t startT = startG + (endG - startG) * num / threads;
-        size_t endT = startG + (endG - startG) * (num + 1) / threads;
-        double beforeT = num ? data[startT - 1] : beforeG;
-        double afterT = num == threads + 1 ? afterG : data[endT];
+        size_t start = startG + (endG - startG) * num / threads;
+        size_t end = startG + (endG - startG) * (num + 1) / threads;
+        float before = start == startG ? beforeG : data[start - 1];
+        float after = end == endG ? afterG : data[end];
 #pragma omp barrier
-        hp_range(data, startT, endT, beforeT, afterT);
+        if (start < end) {
+            end -= 1;
+            float prev = before;
+            for (size_t i = start; i < end; ++i) {
+                double this = data[i];
+                data[i] = this - 0.5 * (prev + data[i+1]);
+                prev = this;
+            }
+            data[end] = data[end] - 0.5 * (prev + after);
+        }
     }
 }
 
@@ -287,24 +281,23 @@ void spectrum(const char * path, float * samples, size_t length, bool preserve)
     size_t half = length / 2;
     if (length % 2 == 0) {
         // Leave the constant and last cosine items as is.
-        // There are implicitly zeros before and after the sine ranges,
-        // so handle those ad hoc.
-        hp_range_omp(data, 1, half, 0, data[half]);
-        hp_range_omp(data, half + 1, length, 0, 0);
+        // There are implicitly zeros before and after the sine ranges.
+        hp_range(data, 1, half, 0, data[half]);
+        hp_range(data, half + 1, length, 0, 0);
     }
     else {
         // The end of the cosine range and the start of the sine range
         // implicitly wrap.
-        hp_range_omp(data, 1, half, 0, data[half - 1]);
-        hp_range_omp(data, half + 1, length, -data[half + 1], 0);
+        hp_range(data, 1, half, 0, data[half - 1]);
+        hp_range(data, half + 1, length, -data[half + 1], 0);
     }
 #pragma omp parallel for
     for (size_t i = 1; i < half; ++i)
         data[i] = data[i] * data[i] + data[length - i] * data[length - i];
     if (length % 2 == 0)
-        data[length / 2] = data[length / 2] * data[length / 2];
+        data[half] = data[half] * data[half];
 
-    dump_path(path, data, (length / 2) * sizeof (float));
+    dump_path(path, data, half * sizeof (float));
 
     if (preserve)
         fftwf_free(data);
