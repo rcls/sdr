@@ -100,16 +100,15 @@ static size_t peak_power(float * restrict out, size_t size)
     size_t peak_index = 0;
     const size_t HALF = size / 2;
 #pragma omp parallel for
-    for (size_t i = 1; i < HALF; ++i) {
-        double power = out[i] * out[i] + out[size-i] * out[size-i];
+    for (size_t i = 2; i < HALF - 2; ++i) {
+        double power = square(out[i] - 0.5 * (out[i-1] + out[i-1]))
+            + square(out[size-i] - 0.5 * (out[size-i-1] + out[size-i+1]));
         if (UNLIKELY(power > max_power))
 #pragma omp critical(max_power)
-        {
             if (power > max_power) {
                 max_power = power;
                 peak_index = i;
             }
-        }
     }
 
     fprintf(stderr, "Peak at %zi, %f Hz\n",
