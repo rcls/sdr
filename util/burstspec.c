@@ -20,7 +20,7 @@ static inline int get14(const unsigned char * p)
 }
 
 
-static void load_samples(const unsigned char * buffer, double * samples)
+static void load_samples(const unsigned char * buffer, float * samples)
 {
     // First find the last overrun and start flags.
     int over = 1;
@@ -60,7 +60,7 @@ int main (int argc, const char ** argv)
         dev, CAPTURE_BYTES, XMIT_BURST, -1, 0);
     usb_close(dev);
 
-    double * samples = xmalloc(BURST_SIZE * sizeof(double));
+    float * samples = xmalloc(BURST_SIZE * sizeof * samples);
     load_samples(buffer, samples);
     free(buffer);
 

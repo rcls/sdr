@@ -14,7 +14,7 @@
 #define BUFFER_SIZE (FULL_LENGTH * 2)
 
 
-static void load_samples(const unsigned char * buffer, double * samples)
+static void load_samples(const unsigned char * buffer, float * samples)
 {
     // Check for overrun flags.  Also chuck at least 4096 samples to let the
     // filters settle.
@@ -56,7 +56,7 @@ int main (int argc, const char ** argv)
     unsigned char * buffer = usb_slurp_channel(
         NULL, BUFFER_SIZE, XMIT_PHASE|1, freq, 0);
 
-    double * samples = xmalloc(LENGTH * sizeof(double));
+    float * samples = malloc(LENGTH * sizeof * samples);
     load_samples(buffer, samples);
     free(buffer);
 

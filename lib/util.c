@@ -250,25 +250,12 @@ static float * do_spectrum(float * data, size_t length)
     if (length % 2 == 0)
         output[length / 2] = data[length / 2] * data[length / 2];
 
-    fftw_free(data);
+    fftwf_free(data);
     return output;
 }
 
 
-float * spectrum(const double * samples, size_t length)
-{
-    float * data = fftwf_malloc(length * sizeof * data);
-
-    // Apply a window.
-#pragma omp parallel for
-    for (size_t i = 0; i < length; ++i)
-        data[i] = samples[i] * (1 - cos(2 * M_PI * i / length));
-
-    return do_spectrum(data, length);   // Frees data.
-}
-
-
-float * spectrumf(const float * samples, size_t length)
+float * spectrum(const float * samples, size_t length)
 {
     float * data = fftwf_malloc(length * sizeof * data);
 

@@ -19,7 +19,7 @@ static inline int get18(const unsigned char * p)
     return r;
 }
 
-static void load_samples(const unsigned char * buffer, double * samples)
+static void load_samples(const unsigned char * buffer, float * samples)
 {
     size_t start = 4096;                // Biff at least 4096 samples.
     for (size_t i = 4097; i != FULL_LENGTH; ++i)
@@ -48,7 +48,7 @@ int main (int argc, const char ** argv)
     unsigned char * buffer = usb_slurp_channel(
         NULL, BUFFER_SIZE, XMIT_IR|1, freq, 0);
 
-    double * samples = xmalloc(LENGTH * sizeof(double));
+    float * samples = xmalloc(LENGTH * sizeof * samples);
     load_samples(buffer, samples);
     free(buffer);
 

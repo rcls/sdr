@@ -10,7 +10,7 @@ DEP=-MMD -MP -MF.$(subst /,:,$@).d
 CFLAGS=-O3 -flto -ffast-math -msse2 -Wall -Werror -std=gnu99 -g -I. $(DEP) -fweb -fopenmp
 LDFLAGS=$(CFLAGS) -fwhole-program
 
-LDLIBS=-lfftw3_threads -lfftw3 -lfftw3f_threads -lfftw3f -lusb-1.0 -lm
+LDLIBS=-lfftw3f_threads -lfftw3f -lusb-1.0 -lm
 
 util/phasespect: lib/usb.o lib/util.o
 util/irspec: lib/util.o lib/usb.o

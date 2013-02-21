@@ -158,7 +158,7 @@ static double cmodsq(complex z)
 }
 
 
-static void peak_remove(complex * p)
+static void peak_remove(complex float * p)
 {
     double total = 0;
     for (int i = 1; i != 16; ++i)
@@ -170,12 +170,12 @@ static void peak_remove(complex * p)
 
 static void get_spectrum(int gain, const unsigned char * data)
 {
-    static complex * xfrm;              // size complex coefficients.
-    static fftw_plan plan;
+    static complex float * xfrm;        // size complex coefficients.
+    static fftwf_plan plan;
     static float * buffer;              // size/2 real coefficients.
     if (!xfrm) {
-        xfrm = fftw_malloc (size * sizeof * xfrm);
-        plan = fftw_plan_dft_1d(size, xfrm, xfrm, FFTW_FORWARD, FFTW_ESTIMATE);
+        xfrm = fftwf_malloc (size * sizeof * xfrm);
+        plan = fftwf_plan_dft_1d(size, xfrm, xfrm, FFTW_FORWARD, FFTW_ESTIMATE);
         buffer = xmalloc (size / 2 * sizeof * buffer);
     }
     // We frequency shift by nyquist.  This puts the data that we are interested
@@ -187,7 +187,7 @@ static void get_spectrum(int gain, const unsigned char * data)
         xfrm[2*i+1] = - get_real(data) - I * get_imag(data);
         data += 4;
     }
-    fftw_execute(plan);
+    fftwf_execute(plan);
     // Knock out isolated peaks near 0 or +/- size/4.  We get these apparently
     // as subharmonics of the clock.
     peak_remove(xfrm + size/4);
@@ -243,8 +243,8 @@ int main(int argc, const char ** argv)
         filter_adjust[i] = factor * factor;
     }
 
-    fftw_init_threads();
-    fftw_plan_with_nthreads(4);
+    fftwf_init_threads();
+    fftwf_plan_with_nthreads(4);
 
     libusb_device_handle * dev = usb_open();
 
