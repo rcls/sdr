@@ -48,7 +48,11 @@ static inline int get_imag(const unsigned char * p)
 static void get_samples(libusb_device_handle * dev,
                         sample_buffer_t * buffer, size_t required)
 {
-    size_t bytes = required * 4 + USB_SLOP;
+    size_t bytes = required * 4;
+    if (bytes < USB_SLOP)
+        bytes *= 2;
+    else
+        bytes += USB_SLOP;
     if (buffer->data_len < bytes) {
         buffer->data = xrealloc(buffer->data, bytes);
         buffer->data_len = bytes;
@@ -272,7 +276,7 @@ int main(int argc, const char ** argv)
 
     // Give the offset correction time to settle.
     usleep(200000);
-    adc_config(dev, 0xcf80, -1);        // Freeze offset correction.
+    adc_config(dev, 0, 0xcf80, -1);        // Freeze offset correction.
 
     int gain = 48;
     sample_buffer_t buffer = { NULL, 0, NULL, 0 };
