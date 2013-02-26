@@ -7,8 +7,8 @@
 #define REG_ADC 16
 #define REG_XMIT 17
 #define REG_FLASH 18
-#define REG_SAMPLE_FREQ 19
-#define REG_SAMPLE_GAIN 20
+#define REG_BANDPASS_FREQ 19
+#define REG_BANDPASS_GAIN 20
 #define REG_ADC_SAMPLE 21
 #define REG_MAGIC 0xfe
 #define REG_ADDRESS 0xff

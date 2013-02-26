@@ -83,8 +83,8 @@ static void get_samples(libusb_device_handle * dev,
 static void sample_config(libusb_device_handle * dev, int freq, int gain)
 {
     unsigned char bytes[5] = {
-        REG_ADDRESS, REG_SAMPLE_FREQ, freq / 5 * 8 + freq % 5,
-        REG_SAMPLE_GAIN, gain };
+        REG_ADDRESS, REG_BANDPASS_FREQ, freq / 5 * 8 + freq % 5,
+        REG_BANDPASS_GAIN, gain };
     usb_send_bytes(dev, bytes, sizeof bytes);
 }
 
