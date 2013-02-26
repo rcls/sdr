@@ -130,6 +130,12 @@ begin
       state <= state_pause;
     end if;
 
+    if xmit_buffered = '1' and to_xmit = 0 then
+      to_xmit <= xmit_buffer_length;
+      xmit_buffered <= '0';
+      xmit_queue <= xmit_buffer;
+    end if;
+
     xmit_prev <= xmit;
     if xmit /= xmit_prev and xmit_channel = xmit_channel_counter
     then
@@ -150,11 +156,6 @@ begin
       else
         xmit_channel_counter <= xmit_channel_counter + 1;
       end if;
-    end if;
-    if xmit_buffered = '1' and to_xmit = 0 then
-      to_xmit <= xmit_buffer_length;
-      xmit_buffered <= '0';
-      xmit_queue <= xmit_buffer;
     end if;
 
     -- If the config magic is not correct, then do not allow programming any
