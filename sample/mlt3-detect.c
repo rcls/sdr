@@ -35,6 +35,7 @@ static const char * dumppath;
 static const char * outpath;
 static const char * jitterpath;
 static int period = 205;
+static int wander_decay = -1;
 
 static void fftf_once(fftwf_plan plan)
 {
@@ -311,11 +312,16 @@ static unsigned char * capture(size_t len)
     usleep(100000);
 
     // Now set up ADC:  Low gain, hi perf modes.
-    adc_config(dev, clock, 0x2510, 0x0303, 0x4a01, -1);
+    adc_config(dev, clock,
+               0x2510,                  // Low gain.
+               0x0303, 0x4a01,          // High perf
+               0xcf00, // Offset params
+               0x3de0, // Format / enable offset
+               -1);
 
     // Slurp the sampler in turbo mode.
     unsigned char * result = usb_slurp_channel(
-        dev, len, XMIT_TURBO|XMIT_SAMPLE, count, 0);
+        dev, len, XMIT_TURBO|XMIT_SAMPLE, count, wander_decay);
 
     // Back to normal parameters, in case we down clocked.
     reset[sizeof reset - 1] = ADC_SEN;
@@ -329,7 +335,7 @@ static unsigned char * capture(size_t len)
 static void parse_opts(int argc, char ** argv)
 {
     while (1)
-        switch (getopt(argc, argv, "i:j:o:d:p:n:")) {
+        switch (getopt(argc, argv, "i:j:o:d:p:n:w:")) {
         case 'i':
             inpath = optarg;
             break;
@@ -349,6 +355,9 @@ static void parse_opts(int argc, char ** argv)
             break;
         case 'p':
             period = strtoul(optarg, NULL, 0);
+            break;
+        case 'w':
+            wander_decay = strtol(optarg, NULL, 0);
             break;
         case -1:
             return;
@@ -396,7 +405,7 @@ int main(int argc, char ** argv)
     memset(used, 0, sizeof used);
 #pragma omp parallel for
     for (int i = 0; i < SIZE; ++i) {
-        int x = good[i * 2] + good[i * 2 + 1];
+        int x = good[i * 2] + good[i * 2 + 1] * 256;
         x &= SAMPLE_RANGE - 1;
         x ^= 1 << (SAMPLE_BITS - 1);
         assert(x >= 0 && x < SAMPLE_RANGE);
