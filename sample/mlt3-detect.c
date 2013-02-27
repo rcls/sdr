@@ -25,6 +25,9 @@ static size_t SIZE = 1<<23;
 // Height of image
 #define I_HEIGHT 1000
 
+#define SAMPLE_BITS 15
+#define SAMPLE_RANGE (1 << SAMPLE_BITS)
+
 #define UNLIKELY(b) __builtin_expect(b, 0)
 
 static const char * inpath;
@@ -50,7 +53,7 @@ static inline double square(double x)
 // function based on the quartiles.
 static float * rectify(const unsigned short * restrict in, size_t size)
 {
-    int counts[16384];
+    int counts[SAMPLE_RANGE];
     memset(counts, 0, sizeof(counts));
 #pragma omp parallel for
     for (int i = 0; i < size; ++i)
@@ -61,7 +64,7 @@ static float * rectify(const unsigned short * restrict in, size_t size)
     double quart1 = 0;
     double middle = 0;
     double quart3 = 0;
-    for (int i = 0; i != 16384; ++i) {
+    for (int i = 0; i != SAMPLE_RANGE; ++i) {
         int xx = x + counts[i];
         if (x < size / 4 && xx >= size / 4)
             quart1 = i - (xx - size * 0.25) / (xx - x);
@@ -304,7 +307,7 @@ static unsigned char * capture(size_t len)
 
     // Slurp the sampler in turbo mode.
     unsigned char * result = usb_slurp_channel(
-        dev, len, XMIT_TURBO|XMIT_ADC_SAMPLE, count, 0);
+        dev, len, XMIT_TURBO|XMIT_SAMPLE, count, 0);
 
     // Back to normal parameters, in case we down clocked.
     reset[sizeof reset - 1] = ADC_SEN;
@@ -381,13 +384,14 @@ int main(int argc, char ** argv)
 
     // Read in the data and find the used codes.
     unsigned short * in = xmalloc(SIZE * sizeof * in);
-    bool used[16384];
+    bool used[SAMPLE_RANGE];
     memset(used, 0, sizeof used);
 #pragma omp parallel for
     for (int i = 0; i < SIZE; ++i) {
-        int x = good[i * 2] + 256 * (good[i * 2 + 1] & 0x3f);
-        x ^= 1 << 13;
-        assert(x >= 0 && x < 16384);
+        int x = good[i * 2] + good[i * 2 + 1];
+        x &= SAMPLE_RANGE - 1;
+        x ^= 1 << (SAMPLE_BITS - 1);
+        assert(x >= 0 && x < SAMPLE_RANGE);
         in[i] = x;
 #pragma omp atomic write
         used[x] = true;
@@ -396,10 +400,10 @@ int main(int argc, char ** argv)
 
     // Map the used codes to a gapless sequence.
     int reindex_limit = 0;
-    int reindex[16384];
+    int reindex[SAMPLE_RANGE];
     int low = -1;
     int top = -1;
-    for (int i = 0; i != 16384; ++i)
+    for (int i = 0; i != SAMPLE_RANGE; ++i)
         if (used[i]) {
             reindex[i] = reindex_limit++;
             if (low < 0)

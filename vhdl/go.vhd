@@ -103,7 +103,7 @@ architecture behavioural of go is
   signal out_last : std_logic;
 
   -- The configuration loaded from USB.
-  signal config : unsigned(175 downto 0);
+  signal config : unsigned(191 downto 0);
   alias adc_control : unsigned8 is config(135 downto 128);
   alias adc_clock_select : std_logic is adc_control(7);
   -- Control for data in to USB host.
@@ -125,10 +125,10 @@ architecture behavioural of go is
   signal bandpass_strobe : std_logic := '0';
   signal bandpass_r, bandpass_i : signed15;
 
-  alias raw_rate : unsigned8 is config(175 downto 168);
-  signal raw_divide : unsigned9;
-  signal raw_data : signed14;
-  signal raw_strobe : std_logic;
+  alias sampler_rate : unsigned8 is config(175 downto 168);
+  alias sampler_decay : unsigned16 is config(191 downto 176);
+  signal sampler_data : signed15;
+  signal sampler_strobe : std_logic;
 
   signal burst_data : signed15;
   signal burst_strobe : std_logic;
@@ -226,6 +226,10 @@ begin
   brst : entity burst port map (
     adc_data_b, flash_control(7), burst_data, burst_strobe, clk_main);
 
+  smplr : entity sampler port map (
+    adc_data_b, sampler_decay, sampler_rate, sampler_data, sampler_strobe,
+    clk_main);
+
   process
   begin
     wait until rising_edge(clk_main);
@@ -246,10 +250,9 @@ begin
         usb_last <= ir_last;
         usb_xmit_length <= 3;
       when "001" =>
-        packet(13 downto 0) <= unsigned(raw_data);
-        packet(14) <= '0';
+        packet(14 downto 0) <= unsigned(sampler_data);
         packet(15) <= usb_xmit_overrun;
-        usb_xmit <= usb_xmit xor raw_strobe;
+        usb_xmit <= usb_xmit xor sampler_strobe;
         usb_last <= '1';
         usb_xmit_length <= 2;
       when "010" =>
@@ -282,15 +285,8 @@ begin
       when others =>
         usb_xmit_length <= 0;
         usb_last <= '1';
+        usb_xmit <= usb_xmit xor ir_strobe;
     end case;
-
-    raw_strobe <= raw_divide(8);
-    if raw_divide(8) = '1' then
-      raw_divide <= ('0' & raw_rate) - 1;
-      raw_data <= adc_data_b;
-    else
-      raw_divide <= raw_divide - 1;
-    end if;
   end process;
 
   -- Protocol: config packets, little endian:
@@ -314,8 +310,8 @@ begin
 
   usb: entity usbio
     generic map(
-      22, 4,
-      x"00" & x"0000" & x"0f" & x"0b" & x"09"
+      24, 4,
+      x"0000" & x"ff" & x"0000" & x"0f" & x"0b" & x"09"
       & x"00000000" & x"00000000" & x"00000000" & x"805ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,

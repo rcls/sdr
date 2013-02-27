@@ -150,26 +150,40 @@ unsigned char * usb_slurp_channel(libusb_device_handle * devo,
     // First turn off output & select channel...
     int channel = source & 3;
     freq = freq * 16777216ull / 250000;
-    unsigned char off[] = {
-        REG_ADDRESS, REG_MAGIC, MAGIC_MAGIC,
-        REG_XMIT, XMIT_FLASH,
-        REG_RADIO_FREQ(channel) + 0, freq,
-        REG_RADIO_FREQ(channel) + 1, freq >> 8,
-        REG_RADIO_FREQ(channel) + 2, freq >> 16,
-        REG_RADIO_GAIN(channel), 0x80|gain };
+    unsigned char conf[20];
+    unsigned char * p = conf;
+    *p++ = REG_ADDRESS;
+    *p++ = REG_MAGIC;
+    *p++ = MAGIC_MAGIC;
+    *p++ = REG_XMIT;
+    *p++ = XMIT_IDLE;
 
-    int offlen;
-    if (freq < 0)
-        offlen = 5;
-    else if ((source & 0x1c) == XMIT_ADC_SAMPLE) {
-        off[5] = REG_ADC_SAMPLE;
-        off[6] = freq;
-        offlen = 7;
+    bool radio = (source & 0x1c) == XMIT_PHASE || (source & 0x1c) == XMIT_IR;
+    if (radio && freq >= 0) {
+        *p++ = REG_RADIO_FREQ(channel) + 0;
+        *p++ = freq;
+        *p++ = REG_RADIO_FREQ(channel) + 1;
+        *p++ = freq >> 8;
+        *p++ = REG_RADIO_FREQ(channel) + 2;
+        *p++ = freq >> 16;
     }
-    else
-        offlen = sizeof off;
+    if (radio && gain >= 0) {
+        *p++ = REG_RADIO_GAIN(channel);
+        *p++ = 0x80 | gain;
+    }
+    bool sample = (source & 0x1c) == XMIT_SAMPLE;
+    if (sample && freq >= 0) {
+        *p++ = REG_SAMPLE_RATE;
+        *p++ = freq;
+    }
+    if (sample && gain >= 0) {
+        *p++ = REG_SAMPLE_DECAY_LO;
+        *p++ = gain;
+        *p++ = REG_SAMPLE_DECAY_HI;
+        *p++ = gain >> 8;
+    }
 
-    usb_send_bytes(dev, off, offlen);
+    usb_send_bytes(dev, conf, p - conf);
 
     // Flush usb...
     usb_flush(dev);
@@ -182,15 +196,8 @@ unsigned char * usb_slurp_channel(libusb_device_handle * devo,
     memset(buffer, 0xff, length);       // Try to get us in RAM.
     usb_slurp(dev, buffer, length);
 
-    // Turn off data.  Turn off the channel.
-    off[sizeof off - 1] = 0;
-    usb_send_bytes(dev, off, offlen);
-    // Flush usb...
-    usb_flush(dev);
-    // Grab a couple of bytes to reset the overrun flag.
-    static const unsigned char flip[] = {
-        REG_ADDRESS, REG_FLASH, 0x0f, REG_FLASH, 0x07 };
-    usb_send_bytes(dev, flip, sizeof flip);
+    // Turn off data.
+    usb_send_bytes(dev, conf, 5);
     // Flush usb...
     usb_flush(dev);
 

@@ -14,7 +14,7 @@ static const char * outpath;
 
 static int freq = -1;
 static int gain = 0;
-static int source = XMIT_ADC_SAMPLE|XMIT_TURBO;
+static int source = XMIT_SAMPLE|XMIT_TURBO;
 
 static void parse_opts(int argc, char * argv[])
 {

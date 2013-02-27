@@ -9,7 +9,10 @@
 #define REG_FLASH 18
 #define REG_BANDPASS_FREQ 19
 #define REG_BANDPASS_GAIN 20
-#define REG_ADC_SAMPLE 21
+#define REG_SAMPLE_RATE 21
+#define REG_SAMPLE_DECAY_LO 22
+#define REG_SAMPLE_DECAY_HI 23
+
 #define REG_MAGIC 0xfe
 #define REG_ADDRESS 0xff
 
@@ -22,11 +25,12 @@
 #define XMIT_SOURCE(x) ((x) << 2)
 
 #define XMIT_IR 0
-#define XMIT_ADC_SAMPLE 4
+#define XMIT_SAMPLE 4
 #define XMIT_FLASH 8
 #define XMIT_PHASE 12
 #define XMIT_BANDPASS 16
 #define XMIT_BURST 20
+#define XMIT_IDLE 28
 
 #define XMIT_TURBO 64
 #define XMIT_LOW_LATENCY 128
