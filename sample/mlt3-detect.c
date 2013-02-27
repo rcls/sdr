@@ -178,6 +178,13 @@ static void phase_recover(float * restrict data, size_t size, size_t peak_index)
 }
 
 
+// Map [0..1] to [0..1] but with smooth ends.
+static double coramp(double x)
+{
+    return 0.5 - 0.5 * cos(M_PI * x);
+}
+
+
 static void create_image(FILE * outfile,
                          const unsigned short * restrict in,
                          const float * restrict phase,
@@ -198,7 +205,7 @@ static void create_image(FILE * outfile,
         double angle = phase[i];
         double coord = position * (I_WIDTH / (double) size)
             + angle * (I_WIDTH / 2 / M_PI);
-        coord = fmod(-coord, I_WIDTH);
+        coord = fmod(coord, I_WIDTH);
         if (coord < 0)
             coord += I_WIDTH;
 #pragma omp atomic
@@ -212,16 +219,17 @@ static void create_image(FILE * outfile,
                                     *counts, *freqc, FFTW_ESTIMATE));
 
     // Kill vertical high frequency noise.
-    for (int i = I_HEIGHT / 4 + 1; i != sample_limit - I_HEIGHT / 4 - 1; ++i)
+    for (int i = I_HEIGHT / 2 + 1; i < sample_limit - I_HEIGHT / 2 - 1; ++i)
         for (size_t j = 0; j != I_WIDTH / 2 + 1; ++j)
             freqc[i][j] = 0;
-    for (int i = (I_HEIGHT + 7) / 8; i != I_HEIGHT / 4; ++i) {
-        double factor = 2 - i * 8.0 / I_HEIGHT;
-        for (size_t j = 0; j != I_WIDTH / 2 + 1; ++j) {
-            freqc[i][j] *= factor;
-            freqc[sample_limit - i][j] *= factor;
+    if (I_HEIGHT < sample_limit / 4)
+        for (int i = (I_HEIGHT + 3) / 4; i != I_HEIGHT / 2; ++i) {
+            double factor = coramp(2 - i * 4.0 / I_HEIGHT);
+            for (size_t j = 0; j != I_WIDTH / 2 + 1; ++j) {
+                freqc[i][j] *= factor;
+                freqc[sample_limit - i][j] *= factor;
+            }
         }
-    }
     for (int i = 0; i != sample_limit; ++i) {
         int ii = i;
         if (i > sample_limit / 2)
@@ -229,15 +237,15 @@ static void create_image(FILE * outfile,
         for (int j = 0; j != I_WIDTH / 2 + 1; ++j) {
             double s = sqrt(square(j / (double) I_WIDTH)
                             + square(ii / (double) I_HEIGHT));
-            // Between 1/8 and 1/16 we ramp up to 2.
-            // Between 1/16 and 1/64 we maintain as 2.
-            // Between 1/64 and 1/128 we ramp down to 2.
-            if (s <= 1.0/8 && s >= 1.0/16)
-                freqc[i][j] *= 3 - (s * 16);
-            else if (s <= 1.0/16 && s >= 1.0/64)
+            // Between 1/4 and 1/8 we ramp up to 2.
+            // Between 1/8 and 1/32 we maintain as 2.
+            // Between 1/32 and 1/64 we ramp down to 2.
+            if (s <= 1.0/4 && s >= 1.0/8)
+                freqc[i][j] *= 1 + coramp(2 - (s * 8));
+            else if (s <= 1.0/8 && s >= 1.0/32)
                 freqc[i][j] *= 2;
-            else if (s <= 1.0/64 && s >= 1.0/128)
-                freqc[i][j] *= s * 128;
+            else if (s <= 1.0/32 && s >= 1.0/64)
+                freqc[i][j] *= 1 + coramp(s * 64 - 1);
         }
     }
 
