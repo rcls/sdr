@@ -36,10 +36,10 @@
 #define XMIT_LOW_LATENCY 128
 #define XMIT_PUSH 192
 
-#define FLASH_CS 1
-#define FLASH_DATA 2
+#define FLASH_DATA 1
+#define FLASH_CS 2
 #define FLASH_CLK 4
-#define FLASH_RECV 8
+#define FLASH_RECV 1
 #define FLASH_XMIT 8
 #define FLASH_OVERRUN 128
 

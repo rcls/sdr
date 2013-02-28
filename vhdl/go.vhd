@@ -167,8 +167,8 @@ begin
   adc_sclk  <= adc_control(2);
   adc_reset <= adc_control(3);
 
-  flash_cs_inv <= flash_control(0);
-  flash_si <= flash_control(1);
+  flash_si <= flash_control(0);
+  flash_cs_inv <= flash_control(1);
   flash_sclk <= flash_control(2);
 
   led_control: for i in 0 to 7 generate
@@ -252,12 +252,11 @@ begin
         usb_last <= '1';
         usb_xmit_length <= 2;
       when "010" =>
-        packet(2 downto 0) <= flash_control(2 downto 0);
-        packet(3) <= flash_so;
-        packet(6 downto 4) <= "000";
+        packet(0) <= flash_so;
+        packet(6 downto 1) <= "000000";
         packet(7) <= usb_xmit_overrun;
         usb_xmit <= flash_control(3);
-        usb_last <= '1';
+        usb_last <= flash_control(3);
         usb_xmit_length <= 1;
       when "011" =>
         packet(14 downto 0) <= phase(14 downto 0);

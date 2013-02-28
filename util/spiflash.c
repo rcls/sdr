@@ -173,9 +173,9 @@ static unsigned char * add_be (unsigned char * p,
     for (int i = 0; i != bits; ++i) {
         unsigned data = ((word >> (bits - i - 1)) & 1) ? FLASH_DATA : 0;
         *p++ = REG_FLASH;
-        *p++ = data | (readback && (i & 1) ? FLASH_XMIT : 0);
+        *p++ = data | (readback ? FLASH_XMIT : 0);
         *p++ = REG_FLASH;
-        *p++ = data | (readback && !(i & 1) ? FLASH_XMIT : 0) | FLASH_CLK;
+        *p++ = data | FLASH_CLK;
     }
     return p;
 }
