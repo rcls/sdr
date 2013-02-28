@@ -12,6 +12,7 @@
 #define REG_SAMPLE_RATE 21
 #define REG_SAMPLE_DECAY_LO 22
 #define REG_SAMPLE_DECAY_HI 23
+#define REG_CPU_SSI 24
 
 #define REG_MAGIC 0xfe
 #define REG_ADDRESS 0xff
@@ -42,6 +43,12 @@
 #define FLASH_RECV 1
 #define FLASH_XMIT 8
 #define FLASH_OVERRUN 128
+
+#define CPU_SSI_DATA 1
+#define CPU_SSI_FSS 2
+#define CPU_SSI_CLK 3
+#define CPU_SSI_FSS_STRETCH 64
+#define CPU_SSI_CPU_IS_MASTER 128
 
 #define MAGIC_MAGIC 0xb5
 

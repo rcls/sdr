@@ -31,6 +31,11 @@ entity go is
        flash_cs_inv, flash_sclk, flash_si : out std_logic;
        flash_so : in std_logic;
 
+       cpu_ssirx : out std_logic;
+       cpu_ssitx : in std_logic;
+       cpu_ssiclk : inout std_logic;
+       cpu_ssifss : inout std_logic;
+
        spartan_m0 : in std_logic;
        spartan_m1 : in std_logic;
 
@@ -103,7 +108,7 @@ architecture behavioural of go is
   signal out_last : std_logic;
 
   -- The configuration loaded from USB.
-  signal config : unsigned(191 downto 0);
+  signal config : unsigned(199 downto 0);
   alias adc_control : unsigned8 is config(135 downto 128);
   alias adc_clock_select : std_logic is adc_control(7);
   -- Control for data in to USB host.
@@ -118,6 +123,12 @@ architecture behavioural of go is
   -- Ignore the TX handshake and shovel data at 12.5 MB/s.
   alias xmit_turbo : std_logic is xmit_control(6);
   alias flash_control : unsigned8 is config(151 downto 144);
+
+  alias cpu_ssi : unsigned8 is config(199 downto 192);
+  signal cpu_ssiclk1, cpu_ssiclk2, cpu_ssitx1, cpu_ssitx2 : std_logic;
+  signal cpu_ssifss1, cpu_ssifss2 : std_logic;
+  signal cpu_ssifss_stretch : std_logic;
+  signal cpu_ssifss_stretch_up, cpu_ssifss_stretch_down : std_logic;
 
   alias bandpass_freq : unsigned8 is config(159 downto 152);
   alias bandpass_gain : unsigned8 is config(167 downto 160);
@@ -179,6 +190,10 @@ begin
 
   led_off(6) <= spartan_m0;
   led_off(7) <= not spartan_m1;
+
+  cpu_ssiclk <= 'Z' when cpu_ssi(7) = '1' else cpu_ssi(2);
+  cpu_ssifss <= 'Z' when cpu_ssi(7) = '1' else cpu_ssi(1);
+  cpu_ssirx <= cpu_ssi(0);
 
   blinky : entity blinkoflow port map(adc_data_b, led_off(4), open, clk_main);
 
@@ -277,17 +292,49 @@ begin
         packet(15) <= usb_xmit_overrun;
         usb_xmit_length <= 2;
         usb_xmit <= burst_strobe;
+      when "110" =>
+        packet(0) <= cpu_ssitx2;
+        packet(1) <= cpu_ssifss2;
+        packet(5 downto 2) <= "0000";
+        packet(6) <= cpu_ssifss_stretch;
+        packet(7) <= usb_xmit_overrun;
+        usb_xmit_length <= 1;
+        usb_xmit <= cpu_ssiclk2;
+        usb_last <= cpu_ssiclk2;
       when others =>
         usb_xmit_length <= 0;
         usb_last <= '1';
         usb_xmit <= usb_xmit xor ir_strobe;
     end case;
+
+    cpu_ssitx1 <= cpu_ssitx;
+    cpu_ssitx2 <= cpu_ssitx1;
+    cpu_ssiclk1 <= cpu_ssiclk;
+    cpu_ssiclk2 <= cpu_ssiclk1;
+    cpu_ssifss1 <= cpu_ssifss;
+    cpu_ssifss2 <= cpu_ssifss1;
+
+    if cpu_ssifss1 = '1' then
+      cpu_ssifss_stretch <= '1';
+      cpu_ssifss_stretch_up <= '0';
+      cpu_ssifss_stretch_down <= '0';
+    else
+      if cpu_ssiclk2 = '1' and cpu_ssiclk1 = '0' then
+        cpu_ssifss_stretch_down <= '1';
+      end if;
+      if cpu_ssiclk2 = '0' and cpu_ssiclk1 = '1' then
+        cpu_ssifss_stretch_up <= '1';
+      end if;
+      if cpu_ssifss_stretch_up = '1' and cpu_ssifss_stretch_down = '1' then
+        cpu_ssifss_stretch <= '0';
+      end if;
+    end if;
   end process;
 
   usb: entity usbio
     generic map(
-      24, 4,
-      x"0000" & x"ff" & x"0000" & x"0f" & x"0b" & x"09"
+      25, 4,
+      x"80" & x"0000" & x"ff" & x"0000" & x"0f" & x"0b" & x"09"
       & x"00000000" & x"00000000" & x"00000000" & x"805ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,
