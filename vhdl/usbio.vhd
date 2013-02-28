@@ -36,7 +36,7 @@ entity usbio is
         xmit_length : in integer range 0 to packet_bytes;
         low_latency, turbo : in std_logic;
         tx_overrun : out std_logic;
-
+        rx_delay : in unsigned(3 downto 0) := "1100";
         clk : in std_logic);
 end usbio;
 
@@ -57,12 +57,19 @@ architecture usbio of usbio is
   signal to_xmit : integer range 0 to packet_bytes := 0;
   signal prefer_tx : boolean := true;
 
+  constant rx_delay_bits : integer := 4;
+  signal rx_delay_count : unsigned(rx_delay_bits - 1 downto 0);
+
   -- In turbo mode the overrun flags get replaced by an LFSR generated
   -- pattern.  Poly is 0x100802041.
   signal lfsr : std_logic_vector(31 downto 0) := x"00000001";
 
+  attribute keep_hierarchy : string;
+  attribute keep_hierarchy of usbio : architecture is "true";
 begin
   process
+    variable rx_available : boolean;
+    variable tx_available : boolean;
   begin
     wait until rising_edge(clk);
 
@@ -72,6 +79,7 @@ begin
     state <= state_idle;
     config_strobes <= (others => '0');
     usbd_out <= xmit_queue(7 downto 0);
+    rx_delay_count <= "XXXX";
 
     for i in 0 to config_bytes - 1 loop
       if config_strobes(i) = '1' then
@@ -91,12 +99,14 @@ begin
 
     -- If we're in state idle, decide what to do next.  Prefer reads over
     -- writes.
+    rx_available := usb_nRXF = '0';
+    tx_available := (usb_nTXE = '0' or turbo = '1') and to_xmit /= 0;
     if state = state_idle then
-      if (usb_nTXE = '0' or turbo = '1') and to_xmit /= 0
-        and (usb_nRXF = '1' or prefer_tx) then
+      if tx_available and (not rx_available or prefer_tx) then
         state <= state_write;
         usb_oe_n <= '0';
-      elsif usb_nRXF = '0' then
+      end if;
+      if rx_available and (not tx_available or not prefer_tx) then
         state <= state_read;
         usb_nRD <= '0';
       end if;
@@ -128,10 +138,16 @@ begin
       config_strobes(to_integer(config_address(4 downto 0))) <= '1';
       config_address <= x"ff";
       state <= state_read2;
+      rx_delay_count <= 1 + not rx_delay;
     end if;
 
     if state = state_read2 then
-      state <= state_pause;
+      rx_delay_count <= 1 + rx_delay_count;
+      if rx_delay_count = "0000" then
+        state <= state_pause;
+      else
+        state <= state_read2;
+      end if;
     end if;
 
     if xmit_buffered = '1' and to_xmit = 0 then
