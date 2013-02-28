@@ -237,10 +237,6 @@ begin
     adc_data_b <= adc_data_c;
 
     packet <= (others => 'X');
-    usb_nRXFb <= usb_c(0);
-    usb_nTXEb <= usb_c(1);
-    usb_nRXF <= usb_nRXFb;
-    usb_nTXE <= usb_nTXEb;
     case xmit_source is
       when "000" =>
         packet(17 downto 0) <= unsigned(ir_data);
@@ -289,25 +285,6 @@ begin
     end case;
   end process;
 
-  -- Protocol: config packets, little endian:
-  -- 3 bytes freq(0)
-  -- 1 byte gain(0)
-  -- 3 bytes freq(1)
-  -- 1 byte gain(1)
-  -- 3 bytes freq(2)
-  -- 1 byte gain(2)
-  -- 3 bytes freq(3)
-  -- 1 byte gain(3)
-  -- 1 byte:
-  --  low nibble ADC control pins,
-  --  bit 4: data enable,
-  --  bits 4..7: LEDs.
-
-  -- Data packets, little endian.
-  -- 36 bits radio phase data.
-  -- 3 pad bits.
-  -- 1 bit tx overrun indicator.
-
   usb: entity usbio
     generic map(
       24, 4,
@@ -323,6 +300,20 @@ begin
              xmit_channel => xmit_channel, xmit_length => usb_xmit_length,
              low_latency => xmit_low_latency, turbo => xmit_turbo,
              clk => clk_50m);
+
+  process
+  begin
+    wait until rising_edge(clk_main_neg);
+    usb_nRXFb <= usb_c(0);
+    usb_nTXEb <= usb_c(1);
+  end process;
+
+  process
+  begin
+    wait until falling_edge(clk_50m);
+    usb_nRXF <= usb_nRXFb;
+    usb_nTXE <= usb_nTXEb;
+  end process;
 
   -- DDR input from ADC.
   adc_input: for i in 0 to 6 generate

@@ -42,7 +42,7 @@ end usbio;
 
 architecture usbio of usbio is
   type state_t is (state_idle, state_write, state_write2, state_read,
-                   state_pause);
+                   state_read2, state_pause);
   signal state : state_t := state_idle;
   signal config_strobes : std_logic_vector(31 downto 0) := (others => '0');
   signal config_magic : unsigned8 := x"00";
@@ -127,6 +127,10 @@ begin
       usb_nRD <= '0';
       config_strobes(to_integer(config_address(4 downto 0))) <= '1';
       config_address <= x"ff";
+      state <= state_read2;
+    end if;
+
+    if state = state_read2 then
       state <= state_pause;
     end if;
 
