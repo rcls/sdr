@@ -128,7 +128,7 @@ architecture behavioural of go is
   signal cpu_ssiclk1, cpu_ssiclk2, cpu_ssitx1, cpu_ssitx2 : std_logic;
   signal cpu_ssifss1, cpu_ssifss2 : std_logic;
   signal cpu_ssifss_stretch : std_logic;
-  signal cpu_ssifss_stretch_up, cpu_ssifss_stretch_down : std_logic;
+  signal cpu_ssifss_stretch_change : std_logic;
 
   alias bandpass_freq : unsigned8 is config(159 downto 152);
   alias bandpass_gain : unsigned8 is config(167 downto 160);
@@ -316,16 +316,10 @@ begin
 
     if cpu_ssifss1 = '1' then
       cpu_ssifss_stretch <= '1';
-      cpu_ssifss_stretch_up <= '0';
-      cpu_ssifss_stretch_down <= '0';
-    else
-      if cpu_ssiclk2 = '1' and cpu_ssiclk1 = '0' then
-        cpu_ssifss_stretch_down <= '1';
-      end if;
-      if cpu_ssiclk2 = '0' and cpu_ssiclk1 = '1' then
-        cpu_ssifss_stretch_up <= '1';
-      end if;
-      if cpu_ssifss_stretch_up = '1' and cpu_ssifss_stretch_down = '1' then
+      cpu_ssifss_stretch_change <= '0';
+    elsif cpu_ssiclk2 /= cpu_ssiclk1 then
+      cpu_ssifss_stretch_change <= not cpu_ssifss_stretch_change;
+      if cpu_ssifss_stretch_change = '1' then
         cpu_ssifss_stretch <= '0';
       end if;
     end if;
