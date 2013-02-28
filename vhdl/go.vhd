@@ -97,7 +97,7 @@ architecture behavioural of go is
   signal usb_xmit_overrun : std_logic;
   signal usb_nRXFb, usb_nTXEb : std_logic := '1';
   signal usb_nRXF, usb_nTXE : std_logic := '1';
-  signal xmit_SIWA : std_logic;
+  signal xmit_SIWU : std_logic;
   attribute keep of usb_nRXFb, usb_nTXEb : signal is "true";
 
   signal low_data : signed32;
@@ -118,7 +118,7 @@ architecture behavioural of go is
   alias xmit_channel : unsigned2 is xmit_control(1 downto 0);
   -- Data source.
   alias xmit_source : unsigned3 is xmit_control(4 downto 2);
-  -- Strobe SIWA to push data through to host.
+  -- Strobe SIWU to push data through to host.
   alias xmit_low_latency : std_logic is xmit_control(7);
   -- Ignore the TX handshake and shovel data at 12.5 MB/s.
   alias xmit_turbo : std_logic is xmit_control(6);
@@ -165,8 +165,8 @@ begin
   usb_c(0) <= 'Z'; -- nRXF.
   usb_c(1) <= 'Z'; -- nTXE.
 
-  -- SIWA can be strobed either by the USBIO unit, or manually.
-  usb_c(4) <= xmit_SIWA and not (xmit_low_latency and xmit_turbo);
+  -- SIWU can be strobed either by the USBIO unit, or manually.
+  usb_c(4) <= xmit_SIWU and not (xmit_low_latency and xmit_turbo);
 
   clkin125_en <= '1';
 
@@ -339,7 +339,7 @@ begin
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,
              usb_nRD => usb_c(2),  usb_nWR => usb_c(3),
-             usb_SIWA => xmit_SIWA,
+             usb_SIWU => xmit_SIWU,
              config => config, tx_overrun => usb_xmit_overrun,
              packet => packet,
              xmit => usb_xmit, last => usb_last,

@@ -24,7 +24,7 @@ entity usbio is
         usb_nTXE : in std_logic;
         usb_nRD : out std_logic := '1';
         usb_nWR : out std_logic := '1';
-        usb_SIWA : out std_logic := '1';
+        usb_SIWU : out std_logic := '1';
 
         config : out unsigned(config_bytes * 8 - 1 downto 0) := resize(
           defconfig, config_bytes * 8);
@@ -86,7 +86,7 @@ begin
     end if;
 
     if state /= state_pause then
-      usb_SIWA <= '1';
+      usb_SIWU <= '1';
     end if;
 
     -- If we're in state idle, decide what to do next.  Prefer reads over
@@ -118,7 +118,7 @@ begin
       usb_nWR <= '0';
       state <= state_pause;
       if to_xmit = 0 and xmit_buffered = '0' and low_latency = '1' then
-        usb_SIWA <= '0';
+        usb_SIWU <= '0';
       end if;
     end if;
 
