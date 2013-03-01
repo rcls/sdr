@@ -256,7 +256,7 @@ begin
       when "000" =>
         packet(17 downto 0) <= unsigned(ir_data);
         packet(22 downto 18) <= "00000";
-        packet(24) <= usb_xmit_overrun;
+        packet(23) <= usb_xmit_overrun;
         usb_xmit <= usb_xmit xor ir_strobe;
         usb_last <= ir_last;
         usb_xmit_length <= 3;
