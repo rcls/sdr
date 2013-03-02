@@ -51,7 +51,7 @@ architecture behavioural of go is
 
   signal qq_buf : signed36;
   signal ii_buf : signed36;
-  signal qq_buf_last : std_logic;
+  signal ii_buf_last, qq_buf_last : std_logic;
 
   signal packet : unsigned(31 downto 0);
 
@@ -186,6 +186,8 @@ begin
     led(i) <= '0' when led_off(i) = '0' else 'Z';
   end generate;
 
+  led_off(3) <= not qq_buf_last xor ii_buf_last;
+
   led_off(5) <= not usb_xmit_overrun or xmit_turbo;
 
   led_off(6) <= spartan_m0;
@@ -212,7 +214,7 @@ begin
   end generate;
 
   qfilter: entity multifilter port map(qq, qq_buf, qq_buf_last, clk_main);
-  ifilter: entity multifilter port map(ii, ii_buf, open, clk_main);
+  ifilter: entity multifilter port map(ii, ii_buf, ii_buf_last, clk_main);
 
   ph: entity phasedetect
     port map(qq_buf, ii_buf, qq_buf_last,
