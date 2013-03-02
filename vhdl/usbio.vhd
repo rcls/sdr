@@ -36,7 +36,7 @@ entity usbio is
         xmit_length : in integer range 0 to packet_bytes;
         low_latency, turbo : in std_logic;
         tx_overrun : out std_logic;
-        rx_delay : in unsigned(3 downto 0) := "0000";
+        rx_delay : in unsigned(5 downto 0);
         clk : in std_logic);
 end usbio;
 
@@ -56,7 +56,7 @@ architecture usbio of usbio is
   signal xmit_channel_counter : unsigned2 := "00";
   signal to_xmit : integer range 0 to packet_bytes := 0;
 
-  constant rx_delay_bits : integer := 4;
+  constant rx_delay_bits : integer := 6;
   signal rx_delay_count : unsigned(rx_delay_bits downto 0);
 
   -- In turbo mode the overrun flags get replaced by an LFSR generated
@@ -99,7 +99,8 @@ begin
     end if;
 
     -- If we're in state idle, decide what to do next.  Prefer reads over
-    -- writes.
+    -- writes.  The delay count after a read ensures that a write will get out
+    -- anyway.
     rx_available := usb_nRXF = '0' and rx_delay_count(rx_delay_bits) = '0';
     tx_available := (usb_nTXE = '0' or turbo = '1') and to_xmit /= 0;
     if state = state_idle then

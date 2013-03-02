@@ -108,7 +108,7 @@ architecture behavioural of go is
   signal out_last : std_logic;
 
   -- The configuration loaded from USB.
-  signal config : unsigned(199 downto 0);
+  signal config : unsigned(207 downto 0);
   alias adc_control : unsigned8 is config(135 downto 128);
   alias adc_clock_select : std_logic is adc_control(7);
   -- Control for data in to USB host.
@@ -129,6 +129,8 @@ architecture behavioural of go is
   signal cpu_ssifss1, cpu_ssifss2 : std_logic;
   signal cpu_ssifss_stretch : std_logic;
   signal cpu_ssifss_stretch_change : std_logic;
+
+  alias usb_control : unsigned8 is config(207 downto 200);
 
   alias bandpass_freq : unsigned8 is config(159 downto 152);
   alias bandpass_gain : unsigned8 is config(167 downto 160);
@@ -329,8 +331,8 @@ begin
 
   usb: entity usbio
     generic map(
-      25, 4,
-      x"80" & x"0000" & x"ff" & x"0000" & x"0f" & x"0b" & x"09"
+      26, 4,
+      x"00" & x"80" & x"0000" & x"ff" & x"0000" & x"0f" & x"0b" & x"09"
       & x"00000000" & x"00000000" & x"00000000" & x"805ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,
@@ -341,6 +343,7 @@ begin
              xmit => usb_xmit, last => usb_last,
              xmit_channel => xmit_channel, xmit_length => usb_xmit_length,
              low_latency => xmit_low_latency, turbo => xmit_turbo,
+             rx_delay => usb_control(5 downto 0),
              clk => clk_50m);
 
   process
