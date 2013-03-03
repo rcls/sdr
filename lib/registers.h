@@ -13,6 +13,7 @@
 #define REG_SAMPLE_DECAY_LO 22
 #define REG_SAMPLE_DECAY_HI 23
 #define REG_CPU_SSI 24
+#define REG_USB 25
 
 #define REG_MAGIC 0xfe
 #define REG_ADDRESS 0xff
@@ -31,6 +32,7 @@
 #define XMIT_PHASE 12
 #define XMIT_BANDPASS 16
 #define XMIT_BURST 20
+#define XMIT_CPU_SSI 24
 #define XMIT_IDLE 28
 
 #define XMIT_TURBO 64
@@ -46,7 +48,7 @@
 
 #define CPU_SSI_DATA 1
 #define CPU_SSI_FSS 2
-#define CPU_SSI_CLK 3
+#define CPU_SSI_CLK 4
 #define CPU_SSI_FSS_STRETCH 64
 #define CPU_SSI_CPU_IS_MASTER 128
 

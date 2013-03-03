@@ -20,8 +20,9 @@ iseconfig/
 /sinrom
 PCB*.save
 spect/
-/util/spiflash
+/util/burstspec
 /util/irspec
 /util/phasespect
+/util/spiflash
 /fir
 /fir.hi

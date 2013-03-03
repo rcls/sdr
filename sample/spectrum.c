@@ -255,7 +255,8 @@ int main(int argc, const char ** argv)
     // Reset the ADC.
     static const unsigned char adc_reset[] = {
         REG_ADDRESS,
-        REG_MAGIC, MAGIC_MAGIC, REG_XMIT, XMIT_FLASH,
+        REG_MAGIC, MAGIC_MAGIC,
+        REG_XMIT, XMIT_IDLE|XMIT_PUSH, REG_XMIT, XMIT_IDLE,
         REG_ADC, ADC_RESET|ADC_SCLK|ADC_SEN,
         REG_ADC, ADC_SCLK|ADC_SEN };
     usb_send_bytes(dev, adc_reset, sizeof adc_reset);
@@ -285,8 +286,9 @@ int main(int argc, const char ** argv)
         get_spectrum(gain, buffer.best);
     }
 
-    // Turn off the sampler unit.
-    sample_config(dev, 0, 0);
+    sample_config(dev, 0, 0);           // Turn off the sampler unit.
+
+    usb_send_bytes(dev, adc_reset, 7);  // Turn usb flow.
 
     usb_close(dev);
 

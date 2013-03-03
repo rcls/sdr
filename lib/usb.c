@@ -130,10 +130,7 @@ static void usb_flush1(libusb_device_handle * dev)
 
 void usb_flush(libusb_device_handle * dev)
 {
-    // FTDI makes this hard.  Manually pulse siwa, then get two empty transfers.
-    static const unsigned char push[] = {
-        0xff, REG_XMIT, XMIT_PUSH|XMIT_FLASH, REG_XMIT, XMIT_FLASH };
-    usb_send_bytes(dev, push, sizeof push);
+    // FTDI makes this hard.  Wait for 2 empty transfers.
     usb_flush1(dev);
     usb_flush1(dev);
 }
@@ -150,11 +147,13 @@ unsigned char * usb_slurp_channel(libusb_device_handle * devo,
     // First turn off output & select channel...
     int channel = source & 3;
     freq = freq * 16777216ull / 250000;
-    unsigned char conf[20];
+    unsigned char conf[32];
     unsigned char * p = conf;
     *p++ = REG_ADDRESS;
     *p++ = REG_MAGIC;
     *p++ = MAGIC_MAGIC;
+    *p++ = REG_XMIT;
+    *p++ = XMIT_IDLE|XMIT_PUSH;
     *p++ = REG_XMIT;
     *p++ = XMIT_IDLE;
 
@@ -197,7 +196,7 @@ unsigned char * usb_slurp_channel(libusb_device_handle * devo,
     usb_slurp(dev, buffer, length);
 
     // Turn off data.
-    usb_send_bytes(dev, conf, 5);
+    usb_send_bytes(dev, conf, 7);
     // Flush usb...
     usb_flush(dev);
 
