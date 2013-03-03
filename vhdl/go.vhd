@@ -296,6 +296,7 @@ begin
         packet(15) <= usb_xmit_overrun;
         usb_xmit_length <= 2;
         usb_xmit <= burst_strobe;
+        usb_last <= '1';
       when "110" =>
         packet(0) <= cpu_ssitx2;
         packet(1) <= cpu_ssifss2;
