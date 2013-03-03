@@ -6,11 +6,6 @@ library work;
 use work.defs.all;
 use work.sincos.all;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 entity downconvert is
     Port (data   : in  signed14;
           gain   : in  unsigned8;
@@ -104,7 +99,8 @@ begin
         sin_low <= index_acc(11 downto 10);
       end if;
       cos_minus(1) <= index_acc(23) xor index_acc(22);
-      sin_minus(1) <= index_acc(23);
+      -- We are down-converting not up converting, so we want to use -sin.
+      sin_minus(1) <= not index_acc(23);
       cos_minus(2 to 7) <= cos_minus(1 to 6);
       sin_minus(2 to 7) <= sin_minus(1 to 6);
 

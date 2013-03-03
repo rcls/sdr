@@ -69,7 +69,7 @@ def make_reduced(base,path,order):
         if os.path.getmtime(path) > os.path.getmtime(base):
             return
     except OSError, e:
-        print e
+        pass
     try:
         sr = __file__[0:__file__.rindex('/')] + "/spectrum-reduce"
     except:
