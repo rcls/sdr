@@ -56,8 +56,6 @@ static void read_exact(unsigned char * buf, int len)
         memcpy(buf, bounce + 2, done);
         buf += done;
         len -= done;
-        if (done != 0 && len != 0)
-            fprintf(stderr, "Did %i, %i to go\n", done, len);
     }
 }
 

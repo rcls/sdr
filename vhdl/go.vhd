@@ -323,7 +323,7 @@ begin
       cpu_ssifss_stretch <= '1';
       cpu_ssifss_stretch_change <= '0';
     elsif cpu_ssiclk2 /= cpu_ssiclk1 then
-      cpu_ssifss_stretch_change <= not cpu_ssifss_stretch_change;
+      cpu_ssifss_stretch_change <= '1';
       if cpu_ssifss_stretch_change = '1' then
         cpu_ssifss_stretch <= '0';
       end if;

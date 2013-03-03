@@ -1,9 +1,8 @@
 
 SAMPBIN=dump spectrum spectrum-reduce commands mlt3-detect
 UTILBIN=phasespect irspec burstspec spiflash
-
-all: vhdl/sinrom.vhd phasedetectsim pllsim $(SAMPBIN:%=sample/%) \
-	$(UTILBIN:%=util/%)
+BINARIES=$(SAMPBIN:%=sample/%) $(UTILBIN:%=util/%)
+all: vhdl/sinrom.vhd phasedetectsim pllsim $(BINARIES)
 
 DEP=-MMD -MP -MF.$(subst /,:,$@).d
 
@@ -12,16 +11,7 @@ LDFLAGS=$(CFLAGS) -fwhole-program
 
 LDLIBS=-lfftw3f_threads -lfftw3f -lusb-1.0 -lm
 
-util/phasespect: lib/usb.o lib/util.o
-util/irspec: lib/util.o lib/usb.o
-util/spiflash: lib/util.o lib/usb.o
-util/burstspec: lib/usb.o lib/util.o
-
-sample/commands: lib/usb.o lib/util.o
-sample/dump: lib/usb.o lib/util.o
-sample/mlt3-detect: lib/util.o lib/usb.o
-sample/spectrum-reduce: lib/util.o
-sample/spectrum: lib/util.o lib/usb.o
+$(BINARIES): lib/usb.o lib/util.o
 
 vhdl/sinrom.vhd: sinrom
 	./$< > $@
