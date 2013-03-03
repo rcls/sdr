@@ -316,7 +316,7 @@ begin
     cpu_ssifss1 <= cpu_ssifss;
     cpu_ssifss2 <= cpu_ssifss1;
 
-    if cpu_ssifss1 = '1' then
+    if cpu_ssifss2 = '1' then
       cpu_ssifss_stretch <= '1';
       cpu_ssifss_stretch_change <= '0';
     elsif cpu_ssiclk2 /= cpu_ssiclk1 then

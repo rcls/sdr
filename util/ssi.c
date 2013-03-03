@@ -73,8 +73,6 @@ int main(int argc, char * argv[])
     unsigned char * p = raw_buffer;
     *p++ = REG_ADDRESS;
     *p++ = REG_CPU_SSI;
-    *p++ = CPU_SSI_FSS;
-    *p++ = REG_CPU_SSI;
     *p++ = CPU_SSI_FSS|CPU_SSI_CLK;
 
     p = add_byte(p, argc + 1);
@@ -85,8 +83,6 @@ int main(int argc, char * argv[])
     for (int i = 1; i < argc; ++i)
         p = add_byte(p, strtoul(argv[i], NULL, 16));
 
-    *p++ = REG_CPU_SSI;
-    *p++ = CPU_SSI_FSS;
     *p++ = REG_CPU_SSI;
     *p++ = CPU_SSI_FSS|CPU_SSI_CLK;
 
