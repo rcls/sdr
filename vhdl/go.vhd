@@ -46,12 +46,10 @@ entity go is
 end go;
 
 architecture behavioural of go is
-  signal qq : four_signed36;
-  signal ii : four_signed36;
+  signal xx, yy : four_signed36;
 
-  signal qq_buf : signed36;
-  signal ii_buf : signed36;
-  signal ii_buf_last, qq_buf_last : std_logic;
+  signal xx_buf, yy_buf : signed36;
+  signal xx_buf_last, yy_buf_last : std_logic;
 
   signal packet : unsigned(31 downto 0);
 
@@ -188,7 +186,7 @@ begin
     led(i) <= '0' when led_off(i) = '0' else 'Z';
   end generate;
 
-  led_off(3) <= not qq_buf_last xor ii_buf_last;
+  led_off(3) <= not xx_buf_last xor yy_buf_last;
 
   led_off(5) <= not usb_xmit_overrun or xmit_turbo;
 
@@ -210,16 +208,15 @@ begin
       gain <= config(i * 32 + 31 downto i * 32 + 24);
       down0: entity downconvert
         port map (data => adc_data_b, freq => freq, gain => gain,
-                  clk => clk_main,
-                  qq => qq(i), ii => ii(i));
+                  xx => xx(i), yy => yy(i), clk => clk_main);
     end block;
   end generate;
 
-  qfilter: entity multifilter port map(qq, qq_buf, qq_buf_last, clk_main);
-  ifilter: entity multifilter port map(ii, ii_buf, ii_buf_last, clk_main);
+  xfilter: entity multifilter port map(xx, xx_buf, xx_buf_last, clk_main);
+  yfilter: entity multifilter port map(yy, yy_buf, yy_buf_last, clk_main);
 
   ph: entity phasedetect
-    port map(qq_buf, ii_buf, qq_buf_last,
+    port map(xx_buf, yy_buf, xx_buf_last,
              phase, phase_strobe, phase_last, clk_main);
 
   irf: entity irfir
