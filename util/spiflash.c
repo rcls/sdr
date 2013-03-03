@@ -18,7 +18,7 @@ static unsigned char buffer[131072];
 
 
 // Use serial or libusb?
-#if 0
+#if 1
 #include <libusb-1.0/libusb.h>
 #include "lib/usb.h"
 
@@ -213,17 +213,18 @@ static unsigned char * chip_select(unsigned char * p)
     return p;
 }
 
+static int buffer_num;
+
 static void write_page (const unsigned char * data, unsigned page)
 {
     unsigned char * p = chip_select(buffer);
 
-    p = add_be(p, 0x84000000, 32, false);
+    buffer_num = !buffer_num;
+
+    unsigned buffer_write = buffer_num ? 0x84 : 0x87;
+
+    p = add_be(p, buffer_write << 24, 32, false);
     p = add_bytes(p, data, PAGE_LEN, false);
-
-    p = chip_select(p);
-
-    p = add_be(p, 0x83, 8, false);
-    p = add_be(p, page * 512, 24, false);
 
     p = chip_select(p);
 
@@ -244,6 +245,11 @@ static void write_page (const unsigned char * data, unsigned page)
     while (!(*buffer & 0x80));
 
     p = chip_select(p);
+
+    unsigned page_write = buffer_num ? 0x83 : 0x86;
+    p = add_be(p, page_write, 8, false);
+    p = add_be(p, page * 512, 24, false);
+
     write_exact(buffer, p - buffer);
 }
 
@@ -310,7 +316,9 @@ int main(int argc, char * argv[])
     // Select SPI readback.
     // Make sure CS, SI are high.
     static const unsigned char init[] = {
-        REG_ADDRESS, REG_MAGIC, MAGIC_MAGIC, REG_XMIT, XMIT_FLASH,
+        REG_ADDRESS, REG_MAGIC, MAGIC_MAGIC, // Unlock
+        REG_USB, 0,                          // No delay, we have work to do.
+        REG_XMIT, XMIT_FLASH|XMIT_LOW_LATENCY,
         REG_FLASH, FLASH_CS | FLASH_DATA,
         REG_FLASH, FLASH_CS | FLASH_DATA | FLASH_XMIT,
         REG_FLASH, FLASH_CS | FLASH_DATA,
