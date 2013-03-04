@@ -66,6 +66,8 @@ architecture usbio of usbio is
   attribute keep_hierarchy : string;
   attribute keep_hierarchy of usbio : architecture is "true";
 begin
+  usbd_out <= xmit_queue(7 downto 0);
+
   process
     variable rx_available : boolean;
     variable tx_available : boolean;
@@ -77,7 +79,6 @@ begin
     usb_oe_n <= '1';
     state <= state_idle;
     config_strobes <= (others => '0');
-    usbd_out <= xmit_queue(7 downto 0);
     if rx_delay_count(rx_delay_bits) = '1' then
       rx_delay_count <= rx_delay_count + 1;
     end if;
@@ -118,15 +119,15 @@ begin
       usb_nWR <= '0';
       state <= state_write2;
       to_xmit <= to_xmit - 1;
-      xmit_queue(packet_bytes * 8 - 9 downto 0)
-        <= xmit_queue(packet_bytes * 8 - 1 downto 8);
-      xmit_queue(packet_bytes * 8 - 1 downto packet_bytes * 8 - 8)
-        <= "XXXXXXXX";
     end if;
 
     if state = state_write2 then
       usb_nWR <= '0';
       state <= state_pause;
+      xmit_queue(packet_bytes * 8 - 9 downto 0)
+        <= xmit_queue(packet_bytes * 8 - 1 downto 8);
+      xmit_queue(packet_bytes * 8 - 1 downto packet_bytes * 8 - 8)
+        <= "XXXXXXXX";
       if to_xmit = 0 and xmit_buffered = '0' and low_latency = '1' then
         usb_SIWU <= '0';
       end if;
