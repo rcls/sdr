@@ -5,17 +5,18 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.defs.all;
 
--- We run off a 12.5mhz clock, transferring 1 byte every 4 cycles.  This gives
--- us a 3.125MB/s transfer rate, which should be comfortably within the ability
--- of the FT2232H async I/O.
+-- We run off a 50mhz clock, transferring 1 byte every 4 cycles.  This gives
+-- up to 12.5MB/s transfer rate, to achieve the maximum rate we need to use
+-- 'turbo' mode that ignores the FT2232H async strobes.
 -- xmit strobes data in [subject to dead time] on clocks that are a multiple
 -- of 4.
--- tx_overrun is asserted if xmit does not writes a block.
--- it is cleared when xmit takes effected.
+-- tx_overrun is asserted if xmit does not write a block.  It is cleared on the
+-- next successful xmit.  In turbo mode, we have no idea if the write succeeds.
+-- Instead tx_overrun outputs a LFSR which may be used to synchronise streams.
 entity usbio is
   generic (config_bytes : integer;
            packet_bytes : integer;
-           defconfig : unsigned := "0");
+           defconfig : unsigned);
   port (usbd_in : in unsigned8;
         usbd_out : out unsigned8;
         usb_oe_n : out std_logic := '1';
@@ -26,12 +27,11 @@ entity usbio is
         usb_nWR : out std_logic := '1';
         usb_SIWU : out std_logic := '1';
 
-        config : out unsigned(config_bytes * 8 - 1 downto 0) := resize(
-          defconfig, config_bytes * 8);
+        config : out unsigned(config_bytes * 8 - 1 downto 0) := defconfig;
 
         packet : in unsigned(packet_bytes * 8 - 1 downto 0);
         xmit : in std_logic; -- toggle to xmit.
-        last : in std_logic; -- strobe for channel 0.
+        last : in std_logic; -- strobe for highest number channel.
         xmit_channel : in unsigned2;
         xmit_length : in integer range 0 to packet_bytes;
         low_latency, turbo : in std_logic;
