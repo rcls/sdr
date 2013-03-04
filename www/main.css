@@ -14,3 +14,7 @@
 h2, h3 {
     clear: both;
 }
+
+.right {
+    text-align: right;
+}
