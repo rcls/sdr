@@ -35,6 +35,7 @@ entity go is
        cpu_ssitx : in std_logic;
        cpu_ssiclk : inout std_logic;
        cpu_ssifss : inout std_logic;
+       header_16 : out std_logic;
 
        spartan_m0 : in std_logic;
        spartan_m1 : in std_logic;
@@ -148,6 +149,8 @@ architecture behavioural of go is
 
   signal usbd_out : unsigned8;
   signal usb_oe_n : std_logic;
+
+  signal div50by4 : unsigned2;
 
   attribute S : string;
   attribute S of usb_c : signal is "yes";
@@ -356,6 +359,14 @@ begin
     wait until falling_edge(clk_50m);
     usb_nRXF <= usb_nRXFb;
     usb_nTXE <= usb_nTXEb;
+  end process;
+
+  -- Divide the 50MHz clock by 4.
+  header_16 <= div50by4(1);
+  process
+  begin
+    wait until rising_edge(clk_50m);
+    div50by4 <= div50by4 + 1;
   end process;
 
   -- DDR input from ADC.

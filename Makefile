@@ -1,6 +1,6 @@
 
 SAMPBIN=dump spectrum spectrum-reduce commands mlt3-detect
-UTILBIN=phasespect irspec burstspec spiflash
+UTILBIN=phasespect irspec burstspec spiflash ssi
 BINARIES=$(SAMPBIN:%=sample/%) $(UTILBIN:%=util/%)
 all: vhdl/sinrom.vhd phasedetectsim pllsim $(BINARIES)
 
