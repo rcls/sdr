@@ -112,27 +112,41 @@ void usb_send_bytes(libusb_device_handle * dev, const void * data, size_t len)
 }
 
 
-static void usb_flush1(libusb_device_handle * dev)
+size_t usb_read(libusb_device_handle * dev, void * buffer, size_t len)
 {
-    for (int i = 0; i != 256; ++i) {
-        int transferred;
-        unsigned char buffer[512];
-        int r = libusb_bulk_transfer(dev, USB_IN_EP, buffer, sizeof buffer,
-                                     &transferred, 100);
-        if (r == LIBUSB_ERROR_TIMEOUT || (r == 0 && transferred <= 2))
-            return;
+    // Read until we're full or we get two consecutive empties.
+    size_t total = 0;
+    int empty = 0;
+    while (len > 0) {
+        unsigned char bounce[512];      // Fucking FTDI.
+        int transferred = 0;
+        int l = len - total + 2;
+        if (l > sizeof bounce)
+            l = sizeof bounce;
+        int r = libusb_bulk_transfer(dev, USB_IN_EP, bounce, l,
+                                     &transferred, 10);
         if (r != 0)
-            errx(1, "libusb_bulk_transfer failed.\n");
+            errx(1, "libusb_bulk_transfer IN failed: %i", r);
+
+        if (transferred <= 2 && ++empty >= 2)
+            break;
+        if (transferred <= 2)
+            continue;
+        empty = 0;
+        transferred -= 2;
+        if (buffer != NULL)
+            memcpy(buffer + total, bounce + 2, transferred);
+        total += transferred;
     }
-    errx(1, "failed to empty pipeline");
+    return total;
 }
 
 
 void usb_flush(libusb_device_handle * dev)
 {
     // FTDI makes this hard.  Wait for 2 empty transfers.
-    usb_flush1(dev);
-    usb_flush1(dev);
+    if (usb_read(dev, NULL, 4096) == 4096)
+        errx(1, "Failed to drain usb.");
 }
 
 

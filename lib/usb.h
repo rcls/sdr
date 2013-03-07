@@ -17,7 +17,10 @@ void usb_slurp(libusb_device_handle * dev, void * buffer, size_t len);
 
 void usb_send_bytes(libusb_device_handle * dev, const void * data, size_t len);
 
-// Make sure data gets pushed to us; writes registers to pulse SIWA.
+// Read until len bytes or two empty reads.  Buffer may be NULL to just flush.
+size_t usb_read(libusb_device_handle * dev, void * buffer, size_t len);
+
+// Read until idle.
 void usb_flush(libusb_device_handle * dev);
 
 // If dev is NULL auto open/close.
