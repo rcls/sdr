@@ -15,22 +15,17 @@ extern void * const vtable[] __attribute__((section (".start"),
 
 extern unsigned char __text_start;
 extern unsigned char __text_end;
-extern unsigned char __bss_start;
-extern unsigned char __bss_end;
 
-typedef struct global_t {
-    unsigned next;
-    unsigned char * global_address;
-    bool unlocked;
-} global_t;
+#undef SSI
+register volatile ssi_t * SSI asm ("r10");
 
-#define next (((global_t *) 0x20001ff0)->next)
-#define global_address (((global_t *) 0x20001ff0)->global_address)
-#define unlocked (((global_t *) 0x20001ff0)->unlocked)
+register unsigned next asm ("r6");
+register unsigned char * global_address asm ("r9");
+register bool unlocked asm ("r11");
 
 static bool isblank(int c)
 {
-    return c == ' ' || c == '\r' || c == '\t';
+    return c == ' ';
 }
 
 
@@ -40,13 +35,15 @@ static void send(unsigned c)
     SSI->dr = c & 255;
 }
 
-
+#if 0
 static void send_string(const char * s)
 {
     for (; *s; ++s)
         send(*s);
 }
-
+#else
+#define send_string(s) send (*(s))
+#endif
 
 static void send_hex(unsigned n, unsigned len)
 {
@@ -154,7 +151,6 @@ static void run(unsigned * vtable) __attribute__((noreturn));
 static void run(unsigned * vtable)
 {
     *VTABLE = (unsigned) vtable;
-    __interrupt_disable();
     asm volatile ("mov sp,%0\n"
                   "bx %1\n" :: "r" (vtable[0]), "r" (vtable[1]));
     __builtin_unreachable();
@@ -210,7 +206,8 @@ static void command_write(void)
     unsigned char * address = get_address();
     if (next == ':')
         next = 0;
-    unsigned char bytes[16];
+    unsigned words[4];
+    unsigned char * bytes = (unsigned char *) words;
     unsigned n = 0;
     for (; n != sizeof bytes && skip_space_peek() != '\n'; ++n)
         bytes[n] = get_hex(2);
@@ -230,7 +227,7 @@ static void command_write(void)
     }
 
     unsigned text_start = *VTABLE;
-    unsigned text_end = text_start + (&__text_end - &__text_start);
+    unsigned text_end = text_start + (0x7ff & (unsigned) &__text_end);
     if (end > text_start && (unsigned) address < text_end) {
         send_string("? Monitor text");
         return;
@@ -238,9 +235,8 @@ static void command_write(void)
 
     if ((unsigned) address >= 0x20000000) {
         // Memory.
-        unsigned char * src = bytes;
         for (unsigned i = 0; i != n; ++i)
-            *address++ = *src++;
+            address[i] = bytes[i];
     }
     else {
         // Flash...
@@ -258,24 +254,17 @@ static void command_write(void)
             return;
         }
 
-        n >>= 2;
-        unsigned char * src = bytes;
-        for (int i = 0; i != n; ++i) {
-            unsigned w = *src++;
-            w += *src++ << 8;
-            w += *src++ << 16;
-            w += *src++ << 24;
-            FLASHCTRL->fmd = w;
-            FLASHCTRL->fma = (unsigned) address;
+        for (int i = 0; i != n; i += 4) {
+            FLASHCTRL->fmd = * (unsigned *) (bytes + i);
+            FLASHCTRL->fma = (unsigned) address + i;
             FLASHCTRL->fmc = 0xa4420001;
             while (FLASHCTRL->fmc & 1);
-            address += 4;
         }
     }
 
     send('W');
 
-    global_address = address;
+    global_address = address + n;
 }
 
 
@@ -309,17 +298,16 @@ static void command_erase(void)
 
 static void monitor_reloc(void)
 {
-    unsigned char * src = (unsigned char *) *VTABLE;
+    unsigned char * src = &__text_start;
     void * ramtop = (void *) 0x20001800;
-    if (src == ramtop)
+    if (src != (unsigned char *) *VTABLE)
         return;
 
     unsigned char * dest = ramtop;
-    unsigned char * end = src + (&__text_end - &__text_start);
-    for (unsigned char * p = src; p != end; ++p)
-        *dest++ = *p;
+    for (unsigned i = 0; i != &__text_end - src; ++i)
+        dest[i] = src[i];
 
-    unsigned diff = ramtop - (void *) &__text_start;
+    unsigned diff = (unsigned char *) ramtop - src;
     unsigned * newvtable = ramtop;
     for (int i = 1; i != VTABLE_SIZE; ++i)
         newvtable[i] += diff;
@@ -363,7 +351,7 @@ static void command(void)
         break;
     case 'P':
         if (command_end())
-            send('P');
+            send('Q');
         break;
     case 'G':
         command_go();
@@ -399,6 +387,10 @@ static void go (void)
 
     if (RELOCATE)
         monitor_reloc();
+
+#ifndef SSI
+    SSI = (ssi_t *) 0x40008000;
+#endif
 
     SC->rcgc[1] |= 16;                  // SSI.
     SSI->cr[1] = 4;                     // Slave, disable.
