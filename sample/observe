@@ -12,8 +12,8 @@ parser.add_argument('input', help='Input file')
 parser.add_argument('lo', type=float, help='Start or mid frequency (MHz).')
 parser.add_argument('hi', type=float, help='End or half-width frequency (MHz).')
 # Twice bandwidth assuming zero based:
-parser.add_argument('-f', '--freq', type=float, default=250e6,
-                    help='Sample frequency.')
+parser.add_argument('-f', '--freq', type=float, default=250.0,
+                    help='Sample frequency (MHz).')
 parser.add_argument('-b', '--base', type=float, help='Low cut-off for display.')
 parser.add_argument('-W', '--width', type=int, default=1800,
                     help='Output width.')
@@ -21,7 +21,8 @@ parser.add_argument('-H', '--height', type=int, default=400,
                     help='Output height.')
 parser.add_argument('-o', '--output',
                     help='Output PNG file instead of displaying.')
-parser.add_argument('-v', '--verbose', help='Print GNU plot commands.')
+parser.add_argument('-v', '--verbose', help='Print GNU plot commands.',
+                    action='store_true')
 
 args = parser.parse_args()
 
@@ -36,8 +37,7 @@ if 0 < f_hi <= f_lo:
     f_lo, f_hi = f_lo - f_hi, f_lo + f_hi
 
 # Remember that we only go to half the frequency...
-samples_per_hertz = 2 * samples / args.freq
-samples_per_mhz = samples_per_hertz * 1000000
+samples_per_mhz = 2 * samples / args.freq
 
 s_lo = int(f_lo * samples_per_mhz)
 s_hi = int(f_hi * samples_per_mhz)
@@ -45,6 +45,7 @@ s_hi = int(f_hi * samples_per_mhz)
 assert s_lo >= 0
 assert s_lo < s_hi
 assert s_hi <= samples
+assert args.width >= 50
 
 shift = 0
 while s_hi - s_lo > 2 * args.width:
@@ -55,6 +56,10 @@ while s_hi - s_lo > 2 * args.width:
 dx = (1 << shift) / samples_per_mhz
 origin = dx * (s_lo + 0.5 - 0.5 / (1<<shift))
 title = args.input
+
+# Adjust f_lo, f_hi to the integer values.
+f_lo = (s_lo << shift) / samples_per_mhz
+f_hi = (s_hi << shift) / samples_per_mhz
 
 if f_hi - f_lo < 0.01:
     adjust = int((f_lo + f_hi) * 0.5 + 0.001)
@@ -83,20 +88,30 @@ else:
     path = "%s.%i" % (args.input, shift)
     make_reduced(args.input, path, shift)
 
-gnuplot = subprocess.Popen(['gnuplot'], stdin=subprocess.PIPE)
-si = gnuplot.stdin
+
+c = []
 
 if args.output is None:
-    si.write("set term wxt size %i,%i\n" % (args.width, args.height))
+    c.append("set term wxt size %i,%i" % (args.width, args.height))
 else:
-    si.write('set term pngcairo size %i,%i font ",10"\n'
+    c.append('set term pngcairo size %i,%i font ",10"'
              % (args.width, args.height))
-    si.write('set output "%s"\n' % args.output)
+    c.append('set output "%s"' % args.output)
 
-si.write("set mxtics 10\n")
+c.append("set mxtics 10")
 if args.base is not None:
-    si.write("set yrange [%.17g:*]\n" % args.base)
-si.write("set xrange [%.17g:%.17g]\n" % (f_lo, f_hi))
-#si.write("set log y\n")
-si.write('plot "%s" binary array=(%i) skip=%i origin=(%.17g,0) dx=%.17g using (10*log10($1)-33) title "%s" with lines\n' % (
+    c.append("set yrange [%.17g:*]" % args.base)
+c.append("set xrange [%.17g:%.17g]" % (f_lo, f_hi))
+#si.write("set log y")
+c.append('plot "%s" binary array=(%i) skip=%i origin=(%.17g,0) dx=%.17g using (10*log10($1)-33) title "%s" with lines' % (
         path, s_hi - s_lo, s_lo * 4, origin, dx, title))
+
+if args.verbose:
+    print '\n'.join(c)
+
+gnuplot = ['gnuplot']
+for x in c:
+    gnuplot.append('-e')
+    gnuplot.append(x)
+
+subprocess.check_call(gnuplot, stdin=open('/dev/null'))
