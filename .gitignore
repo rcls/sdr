@@ -26,3 +26,6 @@ spect/
 /util/spiflash
 /fir
 /fir.hi
+/cpu/*.bin
+/cpu/*.elf
+*.*.*[0-9]

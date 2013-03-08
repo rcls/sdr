@@ -2,7 +2,7 @@
 SAMPBIN=dump spectrum spectrum-reduce commands mlt3-detect
 UTILBIN=phasespect irspec burstspec spiflash ssi
 BINARIES=$(SAMPBIN:%=sample/%) $(UTILBIN:%=util/%)
-all: vhdl/sinrom.vhd phasedetectsim pllsim $(BINARIES)
+all: vhdl/sinrom.vhd phasedetectsim pllsim $(BINARIES) cpu
 
 DEP=-MMD -MP -MF.$(subst /,:,$@).d
 
@@ -22,6 +22,10 @@ fir: fir.hs
 .PHONY: clean all
 clean:
 	rm -f *.o */*.o  $(SAMPBIN:%=sample/%) $(UTILBIN:%=util/%)
+
+.PHONY: cpu
+cpu:
+	$(MAKE) -C cpu all
 
 # Cancel built-in
 %: %.c
