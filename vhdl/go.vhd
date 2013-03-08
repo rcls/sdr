@@ -278,11 +278,12 @@ begin
         usb_last <= flash_control(3);
         usb_xmit_length <= 1;
       when "011" =>
-        packet(14 downto 0) <= phase(14 downto 0);
-        packet(15) <= usb_xmit_overrun;
+        packet(17 downto 0) <= phase;
+        packet(22 downto 18) <= "00000";
+        packet(23) <= usb_xmit_overrun;
         usb_xmit <= usb_xmit xor phase_strobe;
         usb_last <= phase_last;
-        usb_xmit_length <= 2;
+        usb_xmit_length <= 3;
       when "100" =>
         packet(14 downto 0) <= unsigned(bandpass_r);
         packet(15) <= usb_xmit_overrun;
