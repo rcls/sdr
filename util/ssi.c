@@ -113,6 +113,7 @@ int main(int argc, char * argv[])
         REG_XMIT, XMIT_IDLE|XMIT_PUSH,  // Flush out data.
         REG_XMIT, XMIT_IDLE,
         REG_XMIT, XMIT_CPU_SSI|1|XMIT_LOW_LATENCY,
+        REG_CPU_SSI, CPU_SSI_FSS|CPU_SSI_CLK|CPU_SSI_CPU_IS_MASTER,
     };
 
     usb_send_bytes(dev, setup, sizeof setup);
