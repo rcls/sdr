@@ -131,73 +131,74 @@ static unsigned char * get_address(void)
 }
 
 
-static void command_error()
+static __attribute__((noreturn)) void invoke(unsigned * vtable)
 {
-    while (get() != '\n');
-    send('?');
-}
-
-
-static bool command_end()
-{
-    if (skip_space_get() == '\n')
-        return true;
-    command_error();
-    return false;
-}
-
-
-static void run(unsigned * vtable) __attribute__((noreturn));
-static void run(unsigned * vtable)
-{
-    *VTABLE = (unsigned) vtable;
     asm volatile ("mov sp,%0\n"
                   "bx %1\n" :: "r" (vtable[0]), "r" (vtable[1]));
     __builtin_unreachable();
 }
 
 
+static __attribute__((noreturn)) void run(unsigned * vtable)
+{
+    *VTABLE = (unsigned) vtable;
+    invoke(vtable);
+}
+
+
+static __attribute__((noreturn)) void command_abort(const char * s)
+{
+    send_string(s);
+    while ((SSI->sr & 0x11) != 1);
+    invoke((unsigned *) *VTABLE);
+}
+
+
+static __attribute__((noreturn)) void command_error()
+{
+    while (get() != '\n');
+    command_abort("?");
+}
+
+
+static void command_end()
+{
+    if (skip_space_get() != '\n')
+        command_error();
+}
+
+
 static void command_go(void)
 {
     unsigned char * address = get_address();
-    if (!command_end())
-        return;
+    command_end();
 
-    send_string("Go\n");
-    while ((SSI->sr & 0x11) != 1);
-
-    run ((unsigned *) address);
+    *VTABLE = (unsigned) address;
+    command_abort("Go");
 }
 
 
 static void command_address(void)
 {
-    if (skip_space_peek() == '\n') {
-        command_error();
-        return;
-    }
-
     unsigned char * address = get_address();
-    if (!command_end())
-        return;
-
-    send('A');
+    command_end();
     global_address = address;
+    send('A');
 }
 
 
 static void command_read(void)
 {
     unsigned char * address = get_address();
-    if (!command_end())
-        return;
+    command_end();
     send_hex((unsigned) address, 8);
-    send(':');
+    char sep = ':';
     for (int i = 0; i != 16; ++i) {
-        send(' ');
-        send_hex(*address++, 2);
+        send(sep);
+        send_hex(address[i], 2);
+        sep = ' ';
     }
-    global_address = address;
+    global_address = address + 16;
 }
 
 
@@ -209,29 +210,22 @@ static void command_write(void)
     unsigned words[4];
     unsigned char * bytes = (unsigned char *) words;
     unsigned n = 0;
-    for (; n != sizeof bytes && skip_space_peek() != '\n'; ++n)
+    for (; n != sizeof words && skip_space_peek() != '\n'; ++n)
         bytes[n] = get_hex(2);
 
-    if (!command_end())
-        return;
+    command_end();
 
     unsigned end = (unsigned) address + n;
-    if ((unsigned) address < 0x20002000 && end > 0x20001f00) {
-        send_string("? Stack");
-        return;
-    }
+    if ((unsigned) address < 0x20002000 && end > 0x20001f00)
+        command_abort("? Stack");
 
-    if (end < n) {
-        send_string("? Wrap");
-        return;
-    }
+    if (end < n)
+        command_abort("? Wrap");
 
     unsigned text_start = *VTABLE;
     unsigned text_end = text_start + (0x7ff & (unsigned) &__text_end);
-    if (end > text_start && (unsigned) address < text_end) {
-        send_string("? Monitor text");
-        return;
-    }
+    if (end > text_start && (unsigned) address < text_end)
+        command_abort("? Monitor text");
 
     if ((unsigned) address >= 0x20000000) {
         // Memory.
@@ -240,19 +234,14 @@ static void command_write(void)
     }
     else {
         // Flash...
-        if ((3 & (unsigned) address) || (3 & n)) {
-            send_string("? Alignment");
-            return;
-        }
+        if ((3 & (unsigned) address) || (3 & n))
+            command_abort("? Alignment");
         for (int i = 0; i != n; ++i)
-            if (address[i] != 0xff) {
-                send_string("? Not erased");
-                return;
-            }
-        if (!unlocked) {
-            send_string("? Locked");
-            return;
-        }
+            if (address[i] != 0xff)
+                command_abort("? Not erased");
+
+        if (!unlocked)
+            command_abort("? Locked");
 
         for (int i = 0; i != n; i += 4) {
             FLASHCTRL->fmd = * (unsigned *) (bytes + i);
@@ -271,22 +260,16 @@ static void command_write(void)
 static void command_erase(void)
 {
     unsigned char * address = get_address();
-    if (!command_end())
-        return;
+    command_end();
 
-    if ((unsigned) address >= 0x65536) {
-        send_string("? Address");
-        return;
-    }
-    if ((unsigned) address & 1023) {
-        send_string("? Alignment");
-        return;
-    }
+    if ((unsigned) address >= 0x65536)
+        command_abort("? Address");
 
-    if (!unlocked) {
-        send_string("? Locked");
-        return;
-    }
+    if ((unsigned) address & 1023)
+        command_abort("? Alignment");
+
+    if (!unlocked)
+        command_abort("? Locked");
 
     FLASHCTRL->fma = (unsigned) address;
     FLASHCTRL->fmc = 0xa4420002;
@@ -318,14 +301,11 @@ static void monitor_reloc(void)
 static void command_unlock(void)
 {
     for (const unsigned char * p = (unsigned char *) "nlock!Me"; *p; ++p) {
-        if (advance_peek() != *p) {
+        if (advance_peek() != *p)
             command_error();
-            return;
-        }
         next = 0;
     }
-    if (!command_end())
-        return;
+    command_end();
     unlocked = 1;
     send('U');
 }
@@ -333,6 +313,7 @@ static void command_unlock(void)
 
 static void command(void)
 {
+    send('\n');
     switch (skip_space_get()) {
     case 'A':
         command_address();
@@ -350,8 +331,8 @@ static void command(void)
         command_unlock();
         break;
     case 'P':
-        if (command_end())
-            send('Q');
+        command_end();
+        send('Q');
         break;
     case 'G':
         command_go();
@@ -359,7 +340,6 @@ static void command(void)
     default:
         command_error();
     }
-    send('\n');
 }
 
 
@@ -374,7 +354,7 @@ static void alternate_boot(void)
 static void go (void)
 {
     __interrupt_disable();
-    SC->rcgc[2] |= 31;                  // GPIOs.
+    SC->rcgc[2] = 31;                   // GPIOs.
     SC->usecrl = 12;
 
     // Just to be safe.  Also takes clock cycles...
@@ -392,7 +372,7 @@ static void go (void)
     SSI = (ssi_t *) 0x40008000;
 #endif
 
-    SC->rcgc[1] |= 16;                  // SSI.
+    SC->rcgc[1] = 16;                   // SSI.
     SSI->cr[1] = 4;                     // Slave, disable.
     SSI->cr[0] = 0xc7;                  // Full rate, SPH=1, SPO=1, SPI, 8 bits.
     SSI->cpsr = 2;                      // Prescalar /2.
