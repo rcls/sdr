@@ -1,11 +1,11 @@
 
 .PHONY: all clean
 
-TARGETS=count blink monitor
+TARGETS=count blink relmon
 all: $(TARGETS)
 
 .PHONY: $(TARGETS)
-$(TARGETS): %: %.sram.bin %.flash.bin
+$(TARGETS): %: %.sram.bin %.flash.bin monitor.flash0.bin
 
 .SECONDARY:
 
@@ -18,7 +18,7 @@ LDFLAGS=-nostdlib -Wl,--build-id=none
 OBJCOPY=arm-linux-gnu-objcopy
 CFLAGS=-Os -g -flto -fwhole-program -std=gnu11 -ffreestanding \
 	-mcpu=cortex-m3 -mthumb -MMD -MP -MF.deps/$@.d \
-	-fno-common -fdata-sections -Wall -Werror -fpie
+	-fno-common -fdata-sections -Wall -Werror
 UTILS=../utils
 
 -include .deps/*.d
@@ -26,7 +26,7 @@ UTILS=../utils
 %.s: %.c
 	$(CC) $(CFLAGS) -S -o $@ $<
 
-monitor.o monitor.s: CFLAGS+=-fpic
+relmon.o relmon.s: CFLAGS+=-fpie
 
 # Kill this rule.
 %: %.c
@@ -34,11 +34,11 @@ monitor.o monitor.s: CFLAGS+=-fpic
 %.sram.elf: %.o
 	$(LINK.c) -T sram.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-%.sramhi.elf: %.o
-	$(LINK.c) -T sram.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
-
 %.flash.elf: %.o
 	$(LINK.c) -T flash.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.flash0.elf: %.o
+	$(LINK.c) -T flash0.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 %.bin: %.elf
 	$(OBJCOPY) -O binary $< $@

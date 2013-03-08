@@ -6,6 +6,10 @@
 #define VTABLE ((unsigned *) 0xe000ed08)
 #define VTABLE_SIZE 38
 
+#ifndef RELOCATE
+#define RELOCATE 0
+#endif
+
 extern void * const vtable[] __attribute__((section (".start"),
                                             externally_visible));
 
@@ -393,7 +397,8 @@ static void go (void)
     if (PA->data[16] & 16)
         alternate_boot();
 
-    monitor_reloc();
+    if (RELOCATE)
+        monitor_reloc();
 
     SC->rcgc[1] |= 16;                  // SSI.
     SSI->cr[1] = 4;                     // Slave, disable.
