@@ -28,7 +28,7 @@ static void send(unsigned c)
     SSI->dr = c & 255;
 }
 
-#if 0
+#if 1
 static void send_string(const char * s)
 {
     for (; *s; ++s)
@@ -203,7 +203,7 @@ static void command_write(void)
         command_abort("? Wrap");
 
     unsigned text_start = *VTABLE;
-    unsigned text_end = text_start + (0x7ff & (unsigned) &__text_end);
+    unsigned text_end = text_start + (0xffff & (unsigned) &__text_end);
     if (end > text_start && (unsigned) address < text_end)
         command_abort("? Monitor text");
 
@@ -257,15 +257,15 @@ static void command_erase(void)
 }
 
 
-static void monitor_reloc(void)
+static __attribute((noinline)) void monitor_reloc(void)
 {
-    unsigned char * src = &__text_start;
+    unsigned char * src = (unsigned char *) *VTABLE;
     void * ramtop = (void *) 0x20001800;
-    if (src != (unsigned char *) *VTABLE)
+    if (0xffff & (unsigned) src)
         return;
 
     unsigned char * dest = ramtop;
-    for (unsigned i = 0; i != &__text_end - src; ++i)
+    for (unsigned i = 0; i != (0xffff & (unsigned) &__text_end); ++i)
         dest[i] = src[i];
 
     unsigned diff = (unsigned char *) ramtop - src;
@@ -306,7 +306,7 @@ static void command(void)
         break;
     case 'P':
         command_end();
-        send('Q');
+        send_string("Ping");
         break;
     case 'G':
         command_go();
