@@ -45,7 +45,7 @@ register bool unlocked asm ("r10");
 static void send(unsigned c)
 {
     while ((SSI->sr & 2) == 0);
-    SSI->dr = c & 255;
+    SSI->dr = c;
 }
 
 static void send_string(const char * s)
@@ -54,7 +54,7 @@ static void send_string(const char * s)
         send(*s);
     else
         for (; *s; ++s)
-            send(*s);
+            send(*s & 255);
 }
 
 static void send_hex(unsigned n, unsigned len)
