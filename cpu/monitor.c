@@ -200,7 +200,7 @@ static void command_write(void)
     if (end < n)
         command_abort("? Wrap");
 
-#if MINIMIZE && RELOCATE
+#if RELOCATE
     if ((unsigned) address <= 0x20002000 &&
         (end > STACK_TOP - 128 || end > BASE))
         command_abort("? Monitor");
@@ -211,7 +211,7 @@ static void command_write(void)
     unsigned text_start = (unsigned) vtable;
     unsigned text_end = (unsigned) &__text_end;
     if (end > text_start && (unsigned) address < text_end)
-        command_abort("? Monitor text");
+        command_abort("? Monitor");
 #endif
 
     if ((unsigned) address >= 0x20000000) {
@@ -270,23 +270,20 @@ void monitor_reloc(void)
         dest[i] = src[i];
 
     unsigned diff = dest - src;
-    unsigned * newvtable = (unsigned *) dest;
     for (int i = 1; i != VTABLE_SIZE; ++i)
-        newvtable[i] += diff;
+        ((unsigned *) dest)[i] += diff;
     __memory_barrier();
     *VTABLE = (unsigned) dest;
-    invoke(newvtable);
+    invoke((unsigned *) dest);
 }
 
 
 static void command_unlock(void)
 {
-    for (const unsigned char * p = (unsigned char *) "nlock!Me"; *p; ++p) {
+    for (const unsigned char * p = (unsigned char *) "nlock!Me\n"; *p; ++p)
         if (advance_peek() != *p)
             command_error();
-        next = 0;
-    }
-    command_end();
+
     unlocked = 1;
     send('U');
 }
