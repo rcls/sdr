@@ -121,12 +121,6 @@ static unsigned get_hex(unsigned max)
 }
 
 
-static unsigned char * get_address(void)
-{
-    return (unsigned char *) get_hex(8);
-}
-
-
 static __attribute__((noreturn)) void invoke(unsigned * vt)
 {
     __memory_barrier();
@@ -159,12 +153,17 @@ static void command_end()
 }
 
 
+static unsigned char * get_address(void)
+{
+    unsigned char * r = (unsigned char *) get_hex(8);
+    command_end();
+    return r;
+}
+
+
 static void command_go(void)
 {
-    unsigned char * address = get_address();
-    command_end();
-
-    *VTABLE = (unsigned) address;
+    *VTABLE = (unsigned) get_address();
     command_abort("Go");
 }
 
@@ -172,7 +171,7 @@ static void command_go(void)
 static void command_read(void)
 {
     unsigned char * address = get_address();
-    command_end();
+
     send_hex((unsigned) address, 8);
     char sep = ':';
     for (int i = 0; i != 16; ++i) {
@@ -185,7 +184,7 @@ static void command_read(void)
 
 static void command_write(void)
 {
-    unsigned char * address = get_address();
+    unsigned char * address = (unsigned char *) get_hex(8);
     unsigned words[4];
     unsigned char * bytes = (unsigned char *) words;
     unsigned n = 0;
@@ -243,7 +242,6 @@ static void command_write(void)
 static void command_erase(void)
 {
     unsigned char * address = get_address();
-    command_end();
 
     if ((unsigned) address & ~0xfc00)
         command_abort("? Erase Address");
