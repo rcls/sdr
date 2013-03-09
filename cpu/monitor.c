@@ -20,14 +20,7 @@ extern unsigned char __text_end;
 register volatile ssi_t * SSI asm ("r10");
 
 register unsigned next asm ("r6");
-register unsigned char * global_address asm ("r9");
 register bool unlocked asm ("r11");
-
-static bool isblank(int c)
-{
-    return c == ' ';
-}
-
 
 static void send(unsigned c)
 {
@@ -85,7 +78,8 @@ static unsigned advance_peek(void)
 static unsigned skip_space_peek(void)
 {
     unsigned b = peek();
-    for (; isblank(b); b = advance_peek());
+    while (b == ' ')
+        b = advance_peek();
     return b;
 }
 
@@ -95,7 +89,7 @@ static unsigned skip_space_get(void)
     unsigned b;
     do
         b = get();
-    while (b < 32 && b != 10);
+    while (b == ' ');
     return b;
 }
 
@@ -103,10 +97,10 @@ static unsigned skip_space_get(void)
 static unsigned get_hex(unsigned max)
 {
     unsigned result = 0;
-    unsigned c = peek();
+    unsigned c = skip_space_peek();
     for (unsigned i = 0; i < max; ++i) {
         if (c >= 'a')
-            c &= ~32;                   // Upper case.
+            c -= 32;                    // Upper case.
         c -= '0';
         if (c >= 10) {
             c -= 'A' - '0' - 10;
@@ -116,18 +110,13 @@ static unsigned get_hex(unsigned max)
         result = result * 16 + c;
         c = advance_peek();
     }
-    skip_space_peek();
     return result;
 }
 
 
 static unsigned char * get_address(void)
 {
-    unsigned c = skip_space_peek();
-    if (c == '\n' || c == ':')
-        return global_address;
-    else
-        return (unsigned char *) get_hex(8);
+    return (unsigned char *) get_hex(8);
 }
 
 
@@ -149,6 +138,7 @@ static __attribute__((noreturn)) void run(unsigned * vtable)
 static __attribute__((noreturn)) void command_abort(const char * s)
 {
     send_string(s);
+    send('\n');
     while ((SSI->sr & 0x11) != 1);
     invoke((unsigned *) *VTABLE);
 }
@@ -178,15 +168,6 @@ static void command_go(void)
 }
 
 
-static void command_address(void)
-{
-    unsigned char * address = get_address();
-    command_end();
-    global_address = address;
-    send('A');
-}
-
-
 static void command_read(void)
 {
     unsigned char * address = get_address();
@@ -198,7 +179,6 @@ static void command_read(void)
         send_hex(address[i], 2);
         sep = ' ';
     }
-    global_address = address + 16;
 }
 
 
@@ -252,8 +232,6 @@ static void command_write(void)
     }
 
     send('W');
-
-    global_address = address + n;
 }
 
 
@@ -313,11 +291,7 @@ static void command_unlock(void)
 
 static void command(void)
 {
-    send('\n');
     switch (skip_space_get()) {
-    case 'A':
-        command_address();
-        break;
     case 'R':
         command_read();
         break;
@@ -340,6 +314,7 @@ static void command(void)
     default:
         command_error();
     }
+    send('\n');
 }
 
 
