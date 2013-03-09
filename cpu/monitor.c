@@ -35,11 +35,11 @@ extern unsigned char __text_start;
 extern unsigned char __text_end;
 
 #undef SSI
-register volatile ssi_t * SSI asm ("r10");
 
-register unsigned next asm ("r6");
-register bool unlocked asm ("r11");
-register unsigned * VTABLE asm("r9");
+register unsigned next asm ("r7");
+register unsigned * VTABLE asm("r8");
+register volatile ssi_t * SSI asm ("r9");
+register bool unlocked asm ("r10");
 
 static void send(unsigned c)
 {
@@ -69,27 +69,27 @@ static void send_hex(unsigned n, unsigned len)
 
 static unsigned peek(void)
 {
-    while (next == 0) {
+    return next;
+}
+
+
+static unsigned advance_peek(void)
+{
+    do {
         while ((SSI->sr & 4) == 0)
             SSI->dr = 0;
         next = SSI->dr;
     }
+    while (next == 0);
     return next;
 }
 
 
 static unsigned get(void)
 {
-    unsigned byte = peek();
-    next = 0;
+    unsigned byte = next;
+    advance_peek();
     return byte;
-}
-
-
-static unsigned advance_peek(void)
-{
-    next = 0;
-    return peek();
 }
 
 
@@ -104,9 +104,8 @@ static unsigned skip_space_peek(void)
 
 static unsigned skip_space_get(void)
 {
-    unsigned b = skip_space_peek();
-    next = 0;
-    return b;
+    skip_space_peek();
+    return get();
 }
 
 
@@ -138,6 +137,7 @@ static unsigned char * get_address(void)
 
 static __attribute__((noreturn)) void invoke(unsigned * vt)
 {
+    __memory_barrier();
     asm volatile ("mov sp,%0\n" "bx %1\n" :: "r" (vt[0]), "r" (vt[1]));
     __builtin_unreachable();
 }
@@ -154,14 +154,15 @@ static __attribute__((noreturn)) void command_abort(const char * s)
 
 static __attribute__((noreturn)) void command_error()
 {
-    while (get() != '\n');
+    while (peek() != '\n')
+        get();
     command_abort("?");
 }
 
 
 static void command_end()
 {
-    if (skip_space_get() != '\n')
+    if (skip_space_peek() != '\n')
         command_error();
 }
 
@@ -299,6 +300,7 @@ static void command_unlock(void)
 
 static void command(void)
 {
+    next = ' ';
     switch (skip_space_get()) {
     case 'R':
         command_read();
@@ -354,6 +356,7 @@ static void go (void)
 {
     __interrupt_disable();
     SC->rcgc[2] = 31;                   // GPIOs.
+    SC->rcgc[1] = 16;                   // SSI.
     SC->usecrl = 12;
 
     VTABLE = (unsigned *) 0xe000ed08;
@@ -364,7 +367,6 @@ static void go (void)
     SSI = (ssi_t *) 0x40008000;
 #endif
 
-    SC->rcgc[1] = 16;                   // SSI.
     SSI->cr[1] = 4;                     // Slave, disable.
     SSI->cr[0] = 0xc7;                  // Full rate, SPH=1, SPO=1, SPI, 8 bits.
     SSI->cpsr = 2;                      // Prescalar /2.
@@ -373,7 +375,6 @@ static void go (void)
 
     SSI->cr[1] = 6;                     // Slave, enable.
 
-    next = 0;
     unlocked = 0;
 
     while (1)
