@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 
-#define VTABLE ((unsigned *) 0xe000ed08)
 #define VTABLE_SIZE 38
 
 #ifndef RELOCATE
@@ -40,6 +39,7 @@ register volatile ssi_t * SSI asm ("r10");
 
 register unsigned next asm ("r6");
 register bool unlocked asm ("r11");
+register unsigned * VTABLE asm("r9");
 
 static void send(unsigned c)
 {
@@ -252,11 +252,8 @@ static void command_erase(void)
     unsigned char * address = get_address();
     command_end();
 
-    if ((unsigned) address >= 65536)
-        command_abort("? Address");
-
-    if ((unsigned) address & 1023)
-        command_abort("? Alignment");
+    if ((unsigned) address & ~0xfc00)
+        command_abort("? Elase Address");
 
     if (!unlocked)
         command_abort("? Locked");
@@ -359,6 +356,7 @@ static void go (void)
     SC->rcgc[2] = 31;                   // GPIOs.
     SC->usecrl = 12;
 
+    VTABLE = (unsigned *) 0xe000ed08;
     if ((*VTABLE & 0xffff) == 0)
         first();
 
