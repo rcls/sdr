@@ -10,6 +10,25 @@
 #define RELOCATE 0
 #endif
 
+#ifndef MINIMIZE
+#define MINIMIZE 1
+#endif
+
+#if MINIMIZE
+#define STACK_TOP 0x20002000
+#else
+#define STACK_TOP 0x20001b00
+#endif
+
+#if !RELOCATE
+#define BASE &__text_start
+#elif MINIMIZE
+#define BASE 0x20001c00
+#else
+#define BASE 0x20001b00
+#endif
+
+
 extern void * const vtable[] __attribute__((section (".start"),
                                             externally_visible));
 
@@ -28,18 +47,14 @@ static void send(unsigned c)
     SSI->dr = c & 255;
 }
 
-#if 1
 static void send_string(const char * s)
 {
-    for (; *s; ++s)
+    if (MINIMIZE)
         send(*s);
+    else
+        for (; *s; ++s)
+            send(*s);
 }
-#else
-static void send_string(const char * s)
-{
-    send(*s);
-}
-#endif
 
 static void send_hex(unsigned n, unsigned len)
 {
@@ -89,10 +104,8 @@ static unsigned skip_space_peek(void)
 
 static unsigned skip_space_get(void)
 {
-    unsigned b;
-    do
-        b = get();
-    while (b == ' ');
+    unsigned b = skip_space_peek();
+    next = 0;
     return b;
 }
 
@@ -189,16 +202,22 @@ static void command_write(void)
     command_end();
 
     unsigned end = (unsigned) address + n;
-    if ((unsigned) address < 0x20002000 && end > 0x20001f00)
-        command_abort("? Stack");
-
     if (end < n)
         command_abort("? Wrap");
+
+#if MINIMIZE && RELOCATE
+    if ((unsigned) address <= 0x20002000 &&
+        (end > STACK_TOP - 128 || end > BASE))
+        command_abort("? Monitor");
+#else
+    if ((unsigned) address < STACK_TOP && end > STACK_TOP - 128)
+        command_abort("? Stack");
 
     unsigned text_start = *VTABLE;
     unsigned text_end = text_start + (0xffff & (unsigned) &__text_end);
     if (end > text_start && (unsigned) address < text_end)
         command_abort("? Monitor text");
+#endif
 
     if ((unsigned) address >= 0x20000000) {
         // Memory.
@@ -233,7 +252,7 @@ static void command_erase(void)
     unsigned char * address = get_address();
     command_end();
 
-    if ((unsigned) address >= 0x65536)
+    if ((unsigned) address >= 65536)
         command_abort("? Address");
 
     if ((unsigned) address & 1023)
@@ -250,23 +269,21 @@ static void command_erase(void)
 }
 
 
-static __attribute((noinline)) void monitor_reloc(void)
+static __attribute__ ((noreturn, section(".posttext")))
+void monitor_reloc(void)
 {
     unsigned char * src = (unsigned char *) *VTABLE;
-    void * ramtop = (void *) 0x20001800;
-    if (0xffff & (unsigned) src)
-        return;
-
-    unsigned char * dest = ramtop;
+    unsigned char * dest = (unsigned char *) BASE;
     for (unsigned i = 0; i != (0xffff & (unsigned) &__text_end); ++i)
         dest[i] = src[i];
 
-    unsigned diff = (unsigned char *) ramtop - src;
-    unsigned * newvtable = ramtop;
+    unsigned diff = dest - src;
+    unsigned * newvtable = (unsigned *) dest;
     for (int i = 1; i != VTABLE_SIZE; ++i)
         newvtable[i] += diff;
-    *VTABLE = (unsigned) ramtop;
-    invoke(ramtop);
+    __memory_barrier();
+    *VTABLE = (unsigned) dest;
+    invoke(newvtable);
 }
 
 
@@ -312,7 +329,8 @@ static void command(void)
 }
 
 
-static void alternate_boot(void)
+static __attribute__ ((section(".posttext")))
+void alternate_boot(void)
 {
     unsigned * altvtable = (unsigned *) 0x800;
     if (*altvtable >= 0x20000000 && *altvtable <= 0x20002000) {
@@ -322,22 +340,27 @@ static void alternate_boot(void)
 }
 
 
+static __attribute__ ((noinline, section(".posttext")))
+void first(void)
+{
+    // Read the SSI data input pin, PA4.  If it is pulled high, try an alternate
+    // boot source.
+    if (PA->data[16] & 16)
+        alternate_boot();
+
+    if (RELOCATE)
+        monitor_reloc();
+}
+
+
 static void go (void)
 {
     __interrupt_disable();
     SC->rcgc[2] = 31;                   // GPIOs.
     SC->usecrl = 12;
 
-    // Just to be safe.  Also takes clock cycles...
-    *VTABLE = (unsigned) vtable;
-
-    // Now read the SSI data input pin, PA4.  If it is pulled high, try an
-    // alternate boot source.
-    if (PA->data[16] & 16)
-        alternate_boot();
-
-    if (RELOCATE)
-        monitor_reloc();
+    if ((*VTABLE & 0xffff) == 0)
+        first();
 
 #ifndef SSI
     SSI = (ssi_t *) 0x40008000;
@@ -366,6 +389,6 @@ void dummy_int(void)
 
 
 void * const vtable[VTABLE_SIZE] = {
-    (void*) 0x20001ff0, go,
+    (void*) STACK_TOP, go,
     [2 ... VTABLE_SIZE - 1] = dummy_int
 };
