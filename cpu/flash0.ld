@@ -13,6 +13,7 @@ SECTIONS
      *(.got*)
      . = NEXT(4);
      __text_end = .;
+     *(.poststart*)
      *(.posttext*)
   } > flash
   .bss (NOLOAD) : {

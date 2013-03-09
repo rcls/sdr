@@ -32,7 +32,8 @@ extern void * const vtable[] __attribute__((section (".start"),
                                             externally_visible));
 
 extern unsigned char __text_start;
-extern unsigned char __text_end;
+
+static const unsigned char __text_end __attribute__((section(".poststart")));
 
 #undef SSI
 
@@ -214,8 +215,8 @@ static void command_write(void)
     if ((unsigned) address < STACK_TOP && end > STACK_TOP - 128)
         command_abort("? Stack");
 
-    unsigned text_start = *VTABLE;
-    unsigned text_end = text_start + (0xffff & (unsigned) &__text_end);
+    unsigned text_start = (unsigned) vtable;
+    unsigned text_end = (unsigned) &__text_end;
     if (end > text_start && (unsigned) address < text_end)
         command_abort("? Monitor text");
 #endif
@@ -272,7 +273,7 @@ void monitor_reloc(void)
 {
     unsigned char * src = (unsigned char *) *VTABLE;
     unsigned char * dest = (unsigned char *) BASE;
-    for (unsigned i = 0; i != (0xffff & (unsigned) &__text_end); ++i)
+    for (unsigned i = 0; i != &__text_end - src; ++i)
         dest[i] = src[i];
 
     unsigned diff = dest - src;
