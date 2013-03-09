@@ -1,11 +1,11 @@
 
 .PHONY: all clean
 
-TARGETS=count blink relmon
+TARGETS=count blink monitor
 all: $(TARGETS)
 
 .PHONY: $(TARGETS)
-$(TARGETS): %: %.sram.bin %.flash.bin monitor.flash0.bin
+$(TARGETS): %: %.sram.bin %.flash.bin relmon.flash0.bin relmon.sram.bin
 
 .SECONDARY:
 
@@ -24,7 +24,7 @@ UTILS=../utils
 -include .deps/*.d
 
 %.s: %.c
-	$(CC) $(CFLAGS) -S -o $@ $<
+	$(CC) $(subst -flto,,$(subst -g,,$(CFLAGS))) -S -o $@ $<
 
 relmon.o relmon.s: CFLAGS+=-fpie
 

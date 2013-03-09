@@ -103,13 +103,6 @@ static unsigned skip_space_peek(void)
 }
 
 
-static unsigned skip_space_get(void)
-{
-    skip_space_peek();
-    return get();
-}
-
-
 static unsigned get_hex(unsigned max)
 {
     unsigned result = 0;
@@ -302,29 +295,25 @@ static void command_unlock(void)
 static void command(void)
 {
     next = ' ';
-    switch (skip_space_get()) {
-    case 'R':
+    unsigned c = skip_space_peek();
+    next = ' ';
+    if (c == 'R')
         command_read();
-        break;
-    case 'E':
+    else if (c == 'E')
         command_erase();
-        break;
-    case 'W':
+    else if (c == 'W')
         command_write();
-        break;
-    case 'U':
+    else if (c == 'U')
         command_unlock();
-        break;
-    case 'P':
+    else if (c == 'P') {
         command_end();
         send_string("Ping");
-        break;
-    case 'G':
-        command_go();
-        break;
-    default:
-        command_error();
     }
+    else if (c == 'G')
+        command_go();
+    else if (c != '\n')
+        command_error();
+
     send('\n');
 }
 
