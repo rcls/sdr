@@ -21,19 +21,15 @@
 #define BASE 0x20001c00
 #endif
 
-extern void * const boot_vtable[] __attribute__((section (".bootstart"),
-                                                 externally_visible));
-extern void * const vtable[] __attribute__((section (".start"),
-                                            externally_visible));
-
 extern unsigned char __unreloc_start, __text_start, __text_end;
 
 #undef SSI
 
 register unsigned next asm ("r7");
-register unsigned * VTABLE asm("r8");
 register volatile ssi_t * SSI asm ("r9");
 register bool unlocked asm ("r10");
+
+#define VTABLE ((unsigned *) 0xe000ed08)
 
 static void send(unsigned c)
 {
@@ -44,7 +40,7 @@ static void send(unsigned c)
 static void send_string(const char * s)
 {
     if (MINIMIZE)
-        send(*s);
+        send(*s & 255);
     else
         for (; *s; ++s)
             send(*s & 255);
@@ -133,7 +129,7 @@ static __attribute__((noreturn)) void command_abort(const char * s)
         send(c);
         c = 0;
     }
-    invoke((unsigned *) *VTABLE);
+    invoke((unsigned *) BASE);
 }
 
 
@@ -285,7 +281,6 @@ static void go (void)
 {
     __interrupt_disable();
 
-    VTABLE = (unsigned *) 0xe000ed08;
     SSI = (ssi_t *) 0x40008000;
 
     unlocked = 0;
@@ -300,7 +295,6 @@ void alternate_boot(void)
 {
     unsigned * vt = (unsigned *) 0x800;
     if (*vt >= 0x20000000 && *vt <= 0x20002000) {
-        unsigned * VTABLE = (unsigned *) 0xe000ed08;
         *VTABLE = (unsigned) vt;
         invoke(vt);
     }
@@ -316,7 +310,6 @@ void monitor_reloc(void)
         dest[i] = src[i];
 
     __memory_barrier();
-    unsigned * VTABLE = (unsigned *) 0xe000ed08;
     *VTABLE = (unsigned) dest;
     invoke((unsigned *) dest);
 }
@@ -356,9 +349,12 @@ void dummy_int(void)
 }
 
 
-void * const boot_vtable[VTABLE_SIZE] = {
+void * const boot_vtable[] __attribute__((section (".bootstart"),
+                                          externally_visible)) = {
     (void*) STACK_TOP, first,
     [2 ... VTABLE_SIZE - 1] = dummy_int
 };
 
-void * const vtable[2] = { (void*) STACK_TOP, go };
+void * const vtable[] __attribute__((section (".start"),
+                                     externally_visible)) = {
+    (void*) STACK_TOP, go };
