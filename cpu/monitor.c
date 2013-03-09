@@ -35,7 +35,10 @@ static void send_string(const char * s)
         send(*s);
 }
 #else
-#define send_string(s) send (*(s))
+static void send_string(const char * s)
+{
+    send(*s);
+}
 #endif
 
 static void send_hex(unsigned n, unsigned len)
@@ -120,18 +123,10 @@ static unsigned char * get_address(void)
 }
 
 
-static __attribute__((noreturn)) void invoke(unsigned * vtable)
+static __attribute__((noreturn)) void invoke(unsigned * vt)
 {
-    asm volatile ("mov sp,%0\n"
-                  "bx %1\n" :: "r" (vtable[0]), "r" (vtable[1]));
+    asm volatile ("mov sp,%0\n" "bx %1\n" :: "r" (vt[0]), "r" (vt[1]));
     __builtin_unreachable();
-}
-
-
-static __attribute__((noreturn)) void run(unsigned * vtable)
-{
-    *VTABLE = (unsigned) vtable;
-    invoke(vtable);
 }
 
 
@@ -185,8 +180,6 @@ static void command_read(void)
 static void command_write(void)
 {
     unsigned char * address = get_address();
-    if (next == ':')
-        next = 0;
     unsigned words[4];
     unsigned char * bytes = (unsigned char *) words;
     unsigned n = 0;
@@ -272,7 +265,8 @@ static __attribute((noinline)) void monitor_reloc(void)
     unsigned * newvtable = ramtop;
     for (int i = 1; i != VTABLE_SIZE; ++i)
         newvtable[i] += diff;
-    run (ramtop);
+    *VTABLE = (unsigned) ramtop;
+    invoke(ramtop);
 }
 
 
@@ -321,8 +315,10 @@ static void command(void)
 static void alternate_boot(void)
 {
     unsigned * altvtable = (unsigned *) 0x800;
-    if (*altvtable >= 0x20000000 && *altvtable <= 0x20002000)
-        run(altvtable);
+    if (*altvtable >= 0x20000000 && *altvtable <= 0x20002000) {
+        *VTABLE = (unsigned) altvtable;
+        invoke(altvtable);
+    }
 }
 
 
@@ -369,17 +365,7 @@ void dummy_int(void)
 }
 
 
-void * const vtable[] = {
-    (void*) 0x20001ff0, go, dummy_int, dummy_int,
-    dummy_int, dummy_int, dummy_int, dummy_int,
-    dummy_int, dummy_int, dummy_int, dummy_int,
-    dummy_int, dummy_int, dummy_int, dummy_int,
-    dummy_int, dummy_int, dummy_int, dummy_int,
-    dummy_int, dummy_int, dummy_int, dummy_int,
-    dummy_int, dummy_int, dummy_int, dummy_int,
-    dummy_int, dummy_int, dummy_int, dummy_int,
-    dummy_int, dummy_int, dummy_int, dummy_int,
-    dummy_int, dummy_int,
+void * const vtable[VTABLE_SIZE] = {
+    (void*) 0x20001ff0, go,
+    [2 ... VTABLE_SIZE - 1] = dummy_int
 };
-
-_Static_assert(sizeof vtable == VTABLE_SIZE * 4, "vector size");
