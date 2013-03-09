@@ -254,7 +254,7 @@ static void command_erase(void)
     command_end();
 
     if ((unsigned) address & ~0xfc00)
-        command_abort("? Elase Address");
+        command_abort("? Erase Address");
 
     if (!unlocked)
         command_abort("? Locked");
