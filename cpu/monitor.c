@@ -329,30 +329,14 @@ void alternate_boot(void)
 static __attribute__ ((noinline, section(".posttext")))
 void first(void)
 {
+    SC->rcgc[2] = 31;                   // GPIOs.
+    SC->rcgc[1] = 16;                   // SSI.
+    SC->usecrl = 12;                    // Flash speed.
+
     // Read the SSI data input pin, PA4.  If it is pulled high, try an alternate
     // boot source.
     if (PA->data[16] & 16)
         alternate_boot();
-
-    if (RELOCATE)
-        monitor_reloc();
-}
-
-
-static void go (void)
-{
-    __interrupt_disable();
-    SC->rcgc[2] = 31;                   // GPIOs.
-    SC->rcgc[1] = 16;                   // SSI.
-    SC->usecrl = 12;
-
-    VTABLE = (unsigned *) 0xe000ed08;
-    if ((*VTABLE & 0xffff) == 0)
-        first();
-
-#ifndef SSI
-    SSI = (ssi_t *) 0x40008000;
-#endif
 
     SSI->cr[1] = 4;                     // Slave, disable.
     SSI->cr[0] = 0xc7;                  // Full rate, SPH=1, SPO=1, SPI, 8 bits.
@@ -362,6 +346,21 @@ static void go (void)
 
     SSI->cr[1] = 6;                     // Slave, enable.
 
+    if (RELOCATE)
+        monitor_reloc();
+}
+
+
+static void go (void)
+{
+    __interrupt_disable();
+
+    VTABLE = (unsigned *) 0xe000ed08;
+    SSI = (ssi_t *) 0x40008000;
+
+    if (!RELOCATE || (*VTABLE & 0xffff) == 0)
+        first();
+
     unlocked = 0;
 
     while (1)
@@ -369,6 +368,8 @@ static void go (void)
 }
 
 
+// By the time we have relocated, we have disabled interrupts.
+static __attribute__ ((section(".posttext")))
 void dummy_int(void)
 {
 }
