@@ -16,7 +16,7 @@
 #if MINIMIZE
 #define STACK_TOP 0x20002000
 #else
-#define STACK_TOP 0x20001b00
+#define STACK_TOP 0x20002000
 #endif
 
 #if !RELOCATE
@@ -24,14 +24,12 @@
 #elif MINIMIZE
 #define BASE 0x20001c00
 #else
-#define BASE 0x20001b00
+#define BASE 0x20001c00
 #endif
 
 
 extern void * const vtable[] __attribute__((section (".start"),
                                             externally_visible));
-
-extern unsigned char __text_start;
 
 static const unsigned char __text_end __attribute__((section(".poststart")));
 
