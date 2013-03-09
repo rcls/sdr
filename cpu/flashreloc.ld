@@ -5,7 +5,12 @@ MEMORY {
 
 SECTIONS
 {
-  .text : {
+  .boot : {
+     *(.bootstart*)
+     *(.boottext*)
+  } > flash
+  __unreloc_start = .;
+  .text 0x20001c00 : {
      __text_start = .;
      KEEP(*(.start))
      *(.text*)
@@ -13,9 +18,7 @@ SECTIONS
      *(.got*)
      . = NEXT(4);
      __text_end = .;
-     *(.poststart*)
-     *(.posttext*)
-  } > flash
+  } AT> flash
   .bss (NOLOAD) : {
      __bss_start = .;
      *(SORT_BY_ALIGNMENT(.bss*))

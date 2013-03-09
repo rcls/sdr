@@ -5,12 +5,8 @@
 
 #define VTABLE_SIZE 38
 
-#ifndef RELOCATE
-#define RELOCATE 0
-#endif
-
 #ifndef MINIMIZE
-#define MINIMIZE 1
+#define MINIMIZE 0
 #endif
 
 #if MINIMIZE
@@ -19,19 +15,18 @@
 #define STACK_TOP 0x20002000
 #endif
 
-#if !RELOCATE
-#define BASE &__text_start
-#elif MINIMIZE
+#if MINIMIZE
 #define BASE 0x20001c00
 #else
 #define BASE 0x20001c00
 #endif
 
-
+extern void * const boot_vtable[] __attribute__((section (".bootstart"),
+                                                 externally_visible));
 extern void * const vtable[] __attribute__((section (".start"),
                                             externally_visible));
 
-static const unsigned char __text_end __attribute__((section(".poststart")));
+extern unsigned char __unreloc_start, __text_start, __text_end;
 
 #undef SSI
 
@@ -121,7 +116,8 @@ static unsigned get_hex(unsigned max)
 }
 
 
-static __attribute__((noreturn)) void invoke(unsigned * vt)
+static inline __attribute__((noreturn, always_inline))
+void invoke(unsigned * vt)
 {
     __memory_barrier();
     asm volatile ("mov sp,%0\n" "bx %1\n" :: "r" (vt[0]), "r" (vt[1]));
@@ -132,8 +128,11 @@ static __attribute__((noreturn)) void invoke(unsigned * vt)
 static __attribute__((noreturn)) void command_abort(const char * s)
 {
     send_string(s);
-    send('\n');
-    while ((SSI->sr & 0x11) != 1);
+    char c = '\n';
+    for (int i = 0; i != 16; ++i) {
+        send(c);
+        c = 0;
+    }
     invoke((unsigned *) *VTABLE);
 }
 
@@ -197,19 +196,9 @@ static void command_write(void)
     if (end < n)
         command_abort("? Wrap");
 
-#if RELOCATE
     if ((unsigned) address <= 0x20002000 &&
         (end > STACK_TOP - 128 || end > BASE))
         command_abort("? Monitor");
-#else
-    if ((unsigned) address < STACK_TOP && end > STACK_TOP - 128)
-        command_abort("? Stack");
-
-    unsigned text_start = (unsigned) vtable;
-    unsigned text_end = (unsigned) &__text_end;
-    if (end > text_start && (unsigned) address < text_end)
-        command_abort("? Monitor");
-#endif
 
     if ((unsigned) address >= 0x20000000) {
         // Memory.
@@ -257,29 +246,10 @@ static void command_erase(void)
 }
 
 
-static __attribute__ ((noreturn, section(".posttext")))
-void monitor_reloc(void)
-{
-    unsigned char * src = (unsigned char *) *VTABLE;
-    unsigned char * dest = (unsigned char *) BASE;
-    for (unsigned i = 0; i != &__text_end - src; ++i)
-        dest[i] = src[i];
-
-    unsigned diff = dest - src;
-    for (int i = 1; i != VTABLE_SIZE; ++i)
-        ((unsigned *) dest)[i] += diff;
-    __memory_barrier();
-    *VTABLE = (unsigned) dest;
-    invoke((unsigned *) dest);
-}
-
-
 static void command_unlock(void)
 {
-    for (const unsigned char * p = (unsigned char *) "nlock!Me\n"; *p; ++p)
-        if (advance_peek() != *p)
-            command_error();
-
+    if ((unsigned) get_address() != 0x2f5bf358)
+        command_error();
     unlocked = 1;
     send('U');
 }
@@ -311,20 +281,53 @@ static void command(void)
 }
 
 
-static __attribute__ ((section(".posttext")))
+static void go (void)
+{
+    __interrupt_disable();
+
+    VTABLE = (unsigned *) 0xe000ed08;
+    SSI = (ssi_t *) 0x40008000;
+
+    unlocked = 0;
+
+    while (1)
+        command();
+}
+
+
+static __attribute__ ((section(".boottext")))
 void alternate_boot(void)
 {
-    unsigned * altvtable = (unsigned *) 0x800;
-    if (*altvtable >= 0x20000000 && *altvtable <= 0x20002000) {
-        *VTABLE = (unsigned) altvtable;
-        invoke(altvtable);
+    unsigned * vt = (unsigned *) 0x800;
+    if (*vt >= 0x20000000 && *vt <= 0x20002000) {
+        unsigned * VTABLE = (unsigned *) 0xe000ed08;
+        *VTABLE = (unsigned) vt;
+        invoke(vt);
     }
 }
 
 
-static __attribute__ ((noinline, section(".posttext")))
+static __attribute__ ((noreturn, section(".boottext")))
+void monitor_reloc(void)
+{
+    const unsigned char * src = &__unreloc_start;
+    unsigned char * dest = (unsigned char *) &__text_start;
+    for (unsigned i = 0; i != &__text_end - &__text_start; ++i)
+        dest[i] = src[i];
+
+    __memory_barrier();
+    unsigned * VTABLE = (unsigned *) 0xe000ed08;
+    *VTABLE = (unsigned) dest;
+    invoke((unsigned *) dest);
+}
+
+
+static __attribute__ ((noreturn, section(".boottext")))
 void first(void)
 {
+    __interrupt_disable();
+    volatile ssi_t * SSI = (ssi_t *) 0x40008000;
+
     SC->rcgc[2] = 31;                   // GPIOs.
     SC->rcgc[1] = 16;                   // SSI.
     SC->usecrl = 12;                    // Flash speed.
@@ -342,36 +345,20 @@ void first(void)
 
     SSI->cr[1] = 6;                     // Slave, enable.
 
-    if (RELOCATE)
-        monitor_reloc();
-}
-
-
-static void go (void)
-{
-    __interrupt_disable();
-
-    VTABLE = (unsigned *) 0xe000ed08;
-    SSI = (ssi_t *) 0x40008000;
-
-    if (!RELOCATE || (*VTABLE & 0xffff) == 0)
-        first();
-
-    unlocked = 0;
-
-    while (1)
-        command();
+    monitor_reloc();
 }
 
 
 // By the time we have relocated, we have disabled interrupts.
-static __attribute__ ((section(".posttext")))
+static __attribute__ ((section(".boottext")))
 void dummy_int(void)
 {
 }
 
 
-void * const vtable[VTABLE_SIZE] = {
-    (void*) STACK_TOP, go,
+void * const boot_vtable[VTABLE_SIZE] = {
+    (void*) STACK_TOP, first,
     [2 ... VTABLE_SIZE - 1] = dummy_int
 };
+
+void * const vtable[2] = { (void*) STACK_TOP, go };
