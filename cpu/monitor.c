@@ -129,7 +129,7 @@ static __attribute__((noreturn)) void command_abort(const char * s)
         send(c);
         c = 0;
     }
-    invoke((unsigned *) BASE);
+    invoke((unsigned *) *VTABLE);
 }
 
 
