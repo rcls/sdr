@@ -76,9 +76,6 @@ architecture downconvert of downconvert is
   attribute use_dsp48 : string;
   attribute use_dsp48 of xx_acc, yy_acc : signal is "no";
 
-  attribute keep_hierarchy : string;
-  attribute keep_hierarchy of downconvert : architecture is "soft";
-
 begin
   process
   begin

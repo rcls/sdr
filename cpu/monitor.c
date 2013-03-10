@@ -1,33 +1,35 @@
 // A really basic monitor.
 #include "registers.h"
 
-#include <stdbool.h>
-
 #define VTABLE_SIZE 38
 
 #ifndef MINIMIZE
 #define MINIMIZE 0
 #endif
 
-#if MINIMIZE
 #define STACK_TOP 0x20002000
-#else
-#define STACK_TOP 0x20002000
-#endif
+#define BASE 0x20001c00
 
-#if MINIMIZE
-#define BASE 0x20001c00
-#else
-#define BASE 0x20001c00
-#endif
+typedef struct sc_tail_t {
+    unsigned rcgc[4];
+    unsigned scgc[4];
+    unsigned dcgc[4];
+    unsigned fmpre;
+    unsigned fmppe;
+    unsigned dummy138[2];
+    unsigned usecrl;
+} sc_tail_t;
+
+#define SC_TAIL ((volatile sc_tail_t *) 0x400fe100)
+_Static_assert(&SC_TAIL->rcgc == &SC->rcgc, "sc tail");
 
 extern unsigned char __unreloc_start, __text_start, __text_end;
 
 #undef SSI
 
-register unsigned next asm ("r7");
+register unsigned next asm ("r8");
 register volatile ssi_t * SSI asm ("r9");
-register bool unlocked asm ("r10");
+register int unlocked asm ("r7");
 
 #define VTABLE ((unsigned *) 0xe000ed08)
 
@@ -36,6 +38,7 @@ static void send(unsigned c)
     while ((SSI->sr & 2) == 0);
     SSI->dr = c;
 }
+
 
 static void send_string(const char * s)
 {
@@ -46,14 +49,18 @@ static void send_string(const char * s)
             send(*s & 255);
 }
 
+
 static void send_hex(unsigned n, unsigned len)
 {
-    for (unsigned l = len; l--;) {
-        unsigned nibble = (n >> (l * 4)) & 15;
+    unsigned l = len * 4;
+    do {
+        l -= 4;
+        unsigned nibble = (n >> l) & 15;
         if (nibble >= 10)
             nibble += 'a' - '0' - 10;
         send (nibble + '0');
     }
+    while (l);
 }
 
 
@@ -96,7 +103,7 @@ static unsigned get_hex(unsigned max)
 {
     unsigned result = 0;
     unsigned c = skip_space_peek();
-    for (unsigned i = 0; i < max; ++i) {
+    for (unsigned i = 0; i <= max; ++i) {
         if (c >= 'a')
             c -= 32;                    // Upper case.
         c -= '0';
@@ -112,8 +119,7 @@ static unsigned get_hex(unsigned max)
 }
 
 
-static inline __attribute__((noreturn, always_inline))
-void invoke(unsigned * vt)
+static void invoke(unsigned * vt)
 {
     __memory_barrier();
     asm volatile ("mov sp,%0\n" "bx %1\n" :: "r" (vt[0]), "r" (vt[1]));
@@ -121,11 +127,11 @@ void invoke(unsigned * vt)
 }
 
 
-static __attribute__((noreturn)) void command_abort(const char * s)
+static void command_abort(const char * s)
 {
     send_string(s);
     char c = '\n';
-    for (int i = 0; i != 16; ++i) {
+    for (int i = 0; i != 10; ++i) {
         send(c);
         c = 0;
     }
@@ -133,7 +139,7 @@ static __attribute__((noreturn)) void command_abort(const char * s)
 }
 
 
-static __attribute__((noreturn)) void command_error()
+static void command_error()
 {
     while (peek() != '\n')
         get();
@@ -150,7 +156,7 @@ static void command_end()
 
 static unsigned char * get_address(void)
 {
-    unsigned char * r = (unsigned char *) get_hex(8);
+    unsigned char * r = (unsigned char *) get_hex(7);
     command_end();
     return r;
 }
@@ -179,12 +185,12 @@ static void command_read(void)
 
 static void command_write(void)
 {
-    unsigned char * address = (unsigned char *) get_hex(8);
+    unsigned char * address = (unsigned char *) get_hex(7);
     unsigned words[4];
     unsigned char * bytes = (unsigned char *) words;
     unsigned n = 0;
     for (; n != sizeof words && skip_space_peek() != '\n'; ++n)
-        bytes[n] = get_hex(2);
+        bytes[n] = get_hex(1);
 
     command_end();
 
@@ -198,7 +204,7 @@ static void command_write(void)
 
     if ((unsigned) address >= 0x20000000) {
         // Memory.
-        for (unsigned i = 0; i != n; ++i)
+        for (unsigned i = n; i--;)
             address[i] = bytes[i];
     }
     else {
@@ -219,8 +225,6 @@ static void command_write(void)
             while (FLASHCTRL->fmc & 1);
         }
     }
-
-    send('W');
 }
 
 
@@ -237,8 +241,6 @@ static void command_erase(void)
     FLASHCTRL->fma = (unsigned) address;
     FLASHCTRL->fmc = 0xa4420002;
     while (FLASHCTRL->fmc & 2);
-
-    send('E');
 }
 
 
@@ -246,8 +248,7 @@ static void command_unlock(void)
 {
     if ((unsigned) get_address() != 0x2f5bf358)
         command_error();
-    unlocked = 1;
-    send('U');
+    unlocked = 'U';
 }
 
 
@@ -256,24 +257,24 @@ static void command(void)
     next = ' ';
     unsigned c = skip_space_peek();
     next = ' ';
-    if (c == 'R')
+    if (c == 'R') {
         command_read();
+        return;
+    }
     else if (c == 'E')
         command_erase();
     else if (c == 'W')
         command_write();
     else if (c == 'U')
         command_unlock();
-    else if (c == 'P') {
+    else if (c == 'P')
         command_end();
-        send_string("Ping");
-    }
     else if (c == 'G')
         command_go();
     else if (c != '\n')
         command_error();
 
-    send('\n');
+    send(c);
 }
 
 
@@ -285,8 +286,10 @@ static void go (void)
 
     unlocked = 0;
 
-    while (1)
+    while (1) {
         command();
+        send('\n');
+    }
 }
 
 
@@ -301,36 +304,38 @@ void alternate_boot(void)
 }
 
 
-static __attribute__ ((noreturn, section(".boottext")))
+static __attribute__ ((section(".boottext")))
 void monitor_reloc(void)
 {
     const unsigned char * src = &__unreloc_start;
-    unsigned char * dest = (unsigned char *) &__text_start;
-    for (unsigned i = 0; i != &__text_end - &__text_start; ++i)
+    unsigned char * dest = &__text_start;
+    for (unsigned i = 0; i != 0x3c0; ++i)
         dest[i] = src[i];
 
     __memory_barrier();
-    *VTABLE = (unsigned) dest;
-    invoke((unsigned *) dest);
+    //*VTABLE = (unsigned) dest; -- interrupts are disabled.
+    asm volatile("bx %0" :: "r"(((unsigned*)dest)[1]));
+    __builtin_unreachable();
 }
 
 
-static __attribute__ ((noreturn, section(".boottext")))
+static __attribute__ ((section(".boottext")))
 void first(void)
 {
     __interrupt_disable();
     volatile ssi_t * SSI = (ssi_t *) 0x40008000;
 
-    SC->rcgc[2] = 31;                   // GPIOs.
-    SC->rcgc[1] = 16;                   // SSI.
-    SC->usecrl = 12;                    // Flash speed.
+    SC_TAIL->rcgc[2] = 31;              // GPIOs.
 
     // Read the SSI data input pin, PA4.  If it is pulled high, try an alternate
     // boot source.
     if (PA->data[16] & 16)
         alternate_boot();
 
-    SSI->cr[1] = 4;                     // Slave, disable.
+    SC_TAIL->rcgc[1] = 16;              // SSI.
+    SC_TAIL->usecrl = 12;               // Flash speed.
+
+    SSI->cr[1] = 0;                     // Disable.
     SSI->cr[0] = 0xc7;                  // Full rate, SPH=1, SPO=1, SPI, 8 bits.
     SSI->cpsr = 2;                      // Prescalar /2.
 

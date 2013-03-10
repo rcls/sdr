@@ -63,8 +63,6 @@ architecture usbio of usbio is
   -- pattern.  Poly is 0x100802041.
   signal lfsr : std_logic_vector(31 downto 0) := x"00000001";
 
-  attribute keep_hierarchy : string;
-  attribute keep_hierarchy of usbio : architecture is "true";
 begin
   usbd_out <= xmit_queue(7 downto 0);
 
