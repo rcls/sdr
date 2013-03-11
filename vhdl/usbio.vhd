@@ -27,7 +27,9 @@ entity usbio is
         usb_nWR : out std_logic := '1';
         usb_SIWU : out std_logic := '1';
 
+        read_ok : in std_logic := '1';
         config : out unsigned(config_bytes * 8 - 1 downto 0) := defconfig;
+        config_new : out unsigned(config_bytes - 1 downto 0);
 
         packet : in unsigned(packet_bytes * 8 - 1 downto 0);
         xmit : in std_logic; -- toggle to xmit.
@@ -44,7 +46,7 @@ architecture usbio of usbio is
   type state_t is (state_idle, state_write, state_write2, state_read,
                    state_read2, state_pause);
   signal state : state_t := state_idle;
-  signal config_strobes : std_logic_vector(31 downto 0) := (others => '0');
+  signal config_strobes : unsigned(31 downto 0) := (others => '0');
   signal config_magic : unsigned8 := x"00";
   signal config_address : unsigned8 := x"ff";
 
@@ -76,6 +78,7 @@ begin
     usb_nWR <= '1';
     usb_oe_n <= '1';
     state <= state_idle;
+    config_new <= config_strobes(config_bytes - 1 downto 0);
     config_strobes <= (others => '0');
     if rx_delay_count(rx_delay_bits) = '1' then
       rx_delay_count <= rx_delay_count + 1;
@@ -100,7 +103,8 @@ begin
     -- If we're in state idle, decide what to do next.  Prefer reads over
     -- writes.  The delay count after a read ensures that a write will get out
     -- anyway.
-    rx_available := usb_nRXF = '0' and rx_delay_count(rx_delay_bits) = '0';
+    rx_available := usb_nRXF = '0' and rx_delay_count(rx_delay_bits) = '0'
+                    and read_ok = '1';
     tx_available := (usb_nTXE = '0' or turbo = '1') and to_xmit /= 0;
     if state = state_idle then
       if rx_available then

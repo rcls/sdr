@@ -107,7 +107,10 @@ architecture behavioural of go is
   signal out_last : std_logic;
 
   -- The configuration loaded from USB.
-  signal config : unsigned(207 downto 0);
+  constant config_bytes : integer := 27;
+  signal config : unsigned(config_bytes * 8 - 1 downto 0);
+  signal config_strobe : unsigned(config_bytes - 1 downto 0);
+
   alias adc_control : unsigned8 is config(135 downto 128);
   alias adc_clock_select : std_logic is adc_control(7);
   -- Control for data in to USB host.
@@ -123,14 +126,6 @@ architecture behavioural of go is
   alias xmit_turbo : std_logic is xmit_control(6);
   alias flash_control : unsigned8 is config(151 downto 144);
 
-  alias cpu_ssi : unsigned8 is config(199 downto 192);
-  signal cpu_ssiclk1, cpu_ssiclk2, cpu_ssitx1, cpu_ssitx2 : std_logic;
-  signal cpu_ssifss1, cpu_ssifss2 : std_logic;
-  signal cpu_ssifss_stretch : std_logic;
-  signal cpu_ssifss_stretch_change : std_logic;
-
-  alias usb_control : unsigned8 is config(207 downto 200);
-
   alias bandpass_freq : unsigned8 is config(159 downto 152);
   alias bandpass_gain : unsigned8 is config(167 downto 160);
 
@@ -141,6 +136,17 @@ architecture behavioural of go is
   alias sampler_decay : unsigned16 is config(191 downto 176);
   signal sampler_data : signed15;
   signal sampler_strobe : std_logic;
+
+  alias cpu_ssi : unsigned8 is config(199 downto 192);
+  signal cpu_ssiclk1, cpu_ssiclk2, cpu_ssitx1, cpu_ssitx2 : std_logic;
+  signal cpu_ssifss1, cpu_ssifss2 : std_logic;
+  signal cpu_ssifss_stretch : std_logic;
+  signal cpu_ssifss_stretch_change : std_logic;
+
+  alias usb_control : unsigned8 is config(207 downto 200);
+
+  alias cpu_ssi_byte : unsigned8 is config(215 downto 208);
+  alias cpu_ssi_byte_strobe : std_logic is config_strobe(26);
 
   signal burst_data : signed15;
   signal burst_strobe : std_logic;
@@ -161,6 +167,15 @@ architecture behavioural of go is
 
   alias clk_main_locked : std_logic is led_off(1);
   alias adc_clk_locked : std_logic is led_off(2);
+
+  -- spi conf stuff.
+  signal spi_data : unsigned(15 downto 0);
+  signal spi_conf : unsigned(15 downto 0);
+  signal spi_data_ack : unsigned(1 downto 0);
+  signal spi_conf_strobe, spi_conf_strobe2,
+    spi_conf_strobe_fast : unsigned(1 downto 0);
+  signal usb_read_ok : std_logic := '1';
+  signal spi_out : std_logic;
 
 begin
   usb_d <= usbd_out when usb_oe_n = '0' else "ZZZZZZZZ";
@@ -198,7 +213,32 @@ begin
 
   cpu_ssiclk <= 'Z' when cpu_ssi(7) = '1' else cpu_ssi(2);
   cpu_ssifss <= 'Z' when cpu_ssi(7) = '1' else cpu_ssi(1);
-  cpu_ssirx <= cpu_ssi(0);
+  cpu_ssirx <= cpu_ssi(0) when cpu_ssi(7) = '0' else spi_out;
+
+  spi : entity spiconf port map(cpu_ssifss, cpu_ssitx, spi_out, cpu_ssiclk,
+                                spi_data, spi_data_ack,
+                                spi_conf, spi_conf_strobe, clk_50m);
+  -- SPI port zero is cpu to usb.  SPI port one is usb to cpu.
+  process
+  begin
+    wait until rising_edge(clk_50m);
+    if cpu_ssi_byte_strobe = '1' then
+      spi_data(15 downto 8) <= cpu_ssi_byte;
+    elsif spi_data_ack(1) = '1' then
+      spi_data(15 downto 8) <= x"00";
+    end if;
+    if spi_data(15 downto 8) = x"00" then
+      usb_read_ok <= '1';
+    else
+      usb_read_ok <= '0';
+    end if;
+  end process;
+  process
+  begin
+    wait until rising_edge(clk_main);
+    spi_conf_strobe2 <= spi_conf_strobe;
+    spi_conf_strobe_fast <= spi_conf_strobe and not spi_conf_strobe2;
+  end process;
 
   blinky : entity blinkoflow port map(adc_data_b, led_off(4), open, clk_main);
 
@@ -258,12 +298,16 @@ begin
     packet <= (others => 'X');
     case xmit_source is
       when "000" =>
-        packet(17 downto 0) <= unsigned(ir_data);
-        packet(22 downto 18) <= "00000";
-        packet(23) <= usb_xmit_overrun;
-        usb_xmit <= usb_xmit xor ir_strobe;
-        usb_last <= ir_last;
-        usb_xmit_length <= 3;
+        packet(7 downto 0) <= spi_conf(7 downto 0);
+        usb_xmit <= usb_xmit xor spi_conf_strobe_fast(0);
+        usb_last <= '1';
+        usb_xmit_length <= 1;
+        --packet(17 downto 0) <= unsigned(ir_data);
+        --packet(22 downto 18) <= "00000";
+        --packet(23) <= usb_xmit_overrun;
+        --usb_xmit <= usb_xmit xor ir_strobe;
+        --usb_last <= ir_last;
+        --usb_xmit_length <= 3;
       when "001" =>
         packet(14 downto 0) <= unsigned(sampler_data);
         packet(15) <= usb_xmit_overrun;
@@ -333,14 +377,15 @@ begin
 
   usb: entity usbio
     generic map(
-      26, 4,
-      x"00" & x"80" & x"0000" & x"ff" & x"0000" & x"0f" & x"0b" & x"09"
+      config_bytes, 4,
+      x"00" & x"00" & x"80" & x"0000" & x"ff" & x"0000" & x"0f" & x"0b" & x"09"
       & x"00000000" & x"00000000" & x"00000000" & x"805ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,
              usb_nRD => usb_c(2),  usb_nWR => usb_c(3),
-             usb_SIWU => xmit_SIWU,
-             config => config, tx_overrun => usb_xmit_overrun,
+             usb_SIWU => xmit_SIWU, read_ok => usb_read_ok,
+             config => config, config_new => config_strobe,
+             tx_overrun => usb_xmit_overrun,
              packet => packet,
              xmit => usb_xmit, last => usb_last,
              xmit_channel => xmit_channel, xmit_length => usb_xmit_length,

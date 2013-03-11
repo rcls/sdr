@@ -75,6 +75,8 @@ static void basic(libusb_device_handle * dev, const char * comm)
         lastnz = 0;
         for (int i = 0; i < send + recv; ++i) {
             last = decode_byte(raw + i * 8);
+            if (last == 255)
+                last = 0;
             if (last) {
                 lastnz = last;
                 putchar(last);
@@ -96,6 +98,8 @@ static void finish(int st, void * d)
     *p++ = XMIT_IDLE;
     *p++ = REG_CPU_SSI;
     *p++ = CPU_SSI_FSS|CPU_SSI_CLK;
+    *p++ = REG_CPU_SSI;
+    *p++ = CPU_SSI_CPU_IS_MASTER|CPU_SSI_FSS|CPU_SSI_CLK;
     usb_send_bytes(dev, raw, p - raw);
     usb_close(dev);
 }

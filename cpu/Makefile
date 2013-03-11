@@ -1,7 +1,7 @@
 
 .PHONY: all clean
 
-TARGETS=count blink
+TARGETS=count blink echo
 all: $(TARGETS)	monitor.flashreloc.bin monitor.sramreloc.bin
 
 .PHONY: $(TARGETS)

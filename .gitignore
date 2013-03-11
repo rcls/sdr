@@ -7,7 +7,9 @@
 *.zip
 .*.d
 *.dat
-*.dat.*
+*.spect
+*.plot
+*.bin
 /#*#
 /bandpass
 /docs/*.pdf
