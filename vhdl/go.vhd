@@ -298,8 +298,8 @@ begin
     packet <= (others => 'X');
     case xmit_source is
       when "000" =>
-        packet(7 downto 0) <= spi_conf(15 downto 8);
-        usb_xmit <= usb_xmit xor spi_conf_strobe_fast(1);
+        packet(7 downto 0) <= spi_conf(7 downto 0);
+        usb_xmit <= usb_xmit xor spi_conf_strobe_fast(0);
         usb_last <= '1';
         usb_xmit_length <= 1;
         --packet(17 downto 0) <= unsigned(ir_data);

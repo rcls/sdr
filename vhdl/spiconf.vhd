@@ -23,6 +23,7 @@ end spiconf;
 
 architecture spiconf of spiconf is
   signal bit_count : unsigned(3 downto 0);
+  signal data_phase : std_logic := '0';
   signal shift_in : unsigned(14 downto 0);
 
   signal shift_out : unsigned8;
@@ -30,7 +31,7 @@ architecture spiconf of spiconf is
 
   signal spi_sss, spi_ins, spi_clks, spi_clks2 : std_logic;
 begin
-  spi_out <= shift_out(7);
+  spi_out <= shift_out(7) when data_phase = '1' else spi_in;
 
   process
   begin
@@ -72,10 +73,12 @@ begin
           end if;
         end loop;
       end if;
+      data_phase <= bit_count(3);
     end if;
 
     if spi_sss = '1' then
       bit_count <= x"0";
+      data_phase <= '0';
     end if;
   end process;
 end spiconf;

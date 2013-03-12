@@ -11,15 +11,15 @@ unsigned rxbyte(void)
         SSI->dr = 0;                    // Read channel 0.
         while (!(SSI->sr & 4));
         unsigned word = SSI->dr;
-        if (word & 255)
-            return word & 255;
+        if (word && word < 256)
+            return word;
     }
 }
 
 void txbyte(unsigned byte)
 {
     while ((SSI->sr & 2) == 0);
-    SSI->dr = 0x300 + byte;             // Write channel 1.
+    SSI->dr = 0x100 + byte;             // Write channel 0.
 }
 
 void first (void)
