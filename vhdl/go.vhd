@@ -218,16 +218,16 @@ begin
   spi : entity spiconf port map(cpu_ssifss, cpu_ssitx, spi_out, cpu_ssiclk,
                                 spi_data, spi_data_ack,
                                 spi_conf, spi_conf_strobe, clk_50m);
-  -- SPI port zero is cpu to usb.  SPI port one is usb to cpu.
+  -- SPI port one is cpu to usb.  SPI port zero is usb to cpu.
   process
   begin
     wait until rising_edge(clk_50m);
     if cpu_ssi_byte_strobe = '1' then
-      spi_data(15 downto 8) <= cpu_ssi_byte;
-    elsif spi_data_ack(1) = '1' then
-      spi_data(15 downto 8) <= x"00";
+      spi_data(7 downto 0) <= cpu_ssi_byte;
+    elsif spi_data_ack(0) = '1' then
+      spi_data(7 downto 0) <= x"00";
     end if;
-    if spi_data(15 downto 8) = x"00" then
+    if spi_data(7 downto 0) = x"00" then
       usb_read_ok <= '1';
     else
       usb_read_ok <= '0';
@@ -298,8 +298,8 @@ begin
     packet <= (others => 'X');
     case xmit_source is
       when "000" =>
-        packet(7 downto 0) <= spi_conf(7 downto 0);
-        usb_xmit <= usb_xmit xor spi_conf_strobe_fast(0);
+        packet(7 downto 0) <= spi_conf(15 downto 8);
+        usb_xmit <= usb_xmit xor spi_conf_strobe_fast(1);
         usb_last <= '1';
         usb_xmit_length <= 1;
         --packet(17 downto 0) <= unsigned(ir_data);

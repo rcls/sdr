@@ -8,7 +8,7 @@ unsigned rxbyte(void)
     while (SSI->sr & 4)
         SSI->dr;                        // Flush.
     while (1) {
-        SSI->dr = 0x200;                // Read channel 1.
+        SSI->dr = 0;                    // Read channel 0.
         while (!(SSI->sr & 4));
         unsigned word = SSI->dr;
         if (word & 255)
@@ -19,7 +19,7 @@ unsigned rxbyte(void)
 void txbyte(unsigned byte)
 {
     while ((SSI->sr & 2) == 0);
-    SSI->dr = 0x100 + byte;             // Write channel 0.
+    SSI->dr = 0x300 + byte;             // Write channel 1.
 }
 
 void first (void)
@@ -29,7 +29,7 @@ void first (void)
     SC->rcgc[1] = 16;                   // SSI.
 
     SSI->cr[1] = 0;                     // Disable.
-    SSI->cr[0] = 0x10cf;                // /17, SPH=1, SPO=1, SPI, 16 bits.
+    SSI->cr[0] = 0x00cf;                // /1, SPH=1, SPO=1, SPI, 16 bits.
     SSI->cpsr = 2;                      // Prescalar /2.
 
     PA->afsel = 0x3c;                   // Set SSI pins to alt. function.

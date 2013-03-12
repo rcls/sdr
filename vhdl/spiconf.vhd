@@ -59,7 +59,7 @@ begin
     end if;
 
     data_ack <= (others => '0');
-    if spi_clks = '0' and spi_clks2 = '1' then -- Around about the falling edge.
+    if post_rise then -- Around about the falling edge.
       shift_out <= shift_out sll 1;
       -- When bit_count=8, we process the read.  Always read, only ack if asked.
       if bit_count = x"8" then
