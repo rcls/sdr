@@ -74,6 +74,8 @@ static unsigned advance_peek(void)
 {
     while (1) {
         unsigned s = SSI->sr;
+        if (!(s & 16))
+            SSI->dr = 0;
         if (s & 4) {
             unsigned w = SSI->dr;
             if (w && w < 256) {
@@ -83,8 +85,6 @@ static unsigned advance_peek(void)
                 return w;
             }
         }
-        if (!(s & 16))
-            SSI->dr = 0;
     }
 }
 
@@ -340,7 +340,7 @@ void first(void)
     SC_TAIL->usecrl = 12;               // Flash speed.
 
     SSI->cr[1] = 0;                     // Disable.
-    SSI->cr[0] = 0x4cf;                 // Full rate, SPH=1, SPO=1, 16 bits.
+    SSI->cr[0] = 0xcf;                  // Full rate, SPH=1, SPO=1, 16 bits.
     SSI->cpsr = 2;                      // Prescalar /2.
 
     PA->afsel = 0x3c;                   // Set SSI pins to alt. function.
