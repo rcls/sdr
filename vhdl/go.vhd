@@ -106,15 +106,19 @@ architecture behavioural of go is
   signal out_data : signed32;
   signal out_last : std_logic;
 
-  -- The configuration loaded from USB.
-  constant config_bytes : integer := 26;
+  -- The configuration loaded via the CPU.
+  constant config_bytes : integer := 32;
   signal config : unsigned(config_bytes * 8 - 1 downto 0);
-  signal config_strobe : unsigned(config_bytes - 1 downto 0);
+  signal config_strobe, config_strobe2, config_strobe_fast :
+    unsigned(config_bytes - 1 downto 0);
 
-  alias adc_control : unsigned8 is config(135 downto 128);
+  alias to_usb_data : unsigned8 is config(7 downto 0);
+  --alias to_usb_data_strobe : std_logic is config_strobe(0); FIXME
+
+  alias adc_control : unsigned8 is config(15 downto 8);
   alias adc_clock_select : std_logic is adc_control(7);
   -- Control for data in to USB host.
-  alias xmit_control : unsigned8 is config(143 downto 136);
+  alias xmit_control : unsigned8 is config(23 downto 16);
 
   -- Channel to select from time-multiplexed data.
   alias xmit_channel : unsigned2 is xmit_control(1 downto 0);
@@ -124,23 +128,24 @@ architecture behavioural of go is
   alias xmit_low_latency : std_logic is xmit_control(7);
   -- Ignore the TX handshake and shovel data at 12.5 MB/s.
   alias xmit_turbo : std_logic is xmit_control(6);
-  alias flash_control : unsigned8 is config(151 downto 144);
 
-  alias bandpass_freq : unsigned8 is config(159 downto 152);
-  alias bandpass_gain : unsigned8 is config(167 downto 160);
+  alias flash_control : unsigned8 is config(31 downto 24);
+
+  alias bandpass_freq : unsigned8 is config(39 downto 32);
+  alias bandpass_gain : unsigned8 is config(47 downto 40);
 
   signal bandpass_strobe : std_logic := '0';
   signal bandpass_r, bandpass_i : signed15;
 
-  alias sampler_rate : unsigned8 is config(175 downto 168);
-  alias sampler_decay : unsigned16 is config(191 downto 176);
+  alias sampler_rate : unsigned8 is config(55 downto 48);
+  alias sampler_decay : unsigned16 is config(71 downto 56);
   signal sampler_data : signed15;
   signal sampler_strobe : std_logic;
 
-  alias cpu_ssi : unsigned8 is config(199 downto 192);
-  alias cpu_ssi_strobe : std_logic is config_strobe(24);
+  signal usb_byte_in : unsigned8;
+  signal usb_byte_in_strobe : std_logic;
 
-  alias usb_control : unsigned8 is config(207 downto 200);
+  alias usb_control : unsigned8 is config(87 downto 80);
 
   signal burst_data : signed15;
   signal burst_strobe : std_logic;
@@ -164,11 +169,13 @@ architecture behavioural of go is
 
   -- spi conf stuff.
   signal spi_data : unsigned(15 downto 0);
-  signal spi_conf : unsigned(15 downto 0);
   signal spi_data_ack : unsigned(1 downto 0);
-  signal spi_conf_strobe, spi_conf_strobe2,
-    spi_conf_strobe_fast : unsigned(1 downto 0);
   signal usb_read_ok : std_logic := '1';
+
+  signal cpu_ssifss2, cpu_ssitx2, cpu_ssiclk2 : std_logic := '1';
+  signal cpu_ssifss3, cpu_ssitx3, cpu_ssiclk3 : std_logic := '1';
+
+  constant X48 : unsigned(47 downto 0) := (others => 'X');
 
 begin
   usb_d <= usbd_out when usb_oe_n = '0' else "ZZZZZZZZ";
@@ -204,15 +211,20 @@ begin
   led_off(6) <= spartan_m0;
   led_off(7) <= not spartan_m1;
 
-  spi : entity spiconf port map(cpu_ssifss, cpu_ssitx, cpu_ssirx, cpu_ssiclk,
-                                spi_data, spi_data_ack,
-                                spi_conf, spi_conf_strobe, clk_50m);
+  spi : entity spiconf
+    generic map(
+      32, 2,
+      x"00000000" & x"00000000" & x"00000000" & x"805ed288" &
+      X48 & x"00" & x"0000" & x"ff" & x"0000" & x"0f" & x"18" & x"09" & x"00")
+    port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
+             spi_data, spi_data_ack,
+             config, config_strobe, clk_50m);
   -- SPI port one is cpu to usb.  SPI port zero is usb to cpu.
   process
   begin
     wait until rising_edge(clk_50m);
-    if cpu_ssi_strobe = '1' then
-      spi_data(7 downto 0) <= cpu_ssi;
+    if usb_byte_in_strobe = '1' then
+      spi_data(7 downto 0) <= usb_byte_in;
     elsif spi_data_ack(0) = '1' then
       spi_data(7 downto 0) <= x"00";
     end if;
@@ -225,8 +237,8 @@ begin
   process
   begin
     wait until rising_edge(clk_main);
-    spi_conf_strobe2 <= spi_conf_strobe;
-    spi_conf_strobe_fast <= spi_conf_strobe and not spi_conf_strobe2;
+    config_strobe2 <= config_strobe;
+    config_strobe_fast <= config_strobe and not config_strobe2;
   end process;
 
   blinky : entity blinkoflow port map(adc_data_b, led_off(4), open, clk_main);
@@ -236,8 +248,8 @@ begin
       signal freq : unsigned24;
       signal gain : unsigned8;
     begin
-      freq <= config(i * 32 + 23 downto i * 32);
-      gain <= config(i * 32 + 31 downto i * 32 + 24);
+      freq <= config(i * 32 + 151 downto i * 32 + 128);
+      gain <= config(i * 32 + 159 downto i * 32 + 152);
       down0: entity downconvert
         port map (data => adc_data_b, freq => freq, gain => gain,
                   xx => xx(i), yy => yy(i), clk => clk_main);
@@ -328,8 +340,8 @@ begin
         usb_xmit <= burst_strobe;
         usb_last <= '1';
       when "110" =>
-        packet(7 downto 0) <= spi_conf(7 downto 0);
-        usb_xmit <= usb_xmit xor spi_conf_strobe_fast(0);
+        packet(7 downto 0) <= to_usb_data(7 downto 0);
+        usb_xmit <= usb_xmit xor config_strobe_fast(0);
         usb_last <= '1';
         usb_xmit_length <= 1;
       when others =>
@@ -340,15 +352,12 @@ begin
   end process;
 
   usb: entity usbio
-    generic map(
-      config_bytes, 4,
-      x"00" & x"80" & x"0000" & x"ff" & x"0000" & x"0f" & x"0b" & x"09"
-      & x"00000000" & x"00000000" & x"00000000" & x"805ed288")
+    generic map(4)
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,
              usb_nRD => usb_c(2),  usb_nWR => usb_c(3),
              usb_SIWU => xmit_SIWU, read_ok => usb_read_ok,
-             config => config, config_new => config_strobe,
+             byte_in => usb_byte_in, byte_in_strobe => usb_byte_in_strobe,
              tx_overrun => usb_xmit_overrun,
              packet => packet,
              xmit => usb_xmit, last => usb_last,
@@ -362,6 +371,9 @@ begin
     wait until rising_edge(clk_main_neg);
     usb_nRXFb <= usb_c(0);
     usb_nTXEb <= usb_c(1);
+    cpu_ssifss2 <= cpu_ssifss;
+    cpu_ssitx2 <= cpu_ssitx;
+    cpu_ssiclk2 <= cpu_ssiclk;
   end process;
 
   process
@@ -369,6 +381,9 @@ begin
     wait until falling_edge(clk_50m);
     usb_nRXF <= usb_nRXFb;
     usb_nTXE <= usb_nTXEb;
+    cpu_ssifss3 <= cpu_ssifss2;
+    cpu_ssitx3 <= cpu_ssitx2;
+    cpu_ssiclk3 <= cpu_ssiclk2;
   end process;
 
   -- Divide the 50MHz clock by 4.

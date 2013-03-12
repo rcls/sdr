@@ -14,9 +14,7 @@ use work.defs.all;
 -- next successful xmit.  In turbo mode, we have no idea if the write succeeds.
 -- Instead tx_overrun outputs a LFSR which may be used to synchronise streams.
 entity usbio is
-  generic (config_bytes : integer;
-           packet_bytes : integer;
-           defconfig : unsigned);
+  generic (packet_bytes : integer);
   port (usbd_in : in unsigned8;
         usbd_out : out unsigned8;
         usb_oe_n : out std_logic := '1';
@@ -28,8 +26,8 @@ entity usbio is
         usb_SIWU : out std_logic := '1';
 
         read_ok : in std_logic := '1';
-        config : out unsigned(config_bytes * 8 - 1 downto 0) := defconfig;
-        config_new : out unsigned(config_bytes - 1 downto 0);
+        byte_in : out unsigned8;
+        byte_in_strobe : out std_logic;
 
         packet : in unsigned(packet_bytes * 8 - 1 downto 0);
         xmit : in std_logic; -- toggle to xmit.
@@ -46,9 +44,6 @@ architecture usbio of usbio is
   type state_t is (state_idle, state_write, state_write2, state_read,
                    state_read2, state_pause);
   signal state : state_t := state_idle;
-  signal config_strobes : unsigned(31 downto 0) := (others => '0');
-  signal config_magic : unsigned8 := x"00";
-  signal config_address : unsigned8 := x"ff";
 
   signal xmit_prev : std_logic;
   signal xmit_buffer : unsigned(packet_bytes * 8 - 1 downto 0);
@@ -78,22 +73,9 @@ begin
     usb_nWR <= '1';
     usb_oe_n <= '1';
     state <= state_idle;
-    config_new <= config_strobes(config_bytes - 1 downto 0);
-    config_strobes <= (others => '0');
+    byte_in_strobe <= '0';
     if rx_delay_count(rx_delay_bits) = '1' then
       rx_delay_count <= rx_delay_count + 1;
-    end if;
-
-    for i in 0 to config_bytes - 1 loop
-      if config_strobes(i) = '1' then
-        config(i * 8 + 7 downto i * 8) <= usbd_in;
-      end if;
-    end loop;
-    if config_strobes(31) = '1' then
-      config_address <= usbd_in;
-    end if;
-    if config_strobes(30) = '1' then
-      config_magic <= usbd_in;
     end if;
 
     if state /= state_pause then
@@ -137,13 +119,13 @@ begin
 
     if state = state_read then
       usb_nRD <= '0';
-      config_strobes(to_integer(config_address(4 downto 0))) <= '1';
-      config_address <= x"ff";
       state <= state_read2;
     end if;
 
     if state = state_read2 then
       rx_delay_count <= '1' & not rx_delay;
+      byte_in <= usbd_in;
+      byte_in_strobe <= '1';
     end if;
 
     if xmit_buffered = '1' and to_xmit = 0 then
@@ -172,12 +154,6 @@ begin
       else
         xmit_channel_counter <= xmit_channel_counter + 1;
       end if;
-    end if;
-
-    -- If the config magic is not correct, then do not allow programming any
-    -- other registers.
-    if config_magic /= x"b5" then
-      config_strobes(29 downto 0) <= (others => '0');
     end if;
 
   end process;

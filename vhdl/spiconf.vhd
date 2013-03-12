@@ -9,14 +9,15 @@ use work.defs.all;
 
 entity spiconf is
   generic (config_bytes : integer := 2;
-           data_bytes : integer := 2);
+           data_bytes : integer := 2;
+           defconfig : unsigned);
   port (spi_ss : in std_logic;
         spi_in : in std_logic;
         spi_out : out std_logic;
         spi_clk : in std_logic;
         data : in unsigned(data_bytes * 8 - 1 downto 0);
         data_ack : out unsigned(data_bytes - 1 downto 0);
-        config : out unsigned(config_bytes * 8 - 1 downto 0);
+        config : out unsigned(config_bytes * 8 - 1 downto 0) := defconfig;
         config_strobe : out unsigned(config_bytes - 1 downto 0);
         clk : in std_logic);
 end spiconf;
@@ -28,8 +29,8 @@ architecture spiconf of spiconf is
 
   signal shift_out : unsigned8;
   signal post_rise : boolean;
+  signal spi_clk2 : std_logic;
 
-  signal spi_sss, spi_ins, spi_clks, spi_clks2 : std_logic;
 begin
   spi_out <= shift_out(7) when data_phase = '1' else spi_in
              when spi_ss = '0' else '0';
@@ -38,24 +39,21 @@ begin
   begin
     wait until rising_edge(clk);
 
-    spi_sss <= spi_ss;
-    spi_ins <= spi_in;
-    spi_clks <= spi_clk;
-    spi_clks2 <= spi_clks;
+    spi_clk2 <= spi_clk;
 
     -- Rising edge of spi_clk.
     post_rise <= false;
     config_strobe <= (others => '0');
-    if spi_clks = '1' and spi_clks2 = '0' then
+    if spi_clk = '1' and spi_clk2 = '0' then
       if bit_count = x"f" and shift_in(7) = '1' then
         for i in 0 to config_bytes - 1 loop
           if shift_in(12 downto 8) = to_unsigned(i, 5) then
-            config(i * 8 + 7 downto i * 8) <= shift_in(6 downto 0) & spi_ins;
+            config(i * 8 + 7 downto i * 8) <= shift_in(6 downto 0) & spi_in;
             config_strobe(i) <= '1';
           end if;
         end loop;
       end if;
-      shift_in <= shift_in(13 downto 0) & spi_ins;
+      shift_in <= shift_in(13 downto 0) & spi_in;
       post_rise <= true;
       bit_count <= bit_count + 1;
     end if;
@@ -77,7 +75,7 @@ begin
       data_phase <= bit_count(3);
     end if;
 
-    if spi_sss = '1' then
+    if spi_ss = '1' then
       bit_count <= x"0";
       data_phase <= '0';
     end if;

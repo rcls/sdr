@@ -6,5 +6,5 @@ INST "adc_reclk_buf" LOC = BUFIO2_X0Y22;
 
 # Let all the configs take up to 16ns.  The only paths we care about are
 # to other 50MHz places possibly via a single 4ns path.
-NET "usb/config<*>" TNM_NET = "config";
-TIMESPEC TS_config = FROM:config:TO:FFS:16;
+NET "spi/config<*>" TNM_NET = "config";
+TIMESPEC TS_config = FROM "config" 16;
