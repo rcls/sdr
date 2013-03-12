@@ -107,7 +107,7 @@ architecture behavioural of go is
   signal out_last : std_logic;
 
   -- The configuration loaded from USB.
-  constant config_bytes : integer := 27;
+  constant config_bytes : integer := 26;
   signal config : unsigned(config_bytes * 8 - 1 downto 0);
   signal config_strobe : unsigned(config_bytes - 1 downto 0);
 
@@ -138,15 +138,9 @@ architecture behavioural of go is
   signal sampler_strobe : std_logic;
 
   alias cpu_ssi : unsigned8 is config(199 downto 192);
-  signal cpu_ssiclk1, cpu_ssiclk2, cpu_ssitx1, cpu_ssitx2 : std_logic;
-  signal cpu_ssifss1, cpu_ssifss2 : std_logic;
-  signal cpu_ssifss_stretch : std_logic;
-  signal cpu_ssifss_stretch_change : std_logic;
+  alias cpu_ssi_strobe : std_logic is config_strobe(24);
 
   alias usb_control : unsigned8 is config(207 downto 200);
-
-  alias cpu_ssi_byte : unsigned8 is config(215 downto 208);
-  alias cpu_ssi_byte_strobe : std_logic is config_strobe(26);
 
   signal burst_data : signed15;
   signal burst_strobe : std_logic;
@@ -175,7 +169,6 @@ architecture behavioural of go is
   signal spi_conf_strobe, spi_conf_strobe2,
     spi_conf_strobe_fast : unsigned(1 downto 0);
   signal usb_read_ok : std_logic := '1';
-  signal spi_out : std_logic;
 
 begin
   usb_d <= usbd_out when usb_oe_n = '0' else "ZZZZZZZZ";
@@ -211,19 +204,15 @@ begin
   led_off(6) <= spartan_m0;
   led_off(7) <= not spartan_m1;
 
-  cpu_ssiclk <= 'Z' when cpu_ssi(7) = '1' else cpu_ssi(2);
-  cpu_ssifss <= 'Z' when cpu_ssi(7) = '1' else cpu_ssi(1);
-  cpu_ssirx <= cpu_ssi(0) when cpu_ssi(7) = '0' else spi_out;
-
-  spi : entity spiconf port map(cpu_ssifss, cpu_ssitx, spi_out, cpu_ssiclk,
+  spi : entity spiconf port map(cpu_ssifss, cpu_ssitx, cpu_ssirx, cpu_ssiclk,
                                 spi_data, spi_data_ack,
                                 spi_conf, spi_conf_strobe, clk_50m);
   -- SPI port one is cpu to usb.  SPI port zero is usb to cpu.
   process
   begin
     wait until rising_edge(clk_50m);
-    if cpu_ssi_byte_strobe = '1' then
-      spi_data(7 downto 0) <= cpu_ssi_byte;
+    if cpu_ssi_strobe = '1' then
+      spi_data(7 downto 0) <= cpu_ssi;
     elsif spi_data_ack(0) = '1' then
       spi_data(7 downto 0) <= x"00";
     end if;
@@ -298,16 +287,12 @@ begin
     packet <= (others => 'X');
     case xmit_source is
       when "000" =>
-        packet(7 downto 0) <= spi_conf(7 downto 0);
-        usb_xmit <= usb_xmit xor spi_conf_strobe_fast(0);
-        usb_last <= '1';
-        usb_xmit_length <= 1;
-        --packet(17 downto 0) <= unsigned(ir_data);
-        --packet(22 downto 18) <= "00000";
-        --packet(23) <= usb_xmit_overrun;
-        --usb_xmit <= usb_xmit xor ir_strobe;
-        --usb_last <= ir_last;
-        --usb_xmit_length <= 3;
+        packet(17 downto 0) <= unsigned(ir_data);
+        packet(22 downto 18) <= "00000";
+        packet(23) <= usb_xmit_overrun;
+        usb_xmit <= usb_xmit xor ir_strobe;
+        usb_last <= ir_last;
+        usb_xmit_length <= 3;
       when "001" =>
         packet(14 downto 0) <= unsigned(sampler_data);
         packet(15) <= usb_xmit_overrun;
@@ -343,42 +328,21 @@ begin
         usb_xmit <= burst_strobe;
         usb_last <= '1';
       when "110" =>
-        packet(0) <= cpu_ssitx2;
-        packet(1) <= cpu_ssifss2;
-        packet(5 downto 2) <= "0000";
-        packet(6) <= cpu_ssifss_stretch;
-        packet(7) <= usb_xmit_overrun;
+        packet(7 downto 0) <= spi_conf(7 downto 0);
+        usb_xmit <= usb_xmit xor spi_conf_strobe_fast(0);
+        usb_last <= '1';
         usb_xmit_length <= 1;
-        usb_xmit <= cpu_ssiclk2;
-        usb_last <= cpu_ssiclk2;
       when others =>
         usb_xmit_length <= 0;
         usb_last <= '1';
         usb_xmit <= usb_xmit xor ir_strobe;
     end case;
-
-    cpu_ssitx1 <= cpu_ssitx;
-    cpu_ssitx2 <= cpu_ssitx1;
-    cpu_ssiclk1 <= cpu_ssiclk;
-    cpu_ssiclk2 <= cpu_ssiclk1;
-    cpu_ssifss1 <= cpu_ssifss;
-    cpu_ssifss2 <= cpu_ssifss1;
-
-    if cpu_ssifss2 = '1' then
-      cpu_ssifss_stretch <= '1';
-      cpu_ssifss_stretch_change <= '0';
-    elsif cpu_ssiclk2 /= cpu_ssiclk1 then
-      cpu_ssifss_stretch_change <= '1';
-      if cpu_ssifss_stretch_change = '1' then
-        cpu_ssifss_stretch <= '0';
-      end if;
-    end if;
   end process;
 
   usb: entity usbio
     generic map(
       config_bytes, 4,
-      x"00" & x"00" & x"80" & x"0000" & x"ff" & x"0000" & x"0f" & x"0b" & x"09"
+      x"00" & x"80" & x"0000" & x"ff" & x"0000" & x"0f" & x"0b" & x"09"
       & x"00000000" & x"00000000" & x"00000000" & x"805ed288")
     port map(usbd_in => usb_d, usbd_out => usbd_out, usb_oe_n => usb_oe_n,
              usb_nRXF => usb_nRXF, usb_nTXE => usb_nTXE,

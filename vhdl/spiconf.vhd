@@ -31,7 +31,8 @@ architecture spiconf of spiconf is
 
   signal spi_sss, spi_ins, spi_clks, spi_clks2 : std_logic;
 begin
-  spi_out <= shift_out(7) when data_phase = '1' else spi_in;
+  spi_out <= shift_out(7) when data_phase = '1' else spi_in
+             when spi_ss = '0' else '0';
 
   process
   begin

@@ -26,6 +26,7 @@ spect/
 /util/irspec
 /util/phasespect
 /util/spiflash
+/util/ssi
 /fir
 /fir.hi
 /cpu/*.bin

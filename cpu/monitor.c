@@ -36,7 +36,7 @@ register int unlocked asm ("r7");
 static void send(unsigned c)
 {
     while ((SSI->sr & 2) == 0);
-    SSI->dr = c;
+    SSI->dr = 256 + c;
 }
 
 
@@ -72,13 +72,20 @@ static unsigned peek(void)
 
 static unsigned advance_peek(void)
 {
-    do {
-        while ((SSI->sr & 4) == 0)
+    while (1) {
+        unsigned s = SSI->sr;
+        if (s & 4) {
+            unsigned w = SSI->dr;
+            if (w && w < 256) {
+                if (w == 13)
+                    w = 10;
+                next = w;
+                return w;
+            }
+        }
+        if (!(s & 16))
             SSI->dr = 0;
-        next = SSI->dr;
     }
-    while (next == 0);
-    return next;
 }
 
 
@@ -130,11 +137,8 @@ static void invoke(unsigned * vt)
 static void command_abort(const char * s)
 {
     send_string(s);
-    char c = '\n';
-    for (int i = 0; i != 10; ++i) {
-        send(c);
-        c = 0;
-    }
+    send('\n');
+    while (SSI->sr & 16);
     invoke((unsigned *) *VTABLE);
 }
 
@@ -336,12 +340,12 @@ void first(void)
     SC_TAIL->usecrl = 12;               // Flash speed.
 
     SSI->cr[1] = 0;                     // Disable.
-    SSI->cr[0] = 0xc7;                  // Full rate, SPH=1, SPO=1, SPI, 8 bits.
+    SSI->cr[0] = 0x4cf;                 // Full rate, SPH=1, SPO=1, 16 bits.
     SSI->cpsr = 2;                      // Prescalar /2.
 
     PA->afsel = 0x3c;                   // Set SSI pins to alt. function.
 
-    SSI->cr[1] = 6;                     // Slave, enable.
+    SSI->cr[1] = 2;                     // Master, enable.
 
     monitor_reloc();
 }
