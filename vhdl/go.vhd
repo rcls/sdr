@@ -143,7 +143,7 @@ architecture behavioural of go is
   signal sampler_strobe : std_logic;
 
   signal usb_byte_in : unsigned8;
-  signal usb_byte_in_strobe : std_logic;
+  signal usb_byte_in_strobe, usb_byte_in_strobe2 : std_logic;
 
   alias usb_control : unsigned8 is config(87 downto 80);
 
@@ -225,7 +225,7 @@ begin
     wait until rising_edge(clk_50m);
     if usb_byte_in_strobe = '1' then
       spi_data(7 downto 0) <= usb_byte_in;
-    elsif spi_data_ack(0) = '1' then
+    elsif spi_data_ack(0) = '1' and usb_byte_in_strobe2 = '0' then
       spi_data(7 downto 0) <= x"00";
     end if;
     if usb_byte_in_strobe = '0' and spi_data(7 downto 0) = x"00" then
@@ -233,6 +233,7 @@ begin
     else
       usb_read_ok <= '0';
     end if;
+    usb_byte_in_strobe2 <= usb_byte_in_strobe;
   end process;
   process
   begin
