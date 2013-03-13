@@ -1,5 +1,5 @@
-#ifndef REGISTERS_H_
-#define REGISTERS_H_
+#ifndef LIB_REGISTERS_H_
+#define LIB_REGISTERS_H_
 
 #define REG_RADIO_FREQ(i) ((i) * 4)
 #define REG_RADIO_GAIN(i) ((i) * 4 + 3)

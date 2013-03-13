@@ -82,6 +82,24 @@ _Static_assert(sizeof(sc_t) == 0x164, "sc size");
 
 #define SC ((volatile sc_t *) 0x400fe000)
 
+typedef struct scb_t {
+    unsigned cpuid;
+    unsigned intctrl;
+    unsigned vtable;
+    unsigned apint;
+    unsigned sysctrl;
+    unsigned cfgctrl;
+    unsigned sysprio[3];
+    unsigned syshndctrl;
+    unsigned faultstat;
+    unsigned hfaultstat;
+    unsigned dummy;
+    unsigned mmaddr;
+    unsigned faultaddr;
+} scb_t;
+
+#define SCB ((volatile scb_t *) 0xe000ed00)
+
 typedef struct ssi_t {
     unsigned cr[2];
     unsigned dr;
