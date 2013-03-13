@@ -79,8 +79,6 @@ static unsigned advance_peek(void)
         if (s & 4) {
             unsigned w = SSI->dr;
             if (w && w < 256) {
-                if (w == 13)
-                    w = 10;
                 next = w;
                 return w;
             }
