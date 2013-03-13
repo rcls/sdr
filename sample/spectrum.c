@@ -17,7 +17,6 @@ typedef struct sample_buffer_t {
     unsigned char * data;
     size_t data_len;
     const unsigned char * best;
-    size_t best_len;
 } sample_buffer_t;
 
 
@@ -62,12 +61,21 @@ static void get_samples(libusb_device_handle * dev,
     if (amount > bytes * 2)
         amount = bytes * 2;
 
+    size_t best_len;
     for (int i = 0; i < 10; ++i) {
+        // Start the sample output.
+        usb_write_reg(dev, REG_XMIT, XMIT_TURBO|XMIT_BANDPASS);
+
         usb_slurp(dev, buffer->data, amount);
+
+        usb_xmit_idle(dev);
+        usb_flush(dev);
+
         buffer->best = buffer->data + 8192;
         size_t bytes = amount - 8192;
-        buffer->best_len = best30(&buffer->best, &bytes);
-        if (buffer->best_len >= required) {
+        best_len = best30(&buffer->best, &bytes);
+        if (best_len >= required) {
+            //buffer->best += 4 * (best_len - required);
             if (i != 0)
                 fprintf(stderr, "\n");
             return;
@@ -76,16 +84,14 @@ static void get_samples(libusb_device_handle * dev,
     }
 
     errx(1, "\nFailed to get good data (last = %zi, required = %zi).\n",
-         buffer->best_len, required);
+         best_len, required);
 }
 
 
 static void sample_config(libusb_device_handle * dev, int freq, int gain)
 {
-    unsigned char bytes[5] = {
-        REG_ADDRESS, REG_BANDPASS_FREQ, freq / 5 * 8 + freq % 5,
-        REG_BANDPASS_GAIN, gain };
-    usb_send_bytes(dev, bytes, sizeof bytes);
+    usb_printf(dev, "bandpass %i %i\n", freq, gain);
+    usb_echo(dev);
 }
 
 
@@ -96,7 +102,7 @@ static void gain_controlled_sample(libusb_device_handle * dev,
 {
     const int max_gain = 63;
     for (int i = 0; i < 10; ++i) {
-        sample_config(dev, freq, *gain | 0x80);
+        sample_config(dev, freq, *gain);
         get_samples(dev, buffer, required);
 
         const unsigned char * p = buffer->best;
@@ -251,22 +257,16 @@ int main(int argc, const char ** argv)
     fftwf_plan_with_nthreads(4);
 
     libusb_device_handle * dev = usb_open();
+    usb_xmit_idle(dev);
+    usb_write_reg(dev, REG_USB, 10);// Slow down a bit.
+    usb_echo(dev);
+    fprintf(stderr, "Usb open\n");
 
     // Reset the ADC.
-    static const unsigned char adc_reset[] = {
-        REG_ADDRESS,
-        REG_MAGIC, MAGIC_MAGIC,
-        REG_XMIT, XMIT_IDLE|XMIT_PUSH, REG_XMIT, XMIT_IDLE,
-        REG_ADC, ADC_RESET|ADC_SCLK|ADC_SEN,
-        REG_ADC, ADC_SCLK|ADC_SEN };
-    usb_send_bytes(dev, adc_reset, sizeof adc_reset);
+    usb_write_reg(dev, REG_ADC, ADC_RESET|ADC_SCLK|ADC_SEN);
+    usb_write_reg(dev, REG_ADC, ADC_SCLK|ADC_SEN);
 
     usb_flush(dev);
-
-    // Start the sample output.
-    static const unsigned char start[] = {
-        REG_ADDRESS, REG_XMIT, XMIT_TURBO|XMIT_BANDPASS };
-    usb_send_bytes(dev, start, sizeof start);
 
     // Configure the ADC.  Turn down the gain for linearity.  Turn on offset
     // correction.
@@ -280,15 +280,13 @@ int main(int argc, const char ** argv)
     adc_config(dev, 0, 0xcf80, -1);        // Freeze offset correction.
 
     int gain = 48;
-    sample_buffer_t buffer = { NULL, 0, NULL, 0 };
+    sample_buffer_t buffer = { NULL, 0, NULL };
     for (int i = 1; i < 160; i += 2) {
         gain_controlled_sample(dev, i, &gain, &buffer, size);
         get_spectrum(gain, buffer.best);
     }
 
-    sample_config(dev, 0, 0);           // Turn off the sampler unit.
-
-    usb_send_bytes(dev, adc_reset, 7);  // Turn usb flow.
+    usb_write_reg(dev, REG_BANDPASS_GAIN, 0); // Turn off the sampler unit.
 
     usb_close(dev);
 

@@ -1,5 +1,6 @@
 #include <libusb-1.0/libusb.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "lib/usb.h"
@@ -26,6 +27,8 @@ libusb_device_handle * usb_open(void)
 
     if (libusb_claim_interface(dev, INTF) != 0)
         errx(1, "libusb_claim_interface failed\n");
+
+    usb_printf(dev, "nop\n");
 
     return dev;
 }
@@ -125,7 +128,10 @@ size_t usb_read(libusb_device_handle * dev, void * buffer, size_t len)
             l = sizeof bounce;
         int r = libusb_bulk_transfer(dev, USB_IN_EP, bounce, l,
                                      &transferred, 10);
-        if (r != 0)
+        if (r == LIBUSB_ERROR_TIMEOUT)
+            return total;
+
+        if (r != 0 && r != LIBUSB_ERROR_OVERFLOW)
             errx(1, "libusb_bulk_transfer IN failed: %i", r);
 
         if (transferred <= 2 && ++empty >= 2)
@@ -145,8 +151,44 @@ size_t usb_read(libusb_device_handle * dev, void * buffer, size_t len)
 void usb_flush(libusb_device_handle * dev)
 {
     // FTDI makes this hard.  Wait for 2 empty transfers.
-    if (usb_read(dev, NULL, 4096) == 4096)
+    if (usb_read(dev, NULL, 8192) == 8192)
         errx(1, "Failed to drain usb.");
+}
+
+
+void usb_echo(libusb_device_handle * dev)
+{
+    unsigned char data[8192];
+    size_t l = usb_read(dev, data, 8192);
+    fwrite(data, l, 1, stderr);
+}
+
+
+void usb_printf(libusb_device_handle * dev, const char * format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    va_list argl;
+    va_copy(argl, args);
+    int l = vsnprintf(NULL, 0, format, argl);
+    va_end(argl);
+    char buf[l + 1];
+    vsnprintf(buf, l + 1, format, args);
+    va_end(args);
+    usb_send_bytes(dev, buf, l);
+}
+
+
+void usb_write_reg(libusb_device_handle * dev, unsigned reg, unsigned val)
+{
+    usb_printf(dev, "wr %x %x\n", reg, val);
+}
+
+
+void usb_xmit_idle(libusb_device_handle * dev)
+{
+    usb_write_reg(dev, REG_XMIT, XMIT_CPU_SSI|XMIT_PUSH);
+    usb_write_reg(dev, REG_XMIT, XMIT_CPU_SSI|XMIT_LOW_LATENCY);
 }
 
 
@@ -158,51 +200,31 @@ unsigned char * usb_slurp_channel(libusb_device_handle * devo,
     if (dev == NULL)
         dev = usb_open();
 
+    usb_xmit_idle(dev);
+
     // First turn off output & select channel...
     int channel = source & 3;
-    freq = freq * 16777216ull / 250000;
-    unsigned char conf[32];
-    unsigned char * p = conf;
-    *p++ = REG_ADDRESS;
-    *p++ = REG_MAGIC;
-    *p++ = MAGIC_MAGIC;
-    *p++ = REG_XMIT;
-    *p++ = XMIT_IDLE|XMIT_PUSH;
-    *p++ = REG_XMIT;
-    *p++ = XMIT_IDLE;
 
     bool radio = (source & 0x1c) == XMIT_PHASE || (source & 0x1c) == XMIT_IR;
-    if (radio && freq >= 0) {
-        *p++ = REG_RADIO_FREQ(channel) + 0;
-        *p++ = freq;
-        *p++ = REG_RADIO_FREQ(channel) + 1;
-        *p++ = freq >> 8;
-        *p++ = REG_RADIO_FREQ(channel) + 2;
-        *p++ = freq >> 16;
-    }
-    if (radio && gain >= 0) {
-        *p++ = REG_RADIO_GAIN(channel);
-        *p++ = 0x80 | gain;
-    }
-    bool sample = (source & 0x1c) == XMIT_SAMPLE;
-    if (sample && freq >= 0) {
-        *p++ = REG_SAMPLE_RATE;
-        *p++ = freq;
-    }
-    if (sample && gain >= 0) {
-        *p++ = REG_SAMPLE_DECAY_LO;
-        *p++ = gain;
-        *p++ = REG_SAMPLE_DECAY_HI;
-        *p++ = gain >> 8;
-    }
+    if (radio && freq >= 0)
+        usb_printf(dev, "tune %i %i\n", channel, freq);
 
-    usb_send_bytes(dev, conf, p - conf);
+    if (radio && gain >= 0)
+        usb_printf(dev, "gain %i %i\n", channel, gain);
+
+    bool sample = (source & 0x1c) == XMIT_SAMPLE;
+    if (sample && freq >= 0)
+        usb_write_reg(dev, REG_SAMPLE_RATE, freq);
+
+    if (sample && gain >= 0) {
+        usb_write_reg(dev, REG_SAMPLE_DECAY_LO, gain & 255);
+        usb_write_reg(dev, REG_SAMPLE_DECAY_HI, gain >> 8);
+    }
 
     // Flush usb...
     usb_flush(dev);
     // Turn on the data channel.
-    unsigned char on[] = { REG_ADDRESS, REG_XMIT, source };
-    usb_send_bytes(dev, on, sizeof on);
+    usb_write_reg(dev, REG_XMIT, source);
 
     // Slurp a truckload of data.
     unsigned char * buffer = xmalloc(length);
@@ -210,7 +232,8 @@ unsigned char * usb_slurp_channel(libusb_device_handle * devo,
     usb_slurp(dev, buffer, length);
 
     // Turn off data.
-    usb_send_bytes(dev, conf, 7);
+    usb_xmit_idle(dev);
+
     // Flush usb...
     usb_flush(dev);
 
@@ -226,31 +249,23 @@ void adc_config(libusb_device_handle * dev, int clock, ...)
     clock = clock ? ADC_CLOCK_SELECT : 0;
     va_list args;
     va_start(args, clock);
-    unsigned char buffer[512];
-    int len = 0;
-    buffer[len++] = REG_ADDRESS;
-    buffer[len++] = REG_ADC;
-    buffer[len++] = clock | ADC_SEN | ADC_SCLK;
-    buffer[len++] = REG_ADC;
-    buffer[len++] = clock | ADC_SEN;
+
+    usb_write_reg(dev, REG_ADC, clock | ADC_SEN | ADC_SCLK);
+    usb_write_reg(dev, REG_ADC, clock | ADC_SEN);
     while (1) {
         int w = va_arg(args, int);
         if (w < 0)
             break;
-        if (len > sizeof(buffer) - 100)
-            errx(1, "adc_config: too many args.\n");
+        /* if (len > sizeof(buffer) - 100) */
+        /*     errx(1, "adc_config: too many args.\n"); */
         for (int i = 0; i < 16; ++i) {
             int b = (w << i) & 32768 ? ADC_SDATA : 0;
-            buffer[len++] = REG_ADC;
-            buffer[len++] = clock | b | ADC_SCLK;
-            buffer[len++] = REG_ADC;
-            buffer[len++] = clock | b;
+            usb_write_reg(dev, REG_ADC, clock | b | ADC_SCLK);
+            usb_write_reg(dev, REG_ADC, clock | b);
         }
-        buffer[len++] = REG_ADC;
-        buffer[len++] = clock | ADC_SEN | ADC_SCLK;
-        buffer[len++] = REG_ADC;
-        buffer[len++] = clock | ADC_SEN;
+        usb_write_reg(dev, REG_ADC, clock | ADC_SEN | ADC_SCLK);
+        usb_write_reg(dev, REG_ADC, clock | ADC_SEN);
+        usb_echo(dev);
     }
     va_end(args);
-    usb_send_bytes(dev, buffer, len);
 }

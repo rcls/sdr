@@ -17,8 +17,19 @@ void usb_slurp(libusb_device_handle * dev, void * buffer, size_t len);
 
 void usb_send_bytes(libusb_device_handle * dev, const void * data, size_t len);
 
+void usb_printf(libusb_device_handle * dev, const char * format, ...)
+    __attribute__((format(printf,2,3)));
+
+void usb_write_reg(libusb_device_handle * dev, unsigned reg, unsigned val);
+
+// Set to idle (actually, the cpu ssi stream).
+void usb_xmit_idle(libusb_device_handle * dev);
+
 // Read until len bytes or two empty reads.  Buffer may be NULL to just flush.
 size_t usb_read(libusb_device_handle * dev, void * buffer, size_t len);
+
+// Flush out usb data to stdout.
+void usb_echo(libusb_device_handle * dev);
 
 // Read until idle.
 void usb_flush(libusb_device_handle * dev);

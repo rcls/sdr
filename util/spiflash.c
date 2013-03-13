@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "lib/util.h"
+#include "lib/usb.h"
 #include "lib/registers.h"
 
 #define PAGE_LEN 264
@@ -17,17 +18,7 @@
 static unsigned char buffer[131072];
 
 
-// Use serial or libusb?
-#if 1
-#include <libusb-1.0/libusb.h>
-#include "lib/usb.h"
-
 static libusb_device_handle * dev;
-
-static void open_port (void)
-{
-    dev = usb_open();
-}
 
 
 static void close_port (void)
@@ -36,156 +27,32 @@ static void close_port (void)
 }
 
 
-static void write_exact (const unsigned char * start, unsigned len)
-{
-    usb_send_bytes(dev, start, len);
-}
-
-
 static void read_exact(unsigned char * buf, int len)
 {
     while (len > 0) {
-        unsigned char bounce[512];
-        int done;
-        int r = libusb_bulk_transfer (dev, USB_IN_EP, bounce, 512, &done, 1000);
-        if (r < 0 || done < 2)
-            errx (1, "read: %i %i", r, done);
-        done -= 2;
-        if (done > len)
-            errx(1, "Expect %i got %i", len, done);
-        memcpy(buf, bounce + 2, done);
+        int done = usb_read(dev, buf, len);
+        if (done == 0)
+            errx (1, "short read");
         buf += done;
         len -= done;
     }
 }
 
 
-static void flush_ser(void)
-{
-    unsigned char bounce[512];
-    int done;
-    while (libusb_bulk_transfer (dev, USB_IN_EP, bounce, 512, &done, 1000) == 0
-           && done > 2);
-}
-#else
-#include <termios.h>
-
-static int serial_port;
-
-static void open_port (void)
-{
-    serial_port = open ("/dev/ttyRadio0", O_RDWR|O_NOCTTY);
-    if (serial_port < 0)
-        err (1, "open /dev/ttyRadio0\n");
-
-    struct termios options;
-
-    if (tcgetattr (serial_port, &options) < 0)
-        err (1, "tcgetattr failed");
-
-    cfmakeraw (&options);
-
-    options.c_cflag |= CREAD | CLOCAL;
-
-    //options.c_lflag &= ~(/* ISIG*/ /* | TOSTOP*/ | FLUSHO);
-    //options.c_lflag |= NOFLSH;
-
-    options.c_iflag &= ~(IXOFF | ISTRIP | IMAXBEL);
-    options.c_iflag |= BRKINT;
-
-    options.c_cc[VMIN] = 0;
-    options.c_cc[VTIME] = 2;
-
-    if (tcsetattr (serial_port, TCSANOW, &options) < 0)
-        err (1, "tcsetattr failed\n");
-
-    if (tcflush (serial_port, TCIOFLUSH) < 0)
-        err (1, "tcflush failed\n");
-}
-
-
-static void close_port(void)
-{
-    close(serial_port);
-}
-
-
-static void write_exact (const unsigned char * start, unsigned len)
-{
-    /* fprintf(stderr, "Send: "); */
-    /* for (int i = 0; i != len; ++i) */
-    /*     fprintf(stderr, " %02x", start[i]); */
-    /* fprintf(stderr, "\n"); */
-
-    while (len) {
-        int r = write (serial_port, start, len);
-        if (r < 0)
-            err(1, "write");
-        start += r;
-        len -= r;
-    }
-}
-
-
-void read_exact(unsigned char * buf, int len)
-{
-    while (len > 0) {
-        int r = read (serial_port, buf, len + 1);
-        if (r < 0)
-            err (1, "read");
-        if (r == 0)
-            errx (1, "EOF");
-        /* fprintf (stderr, "Read %i of %i\n", r, len); */
-        /* for (int i = 0; i != r; ++i) */
-        /*     fprintf(stderr, " %02x", buf[i]); */
-        /* fprintf(stderr, "\n"); */
-        if (r > len)
-            err(1, "Too much data: %i > %i\n", r, len);
-        buf += r;
-        len -= r;
-        /* if (len != 0) */
-        /*     fprintf (stderr, "Did %i, to go %i\n", r, len); */
-    }
-}
-
-
-void check_idle(void)
-{
-    unsigned char buf;
-    if (read(serial_port, &buf, 1) > 0)
-        errx(1, "Not idle.\n");
-}
-
-
-void flush_ser(void)
-{
-    unsigned char buf[512];
-    while (read(serial_port, buf, 512) > 0);
-}
-#endif
-
-static unsigned char * add_be (unsigned char * p,
-                               uint64_t word,
-                               int bits, bool readback)
+static void add_be (uint64_t word, int bits, bool readback)
 {
     for (int i = 0; i != bits; ++i) {
         unsigned data = ((word >> (bits - i - 1)) & 1) ? FLASH_DATA : 0;
-        *p++ = REG_FLASH;
-        *p++ = data | (readback ? FLASH_XMIT : 0);
-        *p++ = REG_FLASH;
-        *p++ = data | FLASH_CLK;
+        usb_write_reg(dev, REG_FLASH, data | (readback ? FLASH_XMIT : 0));
+        usb_write_reg(dev, REG_FLASH, data | FLASH_CLK);
     }
-    return p;
 }
 
 
-unsigned char * add_bytes (unsigned char * p,
-                           const unsigned char * data,
-                           int bytes, bool readback)
+static void add_bytes (const unsigned char * data, int bytes, bool readback)
 {
     for (int i = 0; i != bytes; ++i)
-        p = add_be(p, data[i], 8, readback);
-    return p;
+        add_be(data[i], 8, readback);
 }
 
 
@@ -206,51 +73,43 @@ static void read_decode_bytes(unsigned char * buffer, int bytes)
 }
 
 
-static unsigned char * chip_select(unsigned char * p)
+static void chip_select(void)
 {
-    *p++ = REG_FLASH;
-    *p++ = FLASH_CS;
-    return p;
+    usb_write_reg(dev, REG_FLASH, FLASH_CS);
 }
 
 static int buffer_num;
 
 static void write_page (const unsigned char * data, unsigned page)
 {
-    unsigned char * p = chip_select(buffer);
+    chip_select();
 
     buffer_num = !buffer_num;
 
     unsigned buffer_write = buffer_num ? 0x84 : 0x87;
 
-    p = add_be(p, buffer_write << 24, 32, false);
-    p = add_bytes(p, data, PAGE_LEN, false);
+    add_be(buffer_write << 24, 32, false);
+    add_bytes(data, PAGE_LEN, false);
 
-    p = chip_select(p);
-
-    write_exact(buffer, p - buffer);
+    chip_select();
 
     // Now wait for idle.
-    p = chip_select(buffer);
-    p = add_be(p, 0xd7, 8, false);
+    chip_select();
+    add_be(0xd7, 8, false);
     int i = 0;
     do {
         if (++i >= 10000)
             errx(1, "Timeout waiting for idle");
-        p = add_be(p, 0, 8, true);
-        write_exact(buffer, p - buffer);
+        add_be(0, 8, true);
         read_decode_bytes(buffer, 1);
-        p = buffer;
     }
     while (!(*buffer & 0x80));
 
-    p = chip_select(p);
+    chip_select();
 
     unsigned page_write = buffer_num ? 0x83 : 0x86;
-    p = add_be(p, page_write, 8, false);
-    p = add_be(p, page * 512, 24, false);
-
-    write_exact(buffer, p - buffer);
+    add_be(page_write, 8, false);
+    add_be(page * 512, 24, false);
 }
 
 
@@ -309,43 +168,37 @@ static const unsigned char * bitfile_find_stream(const unsigned char * p,
 
 int main(int argc, char * argv[])
 {
-    open_port();
+    dev = usb_open();
 
     atexit(close_port);
 
     // Select SPI readback.
     // Make sure CS, SI are high.
-    static const unsigned char init[] = {
-        REG_ADDRESS, REG_MAGIC, MAGIC_MAGIC, // Unlock
-        REG_USB, 0,                          // No delay, we have work to do.
-        REG_XMIT, XMIT_FLASH|XMIT_LOW_LATENCY,
-        REG_FLASH, FLASH_CS | FLASH_DATA,
-        REG_FLASH, FLASH_CS | FLASH_DATA | FLASH_XMIT,
-        REG_FLASH, FLASH_CS | FLASH_DATA,
-        REG_FLASH, FLASH_CS | FLASH_DATA | FLASH_XMIT };
-    write_exact(init, sizeof init);
-    flush_ser();
+    usb_write_reg(dev, REG_USB, 0);         // No delay, we have work to do.
+    usb_write_reg(dev, REG_XMIT, XMIT_FLASH|XMIT_LOW_LATENCY);
+    usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA);
+    usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA | FLASH_XMIT);
+    usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA);
+    usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA | FLASH_XMIT);
+
+    usb_flush(dev);
 
     // Now grab data.  We should get exactly 1 byte, and the overflow bit
     // should be off.
-//    sleep (1);
-    static const unsigned char pulse[] = {
-        REG_FLASH, FLASH_CS | FLASH_DATA };
-    write_exact(pulse, sizeof pulse);
+    usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA);
 
     read_exact(buffer, 1);
     if (buffer[0] & FLASH_OVERRUN)
         errx(1, "Still have overrun...\n");
     /* check_idle(); */
 
-    unsigned char * p = chip_select(buffer);
+    chip_select();
 
-    p = add_be(p, 0x9f, 8, false);
-    p = add_be(p, 0, 56, true);
+    add_be(0x9f, 8, false);
+    add_be(0, 56, true);
 
-    p = chip_select(p);
+    chip_select();
 
-    write_exact(buffer, p - buffer);
     read_decode_bytes(buffer, 7);
     fprintf(stderr, "ID:");
     for (int i = 0; i != 7; ++i)

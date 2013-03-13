@@ -23,7 +23,7 @@ static void addressed_transfer(libusb_device_handle * dev,
                                const unsigned char * buffer, int len)
 {
     unsigned char bytes[len * 2 + 1];
-    bytes[0] = REG_ADDRESS;
+    bytes[0] = 0xff;
     for (int i = 0; i != len; ++i) {
         bytes[i * 2 + 1] = REG_ADC;
         bytes[i * 2 + 2] = buffer[i];

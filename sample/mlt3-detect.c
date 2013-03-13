@@ -306,9 +306,7 @@ static unsigned char * capture(size_t len)
     libusb_device_handle * dev = usb_open();
 
     // Reset the ADC and clock if necessary.  Set up the sample counter.
-    unsigned char reset[] = {
-        REG_ADDRESS, REG_MAGIC, MAGIC_MAGIC, REG_ADC, clock|ADC_RESET };
-    usb_send_bytes(dev, reset, sizeof reset);
+    usb_write_reg(dev, REG_ADC, clock|ADC_RESET);
     usleep(100000);
 
     // Now set up ADC:  Low gain, hi perf modes.
@@ -324,8 +322,7 @@ static unsigned char * capture(size_t len)
         dev, len, XMIT_TURBO|XMIT_SAMPLE, count, wander_decay);
 
     // Back to normal parameters, in case we down clocked.
-    reset[sizeof reset - 1] = ADC_SEN;
-    usb_send_bytes(dev, reset, sizeof reset);
+    usb_write_reg(dev, REG_ADC, ADC_SEN);
 
     usb_close(dev);
     return result;

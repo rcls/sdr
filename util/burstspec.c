@@ -51,10 +51,8 @@ int main (int argc, const char ** argv)
     // Slurp a truckload of data.
     libusb_device_handle * dev = usb_open();
 
-    static const unsigned char burst[] = {
-        REG_ADDRESS, REG_MAGIC, MAGIC_MAGIC,
-        REG_FLASH, 0x0f, REG_FLASH, 0x8f };
-    usb_send_bytes(dev, burst, sizeof burst);
+    usb_write_reg(dev, REG_FLASH, 0x0f);
+    usb_write_reg(dev, REG_FLASH, 0x8f);
 
     unsigned char * buffer = usb_slurp_channel(
         dev, CAPTURE_BYTES, XMIT_BURST, -1, 0);

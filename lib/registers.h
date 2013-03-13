@@ -15,8 +15,6 @@
 #define REG_SAMPLE_DECAY_HI 8
 #define REG_CPU_SSI 9
 #define REG_USB 10
-#define REG_MAGIC 0xfe
-#define REG_ADDRESS 0xff
 
 #define ADC_SEN 1
 #define ADC_SDATA 2
@@ -49,7 +47,5 @@
 #define CPU_SSI_CLK 4
 #define CPU_SSI_FSS_STRETCH 64
 #define CPU_SSI_CPU_IS_MASTER 128
-
-#define MAGIC_MAGIC 0xb5
 
 #endif
