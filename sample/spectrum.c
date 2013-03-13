@@ -258,7 +258,6 @@ int main(int argc, const char ** argv)
 
     libusb_device_handle * dev = usb_open();
     usb_xmit_idle(dev);
-    usb_write_reg(dev, REG_USB, 10);// Slow down a bit.
     usb_echo(dev);
     fprintf(stderr, "Usb open\n");
 

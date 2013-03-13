@@ -14,7 +14,6 @@
 #define REG_SAMPLE_DECAY_LO 7
 #define REG_SAMPLE_DECAY_HI 8
 #define REG_CPU_SSI 9
-#define REG_USB 10
 
 #define ADC_SEN 1
 #define ADC_SDATA 2

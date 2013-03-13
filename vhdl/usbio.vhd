@@ -36,7 +36,6 @@ entity usbio is
         xmit_length : in integer range 0 to packet_bytes;
         low_latency, turbo : in std_logic;
         tx_overrun : out std_logic;
-        rx_delay : in unsigned(5 downto 0);
         clk : in std_logic);
 end usbio;
 
@@ -52,9 +51,6 @@ architecture usbio of usbio is
   signal xmit_queue : unsigned(packet_bytes * 8 - 1 downto 0);
   signal xmit_channel_counter : unsigned2 := "00";
   signal to_xmit : integer range 0 to packet_bytes := 0;
-
-  constant rx_delay_bits : integer := 6;
-  signal rx_delay_count : unsigned(rx_delay_bits downto 0);
 
   -- In turbo mode the overrun flags get replaced by an LFSR generated
   -- pattern.  Poly is 0x100802041.
@@ -74,19 +70,15 @@ begin
     usb_oe_n <= '1';
     state <= state_idle;
     byte_in_strobe <= '0';
-    if rx_delay_count(rx_delay_bits) = '1' then
-      rx_delay_count <= rx_delay_count + 1;
-    end if;
 
     if state /= state_pause then
       usb_SIWU <= '1';
     end if;
 
     -- If we're in state idle, decide what to do next.  Prefer reads over
-    -- writes.  The delay count after a read ensures that a write will get out
+    -- writes.  The read handshake ensures that a write will get out
     -- anyway.
-    rx_available := usb_nRXF = '0' and rx_delay_count(rx_delay_bits) = '0'
-                    and read_ok = '1';
+    rx_available := usb_nRXF = '0' and read_ok = '1';
     tx_available := (usb_nTXE = '0' or turbo = '1') and to_xmit /= 0;
     if state = state_idle then
       if rx_available then
@@ -123,9 +115,9 @@ begin
     end if;
 
     if state = state_read2 then
-      rx_delay_count <= '1' & not rx_delay;
       byte_in <= usbd_in;
       byte_in_strobe <= '1';
+      state <= state_pause;
     end if;
 
     if xmit_buffered = '1' and to_xmit = 0 then

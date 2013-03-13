@@ -174,7 +174,6 @@ int main(int argc, char * argv[])
 
     // Select SPI readback.
     // Make sure CS, SI are high.
-    usb_write_reg(dev, REG_USB, 0);         // No delay, we have work to do.
     usb_write_reg(dev, REG_XMIT, XMIT_FLASH|XMIT_LOW_LATENCY);
     usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA);
     usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA | FLASH_XMIT);

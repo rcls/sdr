@@ -145,8 +145,6 @@ architecture behavioural of go is
   signal usb_byte_in : unsigned8;
   signal usb_byte_in_strobe, usb_byte_in_strobe2 : std_logic;
 
-  alias usb_control : unsigned8 is config(87 downto 80);
-
   signal burst_data : signed15;
   signal burst_strobe : std_logic;
 
@@ -175,7 +173,7 @@ architecture behavioural of go is
   signal cpu_ssifss2, cpu_ssitx2, cpu_ssiclk2 : std_logic := '1';
   signal cpu_ssifss3, cpu_ssitx3, cpu_ssiclk3 : std_logic := '1';
 
-  constant X48 : unsigned(47 downto 0) := (others => 'X');
+  constant X56 : unsigned(55 downto 0) := (others => 'X');
 
 begin
   usb_d <= usbd_out when usb_oe_n = '0' else "ZZZZZZZZ";
@@ -215,7 +213,7 @@ begin
     generic map(
       32, 2,
       x"00000000" & x"00000000" & x"00000000" & x"805ed288" &
-      X48 & x"00" & x"0000" & x"ff" & x"0000" & x"0f" & x"18" & x"09" & x"00")
+      X56 & x"0000" & x"ff" & x"0000" & x"0f" & x"18" & x"09" & x"00")
     port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
              spi_data, spi_data_ack,
              config, config_strobe, clk_50m);
@@ -364,7 +362,6 @@ begin
              xmit => usb_xmit, last => usb_last,
              xmit_channel => xmit_channel, xmit_length => usb_xmit_length,
              low_latency => xmit_low_latency, turbo => xmit_turbo,
-             rx_delay => usb_control(5 downto 0),
              clk => clk_50m);
 
   process

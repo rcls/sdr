@@ -62,15 +62,6 @@ int main(int argc, char * argv[])
     libusb_device_handle * dev = usb_open();
     on_exit(finish, dev);
 
-    /* static unsigned char setup[] = { */
-    /*     REG_ADDRESS, REG_MAGIC, MAGIC_MAGIC, */
-    /*     REG_USB, 255,                   // Slow */
-    /*     REG_XMIT, XMIT_IDLE|XMIT_PUSH,  // Flush out data. */
-    /*     REG_XMIT, XMIT_IDLE, */
-    /*     REG_XMIT, XMIT_CPU_SSI|XMIT_LOW_LATENCY, */
-    /* }; */
-
-    /* usb_send_bytes(dev, setup, sizeof setup); */
     usb_flush(dev);
 
     for (int i = 1; i < argc; ++i)
