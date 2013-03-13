@@ -228,7 +228,7 @@ begin
     elsif spi_data_ack(0) = '1' then
       spi_data(7 downto 0) <= x"00";
     end if;
-    if spi_data(7 downto 0) = x"00" then
+    if usb_byte_in_strobe = '0' and spi_data(7 downto 0) = x"00" then
       usb_read_ok <= '1';
     else
       usb_read_ok <= '0';
@@ -340,7 +340,7 @@ begin
         usb_xmit <= burst_strobe;
         usb_last <= '1';
       when "110" =>
-        packet(7 downto 0) <= to_usb_data(7 downto 0);
+        packet(7 downto 0) <= to_usb_data;
         usb_xmit <= usb_xmit xor config_strobe_fast(0);
         usb_last <= '1';
         usb_xmit_length <= 1;
