@@ -1,20 +1,20 @@
 #ifndef LIB_REGISTERS_H_
 #define LIB_REGISTERS_H_
 
-#define REG_RADIO_FREQ(i) ((i) * 4)
-#define REG_RADIO_GAIN(i) ((i) * 4 + 3)
+#define REG_RADIO_FREQ(i) ((i) * 4 + 16)
+#define REG_RADIO_GAIN(i) ((i) * 4 + 19)
 
-#define REG_ADC 16
-#define REG_XMIT 17
-#define REG_FLASH 18
-#define REG_BANDPASS_FREQ 19
-#define REG_BANDPASS_GAIN 20
-#define REG_SAMPLE_RATE 21
-#define REG_SAMPLE_DECAY_LO 22
-#define REG_SAMPLE_DECAY_HI 23
-#define REG_CPU_SSI 24
-#define REG_USB 25
-
+#define REG_USB_DATA 0
+#define REG_ADC 1
+#define REG_XMIT 2
+#define REG_FLASH 3
+#define REG_BANDPASS_FREQ 4
+#define REG_BANDPASS_GAIN 5
+#define REG_SAMPLE_RATE 6
+#define REG_SAMPLE_DECAY_LO 7
+#define REG_SAMPLE_DECAY_HI 8
+#define REG_CPU_SSI 9
+#define REG_USB 10
 #define REG_MAGIC 0xfe
 #define REG_ADDRESS 0xff
 
