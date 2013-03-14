@@ -166,9 +166,14 @@ architecture behavioural of go is
   alias adc_clk_locked : std_logic is led_off(2);
 
   -- spi conf stuff.
-  signal spi_data : unsigned(15 downto 0);
-  signal spi_data_ack : unsigned(1 downto 0);
+  constant spi_data_bytes : integer := 4;
+  signal spi_data : unsigned(spi_data_bytes * 8 - 1 downto 0) :=
+    (others => '0');
+  signal spi_data_ack : unsigned(spi_data_bytes - 1 downto 0) :=
+    (others => '0');
   signal usb_read_ok : std_logic := '1';
+
+  alias spied_flash : unsigned8 is spi_data(31 downto 24);
 
   signal cpu_ssifss2, cpu_ssitx2, cpu_ssiclk2 : std_logic := '1';
   signal cpu_ssifss3, cpu_ssitx3, cpu_ssiclk3 : std_logic := '1';
@@ -211,9 +216,9 @@ begin
 
   spi : entity spiconf
     generic map(
-      32, 2,
+      config_bytes, spi_data_bytes,
       x"00000000" & x"00000000" & x"00000000" & x"805ed288" &
-      X56 & x"0000" & x"ff" & x"0000" & x"0f" & x"18" & x"09" & x"00")
+      X56 & x"0000" & x"ff" & x"0000" & x"0f" & x"98" & x"09" & x"00")
     port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
              spi_data, spi_data_ack,
              config, config_strobe, clk_50m);
@@ -221,6 +226,7 @@ begin
   process
   begin
     wait until rising_edge(clk_50m);
+    spied_flash(0) <= flash_so;
     if usb_byte_in_strobe = '1' then
       spi_data(7 downto 0) <= usb_byte_in;
     elsif spi_data_ack(0) = '1' and usb_byte_in_strobe2 = '0' then
@@ -310,13 +316,6 @@ begin
         usb_xmit <= usb_xmit xor sampler_strobe;
         usb_last <= '1';
         usb_xmit_length <= 2;
-      when "010" =>
-        packet(0) <= flash_so;
-        packet(6 downto 1) <= "000000";
-        packet(7) <= usb_xmit_overrun;
-        usb_xmit <= flash_control(3);
-        usb_last <= flash_control(3);
-        usb_xmit_length <= 1;
       when "011" =>
         packet(17 downto 0) <= phase;
         packet(22 downto 18) <= "00000";

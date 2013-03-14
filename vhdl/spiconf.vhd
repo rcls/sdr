@@ -63,6 +63,7 @@ begin
       shift_out <= shift_out sll 1;
       -- When bit_count=8, we process the read.  Always read, only ack if asked.
       if bit_count = x"8" then
+        shift_out <= "XXXXXXXX";
         for i in 0 to data_bytes - 1 loop
           if shift_in(5 downto 1) = to_unsigned(i, 5) then
             shift_out <= data(i * 8 + 7 downto i * 8);
