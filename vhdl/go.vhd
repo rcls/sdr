@@ -153,7 +153,7 @@ architecture behavioural of go is
   signal usbd_out : unsigned8;
   signal usb_oe_n : std_logic;
 
-  signal div50by4 : unsigned2;
+  signal div50by2 : std_logic;
 
   attribute S : string;
   attribute S of usb_c : signal is "yes";
@@ -384,11 +384,11 @@ begin
   end process;
 
   -- Divide the 50MHz clock by 4.
-  header_16 <= div50by4(1);
   process
   begin
     wait until rising_edge(clk_50m);
-    div50by4 <= div50by4 + 1;
+    header_16 <= div50by2;
+    div50by2 <= not div50by2;
   end process;
 
   -- DDR input from ADC.
