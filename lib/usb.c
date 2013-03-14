@@ -1,6 +1,8 @@
+#define _GNU_SOURCE
 #include <libusb-1.0/libusb.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "lib/usb.h"
@@ -11,30 +13,71 @@
 #define NUM_URBS 256
 #define XLEN 512
 
-libusb_device_handle * usb_open(void)
+libusb_device_handle * usb_device;
+FILE * usb_stream;
+
+static ssize_t cookie_write(void * cookie, const char * buf, size_t size)
+{
+    // Guard against recursion due to error exits.
+    static bool reenter = false;
+    if (reenter || usb_device == NULL)
+        return 0;
+
+    reenter = true;
+    usb_send_bytes(buf, size);
+    reenter = false;
+    return size;
+}
+
+
+static cookie_io_functions_t cookie_io = { NULL, cookie_write, NULL, NULL };
+
+
+static void close_stream(void)
+{
+    if (usb_stream) {
+        FILE * s = usb_stream;
+        usb_stream = 0;
+        fflush(s);
+        fclose(s);
+    }
+}
+
+
+void usb_open(void)
 {
     if (libusb_init(NULL) < 0)
         errx(1, "libusb_init failed\n");
 
-    libusb_device_handle * dev = libusb_open_device_with_vid_pid(
-        NULL, 0x0403, 0x6010);
-    if (dev == NULL)
+    usb_device = libusb_open_device_with_vid_pid(NULL, 0x0403, 0x6010);
+    if (usb_device == NULL)
         errx(1, "libusb_open_device failed\n");
 
-    int r = libusb_detach_kernel_driver(dev, INTF);
+    int r = libusb_detach_kernel_driver(usb_device, INTF);
     if (r != 0 && r != LIBUSB_ERROR_NOT_FOUND)
         errx(1, "libusb_detach_kernel_driver failed\n");
 
-    if (libusb_claim_interface(dev, INTF) != 0)
+    if (libusb_claim_interface(usb_device, INTF) != 0)
         errx(1, "libusb_claim_interface failed\n");
+    atexit(usb_close);
 
-    usb_printf(dev, "nop\n");
+    usb_stream = fopencookie(usb_device, "w", cookie_io);
 
-    return dev;
+    // Line buffered by default.
+    setvbuf(usb_stream, NULL, _IOLBF, 0);
 }
 
-void usb_close(libusb_device_handle * dev)
+
+void usb_close(void)
 {
+    close_stream();
+
+    libusb_device_handle * dev = usb_device;
+    if (dev == NULL)
+        return;
+
+    usb_device = NULL;
+
     if (libusb_release_interface(dev, INTF) != 0)
         errx(1, "libusb_release_interface failed\n");
 
@@ -77,14 +120,14 @@ static void finish(struct libusb_transfer * u)
 }
 
 
-void usb_slurp(libusb_device_handle * dev, void * buffer, size_t len)
+void usb_slurp(void * buffer, size_t len)
 {
     unsigned char bounce[XLEN];
     buffer_ptr ptr = { buffer, len, 0, 0 };
 
     for (int i = 0; i != NUM_URBS; ++i) {
         struct libusb_transfer * u = libusb_alloc_transfer(0);
-        u->dev_handle = dev;
+        u->dev_handle = usb_device;
         u->flags = 0;
         u->endpoint = USB_IN_EP;
         u->type = LIBUSB_TRANSFER_TYPE_BULK;
@@ -105,19 +148,20 @@ void usb_slurp(libusb_device_handle * dev, void * buffer, size_t len)
 }
 
 
-void usb_send_bytes(libusb_device_handle * dev, const void * data, size_t len)
+void usb_send_bytes(const void * data, size_t len)
 {
     int transferred;
-    if (libusb_bulk_transfer(dev, USB_OUT_EP, (void *) data, len,
+    if (libusb_bulk_transfer(usb_device, USB_OUT_EP, (void *) data, len,
                              &transferred, 100) != 0
         || transferred != len)
         errx(1, "libusb_bulk_transfer failed.\n");
 }
 
 
-size_t usb_read(libusb_device_handle * dev, void * buffer, size_t len)
+size_t usb_read(void * buffer, size_t len)
 {
     // Read until we're full or we get two consecutive empties.
+    fflush(usb_stream);
     size_t total = 0;
     int empty = 0;
     while (len > 0) {
@@ -126,7 +170,7 @@ size_t usb_read(libusb_device_handle * dev, void * buffer, size_t len)
         int l = len - total + 2;
         if (l > sizeof bounce)
             l = sizeof bounce;
-        int r = libusb_bulk_transfer(dev, USB_IN_EP, bounce, l,
+        int r = libusb_bulk_transfer(usb_device, USB_IN_EP, bounce, l,
                                      &transferred, 10);
         if (r == LIBUSB_ERROR_TIMEOUT)
             return total;
@@ -148,110 +192,101 @@ size_t usb_read(libusb_device_handle * dev, void * buffer, size_t len)
 }
 
 
-void usb_flush(libusb_device_handle * dev)
+void usb_flush(void)
 {
     // FTDI makes this hard.  Wait for 2 empty transfers.
-    if (usb_read(dev, NULL, 8192) == 8192)
+    if (usb_read(NULL, 8192) == 8192)
         errx(1, "Failed to drain usb.");
 }
 
 
-void usb_echo(libusb_device_handle * dev)
+void usb_echo(void)
 {
     unsigned char data[8192];
-    size_t l = usb_read(dev, data, 8192);
+    size_t l = usb_read(data, 8192);
     fwrite(data, l, 1, stderr);
 }
 
 
-void usb_printf(libusb_device_handle * dev, const char * format, ...)
+void usb_printf(const char * format, ...)
 {
     va_list args;
     va_start(args, format);
-    va_list argl;
-    va_copy(argl, args);
-    int l = vsnprintf(NULL, 0, format, argl);
-    va_end(argl);
-    char buf[l + 1];
-    vsnprintf(buf, l + 1, format, args);
+    vfprintf(usb_stream, format, args);
     va_end(args);
-    usb_send_bytes(dev, buf, l);
 }
 
 
-void usb_write_reg(libusb_device_handle * dev, unsigned reg, unsigned val)
+void usb_write_reg(unsigned reg, unsigned val)
 {
-    usb_printf(dev, "wr %x %x\n", reg, val);
+    fprintf(usb_stream, "wr %x %x\n", reg, val);
 }
 
 
-void usb_xmit_idle(libusb_device_handle * dev)
+void usb_xmit_idle(void)
 {
-    usb_write_reg(dev, REG_XMIT, XMIT_CPU_SSI|XMIT_PUSH);
-    usb_write_reg(dev, REG_XMIT, XMIT_CPU_SSI|XMIT_LOW_LATENCY);
+    usb_write_reg(REG_XMIT, XMIT_CPU_SSI|XMIT_PUSH);
+    usb_write_reg(REG_XMIT, XMIT_CPU_SSI|XMIT_LOW_LATENCY);
 }
 
 
-unsigned char * usb_slurp_channel(libusb_device_handle * devo,
-                                  size_t length, int source,
+unsigned char * usb_slurp_channel(size_t length, int source,
                                   int freq, int gain)
 {
-    libusb_device_handle * dev = devo;
-    if (dev == NULL)
-        dev = usb_open();
+    if (usb_device == NULL)
+        usb_open();
 
-    usb_xmit_idle(dev);
+    usb_xmit_idle();
 
     // First turn off output & select channel...
     int channel = source & 3;
 
     bool radio = (source & 0x1c) == XMIT_PHASE || (source & 0x1c) == XMIT_IR;
     if (radio && freq >= 0)
-        usb_printf(dev, "tune %i %i\n", channel, freq);
+        fprintf(usb_stream, "tune %i %i\n", channel, freq);
 
     if (radio && gain >= 0)
-        usb_printf(dev, "gain %i %i\n", channel, gain);
+        fprintf(usb_stream, "gain %i %i\n", channel, gain);
 
     bool sample = (source & 0x1c) == XMIT_SAMPLE;
     if (sample && freq >= 0)
-        usb_write_reg(dev, REG_SAMPLE_RATE, freq);
+        usb_write_reg(REG_SAMPLE_RATE, freq);
 
     if (sample && gain >= 0) {
-        usb_write_reg(dev, REG_SAMPLE_DECAY_LO, gain & 255);
-        usb_write_reg(dev, REG_SAMPLE_DECAY_HI, gain >> 8);
+        usb_write_reg(REG_SAMPLE_DECAY_LO, gain & 255);
+        usb_write_reg(REG_SAMPLE_DECAY_HI, gain >> 8);
     }
 
+    fflush(usb_stream);
+
     // Flush usb...
-    usb_flush(dev);
+    usb_flush();
     // Turn on the data channel.
-    usb_write_reg(dev, REG_XMIT, source);
+    usb_write_reg(REG_XMIT, source);
 
     // Slurp a truckload of data.
     unsigned char * buffer = xmalloc(length);
     memset(buffer, 0xff, length);       // Try to get us in RAM.
-    usb_slurp(dev, buffer, length);
+    usb_slurp(buffer, length);
 
     // Turn off data.
-    usb_xmit_idle(dev);
+    usb_xmit_idle();
 
     // Flush usb...
-    usb_flush(dev);
-
-    if (devo == NULL)
-        usb_close(dev);
+    usb_flush();
 
     return buffer;
 }
 
 
-void adc_config(libusb_device_handle * dev, int clock, ...)
+void adc_config(int clock, ...)
 {
     clock = clock ? ADC_CLOCK_SELECT : 0;
     va_list args;
     va_start(args, clock);
 
-    usb_write_reg(dev, REG_ADC, clock | ADC_SEN | ADC_SCLK);
-    usb_write_reg(dev, REG_ADC, clock | ADC_SEN);
+    usb_write_reg(REG_ADC, clock | ADC_SEN | ADC_SCLK);
+    usb_write_reg(REG_ADC, clock | ADC_SEN);
     while (1) {
         int w = va_arg(args, int);
         if (w < 0)
@@ -260,12 +295,12 @@ void adc_config(libusb_device_handle * dev, int clock, ...)
         /*     errx(1, "adc_config: too many args.\n"); */
         for (int i = 0; i < 16; ++i) {
             int b = (w << i) & 32768 ? ADC_SDATA : 0;
-            usb_write_reg(dev, REG_ADC, clock | b | ADC_SCLK);
-            usb_write_reg(dev, REG_ADC, clock | b);
+            usb_write_reg(REG_ADC, clock | b | ADC_SCLK);
+            usb_write_reg(REG_ADC, clock | b);
         }
-        usb_write_reg(dev, REG_ADC, clock | ADC_SEN | ADC_SCLK);
-        usb_write_reg(dev, REG_ADC, clock | ADC_SEN);
-        usb_echo(dev);
+        usb_write_reg(REG_ADC, clock | ADC_SEN | ADC_SCLK);
+        usb_write_reg(REG_ADC, clock | ADC_SEN);
+        usb_echo();
     }
     va_end(args);
 }

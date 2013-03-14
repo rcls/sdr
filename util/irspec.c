@@ -45,8 +45,7 @@ int main (int argc, const char ** argv)
     unsigned freq = strtoul(argv[1], NULL, 0);
 
     // Slurp a truckload of data.
-    unsigned char * buffer = usb_slurp_channel(
-        NULL, BUFFER_SIZE, XMIT_IR|1, freq, 0);
+    unsigned char * buffer = usb_slurp_channel(BUFFER_SIZE, XMIT_IR|1, freq, 0);
 
     float * samples = xmalloc(LENGTH * sizeof * samples);
     load_samples(buffer, samples);

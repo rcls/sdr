@@ -18,56 +18,37 @@
 
 static unsigned char buffer[4096];
 
-static libusb_device_handle * dev;
-
-static void close_port (void)
-{
-    usb_close(dev);
-}
-
-
-static ssize_t cookie_write(void * cookie, const char * buf, size_t size)
-{
-    usb_send_bytes(dev, buf, size);
-    return size;
-}
-
-
-static cookie_io_functions_t cookie_io = { NULL, cookie_write, NULL, NULL };
-
-
 static int buffer_num;
 
-static void write_page (FILE * o, const unsigned char * data, unsigned page)
+static void write_page (const unsigned char * data, unsigned page)
 {
     buffer_num = !buffer_num;
 
     unsigned buffer_write = buffer_num ? 0x84 : 0x87;
 
-    fprintf(o, "flash %02x 000000 >\n", buffer_write);
+    usb_printf("flash %02x 000000 >\n", buffer_write);
     for (unsigned start = 0; start < PAGE_LEN;) {
         unsigned l = PAGE_LEN - start;
         if (l > 16)
             l = 16;
-        fprintf(o, "flash <> ");
+        usb_printf("flash <> ");
         for (unsigned i = start; i != start + l; ++i)
-            fprintf(o, "%02x", data[i]);
-        fprintf(o, "\n");
+            usb_printf("%02x", data[i]);
+        usb_printf("\n");
         start += l;
     }
-    fprintf(o, "flash\n");
+    usb_printf("flash\n");
 
     // Now wait for idle.
     int i = 0;
-    fprintf(o, "flash d7 >\n");
+    usb_printf("flash d7 >\n");
     do {
         if (++i >= 10000)
             errx(1, "Timeout waiting for idle");
-        fprintf(o, "flash <>? 00\n");
-        fflush(o);
+        usb_printf("flash <>? 00\n");
         int n;
         do {
-            n = usb_read(dev, buffer, sizeof buffer);
+            n = usb_read(buffer, sizeof buffer);
         }
         while (n == 0);
         if (n != 3 || buffer[2] != '\n')
@@ -76,10 +57,11 @@ static void write_page (FILE * o, const unsigned char * data, unsigned page)
     }
     while (strtoul((char*) buffer, NULL, 16) < 128);
 
-    fprintf(o, "flash\n");
-    unsigned page_write = buffer_num ? 0x83 : 0x86;
-    fprintf(o, "flash %02x %06x\n", page_write, page * 512);
-    fflush(o);
+    usb_printf("flash\n");
+    /* unsigned page_write = buffer_num ? 0x83 : 0x86; */
+    /* usb_printf("flash %02x %06x\n", page_write, page * 512); */
+    extern FILE * usb_stream;
+    fflush(usb_stream);
 }
 
 
@@ -138,20 +120,14 @@ static const unsigned char * bitfile_find_stream(const unsigned char * p,
 
 int main(int argc, char * argv[])
 {
-    dev = usb_open();
+    usb_open();
+    usb_echo();
 
-    atexit(close_port);
-    usb_flush(dev);
+    usb_printf("nop\n");
+    usb_printf("wr %02x %02x\n", REG_XMIT, XMIT_CPU_SSI|XMIT_LOW_LATENCY);
+    usb_printf("flash ? 9f00000000000000\n");
 
-    FILE * o = fopencookie(dev, "w", cookie_io);
-
-    fprintf(o, "nop\n");
-    fprintf(o, "wr %02x %02x\n", REG_XMIT, XMIT_CPU_SSI|XMIT_LOW_LATENCY);
-    fprintf(o, "flash ? 9f00000000000000\n");
-    fflush(o);
-
-    int len = usb_read(dev, buffer, sizeof buffer);
-    fprintf(stderr, "%.*s", len, buffer);
+    usb_echo();
 
     if (argc == 1)
         return 0;
@@ -174,9 +150,9 @@ int main(int argc, char * argv[])
 
     for (unsigned i = 0; i < pages; ++i) {
         fprintf(stderr, "\rpage %i", i);
-        write_page(o, q + i * PAGE_LEN, i);
+        write_page(q + i * PAGE_LEN, i);
     }
-    fclose(o);
     fprintf(stderr, "\n");
+    usb_echo();
     return 0;
 }

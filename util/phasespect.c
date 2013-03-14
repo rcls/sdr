@@ -57,7 +57,8 @@ int main (int argc, const char ** argv)
 
     // Slurp a truckload of data.
     unsigned char * buffer = usb_slurp_channel(
-        NULL, BUFFER_SIZE, XMIT_PHASE|1, freq, 0);
+        BUFFER_SIZE, XMIT_PHASE|1, freq, 0);
+    usb_close();
 
     float * samples = malloc(LENGTH * sizeof * samples);
     load_samples(buffer, samples);

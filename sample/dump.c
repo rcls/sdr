@@ -55,7 +55,7 @@ int main(int argc, char * argv[])
     mlockall(MCL_CURRENT | MCL_FUTURE);
 
     unsigned char * buffer = usb_slurp_channel(
-        NULL, bufsize, source, freq, gain);
+        bufsize, source, freq, gain);
 
     dump_path(outpath, buffer, bufsize);
 

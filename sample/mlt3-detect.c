@@ -303,14 +303,14 @@ static unsigned char * capture(size_t len)
     fprintf(stderr, "Capturing @ %ins, %iMHz / %i\n",
             period, clock ? 200 : 250, count + 1);
 
-    libusb_device_handle * dev = usb_open();
+    usb_open();
 
     // Reset the ADC and clock if necessary.  Set up the sample counter.
-    usb_write_reg(dev, REG_ADC, clock|ADC_RESET);
+    usb_write_reg(REG_ADC, clock|ADC_RESET);
     usleep(100000);
 
     // Now set up ADC:  Low gain, hi perf modes.
-    adc_config(dev, clock,
+    adc_config(clock,
                0x2510,                  // Low gain.
                0x0303, 0x4a01,          // High perf
                0xcf00, // Offset params
@@ -319,12 +319,12 @@ static unsigned char * capture(size_t len)
 
     // Slurp the sampler in turbo mode.
     unsigned char * result = usb_slurp_channel(
-        dev, len, XMIT_TURBO|XMIT_SAMPLE, count, wander_decay);
+        len, XMIT_TURBO|XMIT_SAMPLE, count, wander_decay);
 
     // Back to normal parameters, in case we down clocked.
-    usb_write_reg(dev, REG_ADC, ADC_SEN);
+    usb_write_reg(REG_ADC, ADC_SEN);
 
-    usb_close(dev);
+    usb_close();
     return result;
 }
 

@@ -49,14 +49,14 @@ int main (int argc, const char ** argv)
         errx(1, "Usage: <filename>.");
 
     // Slurp a truckload of data.
-    libusb_device_handle * dev = usb_open();
+    usb_open();
 
-    usb_write_reg(dev, REG_FLASH, 0x0f);
-    usb_write_reg(dev, REG_FLASH, 0x8f);
+    usb_write_reg(REG_FLASH, 0x0f);
+    usb_write_reg(REG_FLASH, 0x8f);
 
     unsigned char * buffer = usb_slurp_channel(
-        dev, CAPTURE_BYTES, XMIT_BURST, -1, 0);
-    usb_close(dev);
+        CAPTURE_BYTES, XMIT_BURST, -1, 0);
+    usb_close();
 
     float * samples = xmalloc(BURST_SIZE * sizeof * samples);
     load_samples(buffer, samples);

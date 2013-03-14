@@ -44,8 +44,7 @@ static inline int get_imag(const unsigned char * p)
 }
 
 
-static void get_samples(libusb_device_handle * dev,
-                        sample_buffer_t * buffer, size_t required)
+static void get_samples(sample_buffer_t * buffer, size_t required)
 {
     size_t bytes = required * 4;
     if (bytes < USB_SLOP)
@@ -64,12 +63,12 @@ static void get_samples(libusb_device_handle * dev,
     size_t best_len;
     for (int i = 0; i < 10; ++i) {
         // Start the sample output.
-        usb_write_reg(dev, REG_XMIT, XMIT_TURBO|XMIT_BANDPASS);
+        usb_write_reg(REG_XMIT, XMIT_TURBO|XMIT_BANDPASS);
 
-        usb_slurp(dev, buffer->data, amount);
+        usb_slurp(buffer->data, amount);
 
-        usb_xmit_idle(dev);
-        usb_flush(dev);
+        usb_xmit_idle();
+        usb_flush();
 
         buffer->best = buffer->data + 8192;
         size_t bytes = amount - 8192;
@@ -88,22 +87,20 @@ static void get_samples(libusb_device_handle * dev,
 }
 
 
-static void sample_config(libusb_device_handle * dev, int freq, int gain)
+static void sample_config(int freq, int gain)
 {
-    usb_printf(dev, "bandpass %i %i\n", freq, gain);
-    usb_echo(dev);
+    usb_printf("bandpass %i %i\n", freq, gain);
+    usb_echo();
 }
 
 
-static void gain_controlled_sample(libusb_device_handle * dev,
-                                   int freq, int * gain,
-                                   sample_buffer_t * buffer,
-                                   size_t required)
+static void gain_controlled_sample(
+    int freq, int * gain, sample_buffer_t * buffer, size_t required)
 {
     const int max_gain = 63;
     for (int i = 0; i < 10; ++i) {
-        sample_config(dev, freq, *gain);
-        get_samples(dev, buffer, required);
+        sample_config(freq, *gain);
+        get_samples(buffer, required);
 
         const unsigned char * p = buffer->best;
         int64_t re_sum = 0;
@@ -256,38 +253,38 @@ int main(int argc, const char ** argv)
     fftwf_init_threads();
     fftwf_plan_with_nthreads(4);
 
-    libusb_device_handle * dev = usb_open();
-    usb_xmit_idle(dev);
-    usb_echo(dev);
+    usb_open();
+    usb_xmit_idle();
+    usb_echo();
     fprintf(stderr, "Usb open\n");
 
     // Reset the ADC.
-    usb_write_reg(dev, REG_ADC, ADC_RESET|ADC_SCLK|ADC_SEN);
-    usb_write_reg(dev, REG_ADC, ADC_SCLK|ADC_SEN);
+    usb_write_reg(REG_ADC, ADC_RESET|ADC_SCLK|ADC_SEN);
+    usb_write_reg(REG_ADC, ADC_SCLK|ADC_SEN);
 
-    usb_flush(dev);
+    usb_flush();
 
     // Configure the ADC.  Turn down the gain for linearity.  Turn on offset
     // correction.
-    adc_config(dev, 0,
+    adc_config(0,
                0x2510, // Gain.
                0x0303, 0x4a01, // Hi perf modes.
                0xcf00, 0x3de0, -1); // Offset correction as quick as possible.
 
     // Give the offset correction time to settle.
     usleep(200000);
-    adc_config(dev, 0, 0xcf80, -1);        // Freeze offset correction.
+    adc_config(0, 0xcf80, -1);        // Freeze offset correction.
 
     int gain = 48;
     sample_buffer_t buffer = { NULL, 0, NULL };
     for (int i = 1; i < 160; i += 2) {
-        gain_controlled_sample(dev, i, &gain, &buffer, size);
+        gain_controlled_sample(i, &gain, &buffer, size);
         get_spectrum(gain, buffer.best);
     }
 
-    usb_write_reg(dev, REG_BANDPASS_GAIN, 0); // Turn off the sampler unit.
+    usb_write_reg(REG_BANDPASS_GAIN, 0); // Turn off the sampler unit.
 
-    usb_close(dev);
+    usb_close();
 
     return 0;
 }
