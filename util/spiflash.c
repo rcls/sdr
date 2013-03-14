@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <err.h>
 #include <fcntl.h>
 #include <stdarg.h>
@@ -15,11 +16,9 @@
 #define PAGE_LEN 264
 
 
-static unsigned char buffer[131072];
-
+static unsigned char buffer[4096];
 
 static libusb_device_handle * dev;
-
 
 static void close_port (void)
 {
@@ -27,89 +26,60 @@ static void close_port (void)
 }
 
 
-static void read_exact(unsigned char * buf, int len)
+static ssize_t cookie_write(void * cookie, const char * buf, size_t size)
 {
-    while (len > 0) {
-        int done = usb_read(dev, buf, len);
-        if (done == 0)
-            errx (1, "short read");
-        buf += done;
-        len -= done;
-    }
+    usb_send_bytes(dev, buf, size);
+    return size;
 }
 
 
-static void add_be (uint64_t word, int bits, bool readback)
-{
-    for (int i = 0; i != bits; ++i) {
-        unsigned data = ((word >> (bits - i - 1)) & 1) ? FLASH_DATA : 0;
-        usb_write_reg(dev, REG_FLASH, data | (readback ? FLASH_XMIT : 0));
-        usb_write_reg(dev, REG_FLASH, data | FLASH_CLK);
-    }
-}
+static cookie_io_functions_t cookie_io = { NULL, cookie_write, NULL, NULL };
 
-
-static void add_bytes (const unsigned char * data, int bytes, bool readback)
-{
-    for (int i = 0; i != bytes; ++i)
-        add_be(data[i], 8, readback);
-}
-
-
-static void read_decode_bytes(unsigned char * buffer, int bytes)
-{
-    unsigned char bits[bytes * 8];
-    read_exact(bits, bytes * 8);
-    for (int i = 0; i != bytes; ++i) {
-        int byte = 0;
-        for (int j = 0; j != 8; ++j) {
-            unsigned c = bits[8 * i + j];
-            if (c & FLASH_OVERRUN)
-                err(1, "Overrun at byte %i offset %i\n", i, j);
-            byte = byte * 2 + !!(c & FLASH_RECV);
-        }
-        buffer[i] = byte;
-    }
-}
-
-
-static void chip_select(void)
-{
-    usb_write_reg(dev, REG_FLASH, FLASH_CS);
-}
 
 static int buffer_num;
 
-static void write_page (const unsigned char * data, unsigned page)
+static void write_page (FILE * o, const unsigned char * data, unsigned page)
 {
-    chip_select();
-
     buffer_num = !buffer_num;
 
     unsigned buffer_write = buffer_num ? 0x84 : 0x87;
 
-    add_be(buffer_write << 24, 32, false);
-    add_bytes(data, PAGE_LEN, false);
-
-    chip_select();
+    fprintf(o, "flash %02x 000000 >\n", buffer_write);
+    for (unsigned start = 0; start < PAGE_LEN;) {
+        unsigned l = PAGE_LEN - start;
+        if (l > 16)
+            l = 16;
+        fprintf(o, "flash <> ");
+        for (unsigned i = start; i != start + l; ++i)
+            fprintf(o, "%02x", data[i]);
+        fprintf(o, "\n");
+        start += l;
+    }
+    fprintf(o, "flash\n");
 
     // Now wait for idle.
-    chip_select();
-    add_be(0xd7, 8, false);
     int i = 0;
+    fprintf(o, "flash d7 >\n");
     do {
         if (++i >= 10000)
             errx(1, "Timeout waiting for idle");
-        add_be(0, 8, true);
-        read_decode_bytes(buffer, 1);
+        fprintf(o, "flash <>? 00\n");
+        fflush(o);
+        int n;
+        do {
+            n = usb_read(dev, buffer, sizeof buffer);
+        }
+        while (n == 0);
+        if (n != 3 || buffer[2] != '\n')
+            errx(1, "Huh '%.*s'?\n", n, buffer);
+        buffer[2] = 0;
     }
-    while (!(*buffer & 0x80));
+    while (strtoul((char*) buffer, NULL, 16) < 128);
 
-    chip_select();
-
+    fprintf(o, "flash\n");
     unsigned page_write = buffer_num ? 0x83 : 0x86;
-    add_be(page_write, 8, false);
-    add_be(page * 512, 24, false);
+    fprintf(o, "flash %02x %06x\n", page_write, page * 512);
+    fflush(o);
 }
 
 
@@ -171,38 +141,17 @@ int main(int argc, char * argv[])
     dev = usb_open();
 
     atexit(close_port);
-
-    // Select SPI readback.
-    // Make sure CS, SI are high.
-    usb_write_reg(dev, REG_XMIT, XMIT_FLASH|XMIT_LOW_LATENCY);
-    usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA);
-    usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA | FLASH_XMIT);
-    usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA);
-    usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA | FLASH_XMIT);
-
     usb_flush(dev);
 
-    // Now grab data.  We should get exactly 1 byte, and the overflow bit
-    // should be off.
-    usb_write_reg(dev, REG_FLASH, FLASH_CS | FLASH_DATA);
+    FILE * o = fopencookie(dev, "w", cookie_io);
 
-    read_exact(buffer, 1);
-    if (buffer[0] & FLASH_OVERRUN)
-        errx(1, "Still have overrun...\n");
-    /* check_idle(); */
+    fprintf(o, "nop\n");
+    fprintf(o, "wr %02x %02x\n", REG_XMIT, XMIT_CPU_SSI|XMIT_LOW_LATENCY);
+    fprintf(o, "flash ? 9f00000000000000\n");
+    fflush(o);
 
-    chip_select();
-
-    add_be(0x9f, 8, false);
-    add_be(0, 56, true);
-
-    chip_select();
-
-    read_decode_bytes(buffer, 7);
-    fprintf(stderr, "ID:");
-    for (int i = 0; i != 7; ++i)
-        fprintf(stderr, " %02x", buffer[i]);
-    fprintf(stderr, "\n");
+    int len = usb_read(dev, buffer, sizeof buffer);
+    fprintf(stderr, "%.*s", len, buffer);
 
     if (argc == 1)
         return 0;
@@ -225,9 +174,9 @@ int main(int argc, char * argv[])
 
     for (unsigned i = 0; i < pages; ++i) {
         fprintf(stderr, "\rpage %i", i);
-        write_page(q + i * PAGE_LEN, i);
+        write_page(o, q + i * PAGE_LEN, i);
     }
+    fclose(o);
     fprintf(stderr, "\n");
-
     return 0;
 }

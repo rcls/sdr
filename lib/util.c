@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 void * xmalloc(size_t size)
 {
@@ -46,6 +47,10 @@ void slurp_file(int file, unsigned char * * restrict buffer,
 void slurp_path(const char * path, unsigned char * * restrict buffer,
                 size_t * restrict offset, size_t * restrict size)
 {
+    if (strcmp(path, "-") == 0) {
+        slurp_file(0, buffer, offset, size);
+        return;
+    }
     int file = checki(open(path, O_RDONLY), "open");
     slurp_file(file, buffer, offset, size);
     checki(close(file), "close");

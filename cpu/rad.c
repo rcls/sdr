@@ -1,4 +1,5 @@
 
+#include "printf.h"
 #include "registers.h"
 #include "../lib/registers.h"
 
@@ -6,7 +7,7 @@
 
 typedef struct command_t {
     const char * name;
-    void (* function)(const char *);
+    void (* function)(char *);
 } command_t;
 
 void * const vtable[] __attribute__((section (".start"),
@@ -15,8 +16,8 @@ static void run(void);
 
 unsigned rxchar(void)
 {
-    // RX a byte from the usb stream, by reading channel 0 from the FPGA.
-    // We try and be smart about requesting the data.
+    // RX a byte from the usb stream, by reading channel 0 from the FPGA.  We
+    // try and be smart about requesting the data.
     while (1) {
         unsigned s = SSI->sr;
         if (s & 4) {
@@ -29,27 +30,9 @@ unsigned rxchar(void)
     }
 }
 
-static void txword(unsigned val)
-{
-    while ((SSI->sr & 2) == 0);
-    SSI->dr = val;
-}
-
 static inline void write_reg(unsigned r, unsigned v)
 {
     txword(r * 512 + 256 + (v & 255));
-}
-
-
-static void putchar(unsigned c)
-{
-    txword(0x100 + c);
-}
-
-static void putstring(const char * s)
-{
-    while (*s)
-        putchar(255 & *s++);
 }
 
 
@@ -99,39 +82,113 @@ static bool streq(const char * a, const char * b)
 
 static __attribute__((noreturn)) void rerun(const char * m)
 {
-    putstring(m);
-    asm volatile("mov sp,%0\n\tbx %1\n" :: "r"(0x20002000), "r"(run));
+    puts(m);
+    asm volatile("mov sp,%0\n\tb.n %1\n" :: "r"(0x20002000), "i"(run));
     __builtin_unreachable();
 }
 
 
-static void command_reboot(const char * params)
+static void command_reboot(char * params)
 {
-    putstring("reboot\n");
+    puts("reboot\n");
     while (SSI->sr & 16);
     while (true)
         SCB->apint = 0x05fa0004;
 }
 
 
-static void command_echo(const char * params)
+static void command_echo(char * params)
 {
     bool sp = false;
-    while (*params) {
+    for (const char * p = params; *p; p = skipstring(p)) {
         if (sp)
             putchar(' ');
         sp = true;
-        putstring(params);
-        params = skipstring(params);
+        puts(p);
     }
     putchar('\n');
+}
+
+
+static void command_flash(char * params)
+{
+    // Flags can be used:
+    // </> : leave CS low before/after operation.
+    // ? : echo on.
+    bool cont_before = false;
+    bool cont_after = false;
+    bool echo = false;
+
+    // Validate everything first & squash down to an array of nibbles.
+    unsigned prev = 0;
+    char * end = params;
+    for (const char * p = params; *p || prev; ++p) {
+        prev = *p;
+        switch (*p) {
+        case 0:
+            continue;
+        case '<':
+            cont_before = true;
+            continue;
+        case '>':
+            cont_after = true;
+            continue;
+        case '?':
+            echo = true;
+            continue;
+        }
+
+        unsigned c = *p & 255;
+        if (c >= 'a')
+            c &= ~32;
+        c -= '0';
+        if (c >= 10) {
+            c -= 'A' - '0' - 10;
+            if (c < 10 || c > 15)
+                rerun("Illegal flash command.\n");
+        }
+        *end++ = c;
+    }
+    unsigned length = (end - params) * 8;
+    unsigned rx = 0;
+    unsigned tx = 0;
+    unsigned word = 0;
+    if (!cont_before)
+        write_reg(REG_FLASH, FLASH_CS);
+    // Flush SSI before we start...
+    while (SSI->sr & 20)
+        SSI->dr;
+    while (rx < length || tx < length) {
+        if (tx == length && (SSI->sr & 20) == 0)
+            rerun("Huh?  Idle.\n");
+        while (SSI->sr & 4) {
+            unsigned in = SSI->dr;
+            if ((in >> 8) == REG_FLASH * 2 + 1 && rx < tx && (rx++ & 1)) {
+                word = word * 2 + (in & FLASH_DATA ? 1 : 0);
+                if (echo && (rx & 7) == 0)
+                    printf("%x", word & 15);
+            }
+        }
+        if (tx < length && (SSI->sr & 2)) {
+            unsigned n = params[tx >> 3];
+            n <<= (tx >> 1) & 3;
+            SSI->dr = REG_FLASH * 512 + 256
+                + (n & 8 ? FLASH_DATA : 0)
+                + (tx & 1 ? FLASH_CLK : 0);
+            ++tx;
+        }
+    }
+    if (!cont_after)
+        write_reg(REG_FLASH, FLASH_CS);
+    if (echo)
+        putchar('\n');
 }
 
 
 static unsigned hextou(const char * h)
 {
     unsigned result = 0;
-    for (; *h; ++h) {
+    do {
         unsigned c = *h;
         if (c >= 'a')
             c -= 32;                    // Upper case.
@@ -143,6 +200,7 @@ static unsigned hextou(const char * h)
         }
         result = result * 16 + c;
     }
+    while (*++h);
     return result;
 }
 
@@ -150,17 +208,18 @@ static unsigned hextou(const char * h)
 static unsigned dectou(const char * h)
 {
     unsigned result = 0;
-    for (; *h; ++h) {
+    do {
         unsigned c = *h - '0';
         if (c >= 10)
             rerun("Illegal decimal\n");
         result = result * 10 + c;
     }
+    while (*++h);
     return result;
 }
 
 
-static void command_write(const char * params)
+static void command_write(char * params)
 {
     unsigned r = hextou(params);
     unsigned v = hextou(skipstring(params));
@@ -168,7 +227,7 @@ static void command_write(const char * params)
 }
 
 
-static void command_tune(const char * params)
+static void command_tune(char * params)
 {
     unsigned c = dectou(params);
     unsigned f;
@@ -188,18 +247,18 @@ static void command_tune(const char * params)
 }
 
 
-static void command_gain(const char * params)
+static void command_gain(char * params)
 {
     unsigned c = dectou(params);
-    params = skipstring(params);
+    const char * q = skipstring(params);
     unsigned g = 0;
-    if (*params)
-        g = dectou(params) + 128;
+    if (*q)
+        g = dectou(q) + 128;
     write_reg(c * 4 + 19, g);
 }
 
 
-static void command_bandpass(const char * params)
+static void command_bandpass(char * params)
 {
     unsigned f = dectou(params);
     unsigned g = dectou(skipstring(params));
@@ -209,7 +268,33 @@ static void command_bandpass(const char * params)
 }
 
 
-static void command_nop(const char * params)
+static void command_peek(char * params)
+{
+    unsigned char * address = (unsigned char *) hextou(params);
+    const char * q = skipstring(params);
+    unsigned length = 16;
+    if (*q)
+        length = dectou(q);
+    while (length) {
+        unsigned ll = 16;
+        if (length < 16)
+            ll = length;
+
+        printf("%p", address);
+        unsigned sep = ':';
+        for (unsigned i = 0; i != ll; ++i) {
+            printf("%c%02x", sep, address[i]);
+            sep = ' ';
+        }
+        putchar('\n');
+
+        length -= ll;
+        address += ll;
+    }
+}
+
+
+static void command_nop(char * params)
 {
 }
 
@@ -222,7 +307,9 @@ static const command_t commands[] = {
     { "tune", command_tune },
     { "tuneh", command_tune },
     { "gain", command_gain },
+    { "peek", command_peek },
     { "nop", command_nop },
+    { "flash", command_flash },
     { "", command_nop },
     { NULL, NULL }
 };
@@ -235,13 +322,11 @@ static void command(void)
 
     for (const command_t * c = commands; c->name; ++c) {
         if (streq(c->name, line)) {
-            c->function(skipstring(line));
+            c->function((char *) skipstring(line));
             return;
         }
     }
-    putstring("Unknown command: '");
-    putstring(line);
-    putstring("'\n");
+    printf("Unknown command: '%s'\n", line);
 }
 
 
@@ -259,7 +344,7 @@ static void start(void)
     SC->rcgc[1] = 16;                   // SSI.
 
     SSI->cr[1] = 0;                     // Disable.
-    SSI->cr[0] = 0x01cf;                // /1, SPH=1, SPO=1, SPI, 16 bits.
+    SSI->cr[0] = 0xcf;                  // SPH=1, SPO=1, SPI, 16 bits.
     SSI->cpsr = 2;                      // Prescalar /2.
 
     PA->afsel = 0x3c;                   // Set SSI pins to alt. function.

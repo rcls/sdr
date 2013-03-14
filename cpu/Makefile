@@ -20,6 +20,8 @@ CFLAGS=-Os -g -flto -fwhole-program -std=gnu11 -ffreestanding \
 	-mcpu=cortex-m3 -mthumb -MMD -MP -MF.deps/$@.d \
 	-fno-common -fdata-sections -Wall -Werror
 
+rad.flash.elf rad.sram.elf: printf.o
+
 -include .deps/*.d
 
 %.s: %.c
