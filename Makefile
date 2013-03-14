@@ -1,6 +1,6 @@
 
 SAMPBIN=dump spectrum spectrum-reduce mlt3-detect
-UTILBIN=phasespect irspec burstspec spiflash ssi
+UTILBIN=phasespect irspec burstspec spiflash ssi monwrite
 BINARIES=$(SAMPBIN:%=sample/%) $(UTILBIN:%=util/%)
 all: vhdl/sinrom.vhd phasedetectsim pllsim $(BINARIES) cpu
 
