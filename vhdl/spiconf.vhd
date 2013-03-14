@@ -4,6 +4,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library unisim;
+use unisim.vcomponents.all;
+
 library work;
 use work.defs.all;
 
@@ -30,9 +33,13 @@ architecture spiconf of spiconf is
   signal shift_out : unsigned8;
   signal spi_clk2 : std_logic;
 
+  signal tdi : std_logic;
+  signal drck, drck2, drck3, idle : std_logic := '1';
 begin
   spi_out <= shift_out(7) when bit_count(3) = '1' else spi_in
-             when spi_ss = '0' else '0';
+             when spi_ss = '0' else idle;
+
+  jtag : bscan_spartan6 port map (drck => drck, tdi => tdi, tdo => idle);
 
   process
   begin
@@ -73,6 +80,12 @@ begin
 
     if spi_ss = '1' then
       bit_count <= x"0";
+    end if;
+
+    drck2 <= drck;
+    drck3 <= drck2;
+    if drck2 = '1' and drck3 = '0' then
+      idle <= tdi;
     end if;
   end process;
 end spiconf;

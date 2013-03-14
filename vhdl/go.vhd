@@ -220,8 +220,7 @@ begin
       x"00000000" & x"00000000" & x"00000000" & x"805ed288" &
       X56 & x"0000" & x"ff" & x"0000" & x"0f" & x"98" & x"09" & x"00")
     port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
-             spi_data, spi_data_ack,
-             config, config_strobe, clk_50m);
+             spi_data, spi_data_ack, config, config_strobe, clk_50m);
   -- SPI port one is cpu to usb.  SPI port zero is usb to cpu.
   process
   begin
