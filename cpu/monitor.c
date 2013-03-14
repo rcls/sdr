@@ -335,7 +335,7 @@ void first(void)
         alternate_boot();
 
     SC_TAIL->rcgc[1] = 16;              // SSI.
-    SC_TAIL->usecrl = 12;               // Flash speed.
+    SC_TAIL->usecrl = 25 - 1;           // Flash speed.
 
     SSI->cr[1] = 0;                     // Disable.
     SSI->cr[0] = 0xcf;                  // Full rate, SPH=1, SPO=1, 16 bits.
