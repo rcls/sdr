@@ -153,8 +153,6 @@ architecture behavioural of go is
   signal usbd_out : unsigned8;
   signal usb_oe_n : std_logic;
 
-  signal div50by2 : std_logic;
-
   attribute S : string;
   attribute S of usb_c : signal is "yes";
   attribute S of led : signal is "yes";
@@ -294,6 +292,9 @@ begin
     adc_data_b, sampler_decay, sampler_rate, sampler_data, sampler_strobe,
     clk_main);
 
+  cpuclock : entity clockgen port map (
+    header_16, clk_main, clk_main_neg, clk_50m);
+
   process
   begin
     wait until rising_edge(clk_main);
@@ -367,9 +368,6 @@ begin
     wait until rising_edge(clk_main_neg);
     usb_nRXFb <= usb_c(0);
     usb_nTXEb <= usb_c(1);
-    cpu_ssifss2 <= cpu_ssifss;
-    cpu_ssitx2 <= cpu_ssitx;
-    cpu_ssiclk2 <= cpu_ssiclk;
   end process;
 
   process
@@ -377,17 +375,17 @@ begin
     wait until falling_edge(clk_50m);
     usb_nRXF <= usb_nRXFb;
     usb_nTXE <= usb_nTXEb;
+  end process;
+
+  process
+  begin
+    wait until rising_edge(clk_main);
+    cpu_ssifss2 <= cpu_ssifss;
+    cpu_ssitx2 <= cpu_ssitx;
+    cpu_ssiclk2 <= cpu_ssiclk;
     cpu_ssifss3 <= cpu_ssifss2;
     cpu_ssitx3 <= cpu_ssitx2;
     cpu_ssiclk3 <= cpu_ssiclk2;
-  end process;
-
-  -- Divide the 50MHz clock by 4.
-  process
-  begin
-    wait until rising_edge(clk_50m);
-    header_16 <= div50by2;
-    div50by2 <= not div50by2;
   end process;
 
   -- DDR input from ADC.
