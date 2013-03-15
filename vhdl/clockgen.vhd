@@ -20,13 +20,11 @@ architecture clockgen of clockgen is
   signal update2, update3 : std_logic := '0';
   signal drck, tdi, tdi2, sel, sel2, update : std_logic;
   signal drck2, drck3 : std_logic := '1';
-  signal init : unsigned(9 downto 0) := "1111100000";
-  signal bits : unsigned(9 downto 0) := "1111100000";
-  signal shift : unsigned(9 downto 0) := "1111100000";
+  signal init, bits, shift : unsigned(9 downto 0) := "0111110000";
   signal updated : boolean := true;
   signal count : integer range 0 to 4;
   signal first, second : std_logic;
-  signal div50by2, div50by2prev : std_logic;
+  signal div50by2, div50by2prev, edge50 : std_logic;
 begin
   occ : oddr2 generic map(ddr_alignment=>"C0", srtype=>"async")
     port map (c0 => clk_main, c1 => clk_main_neg, q => cpu_clk,
@@ -45,9 +43,10 @@ begin
   begin
     wait until rising_edge(clk_main);
     div50by2prev <= div50by2;
+    edge50 <= div50by2prev xor div50by2;
 
     count <= count + 1;
-    if div50by2 /= div50by2prev then
+    if edge50 = '1' then
       count <= 0;
       if updated then
         bits(4 downto 0) <= (others => bits(9));
