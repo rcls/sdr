@@ -116,7 +116,6 @@ architecture behavioural of go is
   --alias to_usb_data_strobe : std_logic is config_strobe(0); FIXME
 
   alias adc_control : unsigned8 is config(15 downto 8);
-  alias adc_clock_select : std_logic is adc_control(7);
   -- Control for data in to USB host.
   alias xmit_control : unsigned8 is config(23 downto 16);
 
@@ -130,6 +129,7 @@ architecture behavioural of go is
   alias xmit_turbo : std_logic is xmit_control(6);
 
   alias flash_control : unsigned8 is config(31 downto 24);
+  alias clock_select : std_logic is flash_control(7);
 
   alias bandpass_freq : unsigned8 is config(39 downto 32);
   alias bandpass_gain : unsigned8 is config(47 downto 40);
@@ -463,9 +463,9 @@ begin
       CLKIN   => clkin125_b);
 
   adc_clk_bufg     : BUFGMUX port map (
-    I0 => adc_clk_250, I1 => adc_clk_200, S => adc_clock_select, O => adc_clk);
+    I0 => adc_clk_250, I1 => adc_clk_200, S => clock_select, O => adc_clk);
   adc_clk_neg_bufg : BUFGMUX port map (
     I0 => adc_clk_neg_250, I1 => adc_clk_neg_200,
-    S => adc_clock_select, O => adc_clk_neg);
+    S => clock_select, O => adc_clk_neg);
 
 end behavioural;
