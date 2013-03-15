@@ -47,23 +47,27 @@ static const char * skipstring(const char * s)
 // nul.  Might take up to 2 extra for the final nuls.
 static void getline(char * restrict line, unsigned max)
 {
-    bool skipspace = true;
     unsigned i = 0;
+    bool skipspace = true;
     while (i < max) {
         unsigned c = rxchar();
-        if (c == ' ') {
-            if (skipspace)
-                continue;
-
-            line[i++] = 0;
+        if (c == 27) {
             skipspace = true;
+            i = 0;
+            continue;
+        }
+        if (c == ' ') {
+            if (!skipspace) {
+                line[i++] = 0;
+                skipspace = true;
+            }
             continue;
         }
         if (c == '\n')
             break;
 
-        skipspace = false;
         line[i++] = c;
+        skipspace = false;
     }
     line[i++] = 0;
     line[i++] = 0;
@@ -90,7 +94,7 @@ static __attribute__((noreturn)) void rerun(const char * m)
 
 static void command_reboot(char * params)
 {
-    puts("reboot\n");
+    puts("Rebooting...\n");
     while (SSI->sr & 16);
     while (true)
         SCB->apint = 0x05fa0004;
@@ -268,7 +272,7 @@ static void command_bandpass(char * params)
 }
 
 
-static void command_peek(char * params)
+static void command_R(char * params)
 {
     unsigned char * address = (unsigned char *) hextou(params);
     const char * q = skipstring(params);
@@ -294,6 +298,52 @@ static void command_peek(char * params)
 }
 
 
+static void command_W(char * params)
+{
+    unsigned char * address = (unsigned char *) hextou(params);
+    int index = 0;
+    for (const char * p = skipstring(params); *p; p = skipstring(p))
+        params[index++] = hextou(p);
+    for (int i = 0; i != index; ++i)
+        address[i] = params[i];
+}
+
+
+static void command_G(char * params)
+{
+    const unsigned * address = (const unsigned *) hextou(params);
+    if (*skipstring(params))
+        rerun("G only takes 1 parameter\n");
+
+    asm volatile("mov sp,%0\nbx %1\n" :: "r"(address[0]), "r"(address[1]));
+    __builtin_unreachable();
+}
+
+
+static void command_adc(char * params)
+{
+    for (const char * p = params; *p; p = skipstring(p)) {
+        write_reg(REG_ADC, ADC_SEN | ADC_SCLK);
+        write_reg(REG_ADC, ADC_SEN);
+
+        if (streq(p, "reset")) {
+            write_reg(REG_ADC, ADC_SEN|ADC_RESET);
+            write_reg(REG_ADC, ADC_SEN);
+            continue;
+        }
+
+        unsigned v = hextou(p);
+        for (int i = 32768; i; i >>= 1) {
+            write_reg(REG_ADC, (v & i ? ADC_SDATA : 0) | ADC_SCLK);
+            write_reg(REG_ADC, v & i ? ADC_SDATA : 0);
+        }
+    }
+    write_reg(REG_ADC, ADC_SEN | ADC_SCLK);
+    write_reg(REG_ADC, ADC_SEN);
+}
+
+
+
 static void command_nop(char * params)
 {
 }
@@ -307,9 +357,12 @@ static const command_t commands[] = {
     { "tune", command_tune },
     { "tuneh", command_tune },
     { "gain", command_gain },
-    { "peek", command_peek },
+    { "R", command_R },
+    { "W", command_W },
+    { "G", command_G },
     { "nop", command_nop },
     { "flash", command_flash },
+    { "adc", command_adc },
     { "", command_nop },
     { NULL, NULL }
 };
