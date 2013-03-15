@@ -58,8 +58,8 @@ static void write_page (const unsigned char * data, unsigned page)
     while (strtoul((char*) buffer, NULL, 16) < 128);
 
     usb_printf("flash\n");
-    /* unsigned page_write = buffer_num ? 0x83 : 0x86; */
-    /* usb_printf("flash %02x %06x\n", page_write, page * 512); */
+    unsigned page_write = buffer_num ? 0x83 : 0x86;
+    usb_printf("flash %02x %06x\n", page_write, page * 512);
     extern FILE * usb_stream;
     fflush(usb_stream);
 }
@@ -124,7 +124,7 @@ int main(int argc, char * argv[])
     usb_echo();
 
     usb_printf("nop\n");
-    usb_printf("wr %02x %02x\n", REG_XMIT, XMIT_CPU_SSI|XMIT_LOW_LATENCY);
+    usb_write_reg(REG_XMIT, XMIT_CPU_SSI|XMIT_LOW_LATENCY);
     usb_printf("flash ? 9f00000000000000\n");
 
     usb_echo();
