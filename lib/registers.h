@@ -19,7 +19,6 @@
 #define ADC_SDATA 2
 #define ADC_SCLK 4
 #define ADC_RESET 8
-#define ADC_CLOCK_SELECT 128
 
 #define XMIT_IR 0
 #define XMIT_SAMPLE 4
@@ -35,5 +34,6 @@
 #define FLASH_DATA 1
 #define FLASH_CS 2
 #define FLASH_CLK 4
+#define CLOCK_SELECT 128
 
 #endif

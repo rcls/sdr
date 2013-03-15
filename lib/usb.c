@@ -277,30 +277,3 @@ unsigned char * usb_slurp_channel(size_t length, int source,
 
     return buffer;
 }
-
-
-void adc_config(int clock, ...)
-{
-    clock = clock ? ADC_CLOCK_SELECT : 0;
-    va_list args;
-    va_start(args, clock);
-
-    usb_write_reg(REG_ADC, clock | ADC_SEN | ADC_SCLK);
-    usb_write_reg(REG_ADC, clock | ADC_SEN);
-    while (1) {
-        int w = va_arg(args, int);
-        if (w < 0)
-            break;
-        /* if (len > sizeof(buffer) - 100) */
-        /*     errx(1, "adc_config: too many args.\n"); */
-        for (int i = 0; i < 16; ++i) {
-            int b = (w << i) & 32768 ? ADC_SDATA : 0;
-            usb_write_reg(REG_ADC, clock | b | ADC_SCLK);
-            usb_write_reg(REG_ADC, clock | b);
-        }
-        usb_write_reg(REG_ADC, clock | ADC_SEN | ADC_SCLK);
-        usb_write_reg(REG_ADC, clock | ADC_SEN);
-        usb_echo();
-    }
-    va_end(args);
-}

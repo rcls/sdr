@@ -291,7 +291,7 @@ static unsigned char * capture(size_t len)
         count = period / 4 - 1;
     }
     else if (period % 5 == 0) {
-        clock = ADC_CLOCK_SELECT;
+        clock = CLOCK_SELECT;
         count = period / 5 - 1;
     }
     else
@@ -306,23 +306,19 @@ static unsigned char * capture(size_t len)
     usb_open();
 
     // Reset the ADC and clock if necessary.  Set up the sample counter.
-    usb_write_reg(REG_ADC, clock|ADC_RESET);
+    usb_write_reg(REG_FLASH, clock|FLASH_CS);
     usleep(100000);
+    usb_printf("adc reset\n");
 
-    // Now set up ADC:  Low gain, hi perf modes.
-    adc_config(clock,
-               0x2510,                  // Low gain.
-               0x0303, 0x4a01,          // High perf
-               0xcf00, // Offset params
-               0x3de0, // Format / enable offset
-               -1);
+    // Now set up ADC:  Low gain, hi perf 1, hi perf 2, offset params, offset on
+    usb_printf("adc 2510 0303 4a01 cf00 3de0\n");
 
     // Slurp the sampler in turbo mode.
     unsigned char * result = usb_slurp_channel(
         len, XMIT_TURBO|XMIT_SAMPLE, count, wander_decay);
 
     // Back to normal parameters, in case we down clocked.
-    usb_write_reg(REG_ADC, ADC_SEN);
+    usb_write_reg(REG_FLASH, FLASH_CS);
 
     usb_close();
     return result;

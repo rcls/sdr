@@ -266,14 +266,11 @@ int main(int argc, const char ** argv)
 
     // Configure the ADC.  Turn down the gain for linearity.  Turn on offset
     // correction.
-    adc_config(0,
-               0x2510, // Gain.
-               0x0303, 0x4a01, // Hi perf modes.
-               0xcf00, 0x3de0, -1); // Offset correction as quick as possible.
+    usb_printf("adc 2510 0303 4a01 cf00 3de0\n");
 
-    // Give the offset correction time to settle.
+    // Give the offset correction time to settle & freeze offset.
     usleep(200000);
-    adc_config(0, 0xcf80, -1);        // Freeze offset correction.
+    usb_printf("adc cf80\n");
 
     int gain = 48;
     sample_buffer_t buffer = { NULL, 0, NULL };
@@ -284,7 +281,8 @@ int main(int argc, const char ** argv)
 
     usb_write_reg(REG_BANDPASS_GAIN, 0); // Turn off the sampler unit.
 
-    usb_close();
+    usb_printf("echo Done...\n");
+    usb_echo();
 
     return 0;
 }

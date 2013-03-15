@@ -38,6 +38,4 @@ void usb_flush(void);
 unsigned char * usb_slurp_channel(size_t length, int source,
                                   int freq, int gain);
 
-void adc_config(int clock, ...);
-
 #endif
