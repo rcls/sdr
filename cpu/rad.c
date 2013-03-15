@@ -397,7 +397,7 @@ static void start(void)
     SC->rcgc[1] = 16;                   // SSI.
 
     SSI->cr[1] = 0;                     // Disable.
-    SSI->cr[0] = 0xcf;                  // SPH=1, SPO=1, SPI, 16 bits.
+    SSI->cr[0] = 0x01cf;                // /2, SPH=1, SPO=1, SPI, 16 bits.
     SSI->cpsr = 2;                      // Prescalar /2.
 
     PA->afsel = 0x3c;                   // Set SSI pins to alt. function.
