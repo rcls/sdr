@@ -4,7 +4,7 @@ UTILBIN=phasespect irspec burstspec spiflash ssi monwrite
 BINARIES=$(SAMPBIN:%=sample/%) $(UTILBIN:%=util/%)
 all: vhdl/sinrom.vhd phasedetectsim pllsim $(BINARIES) cpu
 
-DEP=-MMD -MP -MF.$(subst /,:,$@).d
+DEP=-MMD -MP -MF.deps/$(subst /,:,$@).d
 
 CFLAGS=-O3 -flto -ffast-math -msse2 -Wall -Werror -std=gnu99 -g -I. $(DEP) -fweb -fopenmp
 LDFLAGS=$(CFLAGS) -fwhole-program
@@ -35,6 +35,6 @@ cpu:
 
 .PRECIOUS: %.o
 
--include .*.d
+-include .deps/*.d
 
 phasedetectsim: LDLIBS=-lfftw3 -lpthread -lm

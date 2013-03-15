@@ -2,7 +2,8 @@
 .PHONY: all clean
 
 TARGETS=blink rad
-all: $(TARGETS)	monitor.flashreloc.bin monitor.sramreloc.bin
+all: $(TARGETS)	monitor.flashreloc.bin monitor.sramreloc.bin \
+	bootsel.sram.bin bootsel.flash0.bin
 
 .PHONY: $(TARGETS)
 $(TARGETS): %: %.sram.bin %.flash.bin
@@ -38,6 +39,9 @@ rad.flash.elf rad.sram.elf: printf.o
 
 %.flash.elf: %.o
 	$(LINK.c) -T flash.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+%.flash0.elf: %.o
+	$(LINK.c) -T flash0.ld $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 %.flashreloc.elf: %.o
 	$(LINK.c) -T flashreloc.ld $^ $(LOADLIBES) $(LDLIBS) -o $@

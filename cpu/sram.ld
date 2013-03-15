@@ -14,8 +14,6 @@ SECTIONS
      *(.got*)
      . = NEXT(4);
      __text_end = .;
-     *(.poststart*)
-     *(.posttext*)
   } > sram
   .bss (NOLOAD) : {
      __bss_start = .;

@@ -1,6 +1,6 @@
 MEMORY {
   sram (WX) : ORIGIN = 0x20000000, LENGTH = 8K
-  flash (RX) : ORIGIN = 0, LENGTH = 64K
+  flash (RX) : ORIGIN = 0x400, LENGTH = 1K
 }
 
 SECTIONS

@@ -1,5 +1,3 @@
-#include <err.h>
-#include <libusb-1.0/libusb.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,8 +32,21 @@ int main(int argc, char * argv[])
     usb_open();
     usb_flush();
 
-    for (int i = 1; i < argc; ++i)
-        basic(argv[i]);
+    if (argc > 1) {
+        for (int i = 1; i < argc; ++i)
+            basic(argv[i]);
+        return 0;
+    }
 
-    return 0;
+    char * line = NULL;
+    size_t max = 0;
+
+    while (1) {
+        ssize_t len = getline(&line, &max, stdin);
+        if (len <= 0)
+            return 0;
+        if (line[len - 1] == '\n')
+            line[len - 1] = 0;
+        basic(line);
+    }
 }

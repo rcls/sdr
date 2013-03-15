@@ -5,11 +5,12 @@
 *.png
 *.tsv
 *.zip
-.*.d
 *.dat
 *.spect
 *.plot
 *.bin
+.deps
+.gdb_history
 /#*#
 /bandpass
 /docs/*.pdf
@@ -24,6 +25,7 @@ PCB*.save
 spect/
 /util/burstspec
 /util/irspec
+/util/monwrite
 /util/phasespect
 /util/spiflash
 /util/ssi

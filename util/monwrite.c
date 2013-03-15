@@ -10,11 +10,20 @@ static size_t write_block(const unsigned char * data,
 {
     if (length > 16)
         length = 16;
-    printf("W%08x", address);
+    printf("W %08x", address);
     for (unsigned i = 0; i < length; ++i)
         printf(" %02x", data[i]);
     printf("\n");
     return length;
+}
+
+
+static void write_blocks(const unsigned char * data,
+                         unsigned length, unsigned address)
+{
+    for (unsigned offset = 0; offset < length;
+         offset += write_block(
+             data + offset, length - offset, address + offset));
 }
 
 
@@ -32,11 +41,12 @@ int main(int argc, char * argv[])
     size_t size = 0;
     unsigned char * data = NULL;
     slurp_path(argv[1], &data, &offset, &size);
-    while (offset != 0) {
-        size_t done = write_block(data, offset, address);
-        data += done;
-        offset -= done;
-        address += done;
+    if (offset > 16) {
+        write_blocks(data + 16, offset - 16, address + 16);
+        write_blocks(data, 16, address);
     }
+    else
+        write_blocks(data, offset, address);
+
     return 0;
 }

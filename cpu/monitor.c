@@ -296,17 +296,6 @@ static void go (void)
 
 
 static __attribute__ ((section(".boottext")))
-void alternate_boot(void)
-{
-    unsigned * vt = (unsigned *) 0x800;
-    if (*vt >= 0x20000000 && *vt <= 0x20002000) {
-        *VTABLE = (unsigned) vt;
-        invoke(vt);
-    }
-}
-
-
-static __attribute__ ((section(".boottext")))
 void monitor_reloc(void)
 {
     const unsigned char * src = &__unreloc_start;
@@ -329,17 +318,12 @@ void first(void)
 
     SC_TAIL->rcgc[2] = 31;              // GPIOs.
 
-    // Read the SSI data input pin, PA4.  If it is pulled high, try an alternate
-    // boot source.
-    if (PA->data[16] & 16)
-        alternate_boot();
-
     SC_TAIL->rcgc[1] = 16;              // SSI.
-    SC_TAIL->usecrl = 25 - 1;           // Flash speed.
+    SC_TAIL->usecrl = 50 - 1;           // Flash speed.
 
     SSI->cr[1] = 0;                     // Disable.
     SSI->cr[0] = 0xcf;                  // Full rate, SPH=1, SPO=1, 16 bits.
-    SSI->cpsr = 2;                      // Prescalar /2.
+    SSI->cpsr = 4;                      // Prescalar /4.
 
     PA->afsel = 0x3c;                   // Set SSI pins to alt. function.
 
