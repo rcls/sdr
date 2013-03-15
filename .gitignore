@@ -28,7 +28,7 @@ spect/
 /util/monwrite
 /util/phasespect
 /util/spiflash
-/util/ssi
+/util/command
 /fir
 /fir.hi
 /cpu/*.bin
