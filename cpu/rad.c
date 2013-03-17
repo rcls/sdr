@@ -231,6 +231,26 @@ static void command_write(char * params)
 }
 
 
+static void command_read(char * params)
+{
+    unsigned r = hextou(params);
+    // Flush SSI before we start...
+    while (SSI->sr & 20)
+        SSI->dr;
+
+    txword(r * 512);
+    while (SSI->sr & 16);               // Wait for idle.
+    while (SSI->sr & 4) {
+        unsigned v = SSI->dr;
+        if (v >> 8 == r * 2) {
+            printf("%04x\n", v);
+            return;
+        }
+    }
+    printf("Bugger, idle\n");
+}
+
+
 static void command_tune(char * params)
 {
     unsigned c = dectou(params);
@@ -351,6 +371,7 @@ static void command_nop(char * params)
 
 static const command_t commands[] = {
     { "wr", command_write },
+    { "rd", command_read },
     { "echo", command_echo },
     { "reboot", command_reboot },
     { "bandpass", command_bandpass },
