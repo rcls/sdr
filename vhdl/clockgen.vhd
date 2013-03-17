@@ -30,7 +30,7 @@ begin
     port map (c0 => clk_main, c1 => clk_main_neg, q => cpu_clk,
               d0 => first, d1 => second);
   jtg : bscan_spartan6 generic map (jtag_chain => 2)
-    port map (drck => drck, tdi => tdi, update => update, tdo => shift(9),
+    port map (drck => drck, tdi => tdi, update => update, tdo => shift(0),
               sel => sel);
 
   wform <= init;
