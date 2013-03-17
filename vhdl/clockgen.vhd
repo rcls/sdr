@@ -13,7 +13,7 @@ use work.all;
 use work.defs.all;
 
 entity clockgen is
-  port (cpu_clk : out std_logic;
+  port (cpu_clk : out std_logic; wform : out unsigned(9 downto 0);
         clk_main, clk_main_neg, clk_50m : in std_logic);
 end clockgen;
 architecture clockgen of clockgen is
@@ -32,6 +32,8 @@ begin
   jtg : bscan_spartan6 generic map (jtag_chain => 2)
     port map (drck => drck, tdi => tdi, update => update, tdo => shift(9),
               sel => sel);
+
+  wform <= init;
 
   process
   begin

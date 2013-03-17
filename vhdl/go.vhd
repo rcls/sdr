@@ -164,7 +164,7 @@ architecture behavioural of go is
   alias adc_clk_locked : std_logic is led_off(2);
 
   -- spi conf stuff.
-  constant spi_data_bytes : integer := 4;
+  constant spi_data_bytes : integer := 32;
   signal spi_data : unsigned(spi_data_bytes * 8 - 1 downto 0) :=
     (others => '0');
   signal spi_data_ack : unsigned(spi_data_bytes - 1 downto 0) :=
@@ -220,6 +220,9 @@ begin
     port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
              spi_data, spi_data_ack, config, config_strobe, clk_50m);
   -- SPI port one is cpu to usb.  SPI port zero is usb to cpu.
+  spi_data(23 downto 8) <= config(23 downto 8);
+  spi_data(71 downto 32) <= config(71 downto 32);
+  spi_data(255 downto 128) <= config(255 downto 128);
   process
   begin
     wait until rising_edge(clk_50m);
@@ -293,7 +296,7 @@ begin
     clk_main);
 
   cpuclock : entity clockgen port map (
-    header_16, clk_main, clk_main_neg, clk_50m);
+    header_16, spi_data(121 downto 112), clk_main, clk_main_neg, clk_50m);
 
   process
   begin
