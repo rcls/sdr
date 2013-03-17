@@ -274,10 +274,7 @@ static void command_tune(char * params)
 static void command_gain(char * params)
 {
     unsigned c = dectou(params);
-    const char * q = skipstring(params);
-    unsigned g = 0;
-    if (*q)
-        g = dectou(q) + 128;
+    unsigned g = dectou(skipstring(params));
     write_reg(c * 4 + 19, g);
 }
 
