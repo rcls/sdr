@@ -206,8 +206,6 @@ begin
     led(i) <= '0' when led_off(i) = '0' else 'Z';
   end generate;
 
-  led_off(3) <= not xx_buf_last xor yy_buf_last;
-
   led_off(5) <= not usb_xmit_overrun or xmit_turbo;
 
   led_off(6) <= spartan_m0;
@@ -250,16 +248,11 @@ begin
   blinky : entity blinkoflow port map(adc_data_b, led_off(4), open, clk_main);
 
   down: for i in 0 to 3 generate
-    downblock: block
-      signal freq : unsigned24;
-      signal gain : unsigned8;
-    begin
-      freq <= config(i * 32 + 151 downto i * 32 + 128);
-      gain <= config(i * 32 + 159 downto i * 32 + 152);
-      down0: entity downconvert
-        port map (data => adc_data_b, freq => freq, gain => gain,
-                  xx => xx(i), yy => yy(i), clk => clk_main);
-    end block;
+    dc: entity downconvert
+      port map (data => adc_data_b,
+                freq => config(i * 32 + 151 downto i * 32 + 128),
+                gain => config(i * 32 + 159 downto i * 32 + 152),
+                xx => xx(i), yy => yy(i), clk => clk_main);
   end generate;
 
   xfilter: entity multifilter port map(xx, xx_buf, xx_buf_last, clk_main);
@@ -390,6 +383,10 @@ begin
     cpu_ssifss3 <= cpu_ssifss2;
     cpu_ssitx3 <= cpu_ssitx2;
     cpu_ssiclk3 <= cpu_ssiclk2;
+
+    if xx_buf_last /= yy_buf_last then
+      led_off(3) <= '0';
+    end if;
   end process;
 
   -- DDR input from ADC.
