@@ -8,3 +8,6 @@ INST "adc_reclk_buf" LOC = BUFIO2_X0Y22;
 # to other 50MHz places possibly via a single 4ns path.
 NET "spi/config<*>" TNM_NET = "config";
 TIMESPEC TS_config = FROM "config" 16;
+
+NET "cpu_ssirx" TNM_NET = "cpu_ssi_out";
+TIMESPEC TS_cpu_ssirx = TO "cpu_ssi_out" 6;

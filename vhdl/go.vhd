@@ -175,6 +175,7 @@ architecture behavioural of go is
 
   signal cpu_ssifss2, cpu_ssitx2, cpu_ssiclk2 : std_logic := '1';
   signal cpu_ssifss3, cpu_ssitx3, cpu_ssiclk3 : std_logic := '1';
+  attribute keep of cpu_ssifss2, cpu_ssitx2, cpu_ssiclk2 : signal is "true";
 
   constant X56 : unsigned(55 downto 0) := (others => 'X');
 

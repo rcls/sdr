@@ -14,8 +14,7 @@ entity spiconf is
   generic (config_bytes : integer := 2;
            data_bytes : integer := 2;
            defconfig : unsigned);
-  port (spi_ss : in std_logic;
-        spi_in : in std_logic;
+  port (spi_ss, spi_in : in std_logic;
         spi_out : out std_logic;
         spi_clk : in std_logic;
         data : in unsigned(data_bytes * 8 - 1 downto 0);
@@ -27,7 +26,6 @@ end spiconf;
 
 architecture spiconf of spiconf is
   signal bit_count : unsigned(3 downto 0);
-  signal data_phase : std_logic := '0';
   signal shift_in : unsigned(14 downto 0);
 
   signal shift_out : unsigned8;
