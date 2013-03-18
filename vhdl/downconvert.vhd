@@ -1,13 +1,142 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.defs.all;
+use work.sincos.all;
+
+-- This does one half of the downconverter, either real or imaginary.
+entity dc1 is
+  generic(minus_sin : boolean);
+  port (data : in signed14;
+        gain : in unsigned(3 downto 0);
+        q : out signed36;
+        phase : in unsigned(13 downto 0);
+        clk : in std_logic;
+        index : out unsigned(9 downto 0);
+        packed : in unsigned18);
+end dc1;
+
+architecture dc1 of dc1 is
+  constant width : integer := 48;
+  subtype accumulator is signed(width - 1 downto 0);
+
+  --signal index : unsigned(9 downto 0);
+  signal low, low_2 : unsigned(1 downto 0);
+
+  signal minus : std_logic_vector(1 to 5);
+
+  signal main, offset : unsigned18;
+
+  signal data_3 : signed14;
+
+  signal main_4, main_5, offset_4, offset_5, trig : signed18;
+  signal data_4, data_5, data_6 : signed18;
+
+  signal prod : signed36;
+
+  signal buf, buf_9, acc : accumulator;
+
+  attribute use_dsp48 : string;
+  attribute use_dsp48 of acc : signal is "no";
+begin
+  process
+  begin
+    wait until rising_edge(clk);
+
+    -- Unpack the accumulator to the indexes and signs.
+    -- Maybe we should have separate tables for
+    -- sines and cosines...
+    if minus_sin then
+      if phase(12) = '1' then
+        index <= not phase(11 downto 2);
+        low <= not phase(1 downto 0);
+      else
+        index <= phase(11 downto 2);
+        low <= phase(1 downto 0);
+      end if;
+      -- We are down-converting not up converting, so we want to use -sin.
+      minus(1) <= not phase(13);
+    else
+      if phase(12) = '1' then
+        index <= phase(11 downto 2);
+        low <= phase(1 downto 0);
+      else
+        index <= not phase(11 downto 2);
+        low <= not phase(1 downto 0);
+      end if;
+      minus(1) <= phase(13) xor phase(12);
+    end if;
+    minus(2 to 5) <= minus(1 to 4);
+
+    -- Lookup the sin and cos tables. - done a level up.
+    --packed <= sintable(to_integer(index));
+    low_2 <= low;
+
+    -- Prepare the sin and cos.
+    main <= packed and "00" & x"3fff";
+    offset <= resize(sinoffset(packed, low_2), 18);
+    data_3 <= data;
+
+    -- Apply gain(1,0) to sin & cos, & gain(2) to data.
+    if gain(2) = '0' then
+      data_4 <= resize(data_3, 18);
+    else
+      data_4 <= data_3 & "0000";
+    end if;
+
+    main_4 <= signed(main) sll to_integer(gain(1 downto 0));
+    if minus(4) = '1' then
+      offset_4 <= -signed(offset) sll to_integer(gain(1 downto 0));
+    else
+      offset_4 <= signed(offset) sll to_integer(gain(1 downto 0));
+    end if;
+
+    -- Buffer.
+    main_5 <= main_4;
+    offset_5 <= offset_4;
+    data_5 <= data_4;
+
+    -- Pre-add.
+    if minus(5) = '1' then
+      trig <= offset_5 + main_5;
+    else
+      trig <= offset_5 - main_5;
+    end if;
+    data_6 <= data_5;
+
+    -- Multiply
+    prod <= data_6 * trig;
+
+    -- Post add (8).
+    buf <= buf + prod;
+
+    -- Buffer.
+    buf_9 <= buf;
+
+    -- Second order accumulate, applying gain(3).
+    if gain(3) = '0' then
+      acc <= acc + buf_9;
+    else
+      acc <= acc + (buf_9 sll 8);
+    end if;
+
+    q <= acc(width - 1 downto width - 36);
+  end process;
+end dc1;
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 library work;
 use work.defs.all;
 use work.sincos.all;
 
 entity downconvert is
-    Port (data   : in  signed14;
+    port (data   : in  signed14;
           gain   : in  unsigned8;
           xx, yy : out signed36;
           freq   : in  unsigned24;
@@ -34,137 +163,28 @@ architecture downconvert of downconvert is
   -- The (co)sines are scaled to range from 0 to 2^14/pi (and sign bit).
   -- The average abs(sin) is 2/pi, after scaling 2^15/pi^2
   -- Data sample is 13 bits plus sign, so worst case average multiplier
-  -- output is signed 2^28/pi^2, [just under] 25 bits plus sign.
+  -- output is signed 2^28/pi^2, [just under] 25 bits plus sign.  (Before taking
+  -- the shift due to 'gain' into account.)
 
   -- e.g., accumulating over 1024 samples needs 35 bits plus sign.
   -- second order accumulation needs 45 bits plus sign.  Use all 48 bits...
-  constant width : integer := 48;
-  subtype accumulator is signed(width - 1 downto 0);
-
-  signal index_acc : unsigned24 := x"000000";
-
-  signal cos_index, sin_index : unsigned(9 downto 0);
-  signal sin_low : unsigned(1 downto 0);
-  signal sin_low_2 : unsigned(1 downto 0);
-
-  signal cos_minus, sin_minus : std_logic_vector(1 to 7);
-
-  signal packed_cos, packed_sin : unsigned18;
-
-  signal cos_main, sin_main : unsigned18;
-  signal cos_main_4, cos_main_5 : signed18;
-  signal cos_offset : unsigned18;
-  signal cos_offset_4, cos_offset_5 : signed18;
-  signal sin_offset_4, sin_offset_5 : signed18;
-  signal sin_main_4, sin_main_5 : signed18;
-  signal sin_offset : unsigned18;
-  signal sin, cos : signed18;
-
-  signal data_3 : signed14;
-  signal data_4, data_5, data_6 : signed18;
-  signal xx_prod, yy_prod : signed36;
-
-  signal xx_buf, xx_buf_9 : accumulator;
-  signal yy_buf, yy_buf_9 : accumulator;
-
-  signal xx_acc, yy_acc : accumulator;
-
+  signal phase : unsigned24 := x"000000";
+  signal sin_index, cos_index : unsigned(9 downto 0);
+  signal sin_packed, cos_packed : unsigned18;
   signal sintable : sinrom_t := sinrom;
-
-  attribute use_dsp48 : string;
-  attribute use_dsp48 of xx_acc, yy_acc : signal is "no";
-
 begin
+
+  cos : entity work.dc1 generic map(minus_sin => false)
+    port map(data, gain(3 downto 0), xx, phase(23 downto 10), clk,
+             cos_index, cos_packed);
+  sin : entity work.dc1 generic map(minus_sin => true)
+    port map(data, gain(3 downto 0), yy, phase(23 downto 10), clk,
+             sin_index, sin_packed);
   process
   begin
     wait until rising_edge(clk);
-
-    index_acc <= index_acc + freq;
-
-    -- Unpack the accumulator to the indexes and signs.
-    -- Hmmmm, we could avoid separate indexes if we had separate tables for
-    -- sines and cosines...
-    if index_acc(22) = '1' then
-      cos_index <= index_acc(21 downto 12);
-      sin_index <= not index_acc(21 downto 12);
-      sin_low <= not index_acc(11 downto 10);
-    else
-      cos_index <= not index_acc(21 downto 12);
-      sin_index <= index_acc(21 downto 12);
-      sin_low <= index_acc(11 downto 10);
-    end if;
-    cos_minus(1) <= index_acc(23) xor index_acc(22);
-    -- We are down-converting not up converting, so we want to use -sin.
-    sin_minus(1) <= not index_acc(23);
-    cos_minus(2 to 7) <= cos_minus(1 to 6);
-    sin_minus(2 to 7) <= sin_minus(1 to 6);
-
-    -- Lookup the sin and cos tables.
-    packed_cos <= sintable(to_integer(cos_index));
-    packed_sin <= sintable(to_integer(sin_index));
-    sin_low_2 <= sin_low;
-
-    -- Prepare the sin and cos.
-    cos_main <= packed_cos and "00" & x"3fff";
-    sin_main <= packed_sin and "00" & x"3fff";
-    cos_offset <= resize(sinoffset(packed_cos, not sin_low_2), 18);
-    sin_offset <= resize(sinoffset(packed_sin, sin_low_2), 18);
-    data_3 <= data;
-
-    -- Apply gain(1,0) to sin & cos, & gain(2) to data.
-    if gain(2) = '0' then
-      data_4 <= resize(data_3, 18);
-    else
-      data_4 <= data_3 & "0000";
-    end if;
-
-    cos_main_4 <= signed(cos_main) sll to_integer(gain(1 downto 0));
-    sin_main_4 <= signed(sin_main) sll to_integer(gain(1 downto 0));
-    cos_offset_4 <= signed(cos_offset) sll to_integer(gain(1 downto 0));
-    sin_offset_4 <= signed(sin_offset) sll to_integer(gain(1 downto 0));
-
-    -- Buffer.
-    cos_main_5 <= cos_main_4;
-    sin_main_5 <= sin_main_4;
-    cos_offset_5 <= cos_offset_4;
-    sin_offset_5 <= sin_offset_4;
-    data_5 <= data_4;
-
-    -- Pre-add.
-    cos <= cos_main_5 + cos_offset_5;
-    sin <= sin_main_5 + sin_offset_5;
-    data_6 <= data_5;
-
-    -- Multiply
-    xx_prod <= data_6 * cos;
-    yy_prod <= data_6 * sin;
-
-    -- Post add (8).
-    if cos_minus(7) = '1' then
-      xx_buf <= xx_buf - xx_prod;
-    else
-      xx_buf <= xx_buf + xx_prod;
-    end if;
-    if sin_minus(7) = '1' then
-      yy_buf <= yy_buf - yy_prod;
-    else
-      yy_buf <= yy_buf + yy_prod;
-    end if;
-
-    -- Buffer.
-    xx_buf_9 <= xx_buf;
-    yy_buf_9 <= yy_buf;
-
-    -- Second order accumulate, applying gain(3).
-    if gain(3) = '0' then
-      xx_acc <= xx_acc + xx_buf_9;
-      yy_acc <= yy_acc + yy_buf_9;
-    else
-      xx_acc <= xx_acc + (xx_buf_9 sll 8);
-      yy_acc <= yy_acc + (yy_buf_9 sll 8);
-    end if;
-
-    xx <= xx_acc(width - 1 downto width - 36);
-    yy <= yy_acc(width - 1 downto width - 36);
+    phase <= phase + freq;
+    cos_packed <= sintable(to_integer(cos_index));
+    sin_packed <= sintable(to_integer(sin_index));
   end process;
 end downconvert;
