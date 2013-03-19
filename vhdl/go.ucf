@@ -3,11 +3,12 @@ NET "ADC_RECLK_P" TNM_NET = "adc_reclk";
 TIMESPEC TS_adc_reclk = PERIOD "adc_reclk" 250 MHz;
 
 INST "adc_reclk_buf" LOC = BUFIO2_X0Y22;
+INST adc_reclkfb LOC = BUFIO2FB_X0Y22;
 
-# Let all the configs take up to 16ns.  The only paths we care about are
-# to other 50MHz places possibly via a single 4ns path.
+# Let all the configs take up to 20ns.  The only paths we care about are
+# on 50MHz clocks.
 NET "spi/config<*>" TNM_NET = "config";
-TIMESPEC TS_config = FROM "config" 16;
+TIMESPEC TS_config = FROM "config" 20;
 
 NET "cpu_ssirx" TNM_NET = "cpu_ssi_out";
 TIMESPEC TS_cpu_ssirx = TO "cpu_ssi_out" 6;
