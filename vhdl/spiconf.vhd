@@ -31,6 +31,8 @@ architecture spiconf of spiconf is
   signal shift_out : unsigned8;
   signal spi_clk2 : std_logic;
 
+  signal write_strobe : unsigned(config_bytes - 1 downto 0);
+
   signal tdi : std_logic;
   signal drck, drck2, drck3, idle : std_logic := '1';
 begin
@@ -47,13 +49,12 @@ begin
     data_ack <= (others => '0');
 
     -- Rising edge of spi_clk.
-    config_strobe <= (others => '0');
+    write_strobe <= (others => '0');
     if spi_clk = '1' and spi_clk2 = '0' then
       if bit_count = x"f" and shift_in(7) = '1' then
         for i in 0 to config_bytes - 1 loop
           if shift_in(12 downto 8) = to_unsigned(i, 5) then
-            config(i * 8 + 7 downto i * 8) <= shift_in(6 downto 0) & spi_in;
-            config_strobe(i) <= '1';
+            write_strobe(i) <= '1';
           end if;
         end loop;
       end if;
@@ -75,6 +76,14 @@ begin
         end loop;
       end if;
     end if;
+
+    -- Process writes.
+    config_strobe <= write_strobe;
+    for i in 0 to config_bytes - 1 loop
+      if write_strobe(i) = '1' then
+        config(i * 8 + 7 downto i * 8) <= shift_in(7 downto 0);
+      end if;
+    end loop;
 
     if spi_ss = '1' then
       bit_count <= x"0";
