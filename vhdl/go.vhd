@@ -142,6 +142,8 @@ architecture go of go is
   signal sampler_data : signed15;
   signal sampler_strobe : std_logic;
 
+  alias pll_decay : unsigned8 is config(79 downto 72);
+
   signal usb_byte_in : unsigned8;
   signal usb_byte_in_strobe, usb_byte_in_strobe2 : std_logic;
 
@@ -177,7 +179,7 @@ architecture go of go is
   signal cpu_ssifss3, cpu_ssitx3, cpu_ssiclk3 : std_logic := '1';
   attribute keep of cpu_ssifss2, cpu_ssitx2, cpu_ssiclk2 : signal is "true";
 
-  constant X56 : unsigned(55 downto 0) := (others => 'X');
+  constant X48 : unsigned(47 downto 0) := (others => 'X');
 
 begin
   usb_d <= usbd_out when usb_oe_n = '0' else "ZZZZZZZZ";
@@ -214,8 +216,8 @@ begin
   spi : entity spiconf
     generic map(
       config_bytes, spi_data_bytes,
-      x"00000000" & x"00000000" & x"00000000" & x"805ed288" &
-      X56 & x"0000" & x"ff" & x"0000" & x"0f" & x"98" & x"09" & x"00")
+      x"00000000" & x"00000000" & x"00000000" & x"005ed288" &
+      X48 & x"00" & x"0000" & x"ff" & x"0000" & x"0f" & x"98" & x"09" & x"00")
     port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
              cpu_ssifss, cpu_ssitx,
              spi_data, spi_data_ack, config, config_strobe, clk_50m);
@@ -249,13 +251,17 @@ begin
 
   blinky : entity blinkoflow port map(adc_data_b, led_off(4), open, clk_main);
 
-  down: for i in 0 to 3 generate
+  down: for i in 0 to 2 generate
     dc: entity downconvert
       port map (data => adc_data_b,
                 freq => config(i * 32 + 151 downto i * 32 + 128),
                 gain => config(i * 32 + 159 downto i * 32 + 152),
                 xx => xx(i), yy => yy(i), clk => clk_main);
   end generate;
+  dcpll : entity downconvertpll
+    port map(adc_data_b, config(247 downto 224), config(255 downto 248),
+             pll_decay(3 downto 0),
+             config_strobe_fast(30), xx(3), yy(3), clk_main);
 
   xfilter: entity multifilter port map(xx, xx_buf, xx_buf_last, clk_main);
   yfilter: entity multifilter port map(yy, yy_buf, yy_buf_last, clk_main);
