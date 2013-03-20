@@ -191,6 +191,9 @@ static void command_flash(char * params)
 
 static unsigned hextou(const char * h)
 {
+    if (h[0] == '0' && h[1] == 'x')
+        h += 2;
+
     unsigned result = 0;
     do {
         unsigned c = *h;
@@ -211,6 +214,9 @@ static unsigned hextou(const char * h)
 
 static unsigned dectou(const char * h)
 {
+    if (h[0] == '0' && h[1] == 'x')
+        return hextou(h);
+
     unsigned result = 0;
     do {
         unsigned c = *h - '0';
@@ -274,7 +280,11 @@ static void command_tune(char * params)
 static void command_gain(char * params)
 {
     unsigned c = dectou(params);
-    unsigned g = dectou(skipstring(params));
+    const char * p = skipstring(params);
+    unsigned g = dectou(p);
+    p = skipstring(params);
+    if (*p)
+        g = g + 16 * dectou(p);
     write_reg(c * 4 + 19, g);
 }
 
