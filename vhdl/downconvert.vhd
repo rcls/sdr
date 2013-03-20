@@ -8,7 +8,7 @@ use work.sincos.all;
 
 -- This does one half of the downconverter, either real or imaginary.
 entity dc1 is
-  generic(minus_sin : boolean);
+  generic(minus_sin : boolean; gen_product : boolean := false);
   port (data : in signed14;
         gain : in unsigned(3 downto 0);
         product : out signed36;
@@ -112,7 +112,9 @@ begin
 
     -- Post add (8).
     buf <= buf + prod;
-    product <= prod;
+    if gen_product then
+      product <= prod;
+    end if;
 
     -- Buffer.
     buf_9 <= buf;
@@ -176,10 +178,10 @@ architecture downconvert of downconvert is
   signal sintable : sinrom_t := sinrom;
 begin
 
-  cos : entity work.dc1 generic map(minus_sin => false)
+  cos : entity work.dc1 generic map(false)
     port map(data, gain(3 downto 0), open, xx, phase(23 downto 10), clk,
              cos_index, cos_packed);
-  sin : entity work.dc1 generic map(minus_sin => true)
+  sin : entity work.dc1 generic map(true)
     port map(data, gain(3 downto 0), open, yy, phase(23 downto 10), clk,
              sin_index, sin_packed);
   process
@@ -202,11 +204,11 @@ use work.sincos.all;
 
 entity downconvertpll is
     port (data   : in  signed14;
+          freq_in : in  unsigned24;
           gain   : in  unsigned8;
           decay  : in  unsigned(3 downto 0);
-          xx, yy : out signed36;
-          freq_in : in  unsigned24;
           freq_in_strobe : in std_logic;
+          xx, yy : out signed36;
           clk    : in  std_logic);
 end downconvertpll;
 
@@ -302,29 +304,35 @@ architecture downconvertpll of downconvertpll is
   constant freq_in_pad : signed(freq_width - 25 downto 0) := (others => '0');
 
   -- For some bloody stupid reason, the sra operator doestn't work.
-  function ssra(v : signed; a : unsigned; m : integer := 1) return signed is
+  function ssra(val : signed; a : unsigned; m : integer := 1) return signed is
     variable shift : integer;
-    variable result : signed(v'left downto 0);
+    variable v : signed(val'length + 7 * m - 1 downto 0);
+    variable result : signed(val'length - 1 downto 0);
   begin
-    shift := to_integer(a) * m;
-    result := (others => v(v'left));
-    result(v'left - 1 - shift downto 0) := result(v'left - 1 downto shift);
+    v := (others => val(val'left));
+    v(val'length - 1 downto 0) := val;
+    result := v(val'length - 1 downto 0);
+    for i in 1 to 7 loop
+      if to_integer(a) = i then
+        result := v(val'length - 1 + i * m downto i * m);
+      end if;
+    end loop;
     return result;
   end ssra;
 
 begin
 
-  cos : entity work.dc1 generic map(minus_sin => false)
+  cos : entity work.dc1 generic map(false)
     port map(data, cgain, open, xx,
              unsigned(phase(phase_width - 1 downto phase_width - 14)),
              clk, cos_index, cos_packed);
-  sin : entity work.dc1 generic map(minus_sin => true)
-    port map(data, sgain, open, yy,
+  sin : entity work.dc1 generic map(true, true)
+    port map(data, sgain, product, yy,
              unsigned(phase(phase_width - 1 downto phase_width - 14)),
              clk, sin_index, sin_packed);
   process
     variable error_f0, error_f2 : signed(error_f_w - 1 downto 0);
-    variable error_p0 : signed(error_p_w - 1 downto 0);
+    variable error_p0, error_p2 : signed(error_p_w - 1 downto 0);
   begin
     wait until rising_edge(clk);
     cos_packed <= sintable(to_integer(cos_index));
@@ -352,8 +360,9 @@ begin
     error_p0 := (others => '0');
     error_p0(error_width + 13 downto 14) := error;
     error_p1 <= ssra(error_p0, decay and "0110", 2);
-    phase_a <= freq(freq_width downto freq_width - phase_width)
-               + ssra(error_p1, decay and "0001", 2);
+    error_p2 := ssra(error_p1, decay and "0001", 2);
+    phase_a <= freq(freq_width - 1 downto freq_width - phase_width)
+               + error_p2(63 downto 64 - phase_width);
     phase <= phase + phase_a;
 
     if freq_in_strobe = '1' then
