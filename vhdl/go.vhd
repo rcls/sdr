@@ -46,7 +46,7 @@ entity go is
        clkin125_en : out std_logic);
 end go;
 
-architecture behavioural of go is
+architecture go of go is
   signal xx, yy : four_signed36;
 
   signal xx_buf, yy_buf : signed36;
@@ -109,7 +109,7 @@ architecture behavioural of go is
   -- The configuration loaded via the CPU.
   constant config_bytes : integer := 32;
   signal config : unsigned(config_bytes * 8 - 1 downto 0);
-  signal config_strobe, config_strobe2, config_strobe_fast :
+  signal config_strobe, config_strobe2, config_strobe3, config_strobe_fast :
     unsigned(config_bytes - 1 downto 0);
 
   alias to_usb_data : unsigned8 is config(7 downto 0);
@@ -237,12 +237,13 @@ begin
       usb_read_ok <= '0';
     end if;
     usb_byte_in_strobe2 <= usb_byte_in_strobe;
+    config_strobe2 <= config_strobe;
   end process;
   process
   begin
     wait until rising_edge(clk_main);
-    config_strobe2 <= config_strobe;
-    config_strobe_fast <= config_strobe and not config_strobe2;
+    config_strobe3 <= config_strobe2;
+    config_strobe_fast <= config_strobe2 and not config_strobe3;
   end process;
 
   blinky : entity blinkoflow port map(adc_data_b, led_off(4), open, clk_main);
@@ -469,4 +470,4 @@ begin
     I0 => adc_clk_neg_250, I1 => adc_clk_neg_200,
     S => clock_select, O => adc_clk_neg);
 
-end behavioural;
+end go;
