@@ -17,6 +17,7 @@ entity spiconf is
   port (spi_ss, spi_in : in std_logic;
         spi_out : out std_logic;
         spi_clk : in std_logic;
+        spi_ss_fast, spi_in_fast : in std_logic;
         data : in unsigned(data_bytes * 8 - 1 downto 0);
         data_ack : out unsigned(data_bytes - 1 downto 0);
         config : out unsigned(config_bytes * 8 - 1 downto 0) := defconfig;
@@ -36,8 +37,8 @@ architecture spiconf of spiconf is
   signal tdi : std_logic;
   signal drck, drck2, drck3, idle : std_logic := '1';
 begin
-  spi_out <= shift_out(7) when bit_count(3) = '1' else spi_in
-             when spi_ss = '0' else idle;
+  spi_out <= shift_out(7) when bit_count(3) = '1' else spi_in_fast
+             when spi_ss_fast = '0' else idle;
 
   jtag : bscan_spartan6 port map (drck => drck, tdi => tdi, tdo => idle);
 
