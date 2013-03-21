@@ -74,7 +74,7 @@ begin
         when others => -- "11"
           index <= index + 27 * scale;
       end case;
-      if phase = "10" or phase = "11" then
+      if phase = "00" or phase = "01" then
         acc <= addend1 + ramout;
       else
         acc <= addend1 - ramout;
