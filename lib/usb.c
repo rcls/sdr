@@ -81,9 +81,8 @@ void usb_close(void)
     if (libusb_release_interface(dev, INTF) != 0)
         errx(1, "libusb_release_interface failed\n");
 
-    int r = libusb_attach_kernel_driver(dev, INTF);
-    if (r != 0)
-        errx(1, "libusb_attach_kernel_driver failed %d!\n", r);
+    // Ignore errors from this, the kernel module might not be present.
+    libusb_attach_kernel_driver(dev, INTF);
 
     libusb_close(dev);
 }
@@ -219,7 +218,9 @@ void usb_printf(const char * format, ...)
 
 void usb_write_reg(unsigned reg, unsigned val)
 {
-    fprintf(usb_stream, "wr %x %x\n", reg, val);
+    // This will normally be the first command we send, so include an escape
+    // character to ignore any preceding data.
+    fprintf(usb_stream, "\033wr %x %x\n", reg, val);
 }
 
 
