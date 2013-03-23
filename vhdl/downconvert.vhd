@@ -237,27 +237,27 @@ architecture downconvertpll of downconvertpll is
   -- gamma is given by shifting and the multiplier scaling.
 
   -- Around phase=0 [and gain=0], the normalisation of our "sin" function is
-  -- d/dphase "sin"(phase) is 1/2 ** (phase_width - 13), i.e, a step at
-  -- bit (phase_width - 14) produces a step of 2 LSB of the "sin".
+  -- d/dphase "sin"(phase) is 1/2 ** (full_width - 13), i.e, a step at
+  -- bit (full_width - 14) produces a step of 2 LSB of the "sin".
   -- The overall mean multiplier of the trig multiply is halved and takes the
   -- gain signal into account giving a mean multiplier of
-  -- 2 ** (gain + 12 - phase_width).
+  -- 2 ** (gain + 12 - full_width).
   -- gamma is then composed of that, the signal strength [in units of LSB],
   -- and a shift, i.e., we want
-  -- 1/27 * 1/2 ** (33 + 3*decay) = strength * 2 ** (gain + 12 - phase_width) *
+  -- 1/27 * 1/2 ** (33 + 3*decay) = strength * 2 ** (gain + 12 - full_width) *
   -- shift
 
-  -- 1 = 27 * strength * shift * 2 ** (gain + 45 + 3 * decay - phase_width)
+  -- 1 = 27 * strength * shift * 2 ** (gain + 45 + 3 * decay - full_width)
   -- Design for gain to be set so that strength * 2**gain = 2**14.
   -- Approximate 27 by 32, this gives
-  -- 1 = shift * 2 ** (64 + 3 * decay - phase_width)
-  -- shift = 1/2 ** (64 - phase_width + 3 * decay),  or
-  -- shift = 2 ** (phase_width - 64 - 3 * decay)
-  -- [i.e., right shift unless phase_width is huge.]
+  -- 1 = shift * 2 ** (64 + 3 * decay - full_width)
+  -- shift = 1/2 ** (64 - full_width + 3 * decay),  or
+  -- shift = 2 ** (full_width - 64 - 3 * decay)
+  -- [i.e., right shift unless full_width is huge.]
 
   -- Clearly we are going to achieve some of this shift by dropping bits instead
-  -- of making phase_width huge.  I.E., replace phase_width with
-  -- (phase_width+bits_dropped).  If we take phase_width+bits_dropped = 85,
+  -- of have registers full_width bits wide.  E.g., full_width =
+  -- (phase_width+bits_dropped).  If we take full_width = 85,
   -- then the shift will always be a left shift for decay in 0..7.
 
   -- The design above gives a shift by (21-3*decay) going into error.
@@ -279,7 +279,7 @@ architecture downconvertpll of downconvertpll is
   -- (alternatively LSB at 0 and remember to left shift before use).
   constant error_width : integer := 56;
   signal error : signed(error_width - 1 downto 0);
-  signal error_1 : signed(error_width - 11 downto 0);
+  signal error_1 : signed(error_width - 12 downto 0);
 
   -- The left shift by full_width-64-3*decay is achieved by padding by
   -- full_width-64 on the right, and then right shifting by 3*decay.
@@ -303,7 +303,7 @@ architecture downconvertpll of downconvertpll is
 
   constant freq_in_pad : signed(freq_width - 25 downto 0) := (others => '0');
 
-  -- For some bloody stupid reason, the sra operator doestn't work.
+  -- For some bloody stupid reason, the sra operator doesn't work.
   function ssra(val : signed; a : unsigned; m : integer := 1) return signed is
     variable shift : integer;
     variable v : signed(val'length + 7 * m - 1 downto 0);
@@ -340,7 +340,7 @@ begin
 
     product_1 <= resize(product, error_width)
                  sll to_integer(sgain and "1000");
-    error_1 <= ssra(error(error_width - 1 downto 10),
+    error_1 <= ssra(error(error_width - 1 downto 11),
                     decay and "0110");
     delta <= ssra(error_1, decay and "0001") + product_1;
     error <= error - delta;
