@@ -68,7 +68,7 @@ begin
       if bit_count = x"7" then
         shift_out <= "XXXXXXXX";
         for i in 0 to data_bytes - 1 loop
-          if shift_in(4 downto 0) = to_unsigned(i, 5) then
+          if shift_in(5 downto 0) = to_unsigned(i, 6) then
             shift_out <= data(i * 8 + 7 downto i * 8);
             if spi_in = '0' then
               data_ack(i) <= '1';

@@ -209,6 +209,9 @@ entity downconvertpll is
           decay  : in  unsigned(3 downto 0);
           freq_in_strobe : in std_logic;
           xx, yy : out signed36;
+          freq_out : out unsigned(55 downto 0);
+          err_out : out unsigned(55 downto 0);
+          out_strobe : in std_logic;
           clk    : in  std_logic);
 end downconvertpll;
 
@@ -374,5 +377,9 @@ begin
       error_f1 <= (others => '0');
     end if;
 
+    if out_strobe = '1' then
+      freq_out <= unsigned(freq);
+      err_out <= unsigned(error);
+    end if;
   end process;
 end downconvertpll;

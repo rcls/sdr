@@ -166,7 +166,7 @@ architecture go of go is
   alias adc_clk_locked : std_logic is led_off(2);
 
   -- spi conf stuff.
-  constant spi_data_bytes : integer := 32;
+  constant spi_data_bytes : integer := 48;
   signal spi_data : unsigned(spi_data_bytes * 8 - 1 downto 0) :=
     (others => '0');
   signal spi_data_ack : unsigned(spi_data_bytes - 1 downto 0) :=
@@ -174,6 +174,9 @@ architecture go of go is
   signal usb_read_ok : std_logic := '1';
 
   alias spied_flash : unsigned8 is spi_data(31 downto 24);
+  alias spied_pll_freq : unsigned(55 downto 0) is spi_data(311 downto 256);
+  alias spied_pll_err : unsigned(55 downto 0) is spi_data(375 downto 320);
+  alias spied_pll_strobe : std_logic is spi_data_ack(47);
 
   signal cpu_ssifss2, cpu_ssitx2, cpu_ssiclk2 : std_logic := '1';
   signal cpu_ssifss3, cpu_ssitx3, cpu_ssiclk3 : std_logic := '1';
@@ -225,6 +228,7 @@ begin
   spi_data(23 downto 8) <= config(23 downto 8);
   spi_data(71 downto 32) <= config(71 downto 32);
   spi_data(255 downto 128) <= config(255 downto 128);
+
   process
   begin
     wait until rising_edge(clk_50m);
@@ -261,7 +265,9 @@ begin
   dcpll : entity downconvertpll
     port map(adc_data_b, config(247 downto 224), config(255 downto 248),
              pll_decay(3 downto 0),
-             config_strobe_fast(30), xx(3), yy(3), clk_main);
+             config_strobe_fast(30), xx(3), yy(3),
+             spied_pll_freq, spied_pll_err, spied_pll_strobe,
+             clk_main);
 
   xfilter: entity multifilter port map(xx, xx_buf, xx_buf_last, clk_main);
   yfilter: entity multifilter port map(yy, yy_buf, yy_buf_last, clk_main);
