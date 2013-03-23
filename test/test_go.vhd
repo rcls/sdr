@@ -9,15 +9,11 @@ entity test_go is
 end test_go;
 
 architecture test_go of test_go is
-   signal usb_c : std_logic_vector(7 downto 0);
    signal reclk_p, reclk_n : std_logic;
 begin
-  reclk_n <= not reclk_p;
-  usb_c <= "111ZZZ11";
-
   g : entity work.go port map (
-    adc_p => "0000000",
-    adc_n => "0000000",
+    adc_p => "0001000",
+    adc_n => "1110111",
     adc_clk_p => open,
     adc_clk_n => open,
     adc_reclk_p => reclk_p,
@@ -36,7 +32,7 @@ begin
     audio_demp => open,
 
     usb_d => open,
-    usb_c => usb_c,
+    usb_c => "111ZZZ11",
 
     flash_cs_inv => open,
     flash_sclk => open,
@@ -45,8 +41,8 @@ begin
 
     cpu_ssifss => '1',
     cpu_ssiclk => '1',
-    cpu_ssirx => '1',
-    cpu_ssitx => open,
+    cpu_ssirx => open,
+    cpu_ssitx => '1',
 
     spartan_m0 => '1',
     spartan_m1 => '1',
@@ -59,8 +55,10 @@ begin
   process
   begin
     reclk_p <= '0';
+    reclk_n <= '1';
     wait for 2ns;
     reclk_p <= '1';
+    reclk_n <= '0';
     wait for 2ns;
   end process;
 end;
