@@ -239,26 +239,69 @@ static void command_write(char * params)
 
 static void command_read(char * params)
 {
-    unsigned r = hextou(params);
+    unsigned base = hextou(params);
+    const char * p = skipstring(params);
+    unsigned count = 1;
+    if (p != NULL)
+        count = dectou(p);
+
+    for (unsigned row = base; row != base + count;) {
+        unsigned amount = base + count - row;
+        if (amount > 8)
+            amount = 8;
+        // Flush SSI before we start...
+        while (SSI->sr & 20)
+            SSI->dr;
+        for (unsigned r = row; r != row + amount; ++r)
+            SSI->dr = r * 512;
+        while (SSI->sr & 16);               // Wait for idle.
+        unsigned short responses[8];
+        for (unsigned i = 0; i != amount; ++i)
+            responses[i] = SSI->dr;
+        printf("%02x:", row);
+        for (unsigned i = 0; i != amount; ++i)
+            if (responses[i] >> 8 == (row + i) * 2)
+            printf(" %02x", responses[i] & 255);
+        else
+            printf(" ?%04x?", responses[i]);
+        printf("\n");
+        row += amount;
+    }
+    printf("\n");
+}
+
+
+static void tune_report(int channel)
+{
     // Flush SSI before we start...
     while (SSI->sr & 20)
         SSI->dr;
-
-    txword(r * 512);
+    for (int i = 0; i != 3; ++i)
+        SSI->dr = (channel * 4 + 16 + i) * 512;
     while (SSI->sr & 16);               // Wait for idle.
-    while (SSI->sr & 4) {
-        unsigned v = SSI->dr;
-        if (v >> 8 == r * 2) {
-            printf("%04x\n", v);
-            return;
-        }
-    }
-    printf("Bugger, idle\n");
+    unsigned char response[4];
+    for (unsigned i = 0; i != 4; ++i)
+        response[i] = SSI->dr;
+    unsigned rawf = response[0] + 256 * response[1] + 65536 * response[2];
+    unsigned long long longf = 250000000ull * 256 * rawf;
+    unsigned hertz = longf >> 32;
+    if (channel < 3)
+        printf("%d: %9d Hz, gain = %d * 6dB\n",
+               channel, hertz, response[3] & 15);
+    else
+        printf("%d: %9d Hz, gain = %d,%d * 6dB\n",
+               channel, hertz, response[3] & 15, response[3] >> 4);
 }
 
 
 static void command_tune(char * params)
 {
+    if (*params == 0) {
+        for (int i = 0; i != 4; ++i)
+            tune_report(i);
+        return;
+    }
+
     unsigned c = dectou(params);
     unsigned f;
 
