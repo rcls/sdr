@@ -33,8 +33,8 @@ entity go is
 
        cpu_ssirx : out std_logic;
        cpu_ssitx : in std_logic;
-       cpu_ssiclk : inout std_logic;
-       cpu_ssifss : inout std_logic;
+       cpu_ssiclk : in std_logic;
+       cpu_ssifss : in std_logic;
        header_16 : out std_logic;
 
        spartan_m0 : in std_logic;
