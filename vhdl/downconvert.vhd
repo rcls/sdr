@@ -210,7 +210,8 @@ entity downconvertpll is
           freq_in_strobe : in std_logic;
           xx, yy : out signed36;
           freq_out : out unsigned(55 downto 0);
-          err_out : out unsigned(55 downto 0);
+          error_out : out unsigned(55 downto 0);
+          level_out : out unsigned(55 downto 0);
           out_strobe : in std_logic;
           clk    : in  std_logic);
 end downconvertpll;
@@ -281,8 +282,8 @@ architecture downconvertpll of downconvertpll is
   -- 56 bits, with the LSB at position (full_width - 64 - 3*decay) = 21-3*decay
   -- (alternatively LSB at 0 and remember to left shift before use).
   constant error_width : integer := 56;
-  signal error : signed(error_width - 1 downto 0);
-  signal error_1 : signed(error_width - 12 downto 0);
+  signal error, level : signed(error_width - 1 downto 0);
+  signal error_1, level_1 : signed(error_width - 12 downto 0);
 
   -- The left shift by full_width-64-3*decay is achieved by padding by
   -- full_width-64 on the right, and then right shifting by 3*decay.
@@ -296,8 +297,9 @@ architecture downconvertpll of downconvertpll is
   alias cgain : unsigned(3 downto 0) is gain(3 downto 0);
   alias sgain : unsigned(3 downto 0) is gain(7 downto 4);
 
-  signal product : signed36;
-  signal product_1, delta : signed(error_width - 1 downto 0);
+  signal sproduct, cproduct : signed36;
+  signal sproduct_1, sdelta, cproduct_1, cdelta :
+    signed(error_width - 1 downto 0);
 
   constant error_p_w : integer := error_width + 14;
   signal error_p1 : signed(error_p_w - 1 downto 0);
@@ -325,12 +327,12 @@ architecture downconvertpll of downconvertpll is
 
 begin
 
-  cos : entity work.dc1 generic map(false)
-    port map(data, cgain, open, xx,
+  cos : entity work.dc1 generic map(false, true)
+    port map(data, cgain, cproduct, xx,
              unsigned(phase(phase_width - 1 downto phase_width - 14)),
              clk, cos_index, cos_packed);
   sin : entity work.dc1 generic map(true, true)
-    port map(data, sgain, product, yy,
+    port map(data, sgain, sproduct, yy,
              unsigned(phase(phase_width - 1 downto phase_width - 14)),
              clk, sin_index, sin_packed);
   process
@@ -341,12 +343,18 @@ begin
     cos_packed <= sintable(to_integer(cos_index));
     sin_packed <= sintable(to_integer(sin_index));
 
-    product_1 <= resize(product, error_width)
+    sproduct_1 <= resize(sproduct, error_width)
+                 sll to_integer(sgain and "1000");
+    cproduct_1 <= resize(cproduct, error_width)
                  sll to_integer(sgain and "1000");
     error_1 <= ssra(error(error_width - 1 downto 11),
                     decay and "0110");
-    delta <= ssra(error_1, decay and "0001") + product_1;
-    error <= error - delta;
+    level_1 <= ssra(level(error_width - 1 downto 11),
+                    decay and "0110");
+    sdelta <= sproduct_1 - ssra(error_1, decay and "0001");
+    cdelta <= cproduct_1 - ssra(level_1, decay and "0001");
+    error <= error + sdelta;
+    level <= level + cdelta;
 
     error_f0 := (others => '0');
     error_f0(error_f_w - 1 downto error_f_w - error_width) := error;
@@ -372,14 +380,18 @@ begin
       freq <= (signed(freq_in) & freq_in_pad)
               + error_f2(error_f_w - 1 downto full_width - freq_width);
       error <= (others => '0');
+      level <= (others => '0');
       error_1 <= (others => '0');
-      delta <= (others => '0');
+      level_1 <= (others => '0');
+      sdelta <= (others => '0');
+      cdelta <= (others => '0');
       error_f1 <= (others => '0');
     end if;
 
     if out_strobe = '1' then
       freq_out <= unsigned(freq);
-      err_out <= unsigned(error);
+      error_out <= unsigned(error);
+      level_out <= unsigned(level);
     end if;
   end process;
 end downconvertpll;
