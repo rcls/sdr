@@ -225,9 +225,9 @@ begin
     port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
              cpu_ssifss3, cpu_ssitx3,
              spi_data, spi_data_ack, config, config_strobe, clk_50m);
-  -- SPI port one is cpu to usb.  SPI port zero is usb to cpu.
+  -- Byte zero is usb data to spi.  Byte 3 is flash data to spi.
   spi_data(23 downto 8) <= config(23 downto 8);
-  spi_data(71 downto 32) <= config(71 downto 32);
+  spi_data(79 downto 32) <= config(79 downto 32);
   spi_data(255 downto 128) <= config(255 downto 128);
 
   process
