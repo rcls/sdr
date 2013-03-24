@@ -175,8 +175,8 @@ architecture go of go is
 
   alias spied_flash : unsigned8 is spi_data(31 downto 24);
   alias spied_pll_freq : unsigned(55 downto 0) is spi_data(311 downto 256);
-  alias spied_pll_error : unsigned(55 downto 0) is spi_data(375 downto 320);
-  alias spied_pll_level : unsigned(55 downto 0) is spi_data(439 downto 384);
+  alias spied_pll_error : unsigned(47 downto 0) is spi_data(367 downto 320);
+  alias spied_pll_level : unsigned(47 downto 0) is spi_data(431 downto 384);
   alias spied_pll_strobe : std_logic is spi_data_ack(55);
 
   signal cpu_ssifss2, cpu_ssitx2, cpu_ssiclk2 : std_logic := '1';

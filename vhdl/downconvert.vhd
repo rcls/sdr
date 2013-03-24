@@ -210,8 +210,8 @@ entity downconvertpll is
           freq_in_strobe : in std_logic;
           xx, yy : out signed36;
           freq_out : out unsigned(55 downto 0);
-          error_out : out unsigned(55 downto 0);
-          level_out : out unsigned(55 downto 0);
+          error_out : out unsigned(47 downto 0);
+          level_out : out unsigned(47 downto 0);
           out_strobe : in std_logic;
           clk    : in  std_logic);
 end downconvertpll;
@@ -279,15 +279,17 @@ architecture downconvertpll of downconvertpll is
   constant freq_width : integer := 56;
   signal freq : signed(freq_width - 1 downto 0);
 
-  -- 56 bits, with the LSB at position (full_width - 64 - 3*decay) = 21-3*decay
+  -- 48 bits, with the LSB at position (full_width - 64 - 3*decay + error_drop)
+  -- = 29-3*decay
   -- (alternatively LSB at 0 and remember to left shift before use).
-  constant error_width : integer := 56;
+  constant error_width : integer := 48;
+  constant error_drop : integer := 8;
   signal error, level : signed(error_width - 1 downto 0);
   signal error_1, level_1 : signed(error_width - 12 downto 0);
 
   -- The left shift by full_width-64-3*decay is achieved by padding by
   -- full_width-64 on the right, and then right shifting by 3*decay.
-  constant error_f_w : integer := error_width + full_width - 64;
+  constant error_f_w : integer := error_width + error_drop + full_width - 64;
   signal error_f1 : signed(error_f_w - 1 downto 0);
 
   signal sin_index, cos_index : unsigned(9 downto 0);
@@ -301,7 +303,7 @@ architecture downconvertpll of downconvertpll is
   signal sproduct_1, sdelta, cproduct_1, cdelta :
     signed(error_width - 1 downto 0);
 
-  constant error_p_w : integer := error_width + 14;
+  constant error_p_w : integer := error_width + error_drop + 14;
   signal error_p1 : signed(error_p_w - 1 downto 0);
 
   signal phase_a : signed(phase_width - 1 downto 0);
@@ -325,6 +327,13 @@ architecture downconvertpll of downconvertpll is
     return result;
   end ssra;
 
+  function top(val : signed; n : integer) return signed is
+    variable result : signed(n - 1 downto 0);
+  begin
+    result := val(val'left downto val'left + 1 - n);
+    return result;
+  end top;
+
 begin
 
   cos : entity work.dc1 generic map(false, true)
@@ -340,13 +349,16 @@ begin
     variable error_p0, error_p2 : signed(error_p_w - 1 downto 0);
   begin
     wait until rising_edge(clk);
+
     cos_packed <= sintable(to_integer(cos_index));
     sin_packed <= sintable(to_integer(sin_index));
 
-    sproduct_1 <= resize(sproduct, error_width)
-                 sll to_integer(sgain and "1000");
-    cproduct_1 <= resize(cproduct, error_width)
-                 sll to_integer(sgain and "1000");
+    sproduct_1 <= top(resize(sproduct, error_width + error_drop)
+                      sll to_integer(sgain and "1000"),
+                      error_width);
+    cproduct_1 <= top(resize(cproduct, error_width + error_drop)
+                      sll to_integer(sgain and "1000"),
+                      error_width);
     error_1 <= ssra(error(error_width - 1 downto 11),
                     decay and "0110");
     level_1 <= ssra(level(error_width - 1 downto 11),
@@ -369,7 +381,7 @@ begin
     -- E.g., left shift by (14-2*decay) and drop
     -- (full_width-phase_width) - (full_width-64) = 64-phase_width = 8 bits.
     error_p0 := (others => '0');
-    error_p0(error_width + 13 downto 14) := error;
+    error_p0(error_p_w - 1 downto error_p_w - error_width) := error;
     error_p1 <= ssra(error_p0, decay and "0110", 2);
     error_p2 := ssra(error_p1, decay and "0001", 2);
     phase_a <= freq(freq_width - 1 downto freq_width - phase_width)
