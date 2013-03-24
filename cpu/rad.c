@@ -346,49 +346,108 @@ static void command_tune(char * params)
     write_reg(c * 4 + 18, f >> 16);
 }
 
-
-static void command_pll_report(char * params)
+static unsigned get32(const unsigned char * p)
 {
-    txword(REG_PLL_CAPTURE * 512);
-    static const unsigned char reg_list[] = {
-        REG_PLL_FREQ,
-        REG_PLL_FREQ + 1,
-        REG_PLL_FREQ + 2,
-        REG_PLL_FREQ + 3,
-        REG_PLL_FREQ + 4,
-        REG_PLL_FREQ + 5,
-        REG_PLL_FREQ + 6,
-        REG_PLL_ERROR,
-        REG_PLL_ERROR + 1,
-        REG_PLL_ERROR + 2,
-        REG_PLL_ERROR + 3,
-        REG_PLL_ERROR + 4,
-        REG_PLL_ERROR + 5,
-        REG_PLL_ERROR + 6,
-        REG_PLL_LEVEL,
-        REG_PLL_LEVEL + 1,
-        REG_PLL_LEVEL + 2,
-        REG_PLL_LEVEL + 3,
-        REG_PLL_LEVEL + 4,
-        REG_PLL_LEVEL + 5,
-        REG_PLL_LEVEL + 6,
-        REG_RADIO_GAIN(3),
-        REG_PLL_DECAY
-    };
-    unsigned char reg[sizeof reg_list];
-    read_register_list(reg_list, sizeof reg_list, reg);
-    unsigned long long f = 0;
-    for (int i = 6; i >= 0; --i)
-        f = f * 256 + reg[i];
+    return p[0] + p[1] * 256 + p[2] * 65536 + p[3] * 16777216u;
+}
+static unsigned get24(const unsigned char * p)
+{
+    return p[0] + p[1] * 256 + p[2] * 65536;
+}
+static unsigned long long get56(const unsigned char * p)
+{
+    return get32(p) + ((unsigned long long) get24(p+4) << 32);
+}
+static unsigned long long hertz56(unsigned long long f)
+{
     // We want to multiply by 250M / (1 << 56).  Do this 32+32 fixed point,
     // so we want to multiply by 250M / (1 << 24).
     const unsigned factor_int = (250000000ull << 8) >> 32;
     const unsigned factor_frac = (250000000ull << 8) & 0xffffffffull;
-    f = f * factor_int + (f >> 32) * factor_frac
+    return f * factor_int + (f >> 32) * factor_frac
         + (((f & 0xffffffffull) * factor_frac) >> 32);
-    unsigned freq_int = f >> 32;
-    unsigned freq_micro_hertz = ((f & 0xfffffffful) * 1000000) >> 32;
-    printf("%d.%06d\n", freq_int, freq_micro_hertz);
+}
+
+
+__attribute__((externally_visible))
+long long __aeabi_lasr(long long v, int s)
+{
+    if (s >= 32) {
+        int hi = v >> 32;
+        return (hi >> 31) * (1ll << 32) + (hi >> (s - 32));
+    }
+    int his = v >> 32;
+    unsigned hiu = his;
+    unsigned low = v;
+    return (his >> s) * (1ll << 32) + (low >> s) + (hiu << 1 << (31 - s));
+}
+
+
+__attribute__((externally_visible))
+long long __aeabi_llsl(unsigned long long v, int s)
+{
+    if (s >= 32) {
+        int lo = v;
+        return (lo << (s - 32)) * (1ull << 32);
+    }
+    unsigned hi = v >> 32;
+    unsigned lo = v;
+    return ((hi << s) + (lo >> 1 >> (31 - s))) * (1ull << 32) + (lo << s);
+}
+
+
+static void command_pll_report(char * params)
+{
+    // The parameters from the VHDL...
+    //const int FULL_WIDTH = 85;
+    const int PHASE_WIDTH = 56;
+    //const int FREQ_WIDTH = 56;
+    const int ERROR_WIDTH = 56;
+    //const int ERROR_F_W = ERROR_WIDTH + FULL_WIDTH - 64;
+    const int ERROR_P_W = ERROR_WIDTH + 14;
+    txword(REG_PLL_CAPTURE * 512);      // Capture the pll regs.
+    static const unsigned char reg_list[] = {
+        REG_PLL_FREQ, REG_PLL_FREQ + 1, REG_PLL_FREQ + 2, REG_PLL_FREQ + 3,
+        REG_PLL_FREQ + 4, REG_PLL_FREQ + 5, REG_PLL_FREQ + 6,
+        REG_PLL_ERROR, REG_PLL_ERROR + 1, REG_PLL_ERROR + 2, REG_PLL_ERROR + 3,
+        REG_PLL_ERROR + 4, REG_PLL_ERROR + 5, REG_PLL_ERROR + 6,
+        REG_PLL_LEVEL, REG_PLL_LEVEL + 1, REG_PLL_LEVEL + 2, REG_PLL_LEVEL + 3,
+        REG_PLL_LEVEL + 4, REG_PLL_LEVEL + 5, REG_PLL_LEVEL + 6,
+        REG_PLL_DECAY
+    };
+    unsigned char reg[sizeof reg_list];
+    read_register_list(reg_list, sizeof reg_list, reg);
+    unsigned long long frq = get56(reg);
+    long long err = get56(reg + 7);
+    long long lvl = get56(reg + 14);
+    unsigned decay = reg[21] & 7;
+    // Calculated the frequency adjusted by error, in the same manner as it
+    // is applied in the VHDL phase update.
+    err = err << (64 - ERROR_WIDTH) >> (64 - ERROR_WIDTH); // Sign extend.
+    long long error_p2;
+    int leftshift = ERROR_P_W - ERROR_WIDTH - 64 + PHASE_WIDTH - decay * 2;
+    if (leftshift >= 0)
+        error_p2 = err << leftshift;
+    else
+        error_p2 = err >> -leftshift;
+    //unsigned long long frqerr = frq + error_p2;
+
+    // Convert the frequencies to 32+32 fixed point hertz.
+    frq = hertz56(frq);
+    //frqerr = hertz56(frqerr);
+    char ep2s = ' ';
+    if (error_p2 < 0) {
+        ep2s = '-';
+        error_p2 = -error_p2;
+    }
+    error_p2 = hertz56(error_p2);
+    printf("%d.%06d  %c%d.%06d %x%08x %d %d\n",
+           (unsigned) (frq >> 32),
+           (unsigned) ((frq & 0xfffffffful) * 1000000 >> 32),
+           ep2s, (unsigned) (error_p2 >> 32),
+           (unsigned) ((error_p2 & 0xfffffffful) * 1000000 >> 32),
+           (int)(lvl >> 32), (int) lvl, 64 - __builtin_clzll(lvl),
+           err >= 0 ? 64 - __builtin_clzll(err) : 64 - __builtin_clzll(-err));
 }
 
 

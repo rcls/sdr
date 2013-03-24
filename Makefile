@@ -27,6 +27,10 @@ clean:
 cpu:
 	$(MAKE) -C cpu all
 
+.PHONY: FORCE
+cpu/%: FORCE
+	$(MAKE) -C cpu $*
+
 # Cancel built-in
 %: %.c
 
