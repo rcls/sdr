@@ -87,7 +87,7 @@ static bool streq(const char * a, const char * b)
 static __attribute__((noreturn)) void rerun(const char * m)
 {
     puts(m);
-    asm volatile("mov sp,%0\n\tb.n %1\n" :: "r"(0x20002000), "i"(run));
+    asm volatile("mov sp,%0\n\tb.w %1\n" :: "r"(0x20002000), "i"(run));
     __builtin_unreachable();
 }
 
