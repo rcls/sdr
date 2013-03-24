@@ -13,7 +13,12 @@
 #define REG_SAMPLE_RATE 6
 #define REG_SAMPLE_DECAY_LO 7
 #define REG_SAMPLE_DECAY_HI 8
-#define REG_CPU_SSI 9
+
+#define REG_PLL_DECAY 9
+#define REG_PLL_FREQ 32
+#define REG_PLL_ERROR 40
+#define REG_PLL_LEVEL 48
+#define REG_PLL_CAPTURE 55
 
 #define ADC_SEN 1
 #define ADC_SDATA 2

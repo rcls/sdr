@@ -148,6 +148,7 @@
     <property xil_pn:name="Report Paths by Endpoint Post Trace" xil_pn:value="10" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Selected Module Instance Name" xil_pn:value="/test_go" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Selected Simulation Root Source Node Behavioral" xil_pn:value="work.test_go" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Selected Simulation Root Source Node Post-Map" xil_pn:value="work.test_go" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Selected Simulation Root Source Node Post-Route" xil_pn:value="work.test_go" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Selected Simulation Source Node" xil_pn:value="g" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Simulator" xil_pn:value="ISim (VHDL/Verilog)" xil_pn:valueState="default"/>

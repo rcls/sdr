@@ -237,52 +237,79 @@ static void command_write(char * params)
 }
 
 
+// Read up to 8 contiguous registers.
+static void read_registers(unsigned reg, unsigned count,
+                           unsigned short * result)
+{
+    // Flush SSI before we start...
+    while (SSI->sr & 20)
+        SSI->dr;
+    for (unsigned r = reg; r != reg + count; ++r)
+        SSI->dr = r * 512;
+    for (unsigned i = 0; i != count; ++i) {
+        while (!(SSI->sr & 4));         // Wait for data.
+        result[i] = SSI->dr;
+    }
+}
+
+
+// Read a list of registers.
+static void read_register_list(const unsigned char * regs,
+                               unsigned length,
+                               unsigned char * result)
+{
+    for (unsigned base = 0; base < length; ) {
+        unsigned amount = length - base;
+        if (amount > 8)
+            amount = 8;
+        while (SSI->sr & 20)
+            SSI->dr;
+        for (unsigned i = 0; i < amount; ++i)
+            SSI->dr = regs[base + i] * 512;
+        for (unsigned i = 0; i < amount; ++i) {
+            while (!(SSI->sr & 4));     // Wait for data.
+            unsigned v = SSI->dr;
+            if (v >> 8 != regs[base + i] * 2)
+                rerun("Bogus register read\n");
+            result[base + i] = v;
+        }
+        base += amount;
+    }
+}
+
+
 static void command_read(char * params)
 {
     unsigned base = hextou(params);
     const char * p = skipstring(params);
     unsigned count = 1;
-    if (p != NULL)
+    if (*p)
         count = dectou(p);
 
     for (unsigned row = base; row != base + count;) {
         unsigned amount = base + count - row;
         if (amount > 8)
             amount = 8;
-        // Flush SSI before we start...
-        while (SSI->sr & 20)
-            SSI->dr;
-        for (unsigned r = row; r != row + amount; ++r)
-            SSI->dr = r * 512;
-        while (SSI->sr & 16);               // Wait for idle.
         unsigned short responses[8];
-        for (unsigned i = 0; i != amount; ++i)
-            responses[i] = SSI->dr;
+        read_registers(row, amount, responses);
         printf("%02x:", row);
         for (unsigned i = 0; i != amount; ++i)
             if (responses[i] >> 8 == (row + i) * 2)
-            printf(" %02x", responses[i] & 255);
-        else
-            printf(" ?%04x?", responses[i]);
+                printf(" %02x", responses[i] & 255);
+            else
+                printf(" ?%04x?", responses[i]);
         printf("\n");
         row += amount;
     }
-    printf("\n");
 }
 
 
 static void tune_report(int channel)
 {
-    // Flush SSI before we start...
-    while (SSI->sr & 20)
-        SSI->dr;
-    for (int i = 0; i != 3; ++i)
-        SSI->dr = (channel * 4 + 16 + i) * 512;
-    while (SSI->sr & 16);               // Wait for idle.
-    unsigned char response[4];
-    for (unsigned i = 0; i != 4; ++i)
-        response[i] = SSI->dr;
-    unsigned rawf = response[0] + 256 * response[1] + 65536 * response[2];
+    unsigned short response[4];
+    read_registers(REG_RADIO_FREQ(channel), 4, response);
+    unsigned rawf = (response[0] & 0xff)
+        + 256 * (response[1] & 0xff) + 65536 * (response[2] & 0xff);
     unsigned long long longf = 250000000ull * 256 * rawf;
     unsigned hertz = longf >> 32;
     if (channel < 3)
@@ -290,7 +317,7 @@ static void tune_report(int channel)
                channel, hertz, response[3] & 15);
     else
         printf("%d: %9d Hz, gain = %d,%d * 6dB\n",
-               channel, hertz, response[3] & 15, response[3] >> 4);
+               channel, hertz, response[3] & 15, (response[3] >> 4) & 15);
 }
 
 
@@ -317,6 +344,51 @@ static void command_tune(char * params)
     write_reg(c * 4 + 16, f);
     write_reg(c * 4 + 17, f >> 8);
     write_reg(c * 4 + 18, f >> 16);
+}
+
+
+static void command_pll_report(char * params)
+{
+    txword(REG_PLL_CAPTURE * 512);
+    static const unsigned char reg_list[] = {
+        REG_PLL_FREQ,
+        REG_PLL_FREQ + 1,
+        REG_PLL_FREQ + 2,
+        REG_PLL_FREQ + 3,
+        REG_PLL_FREQ + 4,
+        REG_PLL_FREQ + 5,
+        REG_PLL_FREQ + 6,
+        REG_PLL_ERROR,
+        REG_PLL_ERROR + 1,
+        REG_PLL_ERROR + 2,
+        REG_PLL_ERROR + 3,
+        REG_PLL_ERROR + 4,
+        REG_PLL_ERROR + 5,
+        REG_PLL_ERROR + 6,
+        REG_PLL_LEVEL,
+        REG_PLL_LEVEL + 1,
+        REG_PLL_LEVEL + 2,
+        REG_PLL_LEVEL + 3,
+        REG_PLL_LEVEL + 4,
+        REG_PLL_LEVEL + 5,
+        REG_PLL_LEVEL + 6,
+        REG_RADIO_GAIN(3),
+        REG_PLL_DECAY
+    };
+    unsigned char reg[sizeof reg_list];
+    read_register_list(reg_list, sizeof reg_list, reg);
+    unsigned long long f = 0;
+    for (int i = 6; i >= 0; --i)
+        f = f * 256 + reg[i];
+    // We want to multiply by 250M / (1 << 56).  Do this 32+32 fixed point,
+    // so we want to multiply by 250M / (1 << 24).
+    const unsigned factor_int = (250000000ull << 8) >> 32;
+    const unsigned factor_frac = (250000000ull << 8) & 0xffffffffull;
+    f = f * factor_int + (f >> 32) * factor_frac
+        + (((f & 0xffffffffull) * factor_frac) >> 32);
+    unsigned freq_int = f >> 32;
+    unsigned freq_micro_hertz = ((f & 0xfffffffful) * 1000000) >> 32;
+    printf("%d.%06d\n", freq_int, freq_micro_hertz);
 }
 
 
@@ -434,6 +506,7 @@ static const command_t commands[] = {
     { "nop", command_nop },
     { "flash", command_flash },
     { "adc", command_adc },
+    { "pll", command_pll_report },
     { "", command_nop },
     { NULL, NULL }
 };
