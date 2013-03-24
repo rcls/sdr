@@ -209,7 +209,7 @@ entity downconvertpll is
           decay  : in  unsigned(3 downto 0);
           freq_in_strobe : in std_logic;
           xx, yy : out signed36;
-          freq_out : out unsigned(55 downto 0);
+          freq_out : out unsigned(47 downto 0);
           error_out : out unsigned(47 downto 0);
           level_out : out unsigned(47 downto 0);
           out_strobe : in std_logic;
@@ -271,19 +271,19 @@ architecture downconvertpll of downconvertpll is
   -- All our registers are considered as being embedded in a value this wide.
   constant full_width : integer := 85;
 
-  -- Top 36 of 85 bits. (84 downto 49).
-  constant phase_width : integer := 36;
+  -- Top of 85 bits.
+  constant phase_width : integer := 32;
   signal phase : signed(phase_width - 1 downto 0) := (others => '0');
 
-  -- Top 56 of 85 bits. (84 downto 29).
-  constant freq_width : integer := 56;
+  -- Top of 85 bits.
+  constant freq_width : integer := 48;
   signal freq : signed(freq_width - 1 downto 0);
 
-  -- 48 bits, with the LSB at position (full_width - 64 - 3*decay + error_drop)
-  -- = 29-3*decay
+  -- 44 bits, with the LSB at position (full_width - 64 - 3*decay + error_drop)
+  -- = 33-3*decay
   -- (alternatively LSB at 0 and remember to left shift before use).
-  constant error_width : integer := 48;
-  constant error_drop : integer := 8;
+  constant error_width : integer := 44;
+  constant error_drop : integer := 12;
   signal error, level : signed(error_width - 1 downto 0);
   signal error_1, level_1 : signed(error_width - 12 downto 0);
 
@@ -401,9 +401,9 @@ begin
     end if;
 
     if out_strobe = '1' then
-      freq_out <= unsigned(freq);
-      error_out <= unsigned(error);
-      level_out <= unsigned(level);
+      freq_out <= resize(unsigned(freq), freq_out'length);
+      error_out <= unsigned(resize(error, error_out'length));
+      level_out <= unsigned(resize(level, level_out'length));
     end if;
   end process;
 end downconvertpll;
