@@ -312,12 +312,16 @@ static void tune_report(int channel)
         + 256 * (response[1] & 0xff) + 65536 * (response[2] & 0xff);
     unsigned long long longf = 250000000ull * 256 * rawf;
     unsigned hertz = longf >> 32;
-    if (channel < 3)
+    if (channel < 3) {
         printf("%d: %9d Hz, gain = %d * 6dB\n",
                channel, hertz, response[3] & 15);
-    else
-        printf("%d: %9d Hz, gain = %d,%d * 6dB\n",
-               channel, hertz, response[3] & 15, (response[3] >> 4) & 15);
+        return;
+    }
+
+    read_registers(REG_PLL_DECAY, 1, response);
+    printf("%d: %9d Hz, gain = %d,%d * 6dB, decay = %d\n",
+           channel, hertz, response[3] & 15, (response[3] >> 4) & 15,
+           response[0]);
 }
 
 
@@ -346,17 +350,18 @@ static void command_tune(char * params)
     write_reg(c * 4 + 18, f >> 16);
 }
 
-static unsigned get32(const unsigned char * p)
+static unsigned get32(const void * pp)
 {
-    return p[0] + p[1] * 256 + p[2] * 65536 + p[3] * 16777216u;
+    const unsigned __attribute__((aligned(1))) * p = pp;
+    return *p;
 }
 static unsigned get24(const unsigned char * p)
 {
-    return p[0] + p[1] * 256 + p[2] * 65536;
+    return get32(p) & 0xffffff;
 }
 static unsigned long long get56(const unsigned char * p)
 {
-    return get32(p) + ((unsigned long long) get24(p+4) << 32);
+    return get32(p) + get24(p+4) * (1ull << 32);
 }
 static unsigned long long hertz56(unsigned long long f)
 {
@@ -402,9 +407,10 @@ static void command_pll_report(char * params)
     //const int FULL_WIDTH = 85;
     const int PHASE_WIDTH = 56;
     //const int FREQ_WIDTH = 56;
-    const int ERROR_WIDTH = 56;
+    const int ERROR_WIDTH = 48;
+    const int ERROR_DROP = 8;
     //const int ERROR_F_W = ERROR_WIDTH + FULL_WIDTH - 64;
-    const int ERROR_P_W = ERROR_WIDTH + 14;
+    const int ERROR_P_W = ERROR_WIDTH + ERROR_DROP + 14;
     txword(REG_PLL_CAPTURE * 512);      // Capture the pll regs.
     static const unsigned char reg_list[] = {
         REG_PLL_FREQ, REG_PLL_FREQ + 1, REG_PLL_FREQ + 2, REG_PLL_FREQ + 3,
