@@ -239,7 +239,7 @@ static void command_write(char * params)
 
 // Read up to 8 contiguous registers.
 static void read_registers(unsigned reg, unsigned count,
-                           unsigned short * result)
+                           unsigned char * result)
 {
     // Flush SSI before we start...
     while (SSI->sr & 20)
@@ -248,7 +248,10 @@ static void read_registers(unsigned reg, unsigned count,
         SSI->dr = r * 512;
     for (unsigned i = 0; i != count; ++i) {
         while (!(SSI->sr & 4));         // Wait for data.
-        result[i] = SSI->dr;
+        unsigned v = SSI->dr;
+        if (v >> 8 != (reg + i) * 2)
+            rerun("Bogus register read\n");
+        result[i] = v;
     }
 }
 
@@ -290,14 +293,11 @@ static void command_read(char * params)
         unsigned amount = base + count - row;
         if (amount > 8)
             amount = 8;
-        unsigned short responses[8];
+        unsigned char responses[8];
         read_registers(row, amount, responses);
         printf("%02x:", row);
         for (unsigned i = 0; i != amount; ++i)
-            if (responses[i] >> 8 == (row + i) * 2)
-                printf(" %02x", responses[i] & 255);
-            else
-                printf(" ?%04x?", responses[i]);
+            printf(" %02x", responses[i]);
         printf("\n");
         row += amount;
     }
@@ -306,7 +306,7 @@ static void command_read(char * params)
 
 static void tune_report(int channel)
 {
-    unsigned short response[4];
+    unsigned char response[4];
     read_registers(REG_RADIO_FREQ(channel), 4, response);
     unsigned rawf = (response[0] & 0xff)
         + 256 * (response[1] & 0xff) + 65536 * (response[2] & 0xff);
