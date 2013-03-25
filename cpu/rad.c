@@ -332,11 +332,11 @@ static void command_tune(char * params)
 
 static unsigned long long hertz(unsigned long long f, unsigned n)
 {
-    // We want to multiply by 250M / (1 << 48).  Do this 32+32 fixed point,
-    // so we want to multiply by 250M / (1 << 16).
+    // We want to multiply by 250M / (1 << n).  Do this 32+32 fixed point,
+    // so we want do an integer multiply by 250M / (1 << (n-32)).
     n -= 32;
-    const unsigned factor_int = (250000000ull << n) >> 32;
-    const unsigned factor_frac = (250000000ull << n) & 0xffffffffull;
+    const unsigned factor_frac = (250000000ull << 32) >> n;
+    const unsigned factor_int = 250000000ull >> n;
     return f * factor_int + (f >> 32) * factor_frac
         + (((f & 0xffffffffull) * factor_frac) >> 32);
 }
