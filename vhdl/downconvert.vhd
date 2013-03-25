@@ -260,22 +260,22 @@ architecture downconvertpll of downconvertpll is
   -- [i.e., right shift unless full_width is huge.]
 
   -- Clearly we are going to achieve some of this shift by dropping bits instead
-  -- of have registers full_width bits wide.  E.g., full_width =
-  -- (phase_width+bits_dropped).  If we take full_width = 85,
-  -- then the shift will always be a left shift for decay in 0..7.
+  -- of having registers full_width bits wide.  E.g., full_width =
+  -- (phase_width+bits_dropped).  If we take full_width = 97,
+  -- then the shift will always be a left shift for decay in 0..11.
 
-  -- The design above gives a shift by (21-3*decay) going into error.
+  -- The design above gives a shift by (33-3*decay) going into error.
   -- It makes more sense to apply this coming out of error, IE. left shift
-  -- (21-3*decay) adding to freq, and left shift (35-2*decay) adding to phase.
+  -- (33-3*decay) adding to freq, and left shift (47-2*decay) adding to phase.
 
   -- All our registers are considered as being embedded in a value this wide.
-  constant full_width : integer := 85;
+  constant full_width : integer := 97;
 
-  -- Top of 85 bits.
+  -- Top of 97 bits.
   constant phase_width : integer := 32;
   signal phase : signed(phase_width - 1 downto 0) := (others => '0');
 
-  -- Top of 85 bits.
+  -- Top of 97 bits.
   constant freq_width : integer := 48;
   signal freq : signed(freq_width - 1 downto 0);
 
@@ -302,6 +302,7 @@ architecture downconvertpll of downconvertpll is
   signal sproduct, cproduct : signed36;
   signal sproduct_1, sdelta, cproduct_1, cdelta :
     signed(error_width - 1 downto 0);
+  signal sproduct_r, cproduct_r, sproduct_r2, cproduct_r2 : unsigned1;
 
   constant error_p_w : integer := error_width + error_drop + 14;
   signal error_p1 : signed(error_p_w - 1 downto 0);
@@ -312,15 +313,19 @@ architecture downconvertpll of downconvertpll is
 
   -- For some bloody stupid reason, the sra operator doesn't work.
   function ssra(val : signed; a : unsigned; m : integer := 1) return signed is
-    variable shift : integer;
-    variable v : signed(val'length + 7 * m - 1 downto 0);
+    variable v : signed(val'length + 11 * m - 1 downto 0);
     variable result : signed(val'length - 1 downto 0);
+    variable aa : unsigned(3 downto 0);
   begin
+    aa := a;
+    if aa(3) = '1' then
+      aa(2) := '0';                     -- Limit range to 0..11
+    end if;
     v := (others => val(val'left));
     v(val'length - 1 downto 0) := val;
     result := v(val'length - 1 downto 0);
-    for i in 1 to 7 loop
-      if to_integer(a) = i then
+    for i in 1 to 11 loop
+      if to_integer(aa) = i then
         result := v(val'length - 1 + i * m downto i * m);
       end if;
     end loop;
@@ -333,6 +338,12 @@ architecture downconvertpll of downconvertpll is
     result := val(val'left downto val'left + 1 - n);
     return result;
   end top;
+  function topd(val : signed; n : integer) return unsigned1 is
+    variable result : unsigned1;
+  begin
+    result(0) := val(val'left - n);
+    return result;
+  end topd;
 
 begin
 
@@ -356,22 +367,28 @@ begin
     sproduct_1 <= top(resize(sproduct, error_width + error_drop)
                       sll to_integer(sgain and "1000"),
                       error_width);
+    sproduct_r <= topd(resize(sproduct, error_width + error_drop)
+                       sll to_integer(sgain and "1000"),
+                       error_width);
     cproduct_1 <= top(resize(cproduct, error_width + error_drop)
-                      sll to_integer(sgain and "1000"),
-                      error_width);
-    error_1 <= ssra(error(error_width - 1 downto 11),
-                    decay and "0110");
-    level_1 <= ssra(level(error_width - 1 downto 11),
-                    decay and "0110");
-    sdelta <= sproduct_1 - ssra(error_1, decay and "0001");
-    cdelta <= cproduct_1 - ssra(level_1, decay and "0001");
-    error <= error + sdelta;
-    level <= level + cdelta;
+                       sll to_integer(sgain and "1000"),
+                       error_width);
+    cproduct_r <= topd(resize(cproduct, error_width + error_drop)
+                       sll to_integer(sgain and "1000"),
+                       error_width);
+    error_1 <= ssra(error(error_width - 1 downto 11), decay and "0011");
+    level_1 <= ssra(level(error_width - 1 downto 11), decay and "0011");
+    sdelta <= sproduct_1 - ssra(error_1, decay and "1100");
+    cdelta <= cproduct_1 - ssra(level_1, decay and "1100");
+    sproduct_r2 <= sproduct_r;
+    cproduct_r2 <= cproduct_r;
+    error <= error + sdelta + signed('0' & sproduct_r2);
+    level <= level + cdelta + signed('0' & cproduct_r2);
 
     error_f0 := (others => '0');
     error_f0(error_f_w - 1 downto error_f_w - error_width) := error;
-    error_f1 <= ssra(error_f0, decay and "0110", 3);
-    error_f2 := ssra(error_f1, decay and "0001", 3);
+    error_f1 <= ssra(error_f0, decay and "0011", 3);
+    error_f2 := ssra(error_f1, decay and "1100", 3);
     freq <= freq + error_f2(error_f_w - 1 downto full_width - freq_width);
 
     -- We want to left shift by (14+decay) + (full_width-64-3*decay)
@@ -382,8 +399,8 @@ begin
     -- (full_width-phase_width) - (full_width-64) = 64-phase_width = 8 bits.
     error_p0 := (others => '0');
     error_p0(error_p_w - 1 downto error_p_w - error_width) := error;
-    error_p1 <= ssra(error_p0, decay and "0110", 2);
-    error_p2 := ssra(error_p1, decay and "0001", 2);
+    error_p1 <= ssra(error_p0, decay and "0011", 2);
+    error_p2 := ssra(error_p1, decay and "1100", 2);
     phase_a <= freq(freq_width - 1 downto freq_width - phase_width)
                + error_p2(63 downto 64 - phase_width);
     phase <= phase + phase_a;

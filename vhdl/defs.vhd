@@ -13,6 +13,7 @@ package defs is
   subtype unsigned7 is unsigned(6 downto 0);
   subtype unsigned3 is unsigned(2 downto 0);
   subtype unsigned2 is unsigned(1 downto 0);
+  subtype unsigned1 is unsigned(0 downto 0);
 
   subtype signed36 is signed(35 downto 0);
   subtype signed32 is signed(31 downto 0);

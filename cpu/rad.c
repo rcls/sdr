@@ -420,7 +420,9 @@ static void command_pll_report(char * params)
     unsigned long long frq = get48(reg);
     long long err = get48(reg + 6);
     long long lvl = get48(reg + 12);
-    unsigned decay = reg[18] & 7;
+    unsigned decay = reg[18] & 15;
+    if (decay >= 12)
+        decay -= 4;
     // Calculated the frequency adjusted by error, in the same manner as it
     // is applied in the VHDL phase update.
     err = err << (64 - ERROR_WIDTH) >> (64 - ERROR_WIDTH); // Sign extend.
