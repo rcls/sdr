@@ -240,40 +240,40 @@ architecture downconvertpll of downconvertpll is
 
   -- gamma is given by shifting and the multiplier scaling.
 
+  -- We phase to number of cycles, and t to be discrete number of clock cycles,
+  -- so that phase, freq and error can all be taken (mod 1).
+
   -- Around phase=0 [and gain=0], the normalisation of our "sin" function is
-  -- d/dphase "sin"(phase) is 1/2 ** (full_width - 13), i.e, a step at
-  -- bit (full_width - 14) produces a step of 2 LSB of the "sin".
+  -- d/dphase "sin"(phase) is 1/2 ** (-13), i.e, a step at
+  -- bit (-14) produces a step of 2 LSB of the "sin".
   -- The overall mean multiplier of the trig multiply is halved and takes the
   -- gain signal into account giving a mean multiplier of
-  -- 2 ** (gain + 12 - full_width).
+  -- 2 ** (gain + 12).
   -- gamma is then composed of that, the signal strength [in units of LSB],
   -- and a shift, i.e., we want
-  -- 1/27 * 1/2 ** (33 + 3*decay) = strength * 2 ** (gain + 12 - full_width) *
-  -- shift
+  -- 1/27 * 1/2 ** (33 + 3*decay) = strength * 2 ** (gain + 12) * shift
 
-  -- 1 = 27 * strength * shift * 2 ** (gain + 45 + 3 * decay - full_width)
+  -- 1 = 27 * strength * shift * 2 ** (gain + 45 + 3 * decay)
   -- Design for gain to be set so that strength * 2**gain = 2**10.
   -- Approximate 27 by 32, this gives
-  -- 1 = shift * 2 ** (60 + 3 * decay - full_width)
-  -- shift = 1/2 ** (60 - full_width + 3 * decay),  or
-  -- shift = 2 ** (full_width - 60 - 3 * decay)
+  -- 1 = shift * 2 ** (60 + 3 * decay)
+  -- shift = 1/2 ** (60 + 3 * decay),  or
+  -- shift = 2 ** (- 60 - 3 * decay)
 
-  -- Clearly we are going to achieve some of this shift by dropping bits instead
-  -- of having registers full_width bits wide.
-
-  -- The design above gives a shift by (33-3*decay) going into error.
+  -- The design above gives a shift going into error.
   -- It makes more sense to apply this coming out of error, IE. left shift
   -- (33-3*decay) adding to freq, and left shift (47-2*decay) adding to phase.
 
+  -- Fix point, MSB has weight 0.5.
   constant phase_width : integer := 32;
   signal phase : signed(phase_width - 1 downto 0) := (others => '0');
 
-  -- freq is MSB-aligned with phase.
+  -- Fix point, MSB has weight 0.5.
   constant freq_width : integer := 48;
   signal freq : signed(freq_width - 1 downto 0);
 
-  -- 44 bits, with the LSB at position (full_width - 60 - 3*decay + error_drop)
-  -- = 33-3*decay+error_drop
+  -- Error (and level) are fix point with the LSB at position
+  -- (- 60 - 3*decay + error_drop) = 33-3*decay+error_drop
   -- (alternatively LSB at 0 and remember to left shift before use).
   constant error_width : integer := 32;
   constant level_width : integer := 40;
@@ -287,10 +287,9 @@ architecture downconvertpll of downconvertpll is
   signal error_1 : signed(error_width - 11 downto 0);
   signal level_1 : signed(level_width - 11 downto 0);
 
-  -- We need to left shift by full_width-60-3*decay + error_drop,
-  -- to adjust for the alignment of error in full_width.
-  -- Then to align with freq, we need to right shift by
-  -- full_width-freq_width.
+  -- We need to left shift by -60-3*decay + error_drop,
+  -- to adjust for the alignment of error.
+  -- Then to align with freq, we need to left shift by freq_width.
   -- We actually left shift by 33 by padding, right shift by 3*decay,
   -- and right shift by 93-freq_width-error_drop by selecting.
   constant error_f_w : integer := error_width + 33;
@@ -310,12 +309,11 @@ architecture downconvertpll of downconvertpll is
   signal sproduct_r, cproduct_r, sproduct_r2, cproduct_r2 : unsigned1;
 
   -- alpha=2**(14+decay).
-  -- We need to left shift by full_width-60-3*decay+error_drop + 14+decay
-  -- = full_width - 46 - 2*decay + error_drop,
-  -- and then align with phase by right-shifting (full_width-phase_width).
+  -- We need to left shift by -60-3*decay+error_drop + 14+decay
+  -- = - 46 - 2*decay + error_drop,
+  -- and then align with phase by left shifting by phase_width.
   -- We actually pad by 22, and then right shift by 2*decay, and then
-  -- right shift (by selection) by
-  -- 22 + 46 - error_drop - phase_width
+  -- right shift (by selection) by 22 + 46 - error_drop - phase_width.
   constant error_p_w : integer := error_width + 22;
   constant error_p_base : integer := 68 - error_drop - phase_width;
   constant error_p_max : integer := minimum(error_p_w,
