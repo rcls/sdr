@@ -401,7 +401,7 @@ static void command_pll_report(char * params)
     //const int FULL_WIDTH = 85;
     //const int PHASE_WIDTH = 32;
     const int FREQ_WIDTH = 48;
-    const int ERROR_WIDTH = 44;
+    const int ERROR_WIDTH = 32;
     const int ERROR_DROP = 12;
     //const int ERROR_F_W = ERROR_WIDTH + FULL_WIDTH - 64;
     //const int ERROR_P_W = ERROR_WIDTH + ERROR_DROP + 14;

@@ -275,13 +275,17 @@ architecture downconvertpll of downconvertpll is
   -- 44 bits, with the LSB at position (full_width - 60 - 3*decay + error_drop)
   -- = 33-3*decay+error_drop
   -- (alternatively LSB at 0 and remember to left shift before use).
-  constant error_width : integer := 44;
+  constant error_width : integer := 32;
+  constant level_width : integer := 40;
   constant error_drop : integer := 12;
+  constant level_drop : integer := 12;
 
   -- error & level are LSB-aligned with freq.
-  signal error, level : signed(error_width - 1 downto 0);
+  signal error : signed(error_width - 1 downto 0);
+  signal level : signed(level_width - 1 downto 0);
   -- This includes and extra low bit for use in rounding.
-  signal error_1, level_1 : signed(error_width - 11 downto 0);
+  signal error_1 : signed(error_width - 11 downto 0);
+  signal level_1 : signed(level_width - 11 downto 0);
 
   -- We need to left shift by full_width-60-3*decay + error_drop,
   -- to adjust for the alignment of error in full_width.
@@ -301,8 +305,8 @@ architecture downconvertpll of downconvertpll is
   alias sgain : unsigned(3 downto 0) is gain(7 downto 4);
 
   signal sproduct, cproduct : signed36;
-  signal sproduct_1, sdelta, cproduct_1, cdelta :
-    signed(error_width - 1 downto 0);
+  signal sproduct_1, sdelta : signed(error_width - 1 downto 0);
+  signal cproduct_1, cdelta : signed(level_width - 1 downto 0);
   signal sproduct_r, cproduct_r, sproduct_r2, cproduct_r2 : unsigned1;
 
   -- alpha=2**(14+decay).
@@ -367,7 +371,8 @@ begin
              unsigned(phase(phase_width - 1 downto phase_width - 14)),
              clk, sin_index, sin_packed);
   process
-    variable error_1b, level_1b : signed(error_width - 11 downto 0);
+    variable error_1b : signed(error_width - 11 downto 0);
+    variable level_1b : signed(level_width - 11 downto 0);
     variable error_f0, error_f2 : signed(error_f_w - 1 downto 0);
     variable error_p0, error_p2 : signed(error_p_w - 1 downto 0);
   begin
@@ -382,19 +387,19 @@ begin
     sproduct_r <= topd(resize(sproduct, error_width + error_drop)
                        sll to_integer(sgain and "1000"),
                        error_width);
-    cproduct_1 <= top(resize(cproduct, error_width + error_drop)
+    cproduct_1 <= top(resize(cproduct, level_width + level_drop)
+                      sll to_integer(sgain and "1000"),
+                      level_width);
+    cproduct_r <= topd(resize(cproduct, level_width + level_drop)
                        sll to_integer(sgain and "1000"),
-                       error_width);
-    cproduct_r <= topd(resize(cproduct, error_width + error_drop)
-                       sll to_integer(sgain and "1000"),
-                       error_width);
+                       level_width);
     error_1 <= ssra(error(error_width - 1 downto 10), decay and "0011");
-    level_1 <= ssra(level(error_width - 1 downto 10), decay and "0011");
+    level_1 <= ssra(level(level_width - 1 downto 10), decay and "0011");
     error_1b := ssra(error_1, decay and "1100");
     level_1b := ssra(level_1, decay and "1100");
     sdelta <= sproduct_1 - error_1b(error_width - 11 downto 1)
               - ('0' & error_1b(0 downto 0));
-    cdelta <= cproduct_1 - level_1b(error_width - 11 downto 1)
+    cdelta <= cproduct_1 - level_1b(level_width - 11 downto 1)
               - ('0' & level_1b(0 downto 0));
     sproduct_r2 <= sproduct_r;
     cproduct_r2 <= cproduct_r;
