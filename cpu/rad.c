@@ -431,7 +431,7 @@ static void command_pll_report(char * params)
     // at full_width - 64 - 3*decay + error_drop.  We then want to align with
     // freq by right shifting (full_width - freq_width).  The full_widths cancel
     // giving
-    int leftshift = ERROR_DROP + FREQ_WIDTH - 50 - 2*decay;
+    int leftshift = ERROR_DROP + FREQ_WIDTH - 46 - 2*decay;
     if (leftshift >= 0)
         error_p2 = err << leftshift;
     else
