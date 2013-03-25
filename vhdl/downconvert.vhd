@@ -285,7 +285,8 @@ architecture downconvertpll of downconvertpll is
   constant error_width : integer := 44;
   constant error_drop : integer := 12;
   signal error, level : signed(error_width - 1 downto 0);
-  signal error_1, level_1 : signed(error_width - 12 downto 0);
+  -- This includes and extra low bit for use in rounding.
+  signal error_1, level_1 : signed(error_width - 11 downto 0);
 
   -- The left shift by full_width-64-3*decay is achieved by padding by
   -- full_width-64 on the right, and then right shifting by 3*decay.
@@ -356,6 +357,7 @@ begin
              unsigned(phase(phase_width - 1 downto phase_width - 14)),
              clk, sin_index, sin_packed);
   process
+    variable error_1b, level_1b : signed(error_width - 11 downto 0);
     variable error_f0, error_f2 : signed(error_f_w - 1 downto 0);
     variable error_p0, error_p2 : signed(error_p_w - 1 downto 0);
   begin
@@ -376,10 +378,14 @@ begin
     cproduct_r <= topd(resize(cproduct, error_width + error_drop)
                        sll to_integer(sgain and "1000"),
                        error_width);
-    error_1 <= ssra(error(error_width - 1 downto 11), decay and "0011");
-    level_1 <= ssra(level(error_width - 1 downto 11), decay and "0011");
-    sdelta <= sproduct_1 - ssra(error_1, decay and "1100");
-    cdelta <= cproduct_1 - ssra(level_1, decay and "1100");
+    error_1 <= ssra(error(error_width - 1 downto 10), decay and "0011");
+    level_1 <= ssra(level(error_width - 1 downto 10), decay and "0011");
+    error_1b := ssra(error_1, decay and "1100");
+    level_1b := ssra(level_1, decay and "1100");
+    sdelta <= sproduct_1 - error_1b(error_width - 11 downto 1)
+              - ('0' & error_1b(0 downto 0));
+    cdelta <= cproduct_1 - level_1b(error_width - 11 downto 1)
+              - ('0' & level_1b(0 downto 0));
     sproduct_r2 <= sproduct_r;
     cproduct_r2 <= cproduct_r;
     error <= error + sdelta + signed('0' & sproduct_r2);
@@ -389,7 +395,8 @@ begin
     error_f0(error_f_w - 1 downto error_f_w - error_width) := error;
     error_f1 <= ssra(error_f0, decay and "0011", 3);
     error_f2 := ssra(error_f1, decay and "1100", 3);
-    freq <= freq + error_f2(error_f_w - 1 downto full_width - freq_width);
+    freq <= freq + error_f2(error_f_w - 1 downto full_width - freq_width)
+            + ("0" & error_f2(full_width -freq_width - 1));
 
     -- We want to left shift by (14+decay) + (full_width-64-3*decay)
     -- = full_width-50-3*decay = 35-2*decay and then drop
@@ -402,12 +409,14 @@ begin
     error_p1 <= ssra(error_p0, decay and "0011", 2);
     error_p2 := ssra(error_p1, decay and "1100", 2);
     phase_a <= freq(freq_width - 1 downto freq_width - phase_width)
-               + error_p2(63 downto 64 - phase_width);
+               + error_p2(63 downto 64 - phase_width)
+               + ("0" & error_p2(63 - phase_width));
     phase <= phase + phase_a;
 
     if freq_in_strobe = '1' then
       freq <= (signed(freq_in) & freq_in_pad)
-              + error_f2(error_f_w - 1 downto full_width - freq_width);
+              + error_f2(error_f_w - 1 downto full_width - freq_width)
+              + ("0" & error_f2(full_width -freq_width - 1));
       error <= (others => '0');
       level <= (others => '0');
       error_1 <= (others => '0');
