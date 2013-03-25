@@ -63,4 +63,14 @@ package defs is
     shifted := x sll to_integer(shift);
     return shifted(shifted'high downto x'low + reduce);
   end;
+
+  function minimum(x : integer; y : integer) return integer is
+  begin
+    if x < y then
+      return x;
+    else
+      return y;
+    end if;
+  end minimum;
+
 end defs;

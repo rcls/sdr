@@ -252,45 +252,45 @@ architecture downconvertpll of downconvertpll is
   -- shift
 
   -- 1 = 27 * strength * shift * 2 ** (gain + 45 + 3 * decay - full_width)
-  -- Design for gain to be set so that strength * 2**gain = 2**14.
+  -- Design for gain to be set so that strength * 2**gain = 2**10.
   -- Approximate 27 by 32, this gives
-  -- 1 = shift * 2 ** (64 + 3 * decay - full_width)
-  -- shift = 1/2 ** (64 - full_width + 3 * decay),  or
-  -- shift = 2 ** (full_width - 64 - 3 * decay)
-  -- [i.e., right shift unless full_width is huge.]
+  -- 1 = shift * 2 ** (60 + 3 * decay - full_width)
+  -- shift = 1/2 ** (60 - full_width + 3 * decay),  or
+  -- shift = 2 ** (full_width - 60 - 3 * decay)
 
   -- Clearly we are going to achieve some of this shift by dropping bits instead
-  -- of having registers full_width bits wide.  E.g., full_width =
-  -- (phase_width+bits_dropped).  If we take full_width = 97,
-  -- then the shift will always be a left shift for decay in 0..11.
+  -- of having registers full_width bits wide.
 
   -- The design above gives a shift by (33-3*decay) going into error.
   -- It makes more sense to apply this coming out of error, IE. left shift
   -- (33-3*decay) adding to freq, and left shift (47-2*decay) adding to phase.
 
-  -- All our registers are considered as being embedded in a value this wide.
-  constant full_width : integer := 97;
-
-  -- Top of 97 bits.
   constant phase_width : integer := 32;
   signal phase : signed(phase_width - 1 downto 0) := (others => '0');
 
-  -- Top of 97 bits.
+  -- freq is MSB-aligned with phase.
   constant freq_width : integer := 48;
   signal freq : signed(freq_width - 1 downto 0);
 
-  -- 44 bits, with the LSB at position (full_width - 64 - 3*decay + error_drop)
-  -- = 33-3*decay
+  -- 44 bits, with the LSB at position (full_width - 60 - 3*decay + error_drop)
+  -- = 33-3*decay+error_drop
   -- (alternatively LSB at 0 and remember to left shift before use).
   constant error_width : integer := 44;
   constant error_drop : integer := 12;
+
+  -- error & level are LSB-aligned with freq.
   signal error, level : signed(error_width - 1 downto 0);
   -- This includes and extra low bit for use in rounding.
   signal error_1, level_1 : signed(error_width - 11 downto 0);
 
-  -- The left shift by full_width-64-3*decay is achieved by padding by
-  -- full_width-64 on the right, and then right shifting by 3*decay.
-  constant error_f_w : integer := error_width + error_drop + full_width - 64;
+  -- We need to left shift by full_width-60-3*decay + error_drop,
+  -- to adjust for the alignment of error in full_width.
+  -- Then to align with freq, we need to right shift by
+  -- full_width-freq_width.
+  -- We actually left shift by 33 by padding, right shift by 3*decay,
+  -- and right shift by 93-freq_width-error_drop by selecting.
+  constant error_f_w : integer := error_width + 33;
+  constant error_f_base : integer := 93 - freq_width - error_drop;
   signal error_f1 : signed(error_f_w - 1 downto 0);
 
   signal sin_index, cos_index : unsigned(9 downto 0);
@@ -305,7 +305,17 @@ architecture downconvertpll of downconvertpll is
     signed(error_width - 1 downto 0);
   signal sproduct_r, cproduct_r, sproduct_r2, cproduct_r2 : unsigned1;
 
-  constant error_p_w : integer := error_width + error_drop + 14;
+  -- alpha=2**(14+decay).
+  -- We need to left shift by full_width-60-3*decay+error_drop + 14+decay
+  -- = full_width - 46 - 2*decay + error_drop,
+  -- and then align with phase by right-shifting (full_width-phase_width).
+  -- We actually pad by 22, and then right shift by 2*decay, and then
+  -- right shift (by selection) by
+  -- 22 + 46 - error_drop - phase_width
+  constant error_p_w : integer := error_width + 22;
+  constant error_p_base : integer := 68 - error_drop - phase_width;
+  constant error_p_max : integer := minimum(error_p_w,
+                                            error_p_base + phase_width);
   signal error_p1 : signed(error_p_w - 1 downto 0);
 
   signal phase_a : signed(phase_width - 1 downto 0);
@@ -395,28 +405,22 @@ begin
     error_f0(error_f_w - 1 downto error_f_w - error_width) := error;
     error_f1 <= ssra(error_f0, decay and "0011", 3);
     error_f2 := ssra(error_f1, decay and "1100", 3);
-    freq <= freq + error_f2(error_f_w - 1 downto full_width - freq_width)
-            + ("0" & error_f2(full_width -freq_width - 1));
+    freq <= freq + error_f2(error_f_w - 1 downto error_f_base)
+            + ("0" & error_f2(error_f_base - 1));
 
-    -- We want to left shift by (14+decay) + (full_width-64-3*decay)
-    -- = full_width-50-3*decay = 35-2*decay and then drop
-    -- full_width-phase_width = 29 bits to align with phase.
-    -- Equivalently we left shift by a lesser amount and drop fewer too.
-    -- E.g., left shift by (14-2*decay) and drop
-    -- (full_width-phase_width) - (full_width-64) = 64-phase_width = 8 bits.
     error_p0 := (others => '0');
     error_p0(error_p_w - 1 downto error_p_w - error_width) := error;
     error_p1 <= ssra(error_p0, decay and "0011", 2);
     error_p2 := ssra(error_p1, decay and "1100", 2);
     phase_a <= freq(freq_width - 1 downto freq_width - phase_width)
-               + error_p2(63 downto 64 - phase_width)
-               + ("0" & error_p2(63 - phase_width));
+               + error_p2(error_p_max - 1 downto error_p_base)
+               + ("0" & error_p2(error_p_base - 1));
     phase <= phase + phase_a;
 
     if freq_in_strobe = '1' then
       freq <= (signed(freq_in) & freq_in_pad)
-              + error_f2(error_f_w - 1 downto full_width - freq_width)
-              + ("0" & error_f2(full_width -freq_width - 1));
+              + error_f2(error_f_w - 1 downto error_f_base)
+              + ("0" & error_f2(error_f_base - 1));
       error <= (others => '0');
       level <= (others => '0');
       error_1 <= (others => '0');
