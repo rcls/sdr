@@ -398,13 +398,8 @@ long long __aeabi_llsl(unsigned long long v, int s)
 static void command_pll_report(char * params)
 {
     // The parameters from the VHDL...
-    //const int FULL_WIDTH = 85;
-    //const int PHASE_WIDTH = 32;
     const int FREQ_WIDTH = 48;
-    const int ERROR_WIDTH = 32;
     const int ERROR_DROP = 12;
-    //const int ERROR_F_W = ERROR_WIDTH + FULL_WIDTH - 64;
-    //const int ERROR_P_W = ERROR_WIDTH + ERROR_DROP + 14;
     txword(REG_PLL_CAPTURE * 512);      // Capture the pll regs.
     static const unsigned char reg_list[] = {
         REG_PLL_FREQ, REG_PLL_FREQ + 1, REG_PLL_FREQ + 2, REG_PLL_FREQ + 3,
@@ -425,10 +420,10 @@ static void command_pll_report(char * params)
         decay -= 4;
     // Calculated the frequency adjusted by error, in the same manner as it
     // is applied in the VHDL phase update.
-    err = err << (64 - ERROR_WIDTH) >> (64 - ERROR_WIDTH); // Sign extend.
+    err = err << 16 >> 16; // Sign extend.
     long long error_p2;
     // The factor alpha is left shift by (14+decay).  The error has LSB
-    // at full_width - 64 - 3*decay + error_drop.  We then want to align with
+    // at full_width - 60 - 3*decay + error_drop.  We then want to align with
     // freq by right shifting (full_width - freq_width).  The full_widths cancel
     // giving
     int leftshift = ERROR_DROP + FREQ_WIDTH - 46 - 2*decay;
