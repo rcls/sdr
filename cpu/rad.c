@@ -386,20 +386,18 @@ static void command_pll_report(char * params)
     read_registers(REG_PLL_DECAY, 1, &decay);
     if (decay >= 12)
         decay -= 4;
-    // Calculated the frequency adjusted by error, in the same manner as it
+    // Calculate the frequency adjusted by error, in the same manner as it
     // is applied in the VHDL phase update.
-    err = err << 16 >> 16; // Sign extend.
-    long long error_p2;
     // The factor alpha is left shift by (14+decay).  The error has LSB
     // at full_width - 60 - 3*decay + error_drop.  We then want to align with
     // freq by right shifting (full_width - freq_width).  The full_widths cancel
     // giving
     int leftshift = ERROR_DROP + FREQ_WIDTH - 46 - 2*decay;
+    long long error_p2;
     if (leftshift >= 0)
         error_p2 = err << leftshift;
     else
         error_p2 = err >> -leftshift;
-    //unsigned long long frqerr = frq + error_p2;
 
     // Convert the frequencies to 32+32 fixed point hertz.
     frq = hertz(frq, FREQ_WIDTH);
