@@ -237,46 +237,25 @@ static void command_write(char * params)
 }
 
 
-// Read up to 8 contiguous registers.
 static void read_registers(unsigned reg, unsigned count,
                            unsigned char * result)
 {
     // Flush SSI before we start...
     while (SSI->sr & 20)
         SSI->dr;
-    for (unsigned r = reg; r != reg + count; ++r)
-        SSI->dr = r * 512;
-    for (unsigned i = 0; i != count; ++i) {
+    unsigned leadin = count;
+    if (leadin > 8)
+        leadin = 8;
+    for (unsigned i = 0; i < leadin; ++i)
+        SSI->dr = (reg + i) * 512;
+    for (unsigned i = 0; i < count; ++i) {
         while (!(SSI->sr & 4));         // Wait for data.
         unsigned v = SSI->dr;
         if (v >> 8 != (reg + i) * 2)
             rerun("Bogus register read\n");
         result[i] = v;
-    }
-}
-
-
-// Read a list of registers.
-static void read_register_list(const unsigned char * regs,
-                               unsigned length,
-                               unsigned char * result)
-{
-    for (unsigned base = 0; base < length; ) {
-        unsigned amount = length - base;
-        if (amount > 8)
-            amount = 8;
-        while (SSI->sr & 20)
-            SSI->dr;
-        for (unsigned i = 0; i < amount; ++i)
-            SSI->dr = regs[base + i] * 512;
-        for (unsigned i = 0; i < amount; ++i) {
-            while (!(SSI->sr & 4));     // Wait for data.
-            unsigned v = SSI->dr;
-            if (v >> 8 != regs[base + i] * 2)
-                rerun("Bogus register read\n");
-            result[base + i] = v;
-        }
-        base += amount;
+        if (i + leadin < count)
+            SSI->dr = (reg + i + leadin) * 512;
     }
 }
 
@@ -291,9 +270,9 @@ static void command_read(char * params)
 
     for (unsigned row = base; row != base + count;) {
         unsigned amount = base + count - row;
-        if (amount > 8)
-            amount = 8;
-        unsigned char responses[8];
+        if (amount > 16)
+            amount = 16;
+        unsigned char responses[16];
         read_registers(row, amount, responses);
         printf("%02x:", row);
         for (unsigned i = 0; i != amount; ++i)
@@ -350,12 +329,7 @@ static void command_tune(char * params)
     write_reg(c * 4 + 18, f >> 16);
 }
 
-static unsigned long long get48(const void * pp)
-{
-    const unsigned __attribute__((aligned(1))) * p = pp;
-    const unsigned short __attribute__((aligned(1))) * q = pp;
-    return *p + q[2] * (1ull << 32);
-}
+
 static unsigned long long hertz(unsigned long long f, unsigned n)
 {
     // We want to multiply by 250M / (1 << 48).  Do this 32+32 fixed point,
@@ -401,21 +375,15 @@ static void command_pll_report(char * params)
     const int FREQ_WIDTH = 48;
     const int ERROR_DROP = 12;
     txword(REG_PLL_CAPTURE * 512);      // Capture the pll regs.
-    static const unsigned char reg_list[] = {
-        REG_PLL_FREQ, REG_PLL_FREQ + 1, REG_PLL_FREQ + 2, REG_PLL_FREQ + 3,
-        REG_PLL_FREQ + 4, REG_PLL_FREQ + 5,
-        REG_PLL_ERROR, REG_PLL_ERROR + 1, REG_PLL_ERROR + 2, REG_PLL_ERROR + 3,
-        REG_PLL_ERROR + 4, REG_PLL_ERROR + 5,
-        REG_PLL_LEVEL, REG_PLL_LEVEL + 1, REG_PLL_LEVEL + 2, REG_PLL_LEVEL + 3,
-        REG_PLL_LEVEL + 4, REG_PLL_LEVEL + 5,
-        REG_PLL_DECAY
-    };
-    unsigned char reg[sizeof reg_list];
-    read_register_list(reg_list, sizeof reg_list, reg);
-    unsigned long long frq = get48(reg);
-    long long err = get48(reg + 6);
-    long long lvl = get48(reg + 12);
-    unsigned decay = reg[18] & 15;
+    long long reg[3];
+    //printf("Pll report read reg...\n");
+    read_registers(REG_PLL_FREQ, 24, (unsigned char *) reg);
+    //printf("Pll report read reg done...\n");
+    long long frq = reg[0];
+    long long err = reg[1];
+    long long lvl = reg[2];
+    unsigned char decay;
+    read_registers(REG_PLL_DECAY, 1, &decay);
     if (decay >= 12)
         decay -= 4;
     // Calculated the frequency adjusted by error, in the same manner as it
