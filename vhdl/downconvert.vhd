@@ -209,9 +209,9 @@ entity downconvertpll is
           decay  : in  unsigned(3 downto 0);
           freq_in_strobe : in std_logic;
           xx, yy : out signed36;
-          freq_out : out unsigned(47 downto 0);
-          error_out : out unsigned(47 downto 0);
-          level_out : out unsigned(47 downto 0);
+          freq_out : out unsigned(63 downto 0);
+          error_out : out unsigned(63 downto 0);
+          level_out : out unsigned(63 downto 0);
           out_strobe : in std_logic;
           clk    : in  std_logic);
 end downconvertpll;
@@ -262,14 +262,15 @@ architecture downconvertpll of downconvertpll is
 
   -- The design above gives a shift going into error.
   -- It makes more sense to apply this coming out of error, IE. left shift
-  -- (33-3*decay) adding to freq, and left shift (47-2*decay) adding to phase.
+  -- (freq_width-60-3*decay) adding to freq, and left shift
+  -- (phase_width-46-2*decay) adding to phase.
 
   -- Fix point, MSB has weight 0.5.
   constant phase_width : integer := 32;
   signal phase : signed(phase_width - 1 downto 0) := (others => '0');
 
   -- Fix point, MSB has weight 0.5.
-  constant freq_width : integer := 48;
+  constant freq_width : integer := 56;
   signal freq : signed(freq_width - 1 downto 0);
 
   -- Error (and level) are fix point with the LSB at position

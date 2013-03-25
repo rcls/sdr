@@ -372,7 +372,7 @@ long long __aeabi_llsl(unsigned long long v, int s)
 static void command_pll_report(char * params)
 {
     // The parameters from the VHDL...
-    const int FREQ_WIDTH = 48;
+    const int FREQ_WIDTH = 56;
     const int ERROR_DROP = 12;
     txword(REG_PLL_CAPTURE * 512);      // Capture the pll regs.
     long long reg[3];
