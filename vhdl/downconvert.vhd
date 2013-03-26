@@ -265,7 +265,7 @@ architecture downconvertpll of downconvertpll is
   -- (freq_width-60-3*decay) adding to freq, and left shift
   -- (phase_width-46-2*decay) adding to phase.
 
-  -- Fix point, MSB has weight 0.5.
+  -- Fix point, range [0,1).  MSB has weight 0.5.
   constant phase_width : integer := 32;
   signal phase : signed(phase_width - 1 downto 0) := (others => '0');
 
@@ -274,17 +274,15 @@ architecture downconvertpll of downconvertpll is
   signal freq : signed(freq_width - 1 downto 0);
 
   -- Error (and level) are fix point with the LSB at position
-  -- (- 60 - 3*decay + error_drop) = 33-3*decay+error_drop
-  -- (alternatively LSB at 0 and remember to left shift before use).
+  -- (- 60 - 3*decay + error_drop).
   constant error_width : integer := 32;
   constant level_width : integer := 40;
   constant error_drop : integer := 12;
   constant level_drop : integer := 12;
 
-  -- error & level are LSB-aligned with freq.
   signal error : signed(error_width - 1 downto 0);
   signal level : signed(level_width - 1 downto 0);
-  -- This includes and extra low bit for use in rounding.
+  -- These include an extra low bit for use in rounding.
   signal error_1 : signed(error_width - 11 downto 0);
   signal level_1 : signed(level_width - 11 downto 0);
 
@@ -307,7 +305,7 @@ architecture downconvertpll of downconvertpll is
   signal sproduct, cproduct : signed36;
   signal sproduct_1, sdelta : signed(error_width - 1 downto 0);
   signal cproduct_1, cdelta : signed(level_width - 1 downto 0);
-  signal sproduct_r, cproduct_r, sproduct_r2, cproduct_r2 : unsigned1;
+  signal sproduct_r, cproduct_r, sproduct_r2, cproduct_r2 : std_logic;
 
   -- alpha=2**(14+decay).
   -- We need to left shift by -60-3*decay+error_drop + 14+decay
@@ -352,11 +350,9 @@ architecture downconvertpll of downconvertpll is
     result := val(val'left downto val'left + 1 - n);
     return result;
   end top;
-  function topd(val : signed; n : integer) return unsigned1 is
-    variable result : unsigned1;
+  function topd(val : signed; n : integer) return std_logic is
   begin
-    result(0) := val(val'left - n);
-    return result;
+    return val(val'left - n);
   end topd;
 
 begin
@@ -397,13 +393,13 @@ begin
     error_1b := ssra(error_1, decay and "1100");
     level_1b := ssra(level_1, decay and "1100");
     sdelta <= sproduct_1 - error_1b(error_width - 11 downto 1)
-              - ('0' & error_1b(0 downto 0));
+              - ("0" & error_1b(0));
     cdelta <= cproduct_1 - level_1b(level_width - 11 downto 1)
-              - ('0' & level_1b(0 downto 0));
+              - ("0" & level_1b(0));
     sproduct_r2 <= sproduct_r;
     cproduct_r2 <= cproduct_r;
-    error <= error + sdelta + signed('0' & sproduct_r2);
-    level <= level + cdelta + signed('0' & cproduct_r2);
+    error <= error + sdelta + ("0" & sproduct_r2);
+    level <= level + cdelta + ("0" & cproduct_r2);
 
     error_f0 := (others => '0');
     error_f0(error_f_w - 1 downto error_f_w - error_width) := error;
