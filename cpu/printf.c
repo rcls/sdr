@@ -13,6 +13,8 @@ void txword(unsigned val)
 
 void putchar(int byte)
 {
+    if (byte == '\n')
+        txword(0x100 + '\r');
     txword(0x100 + byte);
 }
 
