@@ -13,8 +13,9 @@
 #define REG_SAMPLE_RATE 6
 #define REG_SAMPLE_DECAY_LO 7
 #define REG_SAMPLE_DECAY_HI 8
-
 #define REG_PLL_DECAY 9
+#define REG_AUDIO_CHANNEL 10
+
 #define REG_PLL_FREQ 32
 #define REG_PLL_ERROR 40
 #define REG_PLL_LEVEL 48

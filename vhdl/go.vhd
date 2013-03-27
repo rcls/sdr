@@ -144,6 +144,8 @@ architecture go of go is
 
   alias pll_decay : unsigned8 is config(79 downto 72);
 
+  alias audio_channel : unsigned8 is config(87 downto 80);
+
   signal usb_byte_in : unsigned8;
   signal usb_byte_in_strobe, usb_byte_in_strobe2 : std_logic;
 
@@ -186,7 +188,7 @@ architecture go of go is
   signal xy_strobe, xy_last : std_logic;
   signal xy_data : unsigned(30 downto 0);
 
-  constant X48 : unsigned(47 downto 0) := (others => 'X');
+  constant X40 : unsigned(39 downto 0) := (others => 'X');
 
 begin
   usb_d <= usbd_out when usb_oe_n = '0' else "ZZZZZZZZ";
@@ -224,13 +226,14 @@ begin
     generic map(
       config_bytes, spi_data_bytes,
       x"00000000" & x"00000000" & x"00000000" & x"005ed288" &
-      X48 & x"00" & x"0000" & x"ff" & x"0000" & x"0f" & x"98" & x"09" & x"00")
+      X40 & x"00" & x"00" & x"0000" & x"ff" & x"0000"
+      & x"0f" & x"98" & x"09" & x"00")
     port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
              cpu_ssifss3, cpu_ssitx3,
              spi_data, spi_data_ack, config, config_strobe, clk_50m);
   -- Byte zero is usb data to spi.  Byte 3 is flash data to spi.
   spi_data(23 downto 8) <= config(23 downto 8);
-  spi_data(79 downto 32) <= config(79 downto 32);
+  spi_data(87 downto 32) <= config(87 downto 32);
   spi_data(255 downto 128) <= config(255 downto 128);
 
   process
@@ -293,7 +296,7 @@ begin
               out_data, out_last, clk_main);
 
   au: entity audio generic map (bits_per_sample => 32)
-    port map (out_data, out_data, out_last,
+    port map (out_data, out_data, audio_channel(1 downto 0), out_last,
               audio_scki, audio_lrck, audio_data, audio_bck, clk_main);
 
   bp : entity bandpass port map (
