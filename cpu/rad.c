@@ -423,9 +423,11 @@ static void command_gain(char * params)
     unsigned c = dectou(params);
     const char * p = skipstring(params);
     unsigned g = dectou(p);
-    p = skipstring(params);
+    p = skipstring(p);
     if (*p)
         g = g + 16 * dectou(p);
+    else if (c == 3 && g < 16)
+        g *= 17;
     write_reg(c * 4 + 19, g);
 }
 
