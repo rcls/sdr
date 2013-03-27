@@ -27,6 +27,7 @@
 
 #define XMIT_IR 0
 #define XMIT_SAMPLE 4
+#define XMIT_MULTIF 8
 #define XMIT_PHASE 12
 #define XMIT_BANDPASS 16
 #define XMIT_BURST 20

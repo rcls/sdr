@@ -183,6 +183,9 @@ architecture go of go is
   signal cpu_ssifss3, cpu_ssitx3, cpu_ssiclk3 : std_logic := '1';
   attribute keep of cpu_ssifss2, cpu_ssitx2, cpu_ssiclk2 : signal is "true";
 
+  signal xy_strobe, xy_last : std_logic;
+  signal xy_data : unsigned(30 downto 0);
+
   constant X48 : unsigned(47 downto 0) := (others => 'X');
 
 begin
@@ -328,6 +331,12 @@ begin
         usb_xmit <= usb_xmit xor sampler_strobe;
         usb_last <= '1';
         usb_xmit_length <= 2;
+      when "010" =>
+        packet(30 downto 0) <= xy_data;
+        packet(31) <= usb_xmit_overrun;
+        usb_xmit <= usb_xmit xor xy_strobe;
+        usb_last <= xy_last;
+        usb_xmit_length <= 4;
       when "011" =>
         packet(17 downto 0) <= phase;
         packet(22 downto 18) <= "00000";
@@ -337,7 +346,7 @@ begin
         usb_xmit_length <= 3;
       when "100" =>
         packet(14 downto 0) <= unsigned(bandpass_r);
-        packet(15) <= usb_xmit_overrun;
+        packet(15) <= '0';
         packet(30 downto 16) <= unsigned(bandpass_i);
         packet(31) <= usb_xmit_overrun;
         usb_xmit_length <= 4;
@@ -402,6 +411,20 @@ begin
     if xx_buf_last /= yy_buf_last then
       led_off(3) <= '0';
     end if;
+  end process;
+
+  -- Every 20 cycles pick up a multifilter output.  phase_strobe is a
+  -- convenient strobe for that.
+  process
+  begin
+    wait until rising_edge(clk_main);
+    if phase_strobe = '1' then
+      xy_data(14 downto 0) <= unsigned(xx_buf(35 downto 21));
+      xy_data(15) <= '0';
+      xy_data(30 downto 16) <= unsigned(yy_buf(35 downto 21));
+      xy_last <= xx_buf_last;
+    end if;
+    xy_strobe <= phase_strobe;
   end process;
 
   -- DDR input from ADC.

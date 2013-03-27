@@ -96,7 +96,7 @@ size_t best30(const unsigned char ** restrict buffer, size_t * restrict bytes)
         int predicted = __builtin_parity(runD & 0x80401020);
         uint32_t runZ = runD * 2 + !!(*p & 128);
         const unsigned char * badZ = badD;
-        if (runZ != runB || predicted != (runZ & 1))
+        if (predicted != (runZ & 1) || runZ == 0)
             badZ = p;
         else if (p - badD >= bestsize) {
             best = badD;
@@ -117,6 +117,8 @@ size_t best30(const unsigned char ** restrict buffer, size_t * restrict bytes)
         *bytes = 0;
         return 0;
     }
+
+    assert(bestsize % 4 == 0);
 
     *buffer = best + 32 * 4 - 3;
     bestsize -= 63 * 4;
@@ -181,7 +183,7 @@ size_t best14(const unsigned char ** restrict buffer, size_t * restrict bytes)
         int got = !!(*p & 128);
         uint32_t runNext = runB * 2 + got;
         const unsigned char * badNext = badB;
-        if (predicted != got)
+        if (predicted != got || runNext == 0)
             badNext = p;
         else if (p - badB >= bestsize) {
             best = badB;
