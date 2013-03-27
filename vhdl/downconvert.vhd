@@ -140,11 +140,11 @@ use work.defs.all;
 use work.sincos.all;
 
 entity downconvert is
-    port (data   : in  signed14;
-          gain   : in  unsigned8;
-          xx, yy : out signed36;
-          freq   : in  unsigned24;
-          clk    : in  std_logic);
+  port (data   : in  signed14;
+        gain   : in  unsigned8;
+        xx, yy : out signed36;
+        freq   : in  unsigned24;
+        clk    : in  std_logic);
 end downconvert;
 
 architecture downconvert of downconvert is
@@ -203,17 +203,17 @@ use work.defs.all;
 use work.sincos.all;
 
 entity downconvertpll is
-    port (data   : in  signed14;
-          freq_in : in  unsigned24;
-          gain   : in  unsigned8;
-          decay  : in  unsigned(3 downto 0);
-          freq_in_strobe : in std_logic;
-          xx, yy : out signed36;
-          freq_out : out unsigned(63 downto 0);
-          error_out : out unsigned(63 downto 0);
-          level_out : out unsigned(63 downto 0);
-          out_strobe : in std_logic;
-          clk    : in  std_logic);
+  port (data   : in  signed14;
+        freq_in : in  unsigned24;
+        gain   : in  unsigned8;
+        decay  : in  unsigned(3 downto 0);
+        freq_in_strobe : in std_logic;
+        xx, yy : out signed36;
+        freq_out : out unsigned(63 downto 0);
+        error_out : out unsigned(63 downto 0);
+        level_out : out unsigned(63 downto 0);
+        out_strobe : in std_logic;
+        clk    : in  std_logic);
 end downconvertpll;
 
 architecture downconvertpll of downconvertpll is
@@ -383,10 +383,10 @@ begin
                        sll to_integer(sgain and "1000"),
                        error_width);
     cproduct_1 <= top(resize(cproduct, level_width + level_drop)
-                      sll to_integer(sgain and "1000"),
+                      sll to_integer(cgain and "1000"),
                       level_width);
     cproduct_r <= topd(resize(cproduct, level_width + level_drop)
-                       sll to_integer(sgain and "1000"),
+                       sll to_integer(cgain and "1000"),
                        level_width);
     error_1 <= ssra(error(error_width - 1 downto 10), decay and "0011");
     level_1 <= ssra(level(level_width - 1 downto 10), decay and "0011");
