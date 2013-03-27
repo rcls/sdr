@@ -12,6 +12,7 @@ entity phasedetect is
        phase : out unsigned18;
        out_strobe : out std_logic;
        out_last : out std_logic;
+       phasor_last : in unsigned18;
        clk : in std_logic);
 end phasedetect;
 
@@ -25,6 +26,9 @@ end phasedetect;
 -- shift=0.  If no underflow, then swap xx and yy.
 -- We load every 20 (?) cycles,
 -- and ship out 60 cycles later.
+
+-- The phase detection is bypassed when out_last is asserted; we take
+-- phasor_last instead.
 
 architecture behavioural of phasedetect is
   signal xx1 : unsigned36; -- Real component.
@@ -147,7 +151,11 @@ begin
         -- because of the granularity of the result.
         angle3 <= (17 => yy_in(35), 0 => '1',
                    others => xx_in(35) xor yy_in(35));
-        phase <= angle2; -- ship out previous result.
+        if last2 = '1' then
+          phase <= phasor_last;
+        else
+          phase <= angle2; -- ship out previous result.
+        end if;
         out_last <= last2;
       end if;
       out_strobe <= b2s(load2);

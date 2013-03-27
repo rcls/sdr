@@ -209,6 +209,7 @@ entity downconvertpll is
         decay  : in  unsigned(3 downto 0);
         freq_in_strobe : in std_logic;
         xx, yy : out signed36;
+        phasor : out unsigned18;
         freq_out : out unsigned(63 downto 0);
         error_out : out unsigned(63 downto 0);
         level_out : out unsigned(63 downto 0);
@@ -327,6 +328,8 @@ architecture downconvertpll of downconvertpll is
 
   constant freq_in_pad : signed(freq_width - 25 downto 0) := (others => '0');
 
+  signal base_phase : unsigned24;
+
   -- For some bloody stupid reason, the sra operator doesn't work.
   function ssra(val : signed; a : unsigned; m : integer := 1) return signed is
     variable v : signed(val'length + 11 * m - 1 downto 0);
@@ -439,5 +442,9 @@ begin
       error_out <= unsigned(resize(error, error_out'length));
       level_out <= unsigned(resize(level, level_out'length));
     end if;
+
+    base_phase <= base_phase + freq_in;
+    phasor <= unsigned(phase(phase_width - 1 downto phase_width - 18))
+              - base_phase(23 downto 6);
   end process;
 end downconvertpll;

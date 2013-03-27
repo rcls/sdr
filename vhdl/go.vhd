@@ -180,6 +180,7 @@ architecture go of go is
   alias spied_pll_error : unsigned(63 downto 0) is spi_data(383 downto 320);
   alias spied_pll_level : unsigned(63 downto 0) is spi_data(447 downto 384);
   alias spied_pll_strobe : std_logic is spi_data_ack(55);
+  signal pll_phasor : unsigned18;
 
   signal cpu_ssifss2, cpu_ssitx2, cpu_ssiclk2 : std_logic := '1';
   signal cpu_ssifss3, cpu_ssitx3, cpu_ssiclk3 : std_logic := '1';
@@ -272,7 +273,7 @@ begin
   dcpll : entity downconvertpll
     port map(adc_data_b, config(247 downto 224), config(255 downto 248),
              pll_decay(3 downto 0),
-             config_strobe_fast(30), xx(3), yy(3),
+             config_strobe_fast(30), xx(3), yy(3), pll_phasor,
              spied_pll_freq, spied_pll_error, spied_pll_level, spied_pll_strobe,
              clk_main);
 
@@ -281,7 +282,7 @@ begin
 
   ph: entity phasedetect
     port map(xx_buf, yy_buf, xx_buf_last,
-             phase, phase_strobe, phase_last, clk_main);
+             phase, phase_strobe, phase_last, pll_phasor, clk_main);
 
   irf: entity irfir
     generic map (acc_width => 36, out_width => 18)
