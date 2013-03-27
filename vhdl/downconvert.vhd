@@ -273,6 +273,10 @@ architecture downconvertpll of downconvertpll is
   constant freq_width : integer := 56;
   signal freq : signed(freq_width - 1 downto 0);
 
+  -- Target signal strength.  The signal level should be about target_width
+  -- bits, after left shifting by the gain.
+  constant target_width : integer := 10;
+
   -- Error (and level) are fix point with the LSB at position
   -- (- 60 - 3*decay + error_drop).
   constant error_width : integer := 32;
@@ -286,13 +290,13 @@ architecture downconvertpll of downconvertpll is
   signal error_1 : signed(error_width - 11 downto 0);
   signal level_1 : signed(level_width - 11 downto 0);
 
-  -- We need to left shift by -60-3*decay + error_drop,
+  -- We need to left shift by -50-target_width-3*decay + error_drop,
   -- to adjust for the alignment of error.
   -- Then to align with freq, we need to left shift by freq_width.
   -- We actually left shift by 33 by padding, right shift by 3*decay,
-  -- and right shift by 93-freq_width-error_drop by selecting.
+  -- and right shift by 83+target_width-freq_width-error_drop by selecting.
   constant error_f_w : integer := error_width + 33;
-  constant error_f_base : integer := 93 - freq_width - error_drop;
+  constant error_f_base : integer := 83 +target_width - freq_width - error_drop;
   signal error_f1 : signed(error_f_w - 1 downto 0);
 
   signal sin_index, cos_index : unsigned(9 downto 0);
@@ -308,13 +312,13 @@ architecture downconvertpll of downconvertpll is
   signal sproduct_r, cproduct_r, sproduct_r2, cproduct_r2 : std_logic;
 
   -- alpha=2**(14+decay).
-  -- We need to left shift by -60-3*decay+error_drop + 14+decay
-  -- = - 46 - 2*decay + error_drop,
+  -- We need to left shift by -50-target_width-3*decay+error_drop + 14+decay
+  -- = - 36 -target_width - 2*decay + error_drop,
   -- and then align with phase by left shifting by phase_width.
   -- We actually pad by 22, and then right shift by 2*decay, and then
-  -- right shift (by selection) by 22 + 46 - error_drop - phase_width.
+  -- right shift (by selection) by 22+36 + target_width - error_drop - phase_width.
   constant error_p_w : integer := error_width + 22;
-  constant error_p_base : integer := 68 - error_drop - phase_width;
+  constant error_p_base : integer := 58 +target_width -error_drop - phase_width;
   constant error_p_max : integer := minimum(error_p_w,
                                             error_p_base + phase_width);
   signal error_p1 : signed(error_p_w - 1 downto 0);
