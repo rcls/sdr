@@ -51,7 +51,7 @@ static void write_page (const unsigned char * data, unsigned page)
             n = usb_read(buffer, sizeof buffer);
         }
         while (n == 0);
-        if (n != 3 || buffer[2] != '\n')
+        if (n != 4 || buffer[2] != '\r' || buffer[3] != '\n')
             errx(1, "Huh '%.*s'?\n", n, buffer);
         buffer[2] = 0;
     }
