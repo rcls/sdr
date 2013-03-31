@@ -210,9 +210,9 @@ entity downconvertpll is
         freq_in_strobe : in std_logic;
         xx, yy : out signed36;
         phasor : out unsigned18;
-        freq_out : out unsigned(63 downto 0);
-        error_out : out unsigned(63 downto 0);
-        level_out : out unsigned(63 downto 0);
+        freq_out : out unsigned(31 downto 0);
+        error_out : out unsigned(31 downto 0);
+        level_out : out unsigned(31 downto 0);
         out_strobe : in std_logic;
         clk    : in  std_logic);
 end downconvertpll;
@@ -438,9 +438,9 @@ begin
     end if;
 
     if out_strobe = '1' then
-      freq_out <= resize(unsigned(freq), freq_out'length);
-      error_out <= unsigned(resize(error, error_out'length));
-      level_out <= unsigned(resize(level, level_out'length));
+      freq_out <= unsigned(freq(freq'left downto freq'left - 31);
+      error_out <= unsigned(error(error'left downto error'left - 31));
+      level_out <= unsigned(level(level'left downto level'left - 31));
     end if;
 
     base_phase <= base_phase + freq_in;

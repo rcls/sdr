@@ -168,7 +168,7 @@ architecture go of go is
   alias adc_clk_locked : std_logic is led_off(2);
 
   -- spi conf stuff.
-  constant spi_data_bytes : integer := 56;
+  constant spi_data_bytes : integer := 44;
   signal spi_data : unsigned(spi_data_bytes * 8 - 1 downto 0) :=
     (others => '0');
   signal spi_data_ack : unsigned(spi_data_bytes - 1 downto 0) :=
@@ -176,10 +176,10 @@ architecture go of go is
   signal usb_read_ok : std_logic := '1';
 
   alias spied_flash : unsigned8 is spi_data(31 downto 24);
-  alias spied_pll_freq : unsigned(63 downto 0) is spi_data(319 downto 256);
-  alias spied_pll_error : unsigned(63 downto 0) is spi_data(383 downto 320);
-  alias spied_pll_level : unsigned(63 downto 0) is spi_data(447 downto 384);
-  alias spied_pll_strobe : std_logic is spi_data_ack(55);
+  alias spied_pll_freq : unsigned(31 downto 0) is spi_data(287 downto 256);
+  alias spied_pll_error : unsigned(31 downto 0) is spi_data(319 downto 288);
+  alias spied_pll_level : unsigned(31 downto 0) is spi_data(351 downto 320);
+  alias spied_pll_strobe : std_logic is spi_data_ack(43);
   signal pll_phasor : unsigned18;
 
   signal cpu_ssifss2, cpu_ssitx2, cpu_ssiclk2 : std_logic := '1';
