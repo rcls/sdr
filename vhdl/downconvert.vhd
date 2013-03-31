@@ -232,12 +232,13 @@ architecture downconvertpll of downconvertpll is
   -- i.e., alpha gamma = beta**2 / 3, gamma = beta**3 / 27,
   -- alpha = 9 / beta.
   -- For convenience, take alpha = 8/beta so we can use bit shifts.
-  -- beta is 1/2 ** (11 + decay),
-  -- alpha is 2 ** (14 + decay).
+  -- beta is 1/2 ** (beta_base + decay),
+  -- alpha is 2 ** (alpha_base + decay).
+  -- alpha_base = 14 = 3 + beta_base, beta_base = 11.
   -- [so beta is in range 1/2048 to 1/262144, might want to allow lower
   -- bandwidth]
 
-  -- and we want gamma around 1/27 * 1/2 ** (33 + 3*decay)
+  -- and we want gamma around 1/27 * 1/2 ** (3*beta_base + 3*decay)
 
   -- gamma is given by shifting and the multiplier scaling.
 
@@ -252,25 +253,25 @@ architecture downconvertpll of downconvertpll is
   -- 2 ** (gain + 12).
   -- gamma is then composed of that, the signal strength [in units of LSB],
   -- and a shift, i.e., we want
-  -- 1/27 * 1/2 ** (33 + 3*decay) = strength * 2 ** (gain + 12) * shift
-
-  -- 1 = 27 * strength * shift * 2 ** (gain + 45 + 3 * decay)
-  -- Design for gain to be set so that strength * 2**gain = 2**10.
+  -- 1/27 * 1/2 ** (3*beta_base + 3*decay) = strength * 2 ** (gain + 12) * shift
+  -- 1 = 27 * strength * shift * 2 ** (gain + 12 + 3*beta_base + 3 * decay)
+  -- Design for gain to be set so that strength * 2**gain = 2**10
+  -- = 2**target_width.
   -- Approximate 27 by 32, this gives
-  -- 1 = shift * 2 ** (60 + 3 * decay)
-  -- shift = 1/2 ** (60 + 3 * decay),  or
-  -- shift = 2 ** (- 60 - 3 * decay)
+  -- 1 = shift * 2 ** (3*beta_base + 3 * decay + target_width + 17)
+  -- shift = 1/2 ** (17 + 3*beta_base + target_width + 3 * decay),  or
 
   -- The design above gives a shift going into error.
-  -- It makes more sense to apply this coming out of error, IE. left shift
-  -- (freq_width-60-3*decay) adding to freq, and left shift
-  -- (phase_width-46-2*decay) adding to phase.
+  -- It makes more sense to apply this coming out of error, than going in.
 
-  -- Fix point, range [0,1).  MSB has weight 0.5.
+  -- Fixed point, range [0,1).  MSB has weight 0.5.
   constant phase_width : integer := 32;
   signal phase : signed(phase_width - 1 downto 0) := (others => '0');
 
-  -- Fix point, MSB has weight 0.5.
+  constant alpha_base : integer := 14;
+  constant beta_base : integer := 11;
+
+  -- Fixed point, MSB has weight 0.5.
   constant freq_width : integer := 56;
   signal freq : signed(freq_width - 1 downto 0);
 
@@ -288,16 +289,18 @@ architecture downconvertpll of downconvertpll is
   signal error : signed(error_width - 1 downto 0);
   signal level : signed(level_width - 1 downto 0);
   -- These include an extra low bit for use in rounding.
-  signal error_1 : signed(error_width - 11 downto 0);
-  signal level_1 : signed(level_width - 11 downto 0);
+  signal error_1 : signed(error_width - beta_base downto 0);
+  signal level_1 : signed(level_width - beta_base downto 0);
 
-  -- We need to left shift by -50-target_width-3*decay + error_drop,
-  -- to adjust for the alignment of error.
-  -- Then to align with freq, we need to left shift by freq_width.
+  -- For the error scaling we need to right shift by
+  -- 17 + 3*beta_base + target_width + 3*decay - error_drop.
+  -- For the alignment with freq, left shift by freq_width.
   -- We actually left shift by 33 by padding, right shift by 3*decay,
-  -- and right shift by 83+target_width-freq_width-error_drop by selecting.
+  -- and right shift by 50+3*beta_base+target_width-freq_width
+  -- -error_drop by selecting.
   constant error_f_w : integer := error_width + 33;
-  constant error_f_base : integer := 83 +target_width - freq_width - error_drop;
+  constant error_f_base : integer := 50 + 3 * beta_base + target_width
+                                     - freq_width - error_drop;
   signal error_f1 : signed(error_f_w - 1 downto 0);
 
   signal sin_index, cos_index : unsigned(9 downto 0);
@@ -312,14 +315,16 @@ architecture downconvertpll of downconvertpll is
   signal cproduct_1, cdelta : signed(level_width - 1 downto 0);
   signal sproduct_r, cproduct_r, sproduct_r2, cproduct_r2 : std_logic;
 
-  -- alpha=2**(14+decay).
-  -- We need to left shift by -50-target_width-3*decay+error_drop + 14+decay
-  -- = - 36 -target_width - 2*decay + error_drop,
-  -- and then align with phase by left shifting by phase_width.
+  -- For the error scaling we need to right shift by
+  -- 17 + 3*beta_base + target_width + 3*decay - error_drop.
+  -- For beta we need to left shift by alpha_base + decay.
+  -- For the alignment with phase, left shift by phase_width.
   -- We actually pad by 22, and then right shift by 2*decay, and then
-  -- right shift (by selection) by 22+36 + target_width - error_drop - phase_width.
+  -- right shift (by selection) by
+  -- 39 + 3*beta_base + target_width - error_drop - alpha_base - phase_width.
   constant error_p_w : integer := error_width + 22;
-  constant error_p_base : integer := 58 +target_width -error_drop - phase_width;
+  constant error_p_base : integer := 39 + 3*beta_base + target_width
+                                     - error_drop - alpha_base - phase_width;
   constant error_p_max : integer := minimum(error_p_w,
                                             error_p_base + phase_width);
   signal error_p1 : signed(error_p_w - 1 downto 0);
@@ -373,8 +378,8 @@ begin
              unsigned(phase(phase_width - 1 downto phase_width - 14)),
              clk, sin_index, sin_packed);
   process
-    variable error_1b : signed(error_width - 11 downto 0);
-    variable level_1b : signed(level_width - 11 downto 0);
+    variable error_1b : signed(error_width - beta_base downto 0);
+    variable level_1b : signed(level_width - beta_base downto 0);
     variable error_f0, error_f2 : signed(error_f_w - 1 downto 0);
     variable error_p0, error_p2 : signed(error_p_w - 1 downto 0);
   begin
@@ -395,13 +400,15 @@ begin
     cproduct_r <= topd(resize(cproduct, level_width + level_drop)
                        sll to_integer(cgain and "1000"),
                        level_width);
-    error_1 <= ssra(error(error_width - 1 downto 10), decay and "0011");
-    level_1 <= ssra(level(level_width - 1 downto 10), decay and "0011");
+    error_1 <= ssra(error(error_width - 1 downto beta_base - 1),
+                    decay and "0011");
+    level_1 <= ssra(level(level_width - 1 downto beta_base - 1),
+                    decay and "0011");
     error_1b := ssra(error_1, decay and "1100");
     level_1b := ssra(level_1, decay and "1100");
-    sdelta <= sproduct_1 - error_1b(error_width - 11 downto 1)
+    sdelta <= sproduct_1 - error_1b(error_width - beta_base downto 1)
               - ("0" & error_1b(0));
-    cdelta <= cproduct_1 - level_1b(level_width - 11 downto 1)
+    cdelta <= cproduct_1 - level_1b(level_width - beta_base downto 1)
               - ("0" & level_1b(0));
     sproduct_r2 <= sproduct_r;
     cproduct_r2 <= cproduct_r;
