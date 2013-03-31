@@ -17,9 +17,9 @@
 #define REG_AUDIO_CHANNEL 10
 
 #define REG_PLL_FREQ 32
-#define REG_PLL_ERROR 40
-#define REG_PLL_LEVEL 48
-#define REG_PLL_CAPTURE 55
+#define REG_PLL_ERROR 36
+#define REG_PLL_LEVEL 40
+#define REG_PLL_CAPTURE 43
 
 #define ADC_SEN 1
 #define ADC_SDATA 2
