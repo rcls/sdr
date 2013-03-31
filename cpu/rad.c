@@ -349,7 +349,7 @@ static void command_pll_report(char * params)
         decay -= 4;
 
     const int target_width = 10;
-    const int beta_base = 11;
+    const int beta_base = 8;
     const int alpha_base = beta_base + 3;
     const int error_width = 32;
     const int error_drop = 12;

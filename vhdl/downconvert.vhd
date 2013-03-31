@@ -268,8 +268,8 @@ architecture downconvertpll of downconvertpll is
   constant phase_width : integer := 32;
   signal phase : signed(phase_width - 1 downto 0) := (others => '0');
 
-  constant alpha_base : integer := 14;
-  constant beta_base : integer := 11;
+  constant beta_base : integer := 8;
+  constant alpha_base : integer := beta_base + 3;
 
   -- Fixed point, MSB has weight 0.5.
   constant freq_width : integer := 56;
