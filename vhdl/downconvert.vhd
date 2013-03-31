@@ -438,7 +438,7 @@ begin
     end if;
 
     if out_strobe = '1' then
-      freq_out <= unsigned(freq(freq'left downto freq'left - 31);
+      freq_out <= unsigned(freq(freq'left downto freq'left - 31));
       error_out <= unsigned(error(error'left downto error'left - 31));
       level_out <= unsigned(level(level'left downto level'left - 31));
     end if;
