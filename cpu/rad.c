@@ -238,7 +238,7 @@ static void command_write(char * params)
 
 
 static void read_registers(unsigned reg, unsigned count,
-                           unsigned char * result)
+                           unsigned char * restrict result)
 {
     // Flush SSI before we start...
     while (SSI->sr & 20)
@@ -285,22 +285,24 @@ static void command_read(char * params)
 
 static void tune_report(int channel)
 {
-    unsigned char response[4];
-    read_registers(REG_RADIO_FREQ(channel), 4, response);
-    unsigned rawf = (response[0] & 0xff)
-        + 256 * (response[1] & 0xff) + 65536 * (response[2] & 0xff);
+    union {
+        unsigned char c[4];
+        unsigned u;
+    } response;
+    read_registers(REG_RADIO_FREQ(channel), 4, response.c);
+    unsigned rawf = response.u & 0xffffff;
     unsigned long long longf = 250000000ull * 256 * rawf;
     unsigned hertz = longf >> 32;
     if (channel < 3) {
         printf("%d: %9d Hz, gain = %d * 6dB\n",
-               channel, hertz, response[3] & 15);
+               channel, hertz, response.c[3] & 15);
         return;
     }
 
-    read_registers(REG_PLL_DECAY, 1, response);
+    read_registers(REG_PLL_DECAY, 1, response.c);
     printf("%d: %9d Hz, gain = %d,%d * 6dB, decay = %d\n",
-           channel, hertz, response[3] & 15, (response[3] >> 4) & 15,
-           response[0]);
+           channel, hertz, response.c[3] & 15, (response.c[3] >> 4) & 15,
+           response.c[0]);
 }
 
 
@@ -309,6 +311,9 @@ static void command_tune(char * params)
     if (*params == 0) {
         for (int i = 0; i != 4; ++i)
             tune_report(i);
+        unsigned char a;
+        read_registers(REG_AUDIO_CHANNEL, 1, &a);
+        printf("Audio is channel %i\n", a & 3);
         return;
     }
 
@@ -330,91 +335,26 @@ static void command_tune(char * params)
 }
 
 
-static unsigned long long hertz(unsigned long long f, unsigned n)
-{
-    // We want to multiply by 250M / (1 << n).  Do this 32+32 fixed point,
-    // so we want do an integer multiply by 250M / (1 << (n-32)).
-    n -= 32;
-    const unsigned factor_frac = (250000000ull << 32) >> n;
-    const unsigned factor_int = 250000000ull >> n;
-    return f * factor_int + (f >> 32) * factor_frac
-        + (((f & 0xffffffffull) * factor_frac) >> 32);
-}
-
-
-__attribute__((externally_visible))
-long long __aeabi_lasr(long long v, int s)
-{
-    if (s >= 32) {
-        int hi = v >> 32;
-        return (hi >> 31) * (1ll << 32) + (hi >> (s - 32));
-    }
-    int his = v >> 32;
-    unsigned hiu = his;
-    unsigned low = v;
-    return (his >> s) * (1ll << 32) + (low >> s) + (hiu << 1 << (31 - s));
-}
-
-
-__attribute__((externally_visible))
-long long __aeabi_llsl(unsigned long long v, int s)
-{
-    if (s >= 32) {
-        int lo = v;
-        return (lo << (s - 32)) * (1ull << 32);
-    }
-    unsigned hi = v >> 32;
-    unsigned lo = v;
-    return ((hi << s) + (lo >> 1 >> (31 - s))) * (1ull << 32) + (lo << s);
-}
-
-
 static void command_pll_report(char * params)
 {
     // The parameters from the VHDL...
-    const int FREQ_WIDTH = 56;
-    const int ERROR_DROP = 12;
     txword(REG_PLL_CAPTURE * 512);      // Capture the pll regs.
-    long long reg[3];
-    //printf("Pll report read reg...\n");
-    read_registers(REG_PLL_FREQ, 24, (unsigned char *) reg);
-    //printf("Pll report read reg done...\n");
-    long long frq = reg[0];
-    long long err = reg[1];
-    long long lvl = reg[2];
+    unsigned reg[3];
+    read_registers(REG_PLL_FREQ, sizeof reg, (unsigned char *) reg);
+    // Convert the frequencies to 32+32 fixed point hertz.
+    long long frq = reg[0] * 250000000ull;
     unsigned char decay;
     read_registers(REG_PLL_DECAY, 1, &decay);
     if (decay >= 12)
         decay -= 4;
-    // Calculate the frequency adjusted by error, in the same manner as it
-    // is applied in the VHDL phase update.
-    // The factor alpha is left shift by (14+decay).  The error has LSB
-    // at full_width - 60 - 3*decay + error_drop.  We then want to align with
-    // freq by right shifting (full_width - freq_width).  The full_widths cancel
-    // giving
-    int leftshift = ERROR_DROP + FREQ_WIDTH - 46 - 2*decay;
-    long long error_p2;
-    if (leftshift >= 0)
-        error_p2 = err << leftshift;
-    else
-        error_p2 = err >> -leftshift;
 
-    // Convert the frequencies to 32+32 fixed point hertz.
-    frq = hertz(frq, FREQ_WIDTH);
-    //frqerr = hertz56(frqerr);
-    char ep2s = ' ';
-    if (error_p2 < 0) {
-        ep2s = '-';
-        error_p2 = -error_p2;
-    }
-    error_p2 = hertz(error_p2, FREQ_WIDTH);
-    printf("%d.%06d  %c%d.%06d %x%08x %d %d\n",
+    // FIXME - redo the error to frequency conversion.
+    printf("%d.%06d  %d %x %d %d\n",
            (unsigned) (frq >> 32),
            (unsigned) ((frq & 0xfffffffful) * 1000000 >> 32),
-           ep2s, (unsigned) (error_p2 >> 32),
-           (unsigned) ((error_p2 & 0xfffffffful) * 1000000 >> 32),
-           (int)(lvl >> 32), (int) lvl, 64 - __builtin_clzll(lvl),
-           err >= 0 ? 64 - __builtin_clzll(err) : 64 - __builtin_clzll(-err));
+           reg[1], reg[2],
+           32 - __builtin_clz(reg[1] < 0 ? -reg[1] : reg[1]),
+           32 - __builtin_clz(reg[2]));
 }
 
 
