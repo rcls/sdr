@@ -270,6 +270,7 @@ architecture downconvertpll of downconvertpll is
 
   constant beta_base : integer := 8;
   constant alpha_base : integer := beta_base + 3;
+  constant level_base : integer := beta_base;
 
   -- Fixed point, MSB has weight 0.5.
   constant freq_width : integer := 56;
@@ -290,7 +291,7 @@ architecture downconvertpll of downconvertpll is
   signal level : signed(level_width - 1 downto 0);
   -- These include an extra low bit for use in rounding.
   signal error_1 : signed(error_width - beta_base downto 0);
-  signal level_1 : signed(level_width - beta_base downto 0);
+  signal level_1 : signed(level_width - level_base downto 0);
 
   -- For the error scaling we need to right shift by
   -- 17 + 3*beta_base + target_width + 3*decay - error_drop.
@@ -379,7 +380,7 @@ begin
              clk, sin_index, sin_packed);
   process
     variable error_1b : signed(error_width - beta_base downto 0);
-    variable level_1b : signed(level_width - beta_base downto 0);
+    variable level_1b : signed(level_width - level_base downto 0);
     variable error_f0, error_f2 : signed(error_f_w - 1 downto 0);
     variable error_p0, error_p2 : signed(error_p_w - 1 downto 0);
   begin
@@ -402,13 +403,13 @@ begin
                        level_width);
     error_1 <= ssra(error(error_width - 1 downto beta_base - 1),
                     decay and "0011");
-    level_1 <= ssra(level(level_width - 1 downto beta_base - 1),
+    level_1 <= ssra(level(level_width - 1 downto level_base - 1),
                     decay and "0011");
     error_1b := ssra(error_1, decay and "1100");
     level_1b := ssra(level_1, decay and "1100");
     sdelta <= sproduct_1 - error_1b(error_width - beta_base downto 1)
               - ("0" & error_1b(0));
-    cdelta <= cproduct_1 - level_1b(level_width - beta_base downto 1)
+    cdelta <= cproduct_1 - level_1b(level_width - level_base downto 1)
               - ("0" & level_1b(0));
     sproduct_r2 <= sproduct_r;
     cproduct_r2 <= cproduct_r;

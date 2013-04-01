@@ -351,6 +351,7 @@ static void command_pll_report(char * params)
     const int target_width = 10;
     const int beta_base = 8;
     const int alpha_base = beta_base + 3;
+    const int level_base = beta_base;
     const int error_width = 32;
     const int error_drop = 12;
 
@@ -384,7 +385,7 @@ static void command_pll_report(char * params)
            ierr, reg[2],
            32 - __builtin_clz(ierr),
            32 - __builtin_clz(reg[2]),
-           target_width + 13 + beta_base + decay - error_drop
+           target_width + 13 + level_base + decay - error_drop
            + 32 - level_width);
 }
 
