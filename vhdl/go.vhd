@@ -1,6 +1,6 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -230,7 +230,7 @@ begin
       X40 & x"00" & x"00" & x"0000" & x"ff" & x"0000"
       & x"0f" & x"98" & x"09" & x"00")
     port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
-             cpu_ssifss3, cpu_ssitx3,
+             cpu_ssifss, cpu_ssitx,
              spi_data, spi_data_ack, config, config_strobe, clk_50m);
   -- Byte zero is usb data to spi.  Byte 3 is flash data to spi.
   spi_data(23 downto 8) <= config(23 downto 8);
