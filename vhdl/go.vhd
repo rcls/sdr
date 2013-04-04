@@ -263,17 +263,17 @@ begin
 
   blinky : entity blinkoflow port map(adc_data_b, led_off(4), open, clk_main);
 
-  down: for i in 0 to 2 generate
-    dc: entity downconvert
-      port map (data => adc_data_b,
-                freq => config(i * 32 + 151 downto i * 32 + 128),
-                gain => config(i * 32 + 159 downto i * 32 + 152),
-                xx => xx(i), yy => yy(i), clk => clk_main);
-  end generate;
+  dc0: entity downconvert port map (
+    adc_data_b, config(159 downto 152), xx(0), yy(0),
+    config(151 downto 128), clk_main);
+  dc1: entity downconvert port map (
+    adc_data_b, config(191 downto 184), xx(1), yy(1),
+    config(183 downto 160), clk_main);
+
   dcpll : entity downconvertpll
-    port map(adc_data_b, config(247 downto 224), config(255 downto 248),
+    port map(adc_data_b, config(215 downto 192), config(223 downto 216),
              pll_decay(3 downto 0),
-             config_strobe_fast(30), xx(3), yy(3), pll_phasor,
+             config_strobe_fast(26), xx(2), yy(2), pll_phasor,
              spied_pll_freq, spied_pll_error, spied_pll_level, spied_pll_strobe,
              clk_main);
 

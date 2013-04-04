@@ -293,7 +293,7 @@ static void tune_report(int channel)
     unsigned rawf = response.u & 0xffffff;
     unsigned long long longf = 250000000ull * 256 * rawf;
     unsigned hertz = longf >> 32;
-    if (channel < 3) {
+    if (channel != 2) {
         printf("%d: %9d Hz, gain = %d * 6dB\n",
                channel, hertz, response.c[3] & 15);
         return;
@@ -309,7 +309,7 @@ static void tune_report(int channel)
 static void command_tune(char * params)
 {
     if (*params == 0) {
-        for (int i = 0; i != 4; ++i)
+        for (int i = 0; i != 3; ++i)
             tune_report(i);
         unsigned char a;
         read_registers(REG_AUDIO_CHANNEL, 1, &a);
@@ -398,9 +398,9 @@ static void command_gain(char * params)
     p = skipstring(p);
     if (*p)
         g = g + 16 * dectou(p);
-    else if (c == 3 && g < 16)
+    else if (c == 2 && g < 16)
         g *= 17;
-    write_reg(c * 4 + 19, g);
+    write_reg(REG_RADIO_GAIN(c), g);
 }
 
 
