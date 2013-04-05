@@ -351,7 +351,7 @@ static void command_pll_report(char * params)
     const int target_width = 10;
     const int beta_base = 8;
     const int alpha_base = beta_base + 3;
-    const int level_base = beta_base;
+    const int level_base = beta_base + 3;
     const int error_width = 32;
     const int error_drop = 12;
 
@@ -376,12 +376,11 @@ static void command_pll_report(char * params)
     else
         err = 250000000ull * (ierr << -right);
 
-    // FIXME - redo the error to frequency conversion.
-    printf("%d.%06d  %c%d.%06d %x %x %d %d %d\n",
+    printf("%d.%03d  %c%d.%03d %x %x %d %d %d\n",
            (unsigned) (frq >> 32),
-           (unsigned) ((frq & 0xfffffffful) * 1000000 >> 32),
+           (unsigned) ((frq & 0xfffffffful) * 1000 >> 32),
            errs, (unsigned) (err >> 32),
-           (unsigned) ((err & 0xfffffffful) * 1000000 >> 32),
+           (unsigned) ((err & 0xfffffffful) * 1000 >> 32),
            ierr, reg[2],
            32 - __builtin_clz(ierr),
            32 - __builtin_clz(reg[2]),

@@ -270,7 +270,7 @@ architecture downconvertpll of downconvertpll is
 
   constant beta_base : integer := 8;
   constant alpha_base : integer := beta_base + 3;
-  constant level_base : integer := beta_base;
+  constant level_base : integer := beta_base + 3;
 
   -- Fixed point, MSB has weight 0.5.
   constant freq_width : integer := 56;
