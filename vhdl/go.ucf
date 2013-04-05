@@ -14,6 +14,9 @@ TIMESPEC TS_config = FROM "config" 20;
 NET "spi/shift_out*" TNM_NET = "spi_out";
 TIMESPEC TS_spi_out = TO "spi_out" 20;
 
-NET "cpu_ssirx" TNM_NET = "cpu_ssi_out";
+NET "cpu_ssirx" TNM = "cpu_ssi_out";
+NET "cpu_ssifss" TNM = "cpu_ssi_in";
+NET "cpu_ssitx" TNM = "cpu_ssi_in";
+
 TIMESPEC TS_cpu_ssirx_ffs = FROM FFS TO "cpu_ssi_out" 6;
-TIMESPEC TS_cpu_ssirx_pad = FROM PADS TO "cpu_ssi_out" 7;
+TIMESPEC TS_cpu_ssirx_pad = FROM "cpu_ssi_in" TO "cpu_ssi_out" 7;
