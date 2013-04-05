@@ -107,7 +107,7 @@ architecture go of go is
   signal out_last : std_logic;
 
   -- The configuration loaded via the CPU.
-  constant config_bytes : integer := 32;
+  constant config_bytes : integer := 28;
   signal config : unsigned(config_bytes * 8 - 1 downto 0);
   signal config_strobe, config_strobe2, config_strobe3, config_strobe_fast :
     unsigned(config_bytes - 1 downto 0);
@@ -226,7 +226,7 @@ begin
   spi : entity spiconf
     generic map(
       config_bytes, spi_data_bytes,
-      x"00000000" & x"00000000" & x"00000000" & x"005ed288" &
+      x"00000000" & x"00000000" & x"005ed288" &
       X40 & x"00" & x"00" & x"0000" & x"ff" & x"0000"
       & x"0f" & x"98" & x"09" & x"00")
     port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
@@ -235,7 +235,7 @@ begin
   -- Byte zero is usb data to spi.  Byte 3 is flash data to spi.
   spi_data(23 downto 8) <= config(23 downto 8);
   spi_data(87 downto 32) <= config(87 downto 32);
-  spi_data(255 downto 128) <= config(255 downto 128);
+  spi_data(223 downto 128) <= config(223 downto 128);
 
   process
   begin
