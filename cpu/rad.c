@@ -290,9 +290,8 @@ static void tune_report(int channel)
         unsigned u;
     } response;
     read_registers(REG_RADIO_FREQ(channel), 4, response.c);
-    unsigned rawf = response.u & 0xffffff;
-    unsigned long long longf = 250000000ull * 256 * rawf;
-    unsigned hertz = longf >> 32;
+    unsigned rawf = response.u << 8;
+    unsigned hertz = (250000000ull * rawf + (1ull << 31)) >> 32;
     if (channel != 2) {
         printf("%d: %9d Hz, gain = %d * 6dB\n",
                channel, hertz, response.c[3] & 15);
@@ -303,6 +302,35 @@ static void tune_report(int channel)
     printf("%d: %9d Hz, gain = %d,%d * 6dB, decay = %d\n",
            channel, hertz, response.c[3] & 15, (response.c[3] >> 4) & 15,
            response.c[0]);
+}
+
+
+static unsigned strtofreq(const char * p)
+{
+    // Hex is verbatim.
+    if (p[0] == '0' && (p[1] & ~32) == 'X')
+        return hextou(p);
+
+    unsigned v = 0;
+    while (*p >= '0' && *p <= '9')
+        v = v * 10 + *p++ - '0';
+    if (*p == '.') {
+        // If there is a decimal point, assume units are MHz and convert to Hz.
+        int dp = 0;
+        while (*++p >= '0' && *p <= '9') {
+            v = v * 10 + *p - '0';
+            ++dp;
+        }
+        for (; dp > 6; --dp)
+            v /= 10;
+        for (; dp < 6; ++dp)
+            v *= 10;
+    }
+
+    if (*p)
+        rerun("Illegal frequency\n");
+    // Now multiply by (1<<24) / 250M.  We work 32+32 fixed point.
+    return (v * 288230376ull + (1ull << 31)) >> 32;
 }
 
 
@@ -318,17 +346,15 @@ static void command_tune(char * params)
     }
 
     unsigned c = dectou(params);
-    unsigned f;
 
-    if (params[-1] == 'h') {
-        f = hextou(skipstring(params));
+    const char * p = skipstring(params);
+    if (*p == 0) {
+        tune_report(c);
+        return;
     }
-    else {
-        f = dectou(skipstring(params));
-        unsigned hi = f * 67;
-        unsigned long long big = f * 467567319ull;
-        f = hi + (big >> 32);
-    }
+
+    unsigned f = strtofreq(skipstring(params));
+
     write_reg(c * 4 + 16, f);
     write_reg(c * 4 + 17, f >> 8);
     write_reg(c * 4 + 18, f >> 16);
@@ -497,7 +523,6 @@ static const command_t commands[] = {
     { "reboot", command_reboot },
     { "bandpass", command_bandpass },
     { "tune", command_tune },
-    { "tuneh", command_tune },
     { "gain", command_gain },
     { "R", command_R },
     { "W", command_W },
