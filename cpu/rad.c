@@ -63,7 +63,7 @@ static void getline(char * restrict line, unsigned max)
             }
             continue;
         }
-        if (c == '\n' || c == '\r')
+        if (c == '\n')
             break;
 
         line[i++] = c;
