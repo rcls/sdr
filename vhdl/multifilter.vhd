@@ -65,20 +65,18 @@ begin
           -- The index has already advanced, so we are outputing the last
           -- channel (3) when the index is on channel 0.
           qq_last <= b2s((index mod 4) = 0);
-          addend1 := x"000000000";
+          acc <= -ramout;
           ram(to_integer(index)) <= data;
         when "01" =>
           index <= index + 1 + 27 * scale;
+          acc <= acc - ramout;
         when "10" =>
           index <= index + 10 * scale;
+          acc <= acc + ramout;
         when others => -- "11"
           index <= index + 27 * scale;
+          acc <= acc + ramout;
       end case;
-      if phase = "00" or phase = "01" then
-        acc <= addend1 + ramout;
-      else
-        acc <= addend1 - ramout;
-      end if;
     end if;
   end process;
 
