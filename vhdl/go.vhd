@@ -226,8 +226,8 @@ begin
   spi : entity spiconf
     generic map(
       config_bytes, spi_data_bytes,
-      x"00000000" & x"00000000" & x"005ed288" &
-      X40 & x"00" & x"00" & x"0000" & x"ff" & x"0000"
+      x"55642576" & x"0067d567" & x"005ed289" &
+      X40 & x"00" & x"0b" & x"0000" & x"ff" & x"0000"
       & x"0f" & x"98" & x"09" & x"00")
     port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
              cpu_ssifss, cpu_ssitx,

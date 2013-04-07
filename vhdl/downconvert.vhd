@@ -274,7 +274,8 @@ architecture downconvertpll of downconvertpll is
 
   -- Fixed point, MSB has weight 0.5.
   constant freq_width : integer := 56;
-  signal freq : signed(freq_width - 1 downto 0);
+  constant freq_in_pad : signed(freq_width - 25 downto 0) := (others => '0');
+  signal freq : signed(freq_width - 1 downto 0) := x"642576" & freq_in_pad;
 
   -- Target signal strength.  The signal level should be about target_width
   -- bits, after left shifting by the gain.
@@ -332,8 +333,6 @@ architecture downconvertpll of downconvertpll is
 
   signal phase_a : signed(phase_width - 1 downto 0);
 
-  constant freq_in_pad : signed(freq_width - 25 downto 0) := (others => '0');
-
   signal base_phase : unsigned24;
 
   -- For some bloody stupid reason, the sra operator doesn't work.
@@ -348,8 +347,8 @@ architecture downconvertpll of downconvertpll is
     end if;
     v := (others => val(val'left));
     v(val'length - 1 downto 0) := val;
-    result := v(val'length - 1 downto 0);
-    for i in 1 to 11 loop
+    result := (others => '0');
+    for i in 0 to 11 loop
       if to_integer(aa) = i then
         result := v(val'length - 1 + i * m downto i * m);
       end if;
