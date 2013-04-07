@@ -1,4 +1,4 @@
-// Analyse a (250MHz / 240) dump of the phase detector output.
+// Analyse a (250MHz / 80) dump of the phase detector output.
 
 #include <fcntl.h>
 #include <stdio.h>

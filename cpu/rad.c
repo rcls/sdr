@@ -283,28 +283,6 @@ static void command_read(char * params)
 }
 
 
-static void tune_report(int channel)
-{
-    union {
-        unsigned char c[4];
-        unsigned u;
-    } response;
-    read_registers(REG_RADIO_FREQ(channel), 4, response.c);
-    unsigned rawf = response.u << 8;
-    unsigned hertz = (250000000ull * rawf + (1ull << 31)) >> 32;
-    if (channel != 2) {
-        printf("%d: %9d Hz, gain = %d * 6dB\n",
-               channel, hertz, response.c[3] & 15);
-        return;
-    }
-
-    read_registers(REG_PLL_DECAY, 1, response.c);
-    printf("%d: %9d Hz, gain = %d,%d * 6dB, decay = %d\n",
-           channel, hertz, response.c[3] & 15, (response.c[3] >> 4) & 15,
-           response.c[0]);
-}
-
-
 static unsigned strtofreq(const char * p)
 {
     // Hex is verbatim.
@@ -334,34 +312,7 @@ static unsigned strtofreq(const char * p)
 }
 
 
-static void command_tune(char * params)
-{
-    if (*params == 0) {
-        for (int i = 0; i != 3; ++i)
-            tune_report(i);
-        unsigned char a;
-        read_registers(REG_AUDIO_CHANNEL, 1, &a);
-        printf("Audio is channel %i\n", a & 3);
-        return;
-    }
-
-    unsigned c = dectou(params);
-
-    const char * p = skipstring(params);
-    if (*p == 0) {
-        tune_report(c);
-        return;
-    }
-
-    unsigned f = strtofreq(skipstring(params));
-
-    write_reg(c * 4 + 16, f);
-    write_reg(c * 4 + 17, f >> 8);
-    write_reg(c * 4 + 18, f >> 16);
-}
-
-
-static void command_pll_report(char * params)
+static void pll_report(int audio)
 {
     // The parameters from the VHDL...
     txword(REG_PLL_CAPTURE * 512);      // Capture the pll regs.
@@ -371,8 +322,7 @@ static void command_pll_report(char * params)
     long long frq = reg[0] * 250000000ull;
     unsigned char decay;
     read_registers(REG_PLL_DECAY, 1, &decay);
-    if (decay >= 12)
-        decay -= 4;
+    decay &= 15;
 
     const int target_width = 10;
     const int beta_base = 8;
@@ -391,7 +341,7 @@ static void command_pll_report(char * params)
         // Convert top 32-bits to (mod 2**32).
         - error_width;
     int ierr = reg[1];
-    char errs = ' ';
+    char errs = '+';
     if (ierr < 0) {
         errs = '-';
         ierr = -ierr;
@@ -402,7 +352,8 @@ static void command_pll_report(char * params)
     else
         err = 250000000ull * (ierr << -right);
 
-    printf("%d.%03d  %c%d.%03d %x %x %d %d %d\n",
+    printf("3%c %9d.%03d %c%d.%03d Hz, %x %x %d %d %d\n",
+           audio == 3 ? '*' : ':',
            (unsigned) (frq >> 32),
            (unsigned) ((frq & 0xfffffffful) * 1000 >> 32),
            errs, (unsigned) (err >> 32),
@@ -412,6 +363,71 @@ static void command_pll_report(char * params)
            32 - __builtin_clz(reg[2]),
            target_width + 13 + level_base + decay - error_drop
            + 32 - level_width);
+}
+
+
+static void command_pll_report(char * params)
+{
+    unsigned char a;
+    read_registers(REG_AUDIO_CHANNEL, 1, &a);
+    pll_report(a & 3);
+}
+
+
+static void tune_report(int channel, int audio)
+{
+    if (channel == 3) {
+        pll_report(audio);
+        return;
+    }
+
+    union {
+        unsigned char c[4];
+        unsigned u;
+    } response;
+    read_registers(REG_RADIO_FREQ(channel), 4, response.c);
+    unsigned rawf = response.u << 8;
+    unsigned hertz = (250000000ull * rawf + (1ull << 31)) >> 32;
+    if (channel != 2) {
+        printf("%d%c %9d Hz, gain = %d * 6dB\n",
+               channel, audio == channel ? '*' : ':',
+               hertz, response.c[3] & 15);
+        return;
+    }
+
+    read_registers(REG_PLL_DECAY, 1, response.c);
+    printf("%d%c %9d Hz, gain = %d,%d * 6dB, decay = %d\n",
+           channel, audio == channel ? '*' : ':',
+           hertz, response.c[3] & 15, (response.c[3] >> 4) & 15,
+           response.c[0]);
+}
+
+
+static void command_tune(char * params)
+{
+    if (*params == 0) {
+        unsigned char a;
+        read_registers(REG_AUDIO_CHANNEL, 1, &a);
+        for (int i = 0; i != 4; ++i)
+            tune_report(i, a & 3);
+        return;
+    }
+
+    unsigned c = dectou(params);
+
+    const char * p = skipstring(params);
+    if (*p == 0) {
+        unsigned char a;
+        read_registers(REG_AUDIO_CHANNEL, 1, &a);
+        tune_report(c, a & 3);
+        return;
+    }
+
+    unsigned f = strtofreq(skipstring(params));
+
+    write_reg(c * 4 + 16, f);
+    write_reg(c * 4 + 17, f >> 8);
+    write_reg(c * 4 + 18, f >> 16);
 }
 
 

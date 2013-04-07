@@ -1,8 +1,9 @@
 
 #include "printf.h"
 #include "registers.h"
-#include "stdarg.h"
-#include "stdbool.h"
+
+#include <stdarg.h>
+#include <stdbool.h>
 
 void txword(unsigned val)
 {
@@ -103,7 +104,7 @@ void printf (const char * restrict f, ...)
             ++lng;
         switch (*s) {                   // We don't cope with '\0'.  Who cares.
         case 'c': ;
-            putchar(va_arg(args, unsigned)); // FIXME - modifiers.
+            putchar((unsigned char) va_arg(args, int)); // FIXME - modifiers.
             break;
         case 'x':
             lower = 0x20;
