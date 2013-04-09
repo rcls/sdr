@@ -341,15 +341,11 @@ architecture downconvertpll of downconvertpll is
     variable result : signed(val'length - 1 downto 0);
     variable aa : unsigned(3 downto 0);
   begin
-    aa := a;
-    if aa(3) = '1' then
-      aa(2) := '0';                     -- Limit range to 0..11
-    end if;
     v := (others => val(val'left));
     v(val'length - 1 downto 0) := val;
     result := (others => '0');
     for i in 0 to 11 loop
-      if to_integer(aa) = i then
+      if to_integer(a) = i then
         result := v(val'length - 1 + i * m downto i * m);
       end if;
     end loop;
