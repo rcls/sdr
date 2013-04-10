@@ -148,3 +148,54 @@ begin
     phase <= phase + 1;
   end process;
 end quadcheby;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library work;
+use work.defs.all;
+
+entity test_quadcheby is
+  port (clk : out std_logic;
+        Q : out signed(35 downto 0);
+        last_out : out std_logic);
+end test_quadcheby;
+
+architecture test_quadcheby of test_quadcheby is
+  signal clk_main : std_logic := '0';
+  signal count : unsigned(10 downto 0) := (others => '0');
+  signal D : mf_signed := (others => '0');
+  signal last_in : std_logic := '0';
+begin
+
+  uut : entity work.quadcheby port map(D, Q, last_in, last_out, clk_main);
+  clk <= clk_main;
+
+  process
+  begin
+    wait for 2ns;
+    clk_main <= not clk_main;
+  end process;
+
+  process(clk_main)
+  begin
+    if clk_main'event and clk_main = '1' then
+      count <= count + 1;
+      if count(1 downto 0) = "00" then
+        last_in <= '0';
+        --D <= (others => '0');
+      end if;
+      if count(3 downto 0) = "1100" then
+        last_in <= '1';
+      end if;
+      if count(3 downto 0) = "0000" then
+        if count(10) = '1' then
+          D <= to_signed(262144, mf_width);
+        else
+          D <= to_signed(-262144, mf_width);
+        end if;
+      end if;
+    end if;
+  end process;
+end test_quadcheby;
