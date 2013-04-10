@@ -31,25 +31,29 @@ end phasedetect;
 -- phasor_last instead.
 
 architecture behavioural of phasedetect is
-  signal xx1 : unsigned36; -- Real component.
-  signal yy1 : unsigned37; -- Imaginary component.
+  constant width : integer := 36;
+  subtype xunsigned is unsigned(width - 1 downto 0);
+  subtype yunsigned is unsigned(width downto 0);
+
+  signal xx1 : xunsigned; -- Real component.
+  signal yy1 : yunsigned; -- Imaginary component.
   signal last1 : std_logic;
 
   signal angle1 : unsigned18; -- Accumulated angle.
   signal positive1 : boolean; -- Positive adjustments to angle.
 
-  signal xx2 : unsigned36;
-  signal yy2 : unsigned37;
-  signal yy2_shifted : unsigned37;
+  signal xx2 : xunsigned;
+  signal yy2 : yunsigned;
+  signal yy2_shifted : yunsigned;
   signal angle2 : unsigned18;
   signal positive2 : boolean;
   signal load2 : boolean;
   signal last2 : std_logic;
 
-  signal xx3 : unsigned36;
-  signal yy3 : unsigned37;
-  signal xx3_trial : unsigned36;
-  signal yy3_trial : unsigned37;
+  signal xx3 : xunsigned;
+  signal yy3 : yunsigned;
+  signal xx3_trial : xunsigned;
+  signal yy3_trial : yunsigned;
   signal angle3 : unsigned18;
   signal angle3_update : unsigned16;
   signal positive3 : boolean;
@@ -120,7 +124,7 @@ begin
 
       -- Second pipeline stage is the trial operation.  It also handles the
       -- loading of data into the pipeline.
-      xx3_trial <= xx2 + yy2_shifted(35 downto 0);
+      xx3_trial <= xx2 + yy2_shifted(width - 1 downto 0);
       -- Note that yy is at most twice the 36 bit xx, so if the arithmetic does
       -- not overflow, then the result of the subtract will fit in 36 bits.
       -- Except for round-0 (where we normalise to the first octant).  In that
@@ -130,27 +134,27 @@ begin
 
       if load2 then
         last3 <= in_last;
-        yy3_trial(36) <= '1'; -- Make sure we don't adjust on next cycle.
+        yy3_trial(width) <= '1'; -- Make sure we don't adjust on next cycle.
         -- 'not' is cheaper than proper true negation.  And given our
         -- round-towards-negative behaviour, more accurate.
-        if xx_in(35) = '0' then
+        if xx_in(width - 1) = '0' then
           xx3 <= unsigned(xx_in);
         else
           xx3 <= not unsigned(xx_in);
         end if;
-        if yy_in(35) = '0' then
+        if yy_in(width - 1) = '0' then
           yy3 <= '0' & unsigned(yy_in);
         else
           yy3 <= '0' & not unsigned(yy_in);
         end if;
-        positive3 <= (xx_in(35) xor yy_in(35)) = '1';
+        positive3 <= (xx_in(width - 1) xor yy_in(width - 1)) = '1';
         -- Our convention is that angle zero covers the first sliver of the
         -- first quadrant etc., so bias the start angle just into the
         -- appropriate quadrant.  Yes the 0=>1 looks like a step too far,
         -- but after exhaustive testing, it gives better results, presumably
         -- because of the granularity of the result.
-        angle3 <= (17 => yy_in(35), 0 => '1',
-                   others => xx_in(35) xor yy_in(35));
+        angle3 <= (17 => yy_in(width - 1), 0 => '1',
+                   others => xx_in(width - 1) xor yy_in(width - 1));
         if last2 = '1' then
           phase <= phasor_last;
         else
@@ -161,7 +165,7 @@ begin
       out_strobe <= b2s(load2);
 
       -- Third pipeline stage is commitment.
-      if yy3_trial(36) = '0' then
+      if yy3_trial(width) = '0' then
         if not start3 then
           xx1 <= xx3_trial;
           -- yy got left shifted at the previous stage, but yy_trial did not.
@@ -170,7 +174,7 @@ begin
         else
           -- No overflow, yy is bigger than xx, so swap things over.  Remember
           -- that yy got left shifted, so take that into account in the swap.
-          xx1 <= yy3(36 downto 1);
+          xx1 <= yy3(width downto 1);
           yy1 <= xx3 & '0';
           positive1 <= not positive3;
         end if;

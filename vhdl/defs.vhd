@@ -3,7 +3,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 package defs is
-  subtype unsigned37 is unsigned(36 downto 0);
   subtype unsigned36 is unsigned(35 downto 0);
   subtype unsigned24 is unsigned(23 downto 0);
   subtype unsigned18 is unsigned(17 downto 0);
