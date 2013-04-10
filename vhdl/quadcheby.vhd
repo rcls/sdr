@@ -58,6 +58,7 @@ architecture quadcheby of quadcheby is
   constant beta2_b : integer := alpha_b - 2;
 
   constant iwidth : integer := mf_width + alpha_b;
+  constant itop : integer := mf_width;
   subtype acc_t is signed(iwidth - 1 downto 0);
 
   signal U, U_a, U_b, U_c, U_d : acc_t := (others => '0');
@@ -107,9 +108,9 @@ begin
 
     if strobe1 = '1' then
       U1 := U_d;
-      U2 := resize(D, iwidth);
+      U2 := resize(D, iwidth) sll (itop - mf_width);
       last_out <= last_in;
-      Q <= V_d(iwidth - 2 downto iwidth - 37);
+      Q <= V_d(itop + alpha_b - 2 downto itop + alpha_b - 37);
     else
       U1 := U;
       U2 := Uaddend;
