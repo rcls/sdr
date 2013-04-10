@@ -333,7 +333,7 @@ static void pll_report(int audio)
 
     const int level_width = 40;
 
-    const int right =
+    int right =
         // Scaling of error
         17 + 3 * beta_base + target_width + 3 *decay - error_drop
         // Left shift by alpha_base + decay
@@ -346,11 +346,12 @@ static void pll_report(int audio)
         errs = '-';
         ierr = -ierr;
     }
-    long long err;
-    if (right >= 0)
-        err = 250000000ull * (ierr >> right);
-    else
-        err = 250000000ull * (ierr << -right);
+    long long err = 250000000ull * ierr;
+    // Do the shifts by hand & avoid libgcc.
+    for (; right < 0; ++right)
+        err *= 2;
+    for (; right > 0; --right)
+        err >>= 1;
 
     printf("3%c %9d.%03d %c%d.%03d Hz, %x %x %d %d %d\n",
            audio == 3 ? '*' : ':',
