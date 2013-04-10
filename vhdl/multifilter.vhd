@@ -47,6 +47,7 @@ architecture multifilter of multifilter is
 
   signal acc : mf_signed;
 
+  attribute keep of rambuf : signal is "true";
 begin
   process
   begin
