@@ -72,6 +72,9 @@ architecture quadcheby of quadcheby is
   signal strobe0 : std_logic := '1';
   signal strobe1 : std_logic := '0';
 
+  attribute keep_hierarchy : string;
+  attribute keep_hierarchy of quadcheby : architecture is "soft";
+
 begin
   process
     variable U1, U2, V2, I2 : acc_t;
