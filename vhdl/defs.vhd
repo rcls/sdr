@@ -67,11 +67,12 @@ package defs is
 
   function minimum(x : integer; y : integer) return integer is
   begin
-    if x < y then
-      return x;
-    else
-      return y;
-    end if;
+    if x < y then  return x;  else  return y;  end if;
   end minimum;
+
+  function maximum(x : integer; y : integer) return integer is
+  begin
+    if x > y then  return x;  else  return y;  end if;
+  end maximum;
 
 end defs;

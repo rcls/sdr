@@ -57,8 +57,8 @@ architecture quadcheby of quadcheby is
   constant beta1_b : integer := alpha_b;
   constant beta2_b : integer := alpha_b - 2;
 
-  constant iwidth : integer := mf_width + alpha_b;
-  constant itop : integer := mf_width;
+  constant iwidth : integer := maximum(37, mf_width + alpha_b);
+  constant itop : integer := iwidth - alpha_b;
   subtype acc_t is signed(iwidth - 1 downto 0);
 
   signal U, U_a, U_b, U_c, U_d : acc_t := (others => '0');
