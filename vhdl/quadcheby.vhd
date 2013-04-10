@@ -55,7 +55,7 @@ architecture quadcheby of quadcheby is
 
   -- Split beta into two parts; one applied going into I, one coming out.
   constant beta1_b : integer := alpha_b;
-  constant beta2_b : integer := alpha_b - 2;
+  constant beta2_b : integer := alpha_b - 1;
 
   constant iwidth : integer := maximum(37, mf_width + alpha_b);
   constant itop : integer := iwidth - alpha_b;
