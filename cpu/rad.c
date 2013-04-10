@@ -10,8 +10,8 @@ typedef struct command_t {
     void (* function)(char *);
 } command_t;
 
-void * const vtable[] __attribute__((section (".start"),
-                                     externally_visible));
+const void * const vtable[] __attribute__((section (".start"),
+                                           externally_visible));
 static void run(void);
 
 unsigned rxchar(void)
@@ -601,7 +601,8 @@ static void dummy_int(void)
 }
 
 
-void * const vtable[] = {
+const void * const vtable[] = {
     (void*) 0x20002000, start,
-    [2 ... 37] = dummy_int
+    [2 ... 37] = dummy_int,
+    [38] = commands
 };
