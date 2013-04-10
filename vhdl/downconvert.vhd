@@ -20,8 +20,8 @@ entity dc1 is
 end dc1;
 
 architecture dc1 of dc1 is
-  constant width : integer := 48;
-  subtype accumulator is signed(width - 1 downto 0);
+  constant width1 : integer := 48;
+  constant width2 : integer := minimum(mf_width + 10, width1);
 
   --signal index : unsigned(9 downto 0);
   signal low, low_2 : unsigned(1 downto 0);
@@ -37,7 +37,8 @@ architecture dc1 of dc1 is
 
   signal prod : signed36;
 
-  signal buf, buf_9, acc : accumulator;
+  signal buf : signed(width1 - 1 downto 0);
+  signal buf_9, acc : signed(width2 - 1 downto 0);
 
   attribute use_dsp48 : string;
   attribute use_dsp48 of acc : signal is "no";
@@ -117,7 +118,7 @@ begin
     end if;
 
     -- Buffer.
-    buf_9 <= buf;
+    buf_9 <= buf(width1 - 1 downto width1 - width2);
 
     -- Second order accumulate, applying gain(3).
     if gain(3) = '0' then
@@ -126,7 +127,7 @@ begin
       acc <= acc + (buf_9 sll 8);
     end if;
 
-    q <= acc(width - 1 downto width - mf_width);
+    q <= acc(width2 - 1 downto width2 - mf_width);
   end process;
 end dc1;
 
