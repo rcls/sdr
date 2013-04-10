@@ -22,7 +22,10 @@ package defs is
   subtype signed14 is signed(13 downto 0);
 
   type sinrom_t is array (0 to 1023) of unsigned18;
-  type four_signed36 is array (0 to 3) of signed36;
+
+  constant mf_width : integer := 28;
+  subtype mf_signed is signed(mf_width - 1 downto 0);
+  type four_mf_signed is array (0 to 3) of mf_signed;
 
   subtype command_t is std_logic_vector(23 downto 0);
   type program_t is array(integer range <>) of command_t;

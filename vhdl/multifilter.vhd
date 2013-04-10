@@ -5,79 +5,82 @@ use IEEE.NUMERIC_STD.ALL;
 library work;
 use work.defs.all;
 
--- Multiplex streams through the filter (currently four but the arithmetic works
--- for eight).  One sample is processed every four clock cycles.  The providers
--- of the data should have carried out the second order summation; we do the
--- second order differencing.  We output x(t)-x(t-27*8)-x(t-37*8)+x(t-64*8)
+-- Multiplex streams through the filter (currently four).  One sample is
+-- processed every four clock cycles, i.e., each stream gets 1 every
+-- 16 cycles.  The provider of the data should have carried out the second order
+-- summation; we do the second order differencing.  We output
+-- x(t)-x(t-236)-x(t-244)+x(t-480)
 -- with a latency of four (?) clock cycles, and t incrementing once every 4
 -- cycles.
 --
--- The *8 is for 250MHz; at 125MHz we do *4.
---
--- Phase 0: Save input x(t), start load x(t-64*8) [same loc.], output prev,
---    acc := -x(t-37*8).
--- Phase 1: acc -= x(t-27*8), start load x(t).
--- Phase 2: acc += x(t-64*8), start load x(t+1-37*8).
--- Phase 3: acc += x(t), start load x(t+1-27*8).
--- Phase 0, index += 0.
--- Phase 1, index += 1-37*8
--- Phase 2, index += 10*8
--- Phase 3, index += 27*8
+-- Phase 0: acc = -x(t-59*4), start load x(t-120*4), output prev,
+-- Phase 1: acc -= x(t-61*4), start load x(t).
+-- Phase 2: acc += x(t-120*4), start load x(t-59*4+"+1").
+-- Phase 3: acc += x(t), start load x(t-61*4+"+1").
+-- Phase 0, index += 120*4.
+-- Phase 1, index += "+1"-59*4
+-- Phase 2, index += -2*4
+-- Phase 3, index += -59*4
+-- Note that the "+1" is +1 mod 4, but is either +5 or +1, choosen so that
+-- floor(t/4) increments, so that the total increment over 16 cycles is +16.
+-- We store 1 sample per cycle.  In phase 0, make sure that the store pointer
+-- is not conflicting with the read pointer.
 entity multifilter is
-  port (dd : in four_signed36;
-        qq : out signed36;
+  port (dd : in four_mf_signed;
+        qq : out mf_signed;
         qq_last : out std_logic;
         Clk : in std_logic);
 end;
 
 architecture multifilter of multifilter is
-  constant scale : integer := 8; -- 4 for 125MHz, 8 for 250MHz.
-  subtype index_t is unsigned9; -- 8 bits for 125MHz, 9 bits for 250.
-  type ram_t is array(0 to scale * 64 - 1) of signed36;
+  subtype index_t is unsigned9;
+  type ram_t is array(0 to 511) of mf_signed;
 
   signal ram : ram_t;
-  signal rambuf : signed36;
-  signal ramout : signed36;
-  signal index : index_t;
+  signal rambuf : mf_signed;
+  signal ramout : mf_signed;
+  signal index, windex : index_t;
 
-  signal data : signed36;
-  signal phase : unsigned(1 downto 0);
+  signal data : mf_signed;
+  alias phase : unsigned2 is windex(1 downto 0);
   alias switch : std_logic is index(0);
 
-  signal acc : signed36;
+  signal acc : mf_signed;
 
 begin
-  process (Clk)
-    variable addend1 : signed36;
+  process
   begin
-    if Clk'event and Clk = '1' then
-      phase <= phase + 1;
-      rambuf <= ram(to_integer(index));
-      ramout <= rambuf;
+    wait until rising_edge(clk);
+    rambuf <= ram(to_integer(index));
+    ramout <= rambuf;
 
-      addend1 := acc;
+    phase <= phase + 1;
+    ram(to_integer(windex)) <= data;
 
-      data <= dd(to_integer(index) mod 4);
-
-      case phase is
-        when "00" =>
-          qq <= acc;
-          -- The index has already advanced, so we are outputing the last
-          -- channel (3) when the index is on channel 0.
-          qq_last <= b2s((index mod 4) = 0);
-          acc <= -ramout;
-          ram(to_integer(index)) <= data;
-        when "01" =>
-          index <= index + 1 + 27 * scale;
-          acc <= acc - ramout;
-        when "10" =>
-          index <= index + 10 * scale;
-          acc <= acc + ramout;
-        when others => -- "11"
-          index <= index + 27 * scale;
-          acc <= acc + ramout;
-      end case;
-    end if;
+    case phase is
+      when "00" =>
+        qq <= acc;
+        -- The index has already advanced, so we are outputing the last
+        -- channel (3) when the index is on channel 0.
+        qq_last <= b2s(index(1 downto 0) = "00");
+        index(8 downto 2) <= index(8 downto 2) + 120;
+        windex(8 downto 2) <= index(8 downto 2);
+        acc <= -ramout;
+        data <= dd(1);
+      when "01" =>
+        index(8 downto 2) <= index(8 downto 2) - 59 + 1;
+        index(1 downto 0) <= index(1 downto 0) + 1;
+        acc <= acc - ramout;
+        data <= dd(2);
+      when "10" =>
+        index(8 downto 2) <= index(8 downto 2) - 2;
+        acc <= acc + ramout;
+        data <= dd(3);
+      when others => -- "11"
+        index(8 downto 2) <= index(8 downto 2) - 59;
+        acc <= acc + ramout;
+        data <= dd(0);
+    end case;
   end process;
 
 end multifilter;

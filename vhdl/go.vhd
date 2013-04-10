@@ -47,10 +47,11 @@ entity go is
 end go;
 
 architecture go of go is
-  signal xx, yy : four_signed36;
+  signal xx, yy : four_mf_signed;
+  signal xx_mf, yy_mf : mf_signed;
 
   signal xx_buf, yy_buf : signed36;
-  signal xx_buf_last, yy_buf_last : std_logic;
+  signal xx_buf_last, yy_buf_last, xx_mf_last, yy_mf_last : std_logic;
 
   signal packet : unsigned(31 downto 0);
 
@@ -277,8 +278,12 @@ begin
              spied_pll_freq, spied_pll_error, spied_pll_level, spied_pll_strobe,
              clk_main);
 
-  xfilter: entity multifilter port map(xx, xx_buf, xx_buf_last, clk_main);
-  yfilter: entity multifilter port map(yy, yy_buf, yy_buf_last, clk_main);
+  xfilter: entity multifilter port map(xx, xx_mf, xx_mf_last, clk_main);
+  yfilter: entity multifilter port map(yy, yy_mf, yy_mf_last, clk_main);
+  xcheby: entity quadcheby port map(
+    xx_mf, xx_buf, xx_mf_last, xx_buf_last, clk_main);
+  ycheby: entity quadcheby port map(
+    yy_mf, yy_buf, yy_mf_last, yy_buf_last, clk_main);
 
   ph: entity phasedetect
     port map(xx_buf, yy_buf, xx_buf_last,

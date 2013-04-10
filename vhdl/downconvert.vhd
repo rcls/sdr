@@ -12,7 +12,7 @@ entity dc1 is
   port (data : in signed14;
         gain : in unsigned(3 downto 0);
         product : out signed36;
-        q : out signed36;
+        q : out mf_signed;
         phase : in unsigned(13 downto 0);
         clk : in std_logic;
         index : out unsigned(9 downto 0);
@@ -126,7 +126,7 @@ begin
       acc <= acc + (buf_9 sll 8);
     end if;
 
-    q <= acc(width - 1 downto width - 36);
+    q <= acc(width - 1 downto width - mf_width);
   end process;
 end dc1;
 
@@ -142,7 +142,7 @@ use work.sincos.all;
 entity downconvert is
   port (data   : in  signed14;
         gain   : in  unsigned8;
-        xx, yy : out signed36;
+        xx, yy : out mf_signed;
         freq   : in  unsigned24;
         clk    : in  std_logic);
 end downconvert;
@@ -208,7 +208,7 @@ entity downconvertpll is
         gain   : in  unsigned8;
         decay  : in  unsigned(3 downto 0);
         freq_in_strobe : in std_logic;
-        xx, yy : out signed36;
+        xx, yy : out mf_signed;
         phasor : out unsigned18;
         freq_out : out unsigned(31 downto 0);
         error_out : out unsigned(31 downto 0);
