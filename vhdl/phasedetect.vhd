@@ -31,9 +31,13 @@ end phasedetect;
 -- phasor_last instead.
 
 architecture behavioural of phasedetect is
-  constant width : integer := 36;
+  constant width : integer := 20;
   subtype xunsigned is unsigned(width - 1 downto 0);
   subtype yunsigned is unsigned(width downto 0);
+
+  signal shift : boolean;
+  signal x_shift, y_shift : unsigned36;
+  signal shift_last : std_logic;
 
   signal xx1 : xunsigned; -- Real component.
   signal yy1 : yunsigned; -- Imaginary component.
@@ -88,6 +92,28 @@ begin
   begin
     wait until rising_edge(clk);
 
+    -- Preprocess each sample for 20 cycles, left shifting as much as possible.
+    -- This reduces the precision required in the main calculations.
+    if shift then
+      if load2 then
+        x_shift <= unsigned(xx_in);
+        y_shift <= unsigned(yy_in);
+        shift_last <= in_last;
+      else
+        x_shift <= x_shift sll 1;
+        y_shift <= y_shift sll 1;
+      end if;
+    end if;
+
+    if count = 19 then
+      shift <= true;                    -- Same cycle as load2.
+    elsif load2 then
+      shift <= xx_in(35) = xx_in(34) and yy_in(35) = yy_in(34);
+    else
+      shift <= shift and
+               x_shift(34) = x_shift(33) and y_shift(34) = y_shift(33);
+    end if;
+
     if count >= 13 then
       count <= count - 13;
     else
@@ -134,28 +160,28 @@ begin
     angle3_update <= angle_update(iteration2(count));
 
     if load2 then
-      last3 <= in_last;
+      last3 <= shift_last;
       yy3_trial(width) <= '1'; -- Make sure we don't adjust on next cycle.
       -- 'not' is cheaper than proper true negation.  And given our
       -- round-towards-negative behaviour, more accurate.
-      if xx_in(width - 1) = '0' then
-        xx3 <= unsigned(xx_in);
+      if x_shift(35) = '0' then
+        xx3 <= x_shift(35 downto 36 - width);
       else
-        xx3 <= not unsigned(xx_in);
+        xx3 <= not x_shift(35 downto 36 - width);
       end if;
-      if yy_in(width - 1) = '0' then
-        yy3 <= '0' & unsigned(yy_in);
+      if y_shift(35) = '0' then
+        yy3 <= '0' & y_shift(35 downto 36 - width);
       else
-        yy3 <= '0' & not unsigned(yy_in);
+        yy3 <= '0' & not y_shift(35 downto 36 - width);
       end if;
-      positive3 <= (xx_in(width - 1) xor yy_in(width - 1)) = '1';
+      positive3 <= (x_shift(35) xor y_shift(35)) = '1';
       -- Our convention is that angle zero covers the first sliver of the
       -- first quadrant etc., so bias the start angle just into the
       -- appropriate quadrant.  Yes the 0=>1 looks like a step too far,
       -- but after exhaustive testing, it gives better results, presumably
       -- because of the granularity of the result.
-      angle3 <= (17 => yy_in(width - 1), 0 => '1',
-                 others => xx_in(width - 1) xor yy_in(width - 1));
+      angle3 <= (17 => y_shift(35), 0 => '1',
+                 others => x_shift(35) xor y_shift(35));
       if last2 = '1' then
         phase <= phasor_last;
       else
