@@ -61,7 +61,7 @@ int main(int argc, char * argv[])
             }
             const char * last = argv[argc - 1];
             if (*last && last[strlen(last) - 1] != '/')
-                basic("\n");
+                basic("");
         }
         else {
             for (int i = 1; i < argc; ++i)
