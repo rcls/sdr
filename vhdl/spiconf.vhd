@@ -21,7 +21,7 @@ entity spiconf is
         data : in unsigned(data_bytes * 8 - 1 downto 0);
         data_ack : out unsigned(data_bytes - 1 downto 0);
         config : out unsigned(config_bytes * 8 - 1 downto 0) := defconfig;
-        config_strobe : out unsigned(config_bytes - 1 downto 0);
+        conf_strobe : out unsigned(config_bytes - 1 downto 0);
         clk : in std_logic);
 end spiconf;
 
@@ -79,7 +79,7 @@ begin
     end if;
 
     -- Process writes.
-    config_strobe <= write_strobe;
+    conf_strobe <= write_strobe;
     for i in 0 to config_bytes - 1 loop
       if write_strobe(i) = '1' then
         config(i * 8 + 7 downto i * 8) <= shift_in(7 downto 0);

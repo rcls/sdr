@@ -7,7 +7,7 @@ INST adc_reclkfb LOC = BUFIO2FB_X0Y22;
 
 # Let all the configs take up to 20ns.  The only paths we care about are
 # on 50MHz clocks.
-NET "spi/config<*>" TNM_NET = "config";
+NET "spi/config*" TNM_NET = "config";
 TIMESPEC TS_config = FROM "config" 20;
 
 # Ditto, all the fast paths going into the spi data are non-critical.

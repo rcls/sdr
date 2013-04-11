@@ -110,11 +110,10 @@ architecture go of go is
   -- The configuration loaded via the CPU.
   constant config_bytes : integer := 28;
   signal config : unsigned(config_bytes * 8 - 1 downto 0);
-  signal config_strobe, config_strobe2, config_strobe3, config_strobe_fast :
+  signal conf_strobe, conf_strobe2, conf_strobe3, conf_strobe_fast :
     unsigned(config_bytes - 1 downto 0);
 
   alias to_usb_data : unsigned8 is config(7 downto 0);
-  --alias to_usb_data_strobe : std_logic is config_strobe(0); FIXME
 
   alias adc_control : unsigned8 is config(15 downto 8);
   -- Control for data in to USB host.
@@ -232,7 +231,7 @@ begin
       & x"0f" & x"98" & x"09" & x"00")
     port map(cpu_ssifss3, cpu_ssitx3, cpu_ssirx, cpu_ssiclk3,
              cpu_ssifss, cpu_ssitx,
-             spi_data, spi_data_ack, config, config_strobe, clk_50m);
+             spi_data, spi_data_ack, config, conf_strobe, clk_50m);
   -- Byte zero is usb data to spi.  Byte 3 is flash data to spi.
   spi_data(23 downto 8) <= config(23 downto 8);
   spi_data(87 downto 32) <= config(87 downto 32);
@@ -253,13 +252,13 @@ begin
       usb_read_ok <= '0';
     end if;
     usb_byte_in_strobe2 <= usb_byte_in_strobe;
-    config_strobe2 <= config_strobe;
+    conf_strobe2 <= conf_strobe;
   end process;
   process
   begin
     wait until rising_edge(clk_main);
-    config_strobe3 <= config_strobe2;
-    config_strobe_fast <= config_strobe2 and not config_strobe3;
+    conf_strobe3 <= conf_strobe2;
+    conf_strobe_fast <= conf_strobe2 and not conf_strobe3;
   end process;
 
   blinky : entity blinkoflow port map(adc_data_b, led_off(4), open, clk_main);
@@ -274,7 +273,7 @@ begin
   dcpll : entity downconvertpll
     port map(adc_data_b, config(215 downto 192), config(223 downto 216),
              pll_decay(3 downto 0),
-             config_strobe_fast(26), xx(2), yy(2), pll_phasor,
+             conf_strobe_fast(26), xx(2), yy(2), pll_phasor,
              spied_pll_freq, spied_pll_error, spied_pll_level, spied_pll_strobe,
              clk_main);
 
@@ -369,7 +368,7 @@ begin
         usb_last <= '1';
       when "110" =>
         packet(7 downto 0) <= to_usb_data;
-        usb_xmit <= usb_xmit xor config_strobe_fast(0);
+        usb_xmit <= usb_xmit xor conf_strobe_fast(0);
         usb_last <= '1';
         usb_xmit_length <= 1;
       when others =>
