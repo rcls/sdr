@@ -29,7 +29,8 @@ static void load_samples(const unsigned char * buffer, complex float * samples)
     double xx_sum_sq = 0;
     double yy_sum = 0;
     double yy_sum_sq = 0;
-    for (int i = 0; i != LENGTH; ++i) {
+#pragma omp parallel for reduction(+:xx_sum, yy_sum, xx_sum_sq, yy_sum_sq)
+    for (int i = 0; i < LENGTH; ++i) {
         const unsigned char * p = buffer + i * 4;
         int xx = p[0] + p[1] * 256;
         int yy = p[2] + p[3] * 256;
@@ -62,7 +63,7 @@ int main (int argc, const char ** argv)
 
     // Slurp a truckload of data.
     unsigned char * buffer = usb_slurp_channel(
-        BUFFER_SIZE, XMIT_TURBO|XMIT_MULTIF|3, -1, -1);
+        BUFFER_SIZE, XMIT_TURBO|XMIT_XY|2, -1, -1);
     usb_close();
 
     complex float * samples = malloc(LENGTH * sizeof * samples);
@@ -70,7 +71,8 @@ int main (int argc, const char ** argv)
     free(buffer);
 
     // Apply a raised cosine transform.
-    for (int i = 0; i != LENGTH; ++i)
+#pragma omp parallel for
+    for (int i = 0; i < LENGTH; ++i)
         samples[i] *= 1 - cos(2 * M_PI * i / LENGTH);
 
     // Take the transform.
@@ -83,7 +85,8 @@ int main (int argc, const char ** argv)
 
     // Calculate spectrum.
     float * spectrum = malloc(LENGTH * sizeof * spectrum);
-    for (int i = 0; i != LENGTH; ++i)
+#pragma omp parallel for
+    for (int i = 0; i < LENGTH; ++i)
         spectrum[i] = creal(samples[i]) * creal(samples[i])
             +         cimag(samples[i]) * cimag(samples[i]);
 

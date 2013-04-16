@@ -24,11 +24,12 @@ iseconfig/
 PCB*.save
 spect/
 /util/burstspec
+/util/command
 /util/irspec
 /util/monwrite
 /util/phasespect
 /util/spiflash
-/util/command
+/util/xyspect
 /fir
 /fir.hi
 /cpu/*.bin
