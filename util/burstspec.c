@@ -52,7 +52,8 @@ int main (int argc, const char ** argv)
     usb_open();
 
     usb_write_reg(REG_FLASH, 0x0f);
-    usb_write_reg(REG_FLASH, 0x8f);
+    usb_write_reg(REG_FLASH, 0x4f);
+    usb_write_reg(REG_FLASH, 0x0f);
 
     unsigned char * buffer = usb_slurp_channel(
         CAPTURE_BYTES, XMIT_BURST, -1, 0);

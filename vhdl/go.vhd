@@ -130,6 +130,7 @@ architecture go of go is
 
   alias flash_control : unsigned8 is config(31 downto 24);
   alias clock_select : std_logic is flash_control(7);
+  alias burst_start : std_logic is flash_control(6);
 
   alias bandpass_freq : unsigned8 is config(39 downto 32);
   alias bandpass_gain : unsigned8 is config(47 downto 40);
@@ -309,7 +310,7 @@ begin
     bandpass_r, bandpass_i, bandpass_strobe, clk_main);
 
   brst : entity burst port map (
-    adc_data_b, flash_control(7), burst_data, burst_strobe, clk_main);
+    adc_data_b, burst_start, burst_data, burst_strobe, clk_main);
 
   smplr : entity sampler port map (
     adc_data_b, sampler_decay, sampler_rate, sampler_data, sampler_strobe,
