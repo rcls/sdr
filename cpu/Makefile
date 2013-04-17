@@ -3,7 +3,7 @@
 
 TARGETS=blink rad
 all: $(TARGETS)	monitor.flashreloc.bin monitor.sramreloc.bin \
-	bootsel.sram.bin bootsel.flash0.bin
+	bootsel.sram.bin bootsel.flash0.bin extra.sram.bin
 
 .PHONY: $(TARGETS)
 $(TARGETS): %: %.sram.bin %.flash.bin
@@ -21,7 +21,7 @@ CFLAGS=-Os -g -flto -fwhole-program -std=gnu11 -ffreestanding \
 	-mcpu=cortex-m3 -mthumb -MMD -MP -MF.deps/$@.d \
 	-fno-common -fdata-sections -Wall -Werror
 
-rad.flash.elf rad.sram.elf: printf.o
+rad.flash.elf rad.sram.elf extra.sram.elf: printf.o command.o
 
 -include .deps/*.d
 

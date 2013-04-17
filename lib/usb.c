@@ -150,10 +150,12 @@ void usb_slurp(void * buffer, size_t len)
 void usb_send_bytes(const void * data, size_t len)
 {
     int transferred;
-    if (libusb_bulk_transfer(usb_device, USB_OUT_EP, (void *) data, len,
-                             &transferred, 100) != 0
-        || transferred != len)
-        errx(1, "libusb_bulk_transfer failed.\n");
+    int r = libusb_bulk_transfer(usb_device, USB_OUT_EP, (void *) data, len,
+                                 &transferred, 100);
+    if (r != 0)
+        errx(1, "libusb_bulk_transfer failed (%i).", r);
+    if (transferred != len)
+        errx(1, "libusb_bulk_transfer short (%i v %zi).", transferred, len);
 }
 
 
