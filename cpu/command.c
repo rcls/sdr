@@ -255,7 +255,7 @@ void command_write(char * params)
         unsigned mask = hextou(p);
         unsigned char old;
         read_registers(r, 1, &old);
-        v = (v & mask) | (old & ~mask);
+        v = v ^ (old & ~mask);
     }
     write_reg(r, v);
 }
