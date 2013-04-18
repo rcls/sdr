@@ -8,7 +8,6 @@
 #include "lib/usb.h"
 #include "lib/util.h"
 
-#define CAPTURE_BYTES 65536
 #define BURST_SIZE 2048
 
 static inline int get14(const unsigned char * p)
@@ -20,21 +19,13 @@ static inline int get14(const unsigned char * p)
 }
 
 
-static void load_samples(const unsigned char * buffer, float * samples)
+static void load_samples(float * samples, const unsigned char * buffer,
+                         size_t num_samples)
 {
-    // First find the last overrun and start flags.
-    int over = 1;
-    int start = -1;
-    for (int i = 1; i < CAPTURE_BYTES; i += 2) {
-        if (buffer[i] & 128)
-            over = i;
-        if (buffer[i] & 64)
-            start = i;
-    }
-    if (start < over + BURST_SIZE * 4)
-        errx(1, "Not enough data.\n");
+    if (num_samples < 2 * BURST_SIZE)
+        errx(1, "Not enough data.");
 
-    const unsigned char * p = buffer + start - BURST_SIZE * 4 - 1;
+    const unsigned char * p = buffer + num_samples * 2 - BURST_SIZE * 4;
     if (memcmp(p, p + BURST_SIZE * 2, BURST_SIZE * 2) != 0)
         errx(1, "Copies do not match.");
 
@@ -43,11 +34,8 @@ static void load_samples(const unsigned char * buffer, float * samples)
 }
 
 
-int main (int argc, const char ** argv)
+int main (int argc, char * const argv[])
 {
-    if (argc != 2)
-        errx(1, "Usage: <filename>.");
-
     // Slurp a truckload of data.
     usb_open();
 
@@ -55,15 +43,20 @@ int main (int argc, const char ** argv)
     usb_write_reg(REG_FLASH, 0x4f);
     usb_write_reg(REG_FLASH, 0x0f);
 
-    unsigned char * buffer = usb_slurp_channel(
-        CAPTURE_BYTES, XMIT_BURST, -1, 0);
+    size_t num_samples = BURST_SIZE * 2;
+    size_t bytes;
+    unsigned char * buffer = slurp_getopt(
+        argc, argv, SLURP_OPTS, NULL, XMIT_BURST, &num_samples, &bytes);
     usb_close();
 
+    const unsigned char * best = buffer;
+    num_samples = best_flag(&best, bytes, 2);
+
     float * samples = xmalloc(BURST_SIZE * sizeof * samples);
-    load_samples(buffer, samples);
+    load_samples(samples, best, num_samples);
     free(buffer);
 
-    spectrum(argv[1], samples, BURST_SIZE, false);
+    spectrum(optind < argc ? argv[optind] : NULL, samples, BURST_SIZE, false);
     free(samples);
 
     return 0;

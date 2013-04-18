@@ -35,7 +35,10 @@ void usb_echo(void);
 // Read until idle.
 void usb_flush(void);
 
-unsigned char * usb_slurp_channel(size_t length, int source,
-                                  int freq, int gain);
+#define SLURP_OPTS "c:f:g:r:d:"
+
+unsigned char * slurp_getopt(
+    int argc, char * const argv[], const char * optstring, int (*cb)(int),
+    int source, size_t * restrict num_samples, size_t * restrict bytes);
 
 #endif

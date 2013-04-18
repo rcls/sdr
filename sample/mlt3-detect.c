@@ -314,8 +314,17 @@ static unsigned char * capture(size_t len)
     usb_printf("adc 2510 0303 4a01 cf00 3de0\n");
 
     // Slurp the sampler in turbo mode.
-    unsigned char * result = usb_slurp_channel(
-        len, XMIT_TURBO|XMIT_SAMPLE, count, wander_decay);
+    unsigned char * result = xmalloc(len * 2);
+    usb_write_reg(REG_SAMPLE_DECAY_LO, wander_decay);
+    usb_write_reg(REG_SAMPLE_DECAY_HI, wander_decay >> 8);
+    usb_write_reg(REG_XMIT, XMIT_TURBO|XMIT_SAMPLE);
+
+    usb_slurp(result, len);
+
+    usb_write_reg(REG_XMIT, XMIT_LOW_LATENCY|XMIT_CPU_SSI);
+    usb_flush();
+    usb_printf("\n");
+    usb_read(NULL, 1);
 
     // Back to normal parameters, in case we down clocked.
     usb_write_reg(REG_FLASH, FLASH_CS);
@@ -389,7 +398,7 @@ int main(int argc, char ** argv)
     }
 
     const unsigned char * good = buffer;
-    if (best14 (&good, &bufsize) < SIZE)
+    if (best_lfsr (&good, bufsize, 2) < SIZE)
         errx(1, "Did not get sufficient contiguous data.");
 
     // Read in the data and find the used codes.

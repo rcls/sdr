@@ -34,14 +34,10 @@ void dump_file(int file, const void * data, size_t len);
 void dump_path(const char * path, const void * data, size_t len);
 
 // Returns number of samples, update pointer and size.
-size_t best30(const unsigned char ** restrict buffer,
-              size_t * restrict bytes);
-size_t best22(const unsigned char ** restrict buffer,
-              size_t * restrict bytes);
-size_t best14(const unsigned char ** restrict buffer,
-              size_t * restrict bytes);
-size_t best36(const unsigned char ** restrict buffer,
-              size_t * restrict bytes);
+size_t best_lfsr(const unsigned char * restrict * restrict buffer,
+                 size_t bytes, int sample_size);
+size_t best_flag(const unsigned char * restrict * restrict buffer,
+                 size_t bytes, int sample_size);
 
 void spectrum(const char * path, float * samples, size_t length, bool preserve);
 

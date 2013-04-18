@@ -72,7 +72,7 @@ static void get_samples(sample_buffer_t * buffer, size_t required)
 
         buffer->best = buffer->data + 8192;
         size_t bytes = amount - 8192;
-        best_len = best30(&buffer->best, &bytes);
+        best_len = best_lfsr(&buffer->best, bytes, 4);
         if (best_len >= required) {
             //buffer->best += 4 * (best_len - required);
             if (i != 0)

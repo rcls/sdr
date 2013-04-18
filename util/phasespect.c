@@ -9,31 +9,22 @@
 #include "lib/util.h"
 #include "lib/registers.h"
 
-#define LENGTH (1<<22)
-#define FULL_LENGTH (LENGTH + 65536)
-#define BUFFER_SIZE (FULL_LENGTH * 3)
 
-
-static void load_samples(const unsigned char * buffer, float * samples)
+static void load_samples(float * samples, const unsigned char * buffer,
+                         size_t num_samples, size_t bytes)
 {
     // Check for overrun flags.  Also chuck at least 4096 samples to let the
     // filters settle.
-    int best = 4096;
-    for (size_t i = 4097; i != FULL_LENGTH; ++i)
-        if (buffer[3*i + 2] & 128) {
-            fprintf(stderr, "Overrun at %zi\n", i);
-            best = i;
-        }
+    buffer += 3 * 4096;
+    size_t got = best_flag(&buffer, bytes - 3 * 4096, 3);
+    if (got < num_samples)
+        errx(1, "Only got %zi expected %zi.", got, num_samples);
 
-    if (FULL_LENGTH - best < LENGTH + 1)
-        errx(1, "Only got %i, wanted %i\n", FULL_LENGTH - best, LENGTH + 1);
+    samples[0] = 0;              // The windowing kills the first sample anyway.
+    int last = buffer[0] + buffer[1] * 256 + buffer[2] * 65536;
 
-    const unsigned char * p = buffer + 3 * best;
-    int last = p[0] + p[1] * 256 + p[2] * 65536;
-
-    for (size_t i = 0; i != LENGTH; ++i) {
-        p += 3;
-        int this = p[0] + p[1] * 256 + p[2] * 65536;
+    for (size_t i = 1; i != num_samples; ++i) {
+        int this = buffer[3*i] + buffer[3*i+1] * 256 + buffer[3*i+2] * 65536;
         int delta = (this - last) & 0x3ffff;
         last = this;
         if (delta >= 0x20000)
@@ -45,26 +36,20 @@ static void load_samples(const unsigned char * buffer, float * samples)
 }
 
 
-int main (int argc, const char ** argv)
+int main (int argc, char * const argv[])
 {
-    if (argc != 3)
-        errx(1, "Usage: <freq> <filename>.");
-
-    char * dag;
-    unsigned freq = strtoul(argv[1], &dag, 0);
-    if (*dag)
-        errx(1, "Usage: <freq> <filename>.");
-
     // Slurp a truckload of data.
-    unsigned char * buffer = usb_slurp_channel(
-        BUFFER_SIZE, XMIT_PHASE|1, freq, -1);
+    size_t bytes;
+    size_t num_samples = 22;
+    unsigned char * buffer = slurp_getopt(
+        argc, argv, SLURP_OPTS, NULL, XMIT_PHASE|1, &num_samples, &bytes);
     usb_close();
 
-    float * samples = malloc(LENGTH * sizeof * samples);
-    load_samples(buffer, samples);
+    float * samples = malloc(num_samples * sizeof * samples);
+    load_samples(samples, buffer, num_samples, bytes);
     free(buffer);
 
-    spectrum(argv[2], samples, LENGTH, false);
+    spectrum(optind < argc ? argv[optind] : NULL, samples, num_samples, false);
     free(samples);
 
     return 0;

@@ -7,10 +7,6 @@
 #include "lib/usb.h"
 #include "lib/util.h"
 
-#define LENGTH (1<<18)
-#define FULL_LENGTH (LENGTH + 65536)
-#define BUFFER_SIZE (FULL_LENGTH * 3)
-
 static inline int get18(const unsigned char * p)
 {
     int r = p[0] + p[1] * 256 + (p[2] & 3) * 65536;
@@ -19,39 +15,32 @@ static inline int get18(const unsigned char * p)
     return r;
 }
 
-static void load_samples(const unsigned char * buffer, float * samples)
+static void load_samples(float * samples, const unsigned char * buffer,
+                         size_t bytes, size_t num_samples)
 {
-    size_t start = 4096;                // Biff at least 4096 samples.
-    for (size_t i = 4097; i != FULL_LENGTH; ++i)
-        if ((buffer[i * 3 + 2]) & 128)
-            start = i;
+    const unsigned char * best = buffer + 4096 * 3;
+    size_t got = best_flag(&best, bytes - 4096 - 3, 3);
+    if (got < num_samples)
+        errx(1, "Only got %zi out of required %zi.", got, num_samples);
 
-    if (FULL_LENGTH - start < LENGTH)
-        errx(1, "Only got %zi out of required %i.",
-             FULL_LENGTH - start, LENGTH);
-
-    const unsigned char * p = buffer + 3 * start;
-
-    for (int i = 0; i < LENGTH; ++i)
-        samples[i] = get18(p + i * 3);
+    for (size_t i = 0; i < num_samples; ++i)
+        samples[i] = get18(best + i * 3);
 }
 
 
-int main (int argc, const char ** argv)
+int main (int argc, char * const argv[])
 {
-    if (argc != 3)
-        errx(1, "Usage: <freq> <filename>.");
-
-    unsigned freq = strtoul(argv[1], NULL, 0);
-
     // Slurp a truckload of data.
-    unsigned char * buffer = usb_slurp_channel(BUFFER_SIZE, XMIT_IR|1, freq, 0);
+    size_t bytes;
+    size_t num_samples = 22;
+    unsigned char * buffer = slurp_getopt(
+        argc, argv, SLURP_OPTS, NULL, XMIT_IR|1, &num_samples, &bytes);
 
-    float * samples = xmalloc(LENGTH * sizeof * samples);
-    load_samples(buffer, samples);
+    float * samples = xmalloc(num_samples * sizeof * samples);
+    load_samples(samples, buffer, bytes, num_samples);
     free(buffer);
 
-    spectrum(argv[2], samples, LENGTH, false);
+    spectrum(optind < argc ? argv[optind] : NULL, samples, num_samples, false);
     free(samples);
 
     return 0;
