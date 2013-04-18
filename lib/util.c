@@ -80,7 +80,7 @@ void dump_path(const char * path, const void * data, size_t len)
 
 
 size_t best_lfsr(const unsigned char * restrict * restrict buffer,
-                 size_t bytes, int sample_size)
+                 size_t num_samples, size_t bytes, int sample_size)
 {
     uint32_t run[sample_size];
     const unsigned char * bad[sample_size];
@@ -115,12 +115,16 @@ size_t best_lfsr(const unsigned char * restrict * restrict buffer,
 
     *buffer = best + 31 * sample_size + 1;
     bestsize -= 63 * sample_size;
-    return bestsize / sample_size;
+    bestsize /= sample_size;
+    if (bestsize < num_samples)
+        errx(1, "Only got %zi out of required %zi samples.",
+             bestsize, num_samples);
+    return bestsize;
 }
 
 
 size_t best_flag(const unsigned char * restrict * restrict buffer,
-                 size_t bytes, int sample_size)
+                 size_t num_samples, size_t bytes, int sample_size)
 {
     assert(sample_size <= bytes);
     size_t last_bad = sample_size - 1;
@@ -138,6 +142,9 @@ size_t best_flag(const unsigned char * restrict * restrict buffer,
     assert(bestsize % sample_size == 0);
     bestsize = bestsize / sample_size + 1;
     *buffer += best + 1 - sample_size;
+    if (bestsize < num_samples)
+        errx(1, "Only got %zi out of required %zi samples.",
+             bestsize, num_samples);
     return bestsize;
 }
 

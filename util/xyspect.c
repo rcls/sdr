@@ -15,10 +15,7 @@
 static void load_samples(const unsigned char * buffer, complex float * samples,
                          size_t num_samples, size_t bytes)
 {
-    size_t len = best_lfsr(&buffer, bytes, 4);
-
-    if (len < num_samples)
-        errx(1, "Only got %zd wanted %zd.\n", len, num_samples);
+    best_lfsr(&buffer, num_samples, bytes, 4);
 
     double xx_sum = 0;
     double xx_sum_sq = 0;

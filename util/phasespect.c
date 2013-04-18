@@ -16,9 +16,7 @@ static void load_samples(float * samples, const unsigned char * buffer,
     // Check for overrun flags.  Also chuck at least 4096 samples to let the
     // filters settle.
     buffer += 3 * 4096;
-    size_t got = best_flag(&buffer, bytes - 3 * 4096, 3);
-    if (got < num_samples)
-        errx(1, "Only got %zi expected %zi.", got, num_samples);
+    best_flag(&buffer, num_samples, bytes - 3 * 4096, 3);
 
     samples[0] = 0;              // The windowing kills the first sample anyway.
     int last = buffer[0] + buffer[1] * 256 + buffer[2] * 65536;

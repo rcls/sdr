@@ -22,9 +22,6 @@ static inline int get14(const unsigned char * p)
 static void load_samples(float * samples, const unsigned char * buffer,
                          size_t num_samples)
 {
-    if (num_samples < 2 * BURST_SIZE)
-        errx(1, "Not enough data.");
-
     const unsigned char * p = buffer + num_samples * 2 - BURST_SIZE * 4;
     if (memcmp(p, p + BURST_SIZE * 2, BURST_SIZE * 2) != 0)
         errx(1, "Copies do not match.");
@@ -50,7 +47,7 @@ int main (int argc, char * const argv[])
     usb_close();
 
     const unsigned char * best = buffer;
-    num_samples = best_flag(&best, bytes, 2);
+    best_flag(&best, BURST_SIZE * 2, bytes, 2);
 
     float * samples = xmalloc(BURST_SIZE * sizeof * samples);
     load_samples(samples, best, num_samples);

@@ -19,9 +19,7 @@ static void load_samples(float * samples, const unsigned char * buffer,
                          size_t bytes, size_t num_samples)
 {
     const unsigned char * best = buffer + 4096 * 3;
-    size_t got = best_flag(&best, bytes - 4096 - 3, 3);
-    if (got < num_samples)
-        errx(1, "Only got %zi out of required %zi.", got, num_samples);
+    best_flag(&best, num_samples, bytes - 4096 - 3, 3);
 
     for (size_t i = 0; i < num_samples; ++i)
         samples[i] = get18(best + i * 3);
