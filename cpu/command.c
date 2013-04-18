@@ -221,14 +221,6 @@ static unsigned dectou(const char * h)
 }
 
 
-void command_write(char * params)
-{
-    unsigned r = hextou(params);
-    unsigned v = hextou(skipstring(params));
-    write_reg(r, v);
-}
-
-
 static void read_registers(unsigned reg, unsigned count,
                            unsigned char * restrict result)
 {
@@ -250,6 +242,24 @@ static void read_registers(unsigned reg, unsigned count,
             SSI->dr = (reg + i + leadin) * 512;
     }
 }
+
+
+void command_write(char * params)
+{
+    const char * p = params;
+    unsigned r = hextou(p);
+    p = skipstring(p);
+    unsigned v = hextou(p);
+    p = skipstring(p);
+    if (*p) {
+        unsigned mask = hextou(p);
+        unsigned char old;
+        read_registers(r, 1, &old);
+        v = (v & mask) | (old & ~mask);
+    }
+    write_reg(r, v);
+}
+
 
 
 void command_read(char * params)

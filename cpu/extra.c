@@ -15,19 +15,25 @@ void command_poop(char * line)
 
 static const command_t commands[] = {
     { "poop", command_poop },
+    { "wr", command_write },
     { NULL, NULL }
 };
 
 #define flash_vtable ((const void * const *) 0x800)
 
 
-static __attribute__((noreturn)) void start(void)
+void run(void)
 {
-    printf("Welcome, extra\n");
     while (1)
         command(commands, flash_vtable[38]);
 }
 
+
+static __attribute__((noreturn)) void start(void)
+{
+    printf("Welcome, extra\n");
+    run();
+}
 
 static void dummy_int(void)
 {
