@@ -253,11 +253,12 @@ unsigned char * slurp_getopt(
     int argc, char * const argv[], const char * optstring, int (*cb) (int),
     int source, size_t * restrict num_samples, size_t * restrict bytes)
 {
-    long channel = source & 3;
     const char * frequency = NULL;
     long gain = -1;
-    long rate = -1;
+    long period = -1;
     long decay = -1;
+    const char * inpath = NULL;
+    long channel = source & 3;
     source &= ~3;
 
     static int sample_sizes[8] = { 3, 2, 4, 3, 4, 2, 1, 1 };
@@ -279,8 +280,8 @@ unsigned char * slurp_getopt(
         case 'g':
             gain = intarg();
             break;
-        case 'r':
-            rate = intarg();
+        case 'p':
+            period = intarg();
             break;
         case 'd':
             decay = intarg();
@@ -290,6 +291,9 @@ unsigned char * slurp_getopt(
             break;
         case 's':
             source = intarg();
+            break;
+        case 'i':
+            inpath = optarg;
             break;
         case 0:
         case -1:
@@ -302,13 +306,44 @@ unsigned char * slurp_getopt(
     }
     while (c != -1);
 
+    if (inpath != NULL) {
+        unsigned char * buffer = NULL;
+        size_t offset = 0;
+        size_t size = 0;
+        slurp_path(inpath, &buffer, &offset, &size);
+        *bytes = offset;
+        return buffer;
+    }
+
     usb_open();
 
     // Turn off data.
     usb_xmit_idle();
 
-    if (rate >= 0)
-        usb_write_reg(REG_SAMPLE_RATE, rate);
+    if (cb)
+        cb(0);
+
+    bool mhz_200 = false;
+    if (period >= 0) {
+        mhz_200 = (period % 4) != 0;
+        int cycle = mhz_200 ? 5 : 4;
+        int count = period / cycle;
+        if ((source & 0x1c) == XMIT_SAMPLE) {
+            if (count * cycle != period)
+                errx(1, "Period should be multiple of 4 or 5.");
+            count -= 1;
+            if (count < 39 || count > 255)
+                errx(1, "Gives count = %i outside of 39...255.", count);
+            usb_write_reg(REG_SAMPLE_RATE, count);
+        }
+        else if (count != 1)
+            errx(1, "Period should be 4 or 5 when source is not the sampler.");
+        if (mhz_200) {
+            usb_printf("wr %x %x %x\n", REG_FLASH, CLOCK_SELECT, CLOCK_SELECT);
+            usleep(100000);
+        }
+
+    }
 
     if (gain >= 0)
         usb_printf("gain %li %li\n", channel, gain);
@@ -348,6 +383,8 @@ unsigned char * slurp_getopt(
     usb_printf("\n");
     fflush(usb_stream);
     usb_read(NULL, 1);
+    if (mhz_200)
+        usb_printf("wr %x 0 %x\n", REG_FLASH, CLOCK_SELECT);
 
     return buffer;
 }

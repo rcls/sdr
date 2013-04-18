@@ -30,12 +30,9 @@ static size_t SIZE = 1<<23;
 
 #define UNLIKELY(b) __builtin_expect(b, 0)
 
-static const char * inpath;
 static const char * dumppath;
 static const char * outpath;
 static const char * jitterpath;
-static int period = 205;
-static int wander_decay = -1;
 
 static void fftf_once(fftwf_plan plan)
 {
@@ -115,8 +112,7 @@ static size_t peak_power(float * restrict out, size_t size)
             }
     }
 
-    fprintf(stderr, "Peak at %zi, %f Hz\n",
-            peak_index, peak_index * 1e9 / period / size);
+    fprintf(stderr, "Peak at %zi\n", peak_index);
 
     return peak_index;
 }
@@ -282,114 +278,42 @@ static void create_image(FILE * outfile,
 }
 
 
-static unsigned char * capture(size_t len)
+static int parse_opt(int c)
 {
-    int clock;
-    int count;
-    if (period % 4 == 0) {
-        clock = 0;
-        count = period / 4 - 1;
+    switch (c) {
+    case 'o':
+        outpath = optarg;
+        break;
+    case 'j':
+        jitterpath = optarg;
+        break;
+    case 'D':
+        dumppath = optarg;
+        break;
+    case 0:
+        // Callback pre-slurp.
+        usb_printf("adc reset\n");
+        // Now set up ADC: Low gain, hi perf 1, hi perf 2, offset params, offset
+        // on
+        usb_printf("adc 2510 0303 4a01 cf00 3de0\n");
+    default:
+        return c;
     }
-    else if (period % 5 == 0) {
-        clock = CLOCK_SELECT;
-        count = period / 5 - 1;
-    }
-    else
-        errx(1, "Period must be a multiple of 4 or 5 (nanoseconds)\n");
-
-    if (count < 39 || count > 255)
-        errx(1, "Gives count = %i outside of 39...255", count);
-
-    fprintf(stderr, "Capturing @ %ins, %iMHz / %i\n",
-            period, clock ? 200 : 250, count + 1);
-
-    usb_open();
-
-    // Reset the ADC and clock if necessary.  Set up the sample counter.
-    usb_write_reg(REG_FLASH, clock|FLASH_CS);
-    usleep(100000);
-    usb_printf("adc reset\n");
-
-    // Now set up ADC:  Low gain, hi perf 1, hi perf 2, offset params, offset on
-    usb_printf("adc 2510 0303 4a01 cf00 3de0\n");
-
-    // Slurp the sampler in turbo mode.
-    unsigned char * result = xmalloc(len * 2);
-    usb_write_reg(REG_SAMPLE_DECAY_LO, wander_decay);
-    usb_write_reg(REG_SAMPLE_DECAY_HI, wander_decay >> 8);
-    usb_write_reg(REG_XMIT, XMIT_TURBO|XMIT_SAMPLE);
-
-    usb_slurp(result, len);
-
-    usb_write_reg(REG_XMIT, XMIT_LOW_LATENCY|XMIT_CPU_SSI);
-    usb_flush();
-    usb_printf("\n");
-    usb_read(NULL, 1);
-
-    // Back to normal parameters, in case we down clocked.
-    usb_write_reg(REG_FLASH, FLASH_CS);
-
-    usb_close();
-    return result;
-}
-
-
-static void parse_opts(int argc, char ** argv)
-{
-    while (1)
-        switch (getopt(argc, argv, "i:j:o:d:p:n:w:")) {
-        case 'i':
-            inpath = optarg;
-            break;
-        case 'o':
-            outpath = optarg;
-            break;
-        case 'n':
-            SIZE = strtoul(optarg, NULL, 0);
-            if (SIZE < 1048576 || (SIZE * 32) / 32 != SIZE || (SIZE & 1))
-                errx(1, "Number of samples invalid");
-            break;
-        case 'j':
-            jitterpath = optarg;
-            break;
-        case 'd':
-            dumppath = optarg;
-            break;
-        case 'p':
-            period = strtoul(optarg, NULL, 0);
-            break;
-        case 'w':
-            wander_decay = strtol(optarg, NULL, 0);
-            break;
-        case -1:
-            return;
-        default:
-            errx(1, "Bad option.\n");
-        }
+    return 0;
 }
 
 
 int main(int argc, char ** argv)
 {
-    parse_opts(argc, argv);
+    size_t bufsize;
+    unsigned char * buffer = slurp_getopt(
+        argc, argv, SLURP_OPTS "o:j:D:", parse_opt,
+        XMIT_TURBO|XMIT_SAMPLE, &SIZE, &bufsize);
 
     fftwf_init_threads();
     fftwf_plan_with_nthreads(4);
 
     /* freq_domain_filter_width =  */
-
-    const unsigned char * buffer = NULL;
-    size_t bufsize = 0;
-    if (inpath != NULL) {
-        size_t sz = 0;
-        unsigned char * b = NULL;
-        slurp_path(inpath, &b, &bufsize, &sz);
-        buffer = b;
-    }
-    else {
-        bufsize = SIZE * 2 + USB_SLOP;
-        buffer = capture(bufsize);
-    }
 
     if (dumppath != NULL) {
         dump_path(dumppath, buffer, bufsize);
@@ -398,8 +322,7 @@ int main(int argc, char ** argv)
     }
 
     const unsigned char * good = buffer;
-    if (best_lfsr (&good, bufsize, 2) < SIZE)
-        errx(1, "Did not get sufficient contiguous data.");
+    best_lfsr(&good, SIZE, bufsize, 2);
 
     // Read in the data and find the used codes.
     unsigned short * in = xmalloc(SIZE * sizeof * in);

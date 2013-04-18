@@ -35,7 +35,7 @@ void usb_echo(void);
 // Read until idle.
 void usb_flush(void);
 
-#define SLURP_OPTS "c:f:g:r:d:"
+#define SLURP_OPTS "i:c:f:g:r:d:"
 
 unsigned char * slurp_getopt(
     int argc, char * const argv[], const char * optstring, int (*cb)(int),
