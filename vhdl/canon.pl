@@ -13,6 +13,15 @@ my $nl = new Verilog::Netlist;
 
 $nl->read_file(filename=>$ARGV[0]);
 
+my %buf_rename;
+
+sub buf_rename($)
+{
+    my ($a) = @_;
+    return $buf_rename{$a}  if  exists $buf_rename{$a};
+    return $a;
+}
+
 #$nl->link();
 
 #$nl->dump;
@@ -29,11 +38,11 @@ sub reorder_lut($)
     my $output;
     for my $X ($C->pins) {
         if ($X->name eq 'O') {
-            $output = $X->netname;
+            $output = buf_rename $X->netname;
             next;
         }
         $X->name =~ /^(?:ADR|I)(\d)$/  or  die;
-        $pins{$X->netname} = $1 + 0;
+        $pins{buf_rename $X->netname} = $1 + 0;
         #print $1, " ", $X->netname, "\n";
     }
     my @pins = sort keys %pins;
@@ -67,10 +76,46 @@ sub output($)
     print "  ", $C->submodname, " #(\n";
     print "    ", $C->params, ")\n";
     print "  ", $C->name, "(\n";
-    print "  ", $_->name, "(", $_->netname, ")\n" for  $C->pins_sorted;
+    print "  ", $_->name, "(", buf_rename $_->netname, ")\n"
+        for  $C->pins_sorted;
     print "  );\n";
 }
 
+
+my %buf_links;
+
+
+for my $M ($nl->top_modules_sorted) {
+    for my $C ($M->cells_sorted) {
+        next  unless  $C->submodname =~ /^(?:X_)BUF$/;
+        my $input;
+        my $output;
+        for my $X ($C->pins) {
+            $output = $X->netname  if  $X->name eq 'O';
+            $input = $X->netname  if  $X->name eq 'I';
+        }
+        die unless defined $input;
+        die unless defined $output;
+        $buf_links{$output} = $input;
+    }
+}
+
+sub transitive_buf_link($)
+{
+    my ($a) = @_;
+    my $b = $a;
+    while (1) {
+        return $b  if  !exists $buf_links{$b};
+        $b = $buf_links{$b};
+        return $b  if  !exists $buf_links{$b};
+        $b = $buf_links{$b};
+        die  if  !exists $buf_links{$a};
+        $a = $buf_links{$a};
+        die  if  $a eq $b;
+    }
+}
+
+$buf_rename{$_} = transitive_buf_link $_  for  keys %buf_links;
 
 for my $M ($nl->top_modules_sorted) {
     for my $C ($M->cells_sorted) {
