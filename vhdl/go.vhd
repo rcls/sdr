@@ -428,9 +428,16 @@ begin
   begin
     wait until rising_edge(clk_main);
     if phase_strobe = '1' then
-      xy_data(14 downto 0) <= unsigned(xx_buf(35 downto 21));
-      xy_data(15) <= '0';
-      xy_data(30 downto 16) <= unsigned(yy_buf(35 downto 21));
+      case pll_decay(5 downto 4) is
+        when "00" =>
+          xy_data(30 downto 0) <= unsigned(xx_buf(35 downto 5));
+        when "01" =>
+          xy_data(30 downto 0) <= unsigned(yy_buf(35 downto 5));
+        when others =>
+          xy_data(14 downto 0) <= unsigned(xx_buf(35 downto 21));
+          xy_data(15) <= '0';
+          xy_data(30 downto 16) <= unsigned(yy_buf(35 downto 21));
+      end case;
       xy_last <= xx_buf_last;
     end if;
     xy_strobe <= phase_strobe;
