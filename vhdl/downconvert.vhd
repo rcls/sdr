@@ -102,9 +102,9 @@ begin
 
     -- Pre-add.
     if minus(5) = '1' then
-      trig <= offset_5 + main_5;
-    else
       trig <= offset_5 - main_5;
+    else
+      trig <= offset_5 + main_5;
     end if;
     data_6 <= data_5;
 
