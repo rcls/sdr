@@ -32,7 +32,7 @@ sub reorder_lut($)
             $output = $X->netname;
             next;
         }
-        $X->name =~ /^I(\d)$/  or  die;
+        $X->name =~ /^(?:ADR|I)(\d)$/  or  die;
         $pins{$X->netname} = $1 + 0;
         #print $1, " ", $X->netname, "\n";
     }
@@ -74,7 +74,7 @@ sub output($)
 
 for my $M ($nl->top_modules_sorted) {
     for my $C ($M->cells_sorted) {
-        if ($C->submodname =~ /^LUT[2-6]$/) {
+        if ($C->submodname =~ /^(?:X_)?LUT[2-6]$/) {
             reorder_lut $C;
         }
         else {
