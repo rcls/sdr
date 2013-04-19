@@ -6,8 +6,8 @@ all: vhdl/sinrom.vhd phasedetectsim pllsim $(BINARIES) cpu
 
 DEP=-MMD -MP -MF.deps/$(subst /,:,$@).d
 
-CFLAGS=-O3 -flto -ffast-math -msse2 -Wall -Werror -std=gnu99 -g -I. $(DEP) -fweb -fopenmp
-LDFLAGS=$(CFLAGS) -fwhole-program
+CFLAGS=-O3 -flto -ffast-math -msse2 -Wall -Werror -std=gnu99 -g -I. $(DEP) -fweb -fopenmp -fuse-linker-plugin
+LDFLAGS=$(CFLAGS)
 
 LDLIBS=-lfftw3f_threads -lfftw3f -lusb-1.0 -lm
 

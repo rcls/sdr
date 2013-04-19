@@ -15,9 +15,9 @@ clean:
 
 CC=arm-linux-gnu-gcc
 LD=$(CC)
-LDFLAGS=-nostdlib -Wl,--build-id=none
+LDFLAGS=-nostdlib -Wl,--build-id=none -fuse-linker-plugin
 OBJCOPY=arm-linux-gnu-objcopy
-CFLAGS=-Os -g -flto -fwhole-program -std=gnu11 -ffreestanding \
+CFLAGS=-Os -g -flto -std=gnu11 -ffreestanding \
 	-mcpu=cortex-m3 -mthumb -MMD -MP -MF.deps/$@.d \
 	-fno-common -fdata-sections -Wall -Werror
 
