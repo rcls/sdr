@@ -25,8 +25,12 @@ PCB*.save
 spect/
 /util/burstspec
 /util/command
+/util/dump
 /util/irspec
+/util/mlt3-detect
 /util/monwrite
+/util/spectrum
+/util/spectrum-reduce
 /util/phasespect
 /util/spiflash
 /util/xyspect

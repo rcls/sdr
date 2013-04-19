@@ -1,7 +1,7 @@
 
-SAMPBIN=dump spectrum spectrum-reduce mlt3-detect
-UTILBIN=phasespect irspec burstspec spiflash command monwrite xyspect
-BINARIES=$(SAMPBIN:%=sample/%) $(UTILBIN:%=util/%)
+UTILBIN=dump spectrum spectrum-reduce mlt3-detect \
+	phasespect irspec burstspec spiflash command monwrite xyspect
+BINARIES=$(UTILBIN:%=util/%)
 all: vhdl/sinrom.vhd phasedetectsim pllsim $(BINARIES) cpu
 
 DEP=-MMD -MP -MF.deps/$(subst /,:,$@).d
@@ -21,7 +21,7 @@ fir: fir.hs
 
 .PHONY: clean all
 clean:
-	rm -f *.o */*.o  $(SAMPBIN:%=sample/%) $(UTILBIN:%=util/%)
+	rm -f *.o */*.o $(UTILBIN:%=util/%)
 
 .PHONY: cpu
 cpu:
