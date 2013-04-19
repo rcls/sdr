@@ -190,21 +190,21 @@ void spectrum(const char * path, float * samples, size_t length, bool preserve)
     fftwf_execute(plan);
     fftwf_destroy_plan(plan);
 
-    data[0] = 0;                        // Not interesting.
+    //data[0] = 0;                        // Not interesting.
 
     size_t half = length / 2;
     if (length % 2 == 0) {
-        // Leave the constant and last cosine items as is.
         // There are implicitly zeros before and after the sine ranges.
-        hp_range(data, 1, half, 0, data[half]);
+        hp_range(data, 0, half + 1, data[1], data[half - 1]);
         hp_range(data, half + 1, length, 0, 0);
     }
     else {
         // The end of the cosine range and the start of the sine range
         // implicitly wrap.
-        hp_range(data, 1, half, 0, data[half - 1]);
+        hp_range(data, 0, half, data[1], data[half - 1]);
         hp_range(data, half + 1, length, -data[half + 1], 0);
     }
+    data[0] = data[0] * data[0];
 #pragma omp parallel for
     for (size_t i = 1; i < half; ++i)
         data[i] = data[i] * data[i] + data[length - i] * data[length - i];
