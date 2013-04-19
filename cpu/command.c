@@ -402,7 +402,7 @@ static void tune_report(int channel, int audio)
     printf("%d%c %9d Hz, gain = %d,%d * 6dB, decay = %d\n",
            channel, audio == channel ? '*' : ':',
            hertz, response.c[3] & 15, (response.c[3] >> 4) & 15,
-           response.c[0]);
+           response.c[0] & 15);
 }
 
 
