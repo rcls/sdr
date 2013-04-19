@@ -14,6 +14,7 @@
 #define REG_SAMPLE_DECAY_LO 7
 #define REG_SAMPLE_DECAY_HI 8
 #define REG_PLL_DECAY 9
+#define REG_XY_SEL 9
 #define REG_AUDIO_CHANNEL 10
 
 #define REG_PLL_FREQ 32
@@ -42,5 +43,12 @@
 #define FLASH_CS 2
 #define FLASH_CLK 4
 #define CLOCK_SELECT 128
+#define BURST_START 64
+
+#define REG_PLL_DECAY_MASK 15
+#define REG_XY_SEL_MASK 48
+#define REG_XY_SEL_X 0
+#define REG_XY_SEL_Y 16
+#define REG_XY_SEL_XY 32
 
 #endif

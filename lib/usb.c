@@ -242,6 +242,11 @@ void usb_write_reg(unsigned reg, unsigned val)
 }
 
 
+void usb_write_mask(unsigned reg, unsigned val, unsigned mask)
+{
+    fprintf(usb_stream, "wr %x %x %x\n", reg, val & 255, mask & 255);
+}
+
 void usb_xmit_idle(void)
 {
     usb_write_reg(REG_XMIT, XMIT_CPU_SSI|XMIT_PUSH);
@@ -360,7 +365,7 @@ unsigned char * slurp_getopt(
 
     usb_echo();
 
-    if (*num_samples < 25)
+    if (*num_samples < 32)
         *num_samples = 1 << *num_samples;
 
     *bytes = *num_samples * sample_sizes[(source >> 2) & 7];

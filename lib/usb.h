@@ -22,6 +22,7 @@ void usb_send_bytes(const void * data, size_t len);
 void usb_printf(const char * format, ...) __attribute__((format(printf,1,2)));
 
 void usb_write_reg(unsigned reg, unsigned val);
+void usb_write_mask(unsigned reg, unsigned val, unsigned mask);
 
 // Set to idle (actually, the cpu ssi stream).
 void usb_xmit_idle(void);
@@ -35,7 +36,7 @@ void usb_echo(void);
 // Read until idle.
 void usb_flush(void);
 
-#define SLURP_OPTS "i:c:f:g:r:d:"
+#define SLURP_OPTS "c:f:g:p:d:n:i:"
 
 unsigned char * slurp_getopt(
     int argc, char * const argv[], const char * optstring, int (*cb)(int),
