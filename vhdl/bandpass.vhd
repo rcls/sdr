@@ -266,12 +266,12 @@ begin
     -- and the output strobe.  This makes sure the strobe does not get stuck
     -- high while we're disabled.
     wait until rising_edge(clk);
-    strobe <= '0';
     if state = state_max then
       state <= 0;
       strobe <= '1';
-    elsif enable = '1' then
+    else
       state <= state + 1;
+      strobe <= '0';
     end if;
   end process;
 
