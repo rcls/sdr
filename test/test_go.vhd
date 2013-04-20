@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.math_real.all;
 
 library work;
 use work.all;
@@ -9,11 +10,15 @@ entity test_go is
 end test_go;
 
 architecture test_go of test_go is
-   signal usb_c : std_logic_vector(7 downto 0);
-   signal reclk_p, reclk_n : std_logic;
+   signal usb_c : std_logic_vector(7 downto 0) := "111ZZZ11";
+   signal reclk_p : std_logic := '0';
+   signal reclk_n : std_logic;
+
+   signal adc_p : std_logic_vector(6 downto 0) := "1000000";
+   signal adc_n : std_logic_vector(6 downto 0) := "0111111";
 begin
   reclk_n <= not reclk_p;
-  usb_c <= "111ZZZ11";
+  adc_n <= not adc_p;
 
   g : entity work.go port map (
     adc_p => "0000000",
@@ -45,8 +50,8 @@ begin
 
     cpu_ssifss => '1',
     cpu_ssiclk => '1',
-    cpu_ssirx => '1',
-    cpu_ssitx => open,
+    cpu_ssirx => open,
+    cpu_ssitx => '1',
 
     spartan_m0 => '1',
     spartan_m1 => '1',
@@ -57,10 +62,13 @@ begin
     clkin125_en => open);
 
   process
+   variable seed1, seed2 : positive := 1;
+   variable rand : real;
   begin
-    reclk_p <= '0';
     wait for 2ns;
-    reclk_p <= '1';
-    wait for 2ns;
+    reclk_p <= not reclk_p;
+
+    uniform(seed1, seed2, rand);
+    adc_p <= std_logic_vector(to_unsigned(integer(trunc(rand * 128.0)), 7));
   end process;
 end;
